@@ -72,7 +72,7 @@ export class Invoice {
   paidAt: Date;
 
   @Column({ default: 'draft' })
-  status: 'draft' | 'submitted' | 'paid' | 'cancelled' | 'overdue';
+  status: 'draft' | 'submitted' | 'validated' | 'paid' | 'cancelled' | 'overdue';
 
   @Column({ name: 'payment_status', default: 'unpaid' })
   paymentStatus: 'unpaid' | 'partially_paid' | 'paid';

@@ -20,11 +20,11 @@ export class Payment {
   id: string;
 
   @ApiProperty({ description: 'Numéro du paiement (auto-généré)' })
-  @Column({ unique: true, length: 50 })
+  @Column({ name: 'payment_number', unique: true, length: 50 })
   paymentNumber: string;
 
   @ApiProperty({ description: 'Date du paiement' })
-  @Column({ type: 'date' })
+  @Column({ name: 'payment_date', type: 'date' })
   paymentDate: Date;
 
   @ApiProperty({ description: 'Montant total du paiement' })
@@ -32,30 +32,30 @@ export class Payment {
   amount: number;
 
   @ApiProperty({ description: 'Montant alloué aux factures' })
-  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
+  @Column({ name: 'allocated_amount', type: 'decimal', precision: 15, scale: 2, default: 0 })
   allocatedAmount: number;
 
   @ApiProperty({ description: 'Montant non alloué (disponible)' })
-  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
+  @Column({ name: 'unallocated_amount', type: 'decimal', precision: 15, scale: 2, default: 0 })
   unallocatedAmount: number;
 
   @ApiProperty({ description: 'Devise (XOF par défaut)' })
-  @Column({ length: 3, default: 'XOF' })
+  @Column({ name: 'currency', length: 3, default: 'XOF' })
   currency: string;
 
   @ApiProperty({ description: 'Mode de paiement', enum: ['cash', 'bank_transfer', 'mobile_money', 'check', 'card'] })
-  @Column({
+  @Column({ name: 'payment_method',
     type: 'enum',
     enum: ['cash', 'bank_transfer', 'mobile_money', 'check', 'card'],
   })
   paymentMethod: string;
 
   @ApiProperty({ description: 'Référence du paiement (numéro de transaction, chèque, etc.)', required: false })
-  @Column({ length: 100, nullable: true })
+  @Column({ name: 'reference', length: 100, nullable: true })
   reference: string;
 
   @ApiProperty({ description: 'Type de transaction', enum: ['customer', 'supplier'] })
-  @Column({
+  @Column({ name: 'party_type',
     type: 'enum',
     enum: ['customer', 'supplier'],
     default: 'customer',
@@ -63,15 +63,15 @@ export class Payment {
   partyType: string;
 
   @ApiProperty({ description: 'ID du client ou fournisseur' })
-  @Column({ type: 'uuid' })
+  @Column({ name: 'party_id', type: 'uuid' })
   partyId: string;
 
   @ApiProperty({ description: 'ID de la société' })
-  @Column({ type: 'uuid' })
+  @Column({ name: 'company_id', type: 'uuid' })
   companyId: string;
 
   @ApiProperty({ description: 'Statut du paiement', enum: ['draft', 'submitted', 'validated', 'cancelled'] })
-  @Column({
+  @Column({ name: 'status',
     type: 'enum',
     enum: ['draft', 'submitted', 'validated', 'cancelled'],
     default: 'draft',
@@ -86,35 +86,35 @@ export class Payment {
   allocations: PaymentAllocation[];
 
   @ApiProperty({ description: 'Remarques sur le paiement', required: false })
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'remarks', type: 'text', nullable: true })
   remarks: string;
 
   @ApiProperty({ description: 'ID de l\'utilisateur créateur' })
-  @Column({ type: 'uuid' })
+  @Column({ name: 'created_by', type: 'uuid' })
   createdBy: string;
 
   @ApiProperty({ description: 'Date de soumission', required: false })
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: 'submitted_at', type: 'timestamp', nullable: true })
   submittedAt: Date;
 
   @ApiProperty({ description: 'ID de l\'utilisateur validateur', required: false })
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ name: 'submitted_by', type: 'uuid', nullable: true })
   submittedBy: string;
 
   @ApiProperty({ description: 'Date de création' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @ApiProperty({ description: 'Date de dernière mise à jour' })
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
   @ApiProperty({ description: 'ID Frappe pour synchronisation', required: false })
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'frappe_id', type: 'varchar', length: 255, nullable: true })
   frappeId?: string;
 
   @ApiProperty({ description: 'Date de dernière synchronisation avec Frappe', required: false })
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: 'last_sync_at', type: 'timestamp', nullable: true })
   lastSyncAt?: Date;
 
   @ApiProperty({ description: 'Version pour optimistic locking' })

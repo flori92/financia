@@ -21,6 +21,7 @@ import { HealthController } from './health/health.controller';
 import { AppController } from './app.controller';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
+import { TreasuryModule } from './treasury/treasury.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { AuditModule } from './audit/audit.module';
     CompaniesModule,
     InvoicesModule,
     PaymentsModule,
+    TreasuryModule,
     MobileMoneyModule,
     AccountingModule,
     SyncModule,

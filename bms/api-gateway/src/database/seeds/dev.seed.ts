@@ -171,13 +171,28 @@ export async function runDevSeed(dataSource: DataSource) {
       // Paiement soumis pour validation
       await queryRunner.query(`
         INSERT INTO payments (
-          paymentNumber, paymentDate, amount, allocatedAmount, unallocatedAmount, currency,
-          paymentMethod, reference, partyType, partyId, companyId, status, createdBy
+          payment_number, payment_date, amount, allocated_amount, unallocated_amount, currency,
+          payment_method, reference, party_type, party_id, company_id, status, created_by
         )
         VALUES (
           'PAY-DEV-TA-0001', CURRENT_DATE - INTERVAL '1 day', 150000, 0, 150000, 'XOF',
           'bank_transfer', 'VIR-TA-001', 'customer', '00000000-0000-0000-0000-000000000000', $1, 'submitted', $2
-        );
+        )
+        ON CONFLICT (payment_number) DO NOTHING;
+      `, [company2.id, accountant.id]);
+
+      // Dépenses (fournisseurs) pour matérialiser des sorties de trésorerie
+      await queryRunner.query(`
+        INSERT INTO payments (
+          payment_number, payment_date, amount, allocated_amount, unallocated_amount, currency,
+          payment_method, reference, party_type, party_id, company_id, status, created_by
+        )
+        VALUES 
+          ('SUP-DEV-TA-0001', CURRENT_DATE - INTERVAL '3 days', 85000, 0, 85000, 'XOF',
+           'cash', 'F-ACH-TA-001', 'supplier', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2),
+          ('SUP-DEV-TA-0002', CURRENT_DATE - INTERVAL '12 days', 120000, 0, 120000, 'XOF',
+           'bank_transfer', 'F-ACH-TA-002', 'supplier', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2)
+        ON CONFLICT (payment_number) DO NOTHING;
       `, [company2.id, accountant.id]);
     }
 
@@ -223,13 +238,28 @@ export async function runDevSeed(dataSource: DataSource) {
       // Paiement payé (pour KPIs encaissements)
       await queryRunner.query(`
         INSERT INTO payments (
-          paymentNumber, paymentDate, amount, allocatedAmount, unallocatedAmount, currency,
-          paymentMethod, reference, partyType, partyId, companyId, status, createdBy
+          payment_number, payment_date, amount, allocated_amount, unallocated_amount, currency,
+          payment_method, reference, party_type, party_id, company_id, status, created_by
         )
         VALUES (
           'PAY-DEV-GS-0001', CURRENT_DATE - INTERVAL '2 days', 118000, 0, 118000, 'XOF',
           'cash', 'CASH-GS-001', 'customer', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2
-        );
+        )
+        ON CONFLICT (payment_number) DO NOTHING;
+      `, [company3.id, entrepreneur.id]);
+
+      // Dépenses (fournisseurs) pour matérialiser des sorties de trésorerie
+      await queryRunner.query(`
+        INSERT INTO payments (
+          payment_number, payment_date, amount, allocated_amount, unallocated_amount, currency,
+          payment_method, reference, party_type, party_id, company_id, status, created_by
+        )
+        VALUES 
+          ('SUP-DEV-GS-0001', CURRENT_DATE - INTERVAL '6 days', 64000, 0, 64000, 'XOF',
+           'cash', 'F-ACH-GS-001', 'supplier', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2),
+          ('SUP-DEV-GS-0002', CURRENT_DATE - INTERVAL '20 days', 45000, 0, 45000, 'XOF',
+           'mobile_money', 'F-ACH-GS-002', 'supplier', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2)
+        ON CONFLICT (payment_number) DO NOTHING;
       `, [company3.id, entrepreneur.id]);
     }
 
@@ -237,25 +267,30 @@ export async function runDevSeed(dataSource: DataSource) {
     console.log('Creating test OHADA accounts...');
     
     const accounts = [
-      { code: '101', name: 'Capital social', syscohada_class: 1, account_type: 'equity', is_group: false },
-      { code: '411', name: 'Clients', syscohada_class: 4, account_type: 'receivable', is_group: false },
-      { code: '401', name: 'Fournisseurs', syscohada_class: 4, account_type: 'payable', is_group: false },
-      { code: '512', name: 'Banque', syscohada_class: 5, account_type: 'bank', is_group: false },
-      { code: '571', name: 'Caisse', syscohada_class: 5, account_type: 'cash', is_group: false },
-      { code: '701', name: 'Ventes de marchandises', syscohada_class: 7, account_type: 'income', is_group: false },
-      { code: '601', name: 'Achats de marchandises', syscohada_class: 6, account_type: 'expense', is_group: false },
+      { code: '101', name: 'Capital social', syscohadaClass: 1, accountType: 'equity' },
+      { code: '411', name: 'Clients', syscohadaClass: 4, accountType: 'asset' },
+      { code: '401', name: 'Fournisseurs', syscohadaClass: 4, accountType: 'liability' },
+      { code: '512', name: 'Banque', syscohadaClass: 5, accountType: 'asset' },
+      { code: '571', name: 'Caisse', syscohadaClass: 5, accountType: 'asset' },
+      { code: '701', name: 'Ventes de marchandises', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '601', name: 'Achats de marchandises', syscohadaClass: 6, accountType: 'expense' },
     ];
 
-    for (const account of accounts) {
-      await queryRunner.query(`
-        INSERT INTO accounts (
-          account_number, account_name, syscohada_class, account_type, is_group, currency
-        )
-        VALUES ($1, $2, $3, $4, $5, 'XOF')
-        ON CONFLICT (account_number) DO NOTHING;
-      `, [account.code, account.name, account.syscohada_class, account.account_type, account.is_group]);
+    const accountCompanyId = (company1 && company1.id) || (company2 && company2.id) || (company3 && company3.id);
+    if (accountCompanyId) {
+      for (const account of accounts) {
+        await queryRunner.query(`
+          INSERT INTO accounts (
+            "accountNumber", "accountName", "syscohadaClass", "accountType", "currency", "companyId"
+          )
+          VALUES ($1, $2, $3, $4, 'XOF', $5)
+          ON CONFLICT ("accountNumber") DO NOTHING;
+        `, [account.code, account.name, account.syscohadaClass, account.accountType, accountCompanyId]);
+      }
+      console.log('✅ OHADA accounts created');
+    } else {
+      console.log('⚠️ Skipped OHADA accounts creation: no company available');
     }
-    console.log('✅ OHADA accounts created');
 
     // 5. Créer une demande NIF de test
     console.log('Creating test NIF request...');

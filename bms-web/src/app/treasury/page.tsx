@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Tabs } from "@/components/ui/Tabs";
 import { KpiCard } from "@/components/kpi/KpiCard";
 import { SimpleTable } from "@/components/table/SimpleTable";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { apiGet, getCompanyId } from "@/lib/api";
 
 const txColumns = [
@@ -48,29 +48,53 @@ export default function TreasuryPage() {
   }, []);
 
   const kpis = useMemo(() => {
-    const total = payments.reduce((s,p)=> s + (parseFloat(String(p.amount||0))||0), 0);
+    const asAmount = (v: any) => parseFloat(String(v||0))||0;
+    const inTotal = payments.filter(p=> (p.partyType||'customer')==='customer').reduce((s,p)=> s + asAmount(p.amount), 0);
+    const outTotal = payments.filter(p=> p.partyType==='supplier').reduce((s,p)=> s + asAmount(p.amount), 0);
+    const net = inTotal - outTotal;
     const now = Date.now();
-    const last90 = payments.filter(p => (now - new Date(p.paymentDate||p.createdAt||now).getTime()) <= 90*24*3600*1000)
-      .reduce((s,p)=> s + (parseFloat(String(p.amount||0))||0), 0);
+    const last90In = payments.filter(p => (p.partyType||'customer')==='customer' && (now - new Date(p.paymentDate||p.createdAt||now).getTime()) <= 90*24*3600*1000)
+      .reduce((s,p)=> s + asAmount(p.amount), 0);
+    const last90Out = payments.filter(p => p.partyType==='supplier' && (now - new Date(p.paymentDate||p.createdAt||now).getTime()) <= 90*24*3600*1000)
+      .reduce((s,p)=> s + asAmount(p.amount), 0);
+    const last90Net = last90In - last90Out;
     const reconcile = "—";
-    return { total, last90, reconcile };
+    return { inTotal, outTotal, net, last90Net, reconcile };
   }, [payments]);
 
   const chartData = useMemo(() => {
-    const byMonth: Record<string,{recettes:number,depenses:number}> = {};
+    const asAmount = (v: any) => parseFloat(String(v||0))||0;
+    const byMonth: Record<string,{recettes:number,depenses:number,net:number,solde:number}> = {};
     for (const p of payments) {
       const key = ym(p.paymentDate||p.createdAt||new Date());
-      byMonth[key] = byMonth[key]||{recettes:0,depenses:0};
-      byMonth[key].recettes += parseFloat(String(p.amount||0))||0;
+      byMonth[key] = byMonth[key]||{recettes:0,depenses:0,net:0,solde:0};
+      const amt = asAmount(p.amount);
+      if ((p.partyType||'customer')==='customer') {
+        byMonth[key].recettes += amt;
+      } else if (p.partyType==='supplier') {
+        byMonth[key].depenses += amt;
+      }
     }
-    return Object.entries(byMonth).sort(([a],[b])=>a.localeCompare(b)).map(([name,v])=>({ name, recettes: v.recettes, depenses: v.depenses }));
+    // calc net + solde cumulé
+    const entries = Object.entries(byMonth).sort(([a],[b])=>a.localeCompare(b));
+    let running = 0;
+    const out = entries.map(([name,v])=>{
+      const net = (v.recettes||0) - (v.depenses||0);
+      running += net;
+      return { name, recettes: v.recettes, depenses: v.depenses, net, solde: running };
+    });
+    return out;
   }, [payments]);
 
-  const txData = useMemo(()=> (payments||[]).slice(0,10).map((p:any)=>({
-    date: fd(p.paymentDate||p.createdAt),
-    desc: p.reference || p.paymentNumber || "Paiement",
-    amount: "+"+nf(parseFloat(String(p.amount||0))||0),
-  })), [payments]);
+  const txData = useMemo(()=> (payments||[]).slice(0,10).map((p:any)=>{
+    const amt = parseFloat(String(p.amount||0))||0;
+    const isIn = (p.partyType||'customer')==='customer';
+    return {
+      date: fd(p.paymentDate||p.createdAt),
+      desc: p.reference || p.paymentNumber || (isIn? "Encaissement" : "Décaissement"),
+      amount: (isIn? "+" : "-") + nf(amt),
+    };
+  }), [payments]);
 
   const forecast = useMemo(() => {
     const now = Date.now();
@@ -84,12 +108,12 @@ export default function TreasuryPage() {
     const next_7_days = Array.from({length:7},()=> Math.round(avg));
     const next_30_days = Array.from({length:30},()=> Math.round(avg));
     const confidence = vals.length >= 7 ? 0.7 : 0.4;
-    const daysOfRunway = (kpis.total/ (avg || 1)) || 0;
+    const daysOfRunway = (kpis.net/ (avg || 1)) || 0;
     const recommendations: string[] = [];
     if (daysOfRunway < 15) recommendations.push('Trésorerie critique: <15 jours – accélérer relances clients.');
     if (avg === 0) recommendations.push('Aucune entrée récente: vérifier synchronisation paiements.');
     return { next7: next_7_days, next30: next_30_days, confidence, recommendations };
-  }, [payments, kpis.total]);
+  }, [payments, kpis.net]);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -115,9 +139,9 @@ export default function TreasuryPage() {
       {active === "overview" && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <KpiCard title="Solde total" value={nf(kpis.total)} />
-            <KpiCard title="Flux nets (90 jours)" value={nf(kpis.last90)} tone="success" />
-            <KpiCard title="Rapprochement" value={String(kpis.reconcile)} />
+            <KpiCard title="Entrées totales" value={nf(kpis.inTotal)} />
+            <KpiCard title="Sorties totales" value={nf(kpis.outTotal)} />
+            <KpiCard title="Net (90 jours)" value={nf(kpis.last90Net)} />
           </div>
           <div className="card p-4 mt-4">
             <div className="flex items-center justify-between mb-4">
@@ -125,7 +149,7 @@ export default function TreasuryPage() {
             </div>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
+                <ComposedChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
@@ -133,7 +157,8 @@ export default function TreasuryPage() {
                   <Legend />
                   <Bar dataKey="recettes" fill="#16A34A" name="Recettes" radius={[4,4,0,0]} />
                   <Bar dataKey="depenses" fill="#DC2626" name="Dépenses" radius={[4,4,0,0]} />
-                </BarChart>
+                  <Line type="monotone" dataKey="solde" stroke="#2563EB" name="Solde cumulé" strokeWidth={2} dot={false} />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           </div>

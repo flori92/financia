@@ -38,7 +38,6 @@ function fd(s: any) {
 }
 
 function getCompanyId() {
-  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_COMPANY_ID) return process.env.NEXT_PUBLIC_COMPANY_ID;
   if (typeof window !== "undefined") return window.localStorage.getItem("companyId") || undefined;
   return undefined;
 }
