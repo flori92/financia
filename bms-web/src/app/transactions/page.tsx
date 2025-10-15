@@ -74,6 +74,13 @@ export default function TransactionsPage() {
   }
 
   useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    const h = () => { refresh(); };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bms-company-changed', h);
+      return () => window.removeEventListener('bms-company-changed', h);
+    }
+  }, []);
 
   async function handleCreate() {
     try {

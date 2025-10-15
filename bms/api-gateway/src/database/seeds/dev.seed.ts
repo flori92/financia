@@ -59,17 +59,17 @@ export async function runDevSeed(dataSource: DataSource) {
     
     const [company1] = await queryRunner.query(`
       INSERT INTO companies (
-        name, business_type, industry, country, city, address, phone, email,
-        currency, nif_number, rccm_number, created_by
+        name, industry, country, city, address_line1, phone, email,
+        default_currency, nif_number, registration_number, legal_name
       )
       VALUES (
-        'Restaurant Le Béninois', 'limited_company', 'restaurant', 'BJ', 'Cotonou',
+        'Restaurant Le Béninois', 'restaurant', 'BJ', 'Cotonou',
         'Akpakpa Centre', '+22997111111', 'contact@lebeninois.bj',
-        'XOF', 'BJ1234567890', 'RB/COT/2024/B/123', $1
+        'XOF', 'BJ1234567890', 'RB/COT/2024/B/123', 'Restaurant Le Béninois'
       )
       ON CONFLICT DO NOTHING
       RETURNING id;
-    `, [entrepreneur.id]);
+    `);
     
     if (company1) {
       console.log('✅ Company 1 created:', company1.id);
@@ -98,9 +98,9 @@ export async function runDevSeed(dataSource: DataSource) {
 
         // Ajouter des items à la facture
         await queryRunner.query(`
-          INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, tax_rate, amount)
+          INSERT INTO invoice_items (invoice_id, item_name, description, quantity, unit_price, tax_percent, tax_amount, line_total)
           VALUES 
-            ($1, 'Menu Buffet x20 personnes', 20, 2500, 18, 50000);
+            ($1, 'Menu Buffet x20 personnes', 'Prestation traiteur', 20, 2500, 18, 9000, 59000);
         `, [invoice1.id]);
         console.log('✅ Invoice items created');
       }
@@ -124,6 +124,113 @@ export async function runDevSeed(dataSource: DataSource) {
       if (invoice2) {
         console.log('✅ Invoice 2 (paid) created:', invoice2.id);
       }
+    }
+
+    // 3.b. Créer d'autres entreprises (multi-sociétés) avec données
+    console.log('Creating additional companies...');
+
+    const [company2] = await queryRunner.query(`
+      INSERT INTO companies (
+        name, industry, country, city, address_line1, phone, email,
+        default_currency, nif_number, registration_number, legal_name
+      )
+      VALUES (
+        'Tech Afrique', 'technology', 'BJ', 'Abomey-Calavi',
+        'Zopah', '+22997444444', 'contact@techafrique.bj',
+        'XOF', 'BJ9876543210', 'RB/ABC/2024/T/456', 'Tech Afrique'
+      )
+      ON CONFLICT DO NOTHING
+      RETURNING id;
+    `);
+
+    if (company2) {
+      console.log('✅ Company 2 created:', company2.id);
+      const [inv2_1] = await queryRunner.query(`
+        INSERT INTO invoices (
+          company_id, invoice_number, invoice_type, invoice_date, due_date,
+          party_name, party_phone, party_email,
+          subtotal, tax_amount, total_amount, paid_amount, outstanding_amount,
+          status, payment_status, currency
+        )
+        VALUES (
+          $1, 'FINV-202410-1001', 'sales', CURRENT_DATE - INTERVAL '10 days', CURRENT_DATE + INTERVAL '20 days',
+          'Global Services', '+22997555555', 'gs@services.bj',
+          300000, 54000, 354000, 0, 354000,
+          'submitted', 'unpaid', 'XOF'
+        )
+        RETURNING id;
+      `, [company2.id]);
+
+      if (inv2_1) {
+        await queryRunner.query(`
+          INSERT INTO invoice_items (invoice_id, item_name, description, quantity, unit_price, tax_percent, tax_amount, line_total)
+          VALUES ($1, 'Abonnement plateforme SaaS (3 mois)', 'Licence trimestrielle', 1, 300000, 18, 54000, 354000);
+        `, [inv2_1.id]);
+      }
+
+      // Paiement soumis pour validation
+      await queryRunner.query(`
+        INSERT INTO payments (
+          paymentNumber, paymentDate, amount, allocatedAmount, unallocatedAmount, currency,
+          paymentMethod, reference, partyType, partyId, companyId, status, createdBy
+        )
+        VALUES (
+          'PAY-DEV-TA-0001', CURRENT_DATE - INTERVAL '1 day', 150000, 0, 150000, 'XOF',
+          'bank_transfer', 'VIR-TA-001', 'customer', '00000000-0000-0000-0000-000000000000', $1, 'submitted', $2
+        );
+      `, [company2.id, accountant.id]);
+    }
+
+    const [company3] = await queryRunner.query(`
+      INSERT INTO companies (
+        name, industry, country, city, address_line1, phone, email,
+        default_currency, nif_number, registration_number, legal_name
+      )
+      VALUES (
+        'Global Services SARL', 'services', 'BJ', 'Porto-Novo',
+        'Quartier Administratif', '+22997666666', 'contact@globalsarl.bj',
+        'XOF', 'BJ4567890123', 'RB/PN/2024/G/789', 'Global Services SARL'
+      )
+      ON CONFLICT DO NOTHING
+      RETURNING id;
+    `);
+
+    if (company3) {
+      console.log('✅ Company 3 created:', company3.id);
+      const [inv3_1] = await queryRunner.query(`
+        INSERT INTO invoices (
+          company_id, invoice_number, invoice_type, invoice_date, due_date,
+          party_name, party_phone, party_email,
+          subtotal, tax_amount, total_amount, paid_amount, outstanding_amount,
+          status, payment_status, currency
+        )
+        VALUES (
+          $1, 'FINV-202410-2001', 'sales', CURRENT_DATE - INTERVAL '35 days', CURRENT_DATE - INTERVAL '5 days',
+          'Société ABC', '+22997333333', 'abc@test.bj',
+          190000, 34200, 224200, 0, 224200,
+          'overdue', 'unpaid', 'XOF'
+        )
+        RETURNING id;
+      `, [company3.id]);
+
+      if (inv3_1) {
+        await queryRunner.query(`
+          INSERT INTO invoice_items (invoice_id, item_name, description, quantity, unit_price, tax_percent, tax_amount, line_total)
+          VALUES ($1, 'Prestations de conseil', 'Mission conseil', 1, 190000, 18, 34200, 224200);
+        `, [inv3_1.id]);
+      }
+
+      // Paiement payé (pour KPIs encaissements)
+      await queryRunner.query(`
+        INSERT INTO payments (
+          paymentNumber, paymentDate, amount, allocatedAmount, unallocatedAmount, currency,
+          paymentMethod, reference, partyType, partyId, companyId, status, createdBy
+        )
+        VALUES (
+          'PAY-DEV-GS-0001', CURRENT_DATE - INTERVAL '2 days', 118000, 0, 118000, 'XOF',
+          'cash', 'CASH-GS-001', 'customer', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2
+        );
+      `, [company3.id, entrepreneur.id]);
     }
 
     // 4. Créer des comptes OHADA de test

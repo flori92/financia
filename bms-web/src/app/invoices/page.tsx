@@ -95,6 +95,13 @@ export default function InvoicesPage() {
   }
 
   useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    const h = () => { refresh(); };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bms-company-changed', h);
+      return () => window.removeEventListener('bms-company-changed', h);
+    }
+  }, []);
   return (
     <div className="space-y-6">
       {toast && (

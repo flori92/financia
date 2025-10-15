@@ -31,6 +31,22 @@ export default function TreasuryPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const h = () => {
+      const cid = getCompanyId();
+      if (!cid) return;
+      setLoading(true); setError(null);
+      apiGet('/api/v1/payments', { companyId: cid })
+        .then((list: any[]) => setPayments(list||[]))
+        .catch((e: unknown) => setError(String(e)))
+        .finally(() => setLoading(false));
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bms-company-changed', h);
+      return () => window.removeEventListener('bms-company-changed', h);
+    }
+  }, []);
+
   const kpis = useMemo(() => {
     const total = payments.reduce((s,p)=> s + (parseFloat(String(p.amount||0))||0), 0);
     const now = Date.now();

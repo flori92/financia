@@ -70,10 +70,10 @@ export class Payment {
   @Column({ type: 'uuid' })
   companyId: string;
 
-  @ApiProperty({ description: 'Statut du paiement', enum: ['draft', 'submitted', 'cancelled'] })
+  @ApiProperty({ description: 'Statut du paiement', enum: ['draft', 'submitted', 'validated', 'cancelled'] })
   @Column({
     type: 'enum',
-    enum: ['draft', 'submitted', 'cancelled'],
+    enum: ['draft', 'submitted', 'validated', 'cancelled'],
     default: 'draft',
   })
   status: string;

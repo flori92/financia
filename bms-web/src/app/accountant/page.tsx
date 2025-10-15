@@ -12,17 +12,44 @@ export default function AccountantDashboardPage() {
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [companyId, setCompanyId] = useState<string | undefined>(undefined);
 
   useEffect(()=>{
-    const cid = getCompanyId(); if (!cid) return;
+    // Charger la liste des sociétés et initialiser la sélection
+    apiGet('/api/v1/companies')
+      .then((list: any[]) => {
+        setCompanies(list||[]);
+        const current = getCompanyId() || (list && list[0]?.id);
+        setCompanyId(current);
+        if (typeof window !== 'undefined' && current) {
+          window.localStorage.setItem('companyId', current);
+        }
+      })
+      .catch((e: unknown)=> setError(String(e)));
+  },[]);
+
+  useEffect(()=>{
+    if (!companyId) return;
     setLoading(true); setError(null);
     Promise.all([
-      apiGet('/api/v1/invoices', { companyId: cid }).catch(()=>[]),
-      apiGet('/api/v1/payments', { companyId: cid }).catch(()=>[]),
+      apiGet('/api/v1/invoices', { companyId }).catch(()=>[]),
+      apiGet('/api/v1/payments', { companyId }).catch(()=>[]),
     ]).then(([inv, pay])=>{ setInvoices(inv as any[]); setPayments(pay as any[]); })
       .catch((e: unknown)=> setError(String(e)))
       .finally(()=> setLoading(false));
-  },[]);
+  },[companyId]);
+
+  useEffect(()=>{
+    const h = () => {
+      const next = getCompanyId();
+      if (next && next !== companyId) setCompanyId(next);
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bms-company-changed', h);
+      return () => window.removeEventListener('bms-company-changed', h);
+    }
+  },[companyId]);
 
   const kpis = useMemo(()=>{
     const unpaid = (invoices||[]).filter((i:any)=> (i.paymentStatus||i.status)!=='paid');
@@ -44,6 +71,20 @@ export default function AccountantDashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Comptable – Tableau de bord</h1>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-slate-600">Société</label>
+          <select
+            className="rounded-md border border-app-border px-3 py-2 text-sm bg-white"
+            value={companyId || ''}
+            onChange={(e)=>{
+              const val = e.target.value || undefined;
+              setCompanyId(val);
+              if (typeof window !== 'undefined' && val) window.localStorage.setItem('companyId', val);
+            }}
+          >
+            {companies.map((c:any)=>(<option key={c.id} value={c.id}>{c.name}</option>))}
+          </select>
+        </div>
       </div>
 
       {error && <div className="text-sm text-rose-600">{error}</div>}

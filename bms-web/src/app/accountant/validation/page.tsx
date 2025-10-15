@@ -30,6 +30,13 @@ export default function AccountantValidationPage() {
   }
 
   useEffect(()=>{ refresh(); },[]);
+  useEffect(()=>{
+    const h = () => { refresh(); };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bms-company-changed', h);
+      return () => window.removeEventListener('bms-company-changed', h);
+    }
+  },[]);
 
   async function approveInvoice(id?: string) {
     try {

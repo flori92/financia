@@ -25,6 +25,24 @@ export default function Page() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const h = () => {
+      const cid = getCompanyId();
+      if (!cid) return;
+      setLoading(true); setError(null);
+      Promise.all([
+        apiGet('/api/v1/invoices', { companyId: cid }).catch(() => []),
+        apiGet('/api/v1/payments', { companyId: cid }).catch(() => []),
+      ]).then(([inv, pay]) => { setInvoices(inv as any[]); setPayments(pay as any[]); })
+        .catch((e: unknown) => setError(String(e)))
+        .finally(() => setLoading(false));
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bms-company-changed', h);
+      return () => window.removeEventListener('bms-company-changed', h);
+    }
+  }, []);
+
   const kpis = useMemo(() => {
     const totalPayments = payments.reduce((s, p) => s + (parseFloat(String(p.amount||0))||0), 0);
     const unpaid = invoices.filter(i => (i.paymentStatus||i.status) !== 'paid');
