@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: bms-postgres
+    environment:
+      POSTGRES_DB: bms
+      POSTGRES_USER: bms
+      POSTGRES_PASSWORD: bms_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - bms-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bms-network
+
+  # RabbitMQ Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: bms-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: bms
+      RABBITMQ_DEFAULT_PASS: bms_dev_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - bms-network
+
+  # API Gateway (NestJS)
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: bms-api-gateway
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://bms:bms_dev_password@postgres:5432/bms
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - bms-network
+
+  # Web Admin (Next.js)
+  web-admin:
+    build:
+      context: ./web-admin
+      dockerfile: Dockerfile
+    container_name: bms-web-admin
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web-admin:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api-gateway
+    networks:
+      - bms-network
+
+  # Frappe Backend (À configurer séparément)
+  # Note: Frappe nécessite un setup complexe, voir backend-frappe/docker-compose.yml
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  bms-network:
+    driver: bridge
