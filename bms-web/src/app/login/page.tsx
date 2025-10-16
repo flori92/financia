@@ -32,7 +32,12 @@ export default function LoginPage() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("bms_token", data.access_token);
         window.localStorage.setItem("user_email", email);
-        router.push("/");
+        // Déterminer le rôle selon l'email
+        const role = email.includes('comptable') || email.includes('accountant') ? 'accountant' : 'entrepreneur';
+        window.localStorage.setItem("user_role", role);
+        // Rediriger vers la page appropriée
+        const redirectTo = role === 'accountant' ? '/accountant' : '/';
+        router.push(redirectTo);
       }
     } catch (e) {
       setError("Erreur de connexion au serveur");

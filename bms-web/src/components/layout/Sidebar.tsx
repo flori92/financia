@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings } from "lucide-react";
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 
 const ENTREPRENEUR_NAV = [
   { href: "/", label: "Tableau de bord", icon: LayoutDashboard },
@@ -18,11 +19,24 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/validation", label: "Centre de Validation", icon: FileCheck },
 ];
 
-// Pour l'instant, afficher la navigation entrepreneur par défaut
-const NAV = ENTREPRENEUR_NAV;
-
 export function Sidebar() {
   const pathname = usePathname();
+  const [userName, setUserName] = useState("Utilisateur");
+  const [userRole, setUserRole] = useState("Entrepreneur");
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const email = window.localStorage.getItem('user_email') || '';
+      const role = window.localStorage.getItem('user_role') || 'entrepreneur';
+      setUserName(email.split('@')[0] || 'Utilisateur');
+      setUserRole(role === 'accountant' ? 'Comptable' : 'Entrepreneur');
+    }
+  }, []);
+
+  // Détecter si on est sur une route comptable
+  const isAccountantRoute = pathname?.startsWith('/accountant');
+  const NAV = isAccountantRoute ? ACCOUNTANT_NAV : ENTREPRENEUR_NAV;
+  const displayRole = isAccountantRoute ? 'Comptable' : userRole;
   return (
     <aside className="fixed left-0 top-0 h-full w-sidebar bg-app-sidebar text-white">
       <div className="h-14 flex items-center px-5 border-b border-white/5">
@@ -54,8 +68,8 @@ export function Sidebar() {
         <div className="flex items-center gap-3 text-sm">
           <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">👤</div>
           <div>
-            <div className="font-medium leading-tight">Vanessa CODO</div>
-            <div className="text-white/70 text-xs">Entrepreneur</div>
+            <div className="font-medium leading-tight">{userName}</div>
+            <div className="text-white/70 text-xs">{displayRole}</div>
           </div>
         </div>
       </div>
