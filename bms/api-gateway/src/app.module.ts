@@ -23,6 +23,7 @@ import { AppController } from './app.controller';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
 import { TreasuryModule } from './treasury/treasury.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -92,6 +93,9 @@ import { TreasuryModule } from './treasury/treasury.module';
     // Notifications
     NotificationsModule,
     AuditModule,
+
+    // Uploads
+    UploadsModule,
   ],
   controllers: [AppController, HealthController],
 })
