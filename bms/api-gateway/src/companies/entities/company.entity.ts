@@ -65,6 +65,13 @@ export class Company {
   @Column({ name: 'default_currency', default: 'XOF' })
   defaultCurrency: string;
 
+  // Treasury Settings
+  @Column({ name: 'treasury_critical_threshold', type: 'int', default: 7 })
+  treasuryCriticalThreshold: number;
+
+  @Column({ name: 'treasury_warning_threshold', type: 'int', default: 15 })
+  treasuryWarningThreshold: number;
+
   // Subscription
   @Column({ default: 'micro' })
   plan: 'micro' | 'starter' | 'business' | 'cabinet' | 'enterprise';
