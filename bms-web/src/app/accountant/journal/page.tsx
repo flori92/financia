@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
 
-interface LineInput { accountId?: string; debit?: string; credit?: string; memo?: string; }
+interface LineInput { accountId?: string; debit?: string; credit?: string; label?: string; }
 
 export default function JournalPage() {
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -58,7 +58,7 @@ export default function JournalPage() {
         reference: reference || undefined,
         description: description || undefined,
         createdBy: '550e8400-e29b-41d4-a716-446655440000',
-        lines: cleaned.map(l=> ({ accountId: l.accountId, debit: l.debit? parseFloat(l.debit): 0, credit: l.credit? parseFloat(l.credit): 0, memo: l.memo }))
+        lines: cleaned.map(l=> ({ accountId: l.accountId, debit: l.debit? parseFloat(l.debit): 0, credit: l.credit? parseFloat(l.credit): 0, label: l.label || 'Ligne sans libellé' }))
       };
       await apiPost('/api/v1/accounting/journal-entries', payload);
       showSuccess('Écriture créée');
@@ -108,7 +108,7 @@ export default function JournalPage() {
                 <th className="pb-2">Compte</th>
                 <th className="pb-2 w-32 text-right">Débit</th>
                 <th className="pb-2 w-32 text-right">Crédit</th>
-                <th className="pb-2">Mémo</th>
+                <th className="pb-2">Libellé</th>
                 <th className="pb-2 w-16"></th>
               </tr>
             </thead>
@@ -123,7 +123,7 @@ export default function JournalPage() {
                   </td>
                   <td className="py-2 text-right"><input type="number" step="0.01" value={l.debit||''} onChange={e=> updateLine(idx, { debit: e.target.value, credit: '' })} className="w-full rounded-md border border-app-border px-2 py-1 text-sm text-right" /></td>
                   <td className="py-2 text-right"><input type="number" step="0.01" value={l.credit||''} onChange={e=> updateLine(idx, { credit: e.target.value, debit: '' })} className="w-full rounded-md border border-app-border px-2 py-1 text-sm text-right" /></td>
-                  <td className="py-2"><input value={l.memo||''} onChange={e=> updateLine(idx, { memo: e.target.value })} className="w-full rounded-md border border-app-border px-2 py-1 text-sm" /></td>
+                  <td className="py-2"><input value={l.label||''} onChange={e=> updateLine(idx, { label: e.target.value })} className="w-full rounded-md border border-app-border px-2 py-1 text-sm" placeholder="Libellé ligne" /></td>
                   <td className="py-2 text-right"><button onClick={()=> removeLine(idx)} className="text-rose-700 hover:underline">Suppr</button></td>
                 </tr>
               ))}

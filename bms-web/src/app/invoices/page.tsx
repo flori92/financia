@@ -60,10 +60,14 @@ export default function InvoicesPage() {
   const [showNewForm, setShowNewForm] = useState(false);
   const [newInvoice, setNewInvoice] = useState({
     partyName: '',
-    totalAmount: '',
+    amount: '',
+    taxPercent: '0',
     invoiceDate: new Date().toISOString().slice(0, 10),
     dueDate: '',
-    description: ''
+    description: '',
+    invoiceType: 'sales' as 'sales'|'purchase',
+    autoPostJournal: false,
+    autoServiceType: 'services' as 'goods'|'services',
   });
 
   function showSuccess(text: string){ setToast({ type:'success', text }); setTimeout(()=>setToast(null), 2500); }
@@ -163,23 +167,34 @@ export default function InvoicesPage() {
     try {
       const cid = getCompanyId();
       if (!cid) { showError('Aucune société sélectionnée'); return; }
-      if (!newInvoice.partyName.trim()) { showError('Le nom du client est obligatoire'); return; }
-      if (!newInvoice.totalAmount || parseFloat(newInvoice.totalAmount) <= 0) { showError('Montant invalide'); return; }
+      if (!newInvoice.partyName.trim()) { showError('Le nom du client/fournisseur est obligatoire'); return; }
+      if (!newInvoice.amount || parseFloat(newInvoice.amount) <= 0) { showError('Montant invalide'); return; }
       
       const body = {
-        partyName: newInvoice.partyName,
-        totalAmount: parseFloat(newInvoice.totalAmount),
+        companyId: cid,
+        invoiceType: newInvoice.invoiceType,
         invoiceDate: newInvoice.invoiceDate,
         dueDate: newInvoice.dueDate || new Date(Date.now() + 30*24*3600*1000).toISOString().slice(0, 10),
-        description: newInvoice.description,
-        companyId: cid,
-        partyId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', // UUID par défaut
+        partyName: newInvoice.partyName,
         currency: 'XOF',
-      };
+        items: [
+          {
+            itemName: newInvoice.description || (newInvoice.autoServiceType === 'services' ? 'Prestation' : 'Marchandises'),
+            description: newInvoice.description || undefined,
+            quantity: 1,
+            unit: 'unit',
+            unitPrice: parseFloat(newInvoice.amount),
+            taxPercent: parseFloat(newInvoice.taxPercent||'0') || 0,
+            discountPercent: 0,
+          }
+        ],
+        autoPostJournal: newInvoice.autoPostJournal,
+        autoServiceType: newInvoice.autoServiceType,
+      } as any;
       
       await apiPost('/api/v1/invoices', body);
       showSuccess('Facture créée');
-      setNewInvoice({ partyName: '', totalAmount: '', invoiceDate: new Date().toISOString().slice(0, 10), dueDate: '', description: '' });
+      setNewInvoice({ partyName: '', amount: '', taxPercent: '0', invoiceDate: new Date().toISOString().slice(0, 10), dueDate: '', description: '', invoiceType: 'sales', autoPostJournal: false, autoServiceType: 'services' });
       setShowNewForm(false);
       await refresh();
     } catch (e) {
@@ -216,12 +231,23 @@ export default function InvoicesPage() {
           <h3 className="text-lg font-semibold mb-4">Nouvelle facture</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Client *</label>
-              <input value={newInvoice.partyName} onChange={e=>setNewInvoice({...newInvoice, partyName: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Nom du client" />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Client / Fournisseur *</label>
+              <input value={newInvoice.partyName} onChange={e=>setNewInvoice({...newInvoice, partyName: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Nom du client ou fournisseur" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Montant Total (FCFA) *</label>
-              <input type="number" value={newInvoice.totalAmount} onChange={e=>setNewInvoice({...newInvoice, totalAmount: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Ex: 150000" />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Type de facture</label>
+              <select value={newInvoice.invoiceType} onChange={e=>setNewInvoice({...newInvoice, invoiceType: e.target.value as any})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm">
+                <option value="sales">Vente</option>
+                <option value="purchase">Achat</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Montant HT (FCFA) *</label>
+              <input type="number" value={newInvoice.amount} onChange={e=>setNewInvoice({...newInvoice, amount: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Ex: 150000" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">TVA (%)</label>
+              <input type="number" value={newInvoice.taxPercent} onChange={e=>setNewInvoice({...newInvoice, taxPercent: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Ex: 18" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Date de facture</label>
@@ -234,6 +260,17 @@ export default function InvoicesPage() {
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
               <textarea value={newInvoice.description} onChange={e=>setNewInvoice({...newInvoice, description: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" rows={3} placeholder="Description des services ou produits..."></textarea>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Type produit (pour comptes 706/707)</label>
+              <select value={newInvoice.autoServiceType} onChange={e=>setNewInvoice({...newInvoice, autoServiceType: e.target.value as any})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm">
+                <option value="services">Services (706)</option>
+                <option value="goods">Marchandises (707)</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <input id="autoPostJournal" type="checkbox" checked={newInvoice.autoPostJournal} onChange={e=>setNewInvoice({...newInvoice, autoPostJournal: e.target.checked})} />
+              <label htmlFor="autoPostJournal" className="text-sm text-slate-700">Générer écriture comptable automatiquement</label>
             </div>
           </div>
           <div className="mt-4 flex gap-2">

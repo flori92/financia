@@ -5,6 +5,7 @@ import { PaymentsService } from './payments.service';
 import { Payment } from './entities/payment.entity';
 import { PaymentAllocation } from './entities/payment-allocation.entity';
 import { AuditModule } from '../audit/audit.module';
+import { AccountingModule } from '../accounting/accounting.module';
 
 /**
  * Module de gestion des paiements
@@ -13,7 +14,7 @@ import { AuditModule } from '../audit/audit.module';
  * - Rapprochement et réconciliation
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, PaymentAllocation]), AuditModule],
+  imports: [TypeOrmModule.forFeature([Payment, PaymentAllocation]), AuditModule, AccountingModule],
   controllers: [PaymentsController],
   providers: [PaymentsService],
   exports: [PaymentsService],

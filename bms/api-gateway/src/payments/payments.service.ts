@@ -7,6 +7,7 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { AllocatePaymentDto } from './dto/allocate-payment.dto';
 import { AuditService } from '../audit/audit.service';
+import { AccountingAutomationService } from '../accounting/accounting-automation.service';
 
 /**
  * Service de gestion des paiements
@@ -19,6 +20,7 @@ export class PaymentsService {
     @InjectRepository(PaymentAllocation)
     private allocationsRepository: Repository<PaymentAllocation>,
     private readonly auditService: AuditService,
+    private readonly automation: AccountingAutomationService,
   ) {}
 
   /**
@@ -81,6 +83,40 @@ export class PaymentsService {
       );
 
       await this.allocationsRepository.save(allocations);
+    }
+
+    // Auto-posting journal si demandé
+    try {
+      if ((createPaymentDto as any).autoPostJournal) {
+        // Mapper le mode de paiement vers notre automation
+        const pm = createPaymentDto.paymentMethod;
+        const method: 'bank' | 'cash' | 'mobile_money' =
+          pm === 'cash' ? 'cash' : pm === 'mobile_money' ? 'mobile_money' : 'bank';
+
+        if (createPaymentDto.partyType === 'customer') {
+          await this.automation.generateCustomerPaymentEntry({
+            companyId: createPaymentDto.companyId,
+            paymentNumber: savedPayment.paymentNumber,
+            paymentDate: createPaymentDto.paymentDate,
+            customerName: (createPaymentDto as any).partyName || 'Client',
+            amount: createPaymentDto.amount,
+            paymentMethod: method,
+            userId: createPaymentDto.createdBy,
+          });
+        } else if (createPaymentDto.partyType === 'supplier') {
+          await this.automation.generateSupplierPaymentEntry({
+            companyId: createPaymentDto.companyId,
+            paymentNumber: savedPayment.paymentNumber,
+            paymentDate: createPaymentDto.paymentDate,
+            supplierName: (createPaymentDto as any).partyName || 'Fournisseur',
+            amount: createPaymentDto.amount,
+            paymentMethod: method,
+            userId: createPaymentDto.createdBy,
+          });
+        }
+      }
+    } catch (e) {
+      // ne pas bloquer la création si l'automatisation échoue
     }
 
     return this.findPaymentById(savedPayment.id);

@@ -106,4 +106,13 @@ export class CreateInvoiceDto {
   @IsOptional()
   @IsIn(['whatsapp', 'sms', 'email', 'print'])
   deliveryMethod?: 'whatsapp' | 'sms' | 'email' | 'print';
+
+  @ApiProperty({ description: 'Générer automatiquement l\'écriture comptable correspondante', required: false, default: false })
+  @IsOptional()
+  autoPostJournal?: boolean;
+
+  @ApiProperty({ description: 'Type de produit pour l\'auto-posting (706 services, 707 marchandises)', required: false, enum: ['goods','services'] })
+  @IsOptional()
+  @IsIn(['goods','services'])
+  autoServiceType?: 'goods' | 'services';
 }

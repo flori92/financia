@@ -96,6 +96,14 @@ export class CreatePaymentDto {
   partyId: string;
 
   @ApiProperty({
+    description: 'Nom du client/fournisseur (facultatif, utile pour les libellés comptables)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  partyName?: string;
+
+  @ApiProperty({
     description: 'ID de la société',
   })
   @IsUUID()
@@ -125,4 +133,12 @@ export class CreatePaymentDto {
   })
   @IsUUID()
   createdBy: string;
+
+  @ApiProperty({
+    description: 'Générer automatiquement l\'écriture comptable correspondante',
+    required: false,
+    default: false,
+  })
+  @IsOptional()
+  autoPostJournal?: boolean;
 }

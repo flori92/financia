@@ -5,6 +5,7 @@ import { Invoice } from './entities/invoice.entity';
 import { InvoiceItem } from './entities/invoice-item.entity';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { AuditService } from '../audit/audit.service';
+import { AccountingAutomationService } from '../accounting/accounting-automation.service';
 
 @Injectable()
 export class InvoicesService {
@@ -14,6 +15,7 @@ export class InvoicesService {
     @InjectRepository(InvoiceItem)
     private invoiceItemRepository: Repository<InvoiceItem>,
     private readonly auditService: AuditService,
+    private readonly automation: AccountingAutomationService,
   ) {}
 
   async create(createInvoiceDto: CreateInvoiceDto, userId: string): Promise<Invoice> {
@@ -89,7 +91,46 @@ export class InvoicesService {
       items: invoiceItems,
     });
 
-    return this.invoiceRepository.save(invoice);
+    const saved = await this.invoiceRepository.save(invoice);
+
+    // Auto-posting journal si demandé
+    try {
+      if ((createInvoiceDto as any).autoPostJournal) {
+        const amountHT = subtotal - totalDiscount;
+        const vatAmount = totalTax;
+        const amountTTC = totalAmount;
+        const entryDate = (invoiceData.invoiceDate || new Date()).toString().slice(0,10);
+        if (invoiceData.invoiceType === 'sales') {
+          await this.automation.generateSaleEntry({
+            companyId: invoiceData.companyId,
+            invoiceNumber,
+            invoiceDate: typeof invoiceData.invoiceDate === 'string' ? invoiceData.invoiceDate : new Date().toISOString().slice(0,10),
+            customerName: invoiceData.partyName,
+            amountHT,
+            vatAmount,
+            amountTTC,
+            serviceType: (createInvoiceDto as any).autoServiceType || 'services',
+            userId,
+          });
+        } else if (invoiceData.invoiceType === 'purchase') {
+          await this.automation.generatePurchaseEntry({
+            companyId: invoiceData.companyId,
+            invoiceNumber,
+            invoiceDate: typeof invoiceData.invoiceDate === 'string' ? invoiceData.invoiceDate : new Date().toISOString().slice(0,10),
+            supplierName: invoiceData.partyName,
+            amountHT,
+            vatAmount,
+            amountTTC,
+            purchaseType: (createInvoiceDto as any).autoServiceType || 'goods',
+            userId,
+          });
+        }
+      }
+    } catch (e) {
+      // ne pas bloquer la création de facture si l'automatisation échoue
+    }
+
+    return this.findOne(saved.id, invoiceData.companyId);
   }
 
   async findAll(companyId: string, filters?: any): Promise<Invoice[]> {

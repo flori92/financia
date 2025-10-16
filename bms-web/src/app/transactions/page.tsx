@@ -30,6 +30,8 @@ export default function TransactionsPage() {
   const [amount, setAmount] = useState<string>("");
   const [method, setMethod] = useState<string>("cash");
   const [reference, setReference] = useState<string>("");
+  const [partyName, setPartyName] = useState<string>("");
+  const [autoPost, setAutoPost] = useState<boolean>(false);
   const [partyType, setPartyType] = useState<string>("customer");
   const [paymentDate, setPaymentDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [toast, setToast] = useState<{type:'success'|'error', text:string}|null>(null);
@@ -96,8 +98,10 @@ export default function TransactionsPage() {
         reference: reference || undefined,
         partyType: partyType,
         partyId: defaultPartyId,
+        partyName: partyName || undefined,
         companyId: cid,
         createdBy: userId,
+        autoPostJournal: autoPost,
       };
       
       console.log('Creating payment with body:', body); // Debug
@@ -227,7 +231,9 @@ export default function TransactionsPage() {
             <option value="check">Chèque</option>
             <option value="card">Carte</option>
           </select>
+          <input className="rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Nom (client/fournisseur)" value={partyName} onChange={e=>setPartyName(e.target.value)} />
           <input className="rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Référence (opt.)" value={reference} onChange={e=>setReference(e.target.value)} />
+          <label className="flex items-center gap-2 text-xs text-slate-700"><input type="checkbox" checked={autoPost} onChange={e=>setAutoPost(e.target.checked)} /> Générer écriture auto</label>
           <button onClick={handleCreate} className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Ajouter</button>
           <button onClick={exportCsv} className="rounded-md bg-white text-slate-700 border border-app-border text-sm px-3 py-2 hover:bg-slate-50">Exporter CSV</button>
         </div>

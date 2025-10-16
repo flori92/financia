@@ -46,12 +46,12 @@ export class AccountingAutomationService {
     }
 
     const lines: any[] = [
-      { accountId: client.id, debit: amountTTC, credit: 0, memo: `Client: ${customerName}` },
-      { accountId: revenue.id, debit: 0, credit: amountHT, memo: `Vente ${serviceType === 'services' ? 'services' : 'marchandises'}` },
+      { accountId: client.id, debit: amountTTC, credit: 0, label: `Client: ${customerName}` },
+      { accountId: revenue.id, debit: 0, credit: amountHT, label: `Vente ${serviceType === 'services' ? 'services' : 'marchandises'}` },
     ];
 
     if (vatAmount > 0 && vatCollected) {
-      lines.push({ accountId: vatCollected.id, debit: 0, credit: vatAmount, memo: 'TVA collectée' });
+      lines.push({ accountId: vatCollected.id, debit: 0, credit: vatAmount, label: 'TVA collectée' });
     }
 
     return this.accountingService.createJournalEntry({
@@ -94,12 +94,12 @@ export class AccountingAutomationService {
     }
 
     const lines: any[] = [
-      { accountId: expense.id, debit: amountHT, credit: 0, memo: `Achat ${purchaseType === 'goods' ? 'marchandises' : 'services'}` },
-      { accountId: supplier.id, debit: 0, credit: amountTTC, memo: `Fournisseur: ${supplierName}` },
+      { accountId: expense.id, debit: amountHT, credit: 0, label: `Achat ${purchaseType === 'goods' ? 'marchandises' : 'services'}` },
+      { accountId: supplier.id, debit: 0, credit: amountTTC, label: `Fournisseur: ${supplierName}` },
     ];
 
     if (vatAmount > 0 && vatDeductible) {
-      lines.push({ accountId: vatDeductible.id, debit: vatAmount, credit: 0, memo: 'TVA déductible' });
+      lines.push({ accountId: vatDeductible.id, debit: vatAmount, credit: 0, label: 'TVA déductible' });
     }
 
     return this.accountingService.createJournalEntry({
@@ -138,8 +138,8 @@ export class AccountingAutomationService {
     }
 
     const lines = [
-      { accountId: treasury.id, debit: amount, credit: 0, memo: paymentMethod === 'cash' ? 'Caisse' : 'Banque' },
-      { accountId: client.id, debit: 0, credit: amount, memo: `Client: ${customerName}` },
+      { accountId: treasury.id, debit: amount, credit: 0, label: paymentMethod === 'cash' ? 'Caisse' : 'Banque' },
+      { accountId: client.id, debit: 0, credit: amount, label: `Client: ${customerName}` },
     ];
 
     return this.accountingService.createJournalEntry({
@@ -178,8 +178,8 @@ export class AccountingAutomationService {
     }
 
     const lines = [
-      { accountId: supplier.id, debit: amount, credit: 0, memo: `Fournisseur: ${supplierName}` },
-      { accountId: treasury.id, debit: 0, credit: amount, memo: paymentMethod === 'cash' ? 'Caisse' : 'Banque' },
+      { accountId: supplier.id, debit: amount, credit: 0, label: `Fournisseur: ${supplierName}` },
+      { accountId: treasury.id, debit: 0, credit: amount, label: paymentMethod === 'cash' ? 'Caisse' : 'Banque' },
     ];
 
     return this.accountingService.createJournalEntry({
