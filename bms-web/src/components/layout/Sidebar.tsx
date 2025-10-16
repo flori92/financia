@@ -1,19 +1,25 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings } from "lucide-react";
 import clsx from "clsx";
 
-const NAV = [
+const ENTREPRENEUR_NAV = [
   { href: "/", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/invoices", label: "Factures Clients", icon: FileText },
   { href: "/treasury", label: "Trésorerie", icon: Wallet },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { href: "/receivables-payables", label: "Créances & Dettes", icon: Users },
-  { href: "/financial-analysis", label: "Analyse Financière", icon: LineChart },
-  { href: "/tax", label: "Fiscalité", icon: Landmark },
-  { href: "/learning", label: "Formation", icon: GraduationCap },
+  { href: "/formalization", label: "Formalisation & NIF", icon: FileCheck },
+  { href: "/settings", label: "Paramètres", icon: Settings },
 ];
+
+const ACCOUNTANT_NAV = [
+  { href: "/accountant", label: "Dashboard Comptable", icon: LayoutDashboard },
+  { href: "/accountant/validation", label: "Centre de Validation", icon: FileCheck },
+];
+
+// Pour l'instant, afficher la navigation entrepreneur par défaut
+const NAV = ENTREPRENEUR_NAV;
 
 export function Sidebar() {
   const pathname = usePathname();

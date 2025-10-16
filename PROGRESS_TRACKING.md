@@ -27,7 +27,7 @@ Mot de passe commun (dev): `password123`
 - [x] Facturation actions (submit/cancel/send présentes, upload pièces à venir)
 - [x] Trésorerie – cashflow (endpoints + front: KPIs, séries, solde, alertes)
 - [x] Trésorerie – prévisions 7/30 jours + recommandations
-- [ ] Formalisation/NIF: checklist + statut (UI)
+- [x] Formalisation/NIF: page complète (checklist documents, statut, timeline, formulaire)
 - [ ] Tests unitaires services Nest + composants React
 
 ## Lot 2 – Parcours Expert-Comptable
