@@ -70,9 +70,9 @@ export async function runDevSeed(dataSource: DataSource) {
       ON CONFLICT DO NOTHING
       RETURNING id;
     `);
-    
-    if (company1) {
-      console.log('✅ Company 1 created:', company1.id);
+    const company1Id = company1?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Restaurant Le Béninois']))?.[0]?.id;
+    if (company1Id) {
+      console.log('✅ Company 1 created:', company1Id);
 
       // 3. Créer des factures
       console.log('Creating test invoices...');
@@ -90,18 +90,22 @@ export async function runDevSeed(dataSource: DataSource) {
           50000, 9000, 59000, 0, 59000,
           'submitted', 'unpaid', 'XOF'
         )
+        ON CONFLICT (invoice_number) DO NOTHING
         RETURNING id;
-      `, [company1.id]);
+      `, [company1Id]);
+      const invoice1Id = invoice1?.id || (await queryRunner.query(`SELECT id FROM invoices WHERE invoice_number = $1 LIMIT 1;`, ['FINV-202410-0001']))?.[0]?.id;
       
-      if (invoice1) {
-        console.log('✅ Invoice 1 created:', invoice1.id);
+      if (invoice1Id) {
+        console.log('✅ Invoice 1 created:', invoice1Id);
 
-        // Ajouter des items à la facture
+        // Ajouter des items à la facture (idempotent)
         await queryRunner.query(`
           INSERT INTO invoice_items (invoice_id, item_name, description, quantity, unit_price, tax_percent, tax_amount, line_total)
-          VALUES 
-            ($1, 'Menu Buffet x20 personnes', 'Prestation traiteur', 20, 2500, 18, 9000, 59000);
-        `, [invoice1.id]);
+          SELECT $1, 'Menu Buffet x20 personnes', 'Prestation traiteur', 20, 2500, 18, 9000, 59000
+          WHERE NOT EXISTS (
+            SELECT 1 FROM invoice_items WHERE invoice_id = $1 AND item_name = 'Menu Buffet x20 personnes'
+          );
+        `, [invoice1Id]);
         console.log('✅ Invoice items created');
       }
 
@@ -118,11 +122,12 @@ export async function runDevSeed(dataSource: DataSource) {
           100000, 18000, 118000, 118000, 0,
           'paid', 'paid', 'XOF', CURRENT_TIMESTAMP
         )
+        ON CONFLICT (invoice_number) DO NOTHING
         RETURNING id;
-      `, [company1.id]);
-      
-      if (invoice2) {
-        console.log('✅ Invoice 2 (paid) created:', invoice2.id);
+      `, [company1Id]);
+      const invoice2Id = invoice2?.id || (await queryRunner.query(`SELECT id FROM invoices WHERE invoice_number = $1 LIMIT 1;`, ['FINV-202410-0002']))?.[0]?.id;
+      if (invoice2Id) {
+        console.log('✅ Invoice 2 (paid) created:', invoice2Id);
       }
     }
 
@@ -142,9 +147,9 @@ export async function runDevSeed(dataSource: DataSource) {
       ON CONFLICT DO NOTHING
       RETURNING id;
     `);
-
-    if (company2) {
-      console.log('✅ Company 2 created:', company2.id);
+    const company2Id = company2?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Tech Afrique']))?.[0]?.id;
+    if (company2Id) {
+      console.log('✅ Company 2 created:', company2Id);
       const [inv2_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
@@ -158,14 +163,20 @@ export async function runDevSeed(dataSource: DataSource) {
           300000, 54000, 354000, 0, 354000,
           'submitted', 'unpaid', 'XOF'
         )
+        ON CONFLICT (invoice_number) DO NOTHING
         RETURNING id;
-      `, [company2.id]);
+      `, [company2Id]);
 
-      if (inv2_1) {
+      const inv2_1_Id = inv2_1?.id || (await queryRunner.query(`SELECT id FROM invoices WHERE invoice_number = $1 LIMIT 1;`, ['FINV-202410-1001']))?.[0]?.id;
+
+      if (inv2_1_Id) {
         await queryRunner.query(`
           INSERT INTO invoice_items (invoice_id, item_name, description, quantity, unit_price, tax_percent, tax_amount, line_total)
-          VALUES ($1, 'Abonnement plateforme SaaS (3 mois)', 'Licence trimestrielle', 1, 300000, 18, 54000, 354000);
-        `, [inv2_1.id]);
+          SELECT $1, 'Abonnement plateforme SaaS (3 mois)', 'Licence trimestrielle', 1, 300000, 18, 54000, 354000
+          WHERE NOT EXISTS (
+            SELECT 1 FROM invoice_items WHERE invoice_id = $1 AND item_name = 'Abonnement plateforme SaaS (3 mois)'
+          );
+        `, [inv2_1_Id]);
       }
 
       // Paiement soumis pour validation
@@ -179,7 +190,7 @@ export async function runDevSeed(dataSource: DataSource) {
           'bank_transfer', 'VIR-TA-001', 'customer', '00000000-0000-0000-0000-000000000000', $1, 'submitted', $2
         )
         ON CONFLICT (payment_number) DO NOTHING;
-      `, [company2.id, accountant.id]);
+      `, [company2Id, accountant.id]);
 
       // Dépenses (fournisseurs) pour matérialiser des sorties de trésorerie
       await queryRunner.query(`
@@ -193,7 +204,7 @@ export async function runDevSeed(dataSource: DataSource) {
           ('SUP-DEV-TA-0002', CURRENT_DATE - INTERVAL '12 days', 120000, 0, 120000, 'XOF',
            'bank_transfer', 'F-ACH-TA-002', 'supplier', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2)
         ON CONFLICT (payment_number) DO NOTHING;
-      `, [company2.id, accountant.id]);
+      `, [company2Id, accountant.id]);
     }
 
     const [company3] = await queryRunner.query(`
@@ -209,9 +220,9 @@ export async function runDevSeed(dataSource: DataSource) {
       ON CONFLICT DO NOTHING
       RETURNING id;
     `);
-
-    if (company3) {
-      console.log('✅ Company 3 created:', company3.id);
+    const company3Id = company3?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Global Services SARL']))?.[0]?.id;
+    if (company3Id) {
+      console.log('✅ Company 3 created:', company3Id);
       const [inv3_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
@@ -225,14 +236,20 @@ export async function runDevSeed(dataSource: DataSource) {
           190000, 34200, 224200, 0, 224200,
           'overdue', 'unpaid', 'XOF'
         )
+        ON CONFLICT (invoice_number) DO NOTHING
         RETURNING id;
-      `, [company3.id]);
+      `, [company3Id]);
 
-      if (inv3_1) {
+      const inv3_1_Id = inv3_1?.id || (await queryRunner.query(`SELECT id FROM invoices WHERE invoice_number = $1 LIMIT 1;`, ['FINV-202410-2001']))?.[0]?.id;
+
+      if (inv3_1_Id) {
         await queryRunner.query(`
           INSERT INTO invoice_items (invoice_id, item_name, description, quantity, unit_price, tax_percent, tax_amount, line_total)
-          VALUES ($1, 'Prestations de conseil', 'Mission conseil', 1, 190000, 18, 34200, 224200);
-        `, [inv3_1.id]);
+          SELECT $1, 'Prestations de conseil', 'Mission conseil', 1, 190000, 18, 34200, 224200
+          WHERE NOT EXISTS (
+            SELECT 1 FROM invoice_items WHERE invoice_id = $1 AND item_name = 'Prestations de conseil'
+          );
+        `, [inv3_1_Id]);
       }
 
       // Paiement payé (pour KPIs encaissements)
@@ -246,7 +263,7 @@ export async function runDevSeed(dataSource: DataSource) {
           'cash', 'CASH-GS-001', 'customer', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2
         )
         ON CONFLICT (payment_number) DO NOTHING;
-      `, [company3.id, entrepreneur.id]);
+      `, [company3Id, entrepreneur.id]);
 
       // Dépenses (fournisseurs) pour matérialiser des sorties de trésorerie
       await queryRunner.query(`
@@ -260,7 +277,7 @@ export async function runDevSeed(dataSource: DataSource) {
           ('SUP-DEV-GS-0002', CURRENT_DATE - INTERVAL '20 days', 45000, 0, 45000, 'XOF',
            'mobile_money', 'F-ACH-GS-002', 'supplier', '00000000-0000-0000-0000-000000000000', $1, 'draft', $2)
         ON CONFLICT (payment_number) DO NOTHING;
-      `, [company3.id, entrepreneur.id]);
+      `, [company3Id, entrepreneur.id]);
     }
 
     // 4. Créer des comptes OHADA de test
@@ -276,7 +293,7 @@ export async function runDevSeed(dataSource: DataSource) {
       { code: '601', name: 'Achats de marchandises', syscohadaClass: 6, accountType: 'expense' },
     ];
 
-    const accountCompanyId = (company1 && company1.id) || (company2 && company2.id) || (company3 && company3.id);
+    const accountCompanyId = company1Id || company2Id || company3Id;
     if (accountCompanyId) {
       for (const account of accounts) {
         await queryRunner.query(`
@@ -295,7 +312,7 @@ export async function runDevSeed(dataSource: DataSource) {
     // 5. Créer une demande NIF de test
     console.log('Creating test NIF request...');
     
-    if (company1 && entrepreneur.id) {
+    if (company1Id && entrepreneur.id) {
       await queryRunner.query(`
         INSERT INTO nif_requests (
           user_id, company_id, business_name, business_type,
@@ -309,7 +326,7 @@ export async function runDevSeed(dataSource: DataSource) {
           '{"identityCard": "scan_id.pdf", "proofOfAddress": "proof.pdf"}'::jsonb
         )
         ON CONFLICT DO NOTHING;
-      `, [entrepreneur.id, company1.id]);
+      `, [entrepreneur.id, company1Id]);
       console.log('✅ NIF request created');
     }
 
