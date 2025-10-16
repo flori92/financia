@@ -82,15 +82,18 @@ export class UploadsController {
   @ApiResponse({ status: 404, description: 'Fichier non trouvé' })
   async getFile(@Param('id') id: string, @Res() res: Response) {
     const upload = await this.uploadsService.getUpload(id);
-    if (!upload || !fs.existsSync(upload.filePath)) {
+    if (!upload) {
       return res.status(404).json({ message: 'Fichier non trouvé' });
     }
 
-    res.setHeader('Content-Type', upload.mimeType);
-    res.setHeader('Content-Disposition', `inline; filename="${upload.originalName}"`);
-    
-    const fileStream = fs.createReadStream(upload.filePath);
-    fileStream.pipe(res);
+    try {
+      const buffer = await this.uploadsService.getFileBuffer(upload.filePath);
+      res.setHeader('Content-Type', upload.mimeType);
+      res.setHeader('Content-Disposition', `inline; filename="${upload.originalName}"`);
+      res.send(buffer);
+    } catch (e) {
+      return res.status(404).json({ message: 'Fichier non trouvé' });
+    }
   }
 
   @Get('entity/:entityType/:entityId')

@@ -1,0 +1,139 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: bms
+      POSTGRES_PASSWORD: bms_dev_password
+      POSTGRES_DB: bms
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # MinIO (S3-compatible object storage)
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+    networks:
+      - bms-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Create MinIO bucket on startup
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set bms http://minio:9000 minioadmin minioadmin123;
+      /usr/bin/mc mb bms/bms-uploads --ignore-existing;
+      /usr/bin/mc anonymous set download bms/bms-uploads;
+      exit 0;
+      "
+    networks:
+      - bms-network
+
+  # API Gateway (NestJS)
+  api-gateway:
+    build:
+      context: ./bms/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: bms
+      DB_PASSWORD: bms_dev_password
+      DB_NAME: bms
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: your-super-secret-jwt-key
+      JWT_EXPIRES_IN: 7d
+      UPLOAD_DIR: ./uploads
+      STORAGE_PROVIDER: local  # ou 'minio' pour activer MinIO
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
+      MINIO_BUCKET: bms-uploads
+      MINIO_USE_SSL: false
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    volumes:
+      - ./bms/api-gateway:/app
+      - /app/node_modules
+      - uploads_data:/app/uploads
+    networks:
+      - bms-network
+    command: npm run start:dev
+
+  # Web Frontend (Next.js)
+  web:
+    build:
+      context: ./bms-web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_API_TOKEN: ""
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./bms-web:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - bms-network
+    command: npm run dev
+
+networks:
+  bms-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  uploads_data:

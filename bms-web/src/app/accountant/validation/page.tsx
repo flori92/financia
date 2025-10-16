@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Tabs } from "@/components/ui/Tabs";
 import { SimpleTable } from "@/components/table/SimpleTable";
-import { apiGet, apiPatch } from "@/lib/api";
+import { apiGet, apiPatch, getCompanyId } from "@/lib/api";
 
 function nf(v: number) { return new Intl.NumberFormat("fr-FR").format(v) + " FCFA"; }
 function fd(s: any) { const d = s? new Date(s): null; return !d||isNaN(d.getTime())? "": d.toLocaleDateString("fr-FR"); }
@@ -19,10 +19,15 @@ export default function AccountantValidationPage() {
   function showError(text: string){ setToast({ type:'error', text }); setTimeout(()=>setToast(null), 3500); }
 
   async function refresh() {
+    const cid = getCompanyId();
+    if (!cid) { 
+      setLoading(false); 
+      return; 
+    }
     setLoading(true); setError(null);
     try {
-      const inv = await apiGet('/api/v1/invoices', { companyId: (process as any).env?.NEXT_PUBLIC_COMPANY_ID || (typeof window!=='undefined' ? window.localStorage.getItem('companyId') || '' : ''), status: 'submitted' }) as any[];
-      const pay = await apiGet('/api/v1/payments', { companyId: (process as any).env?.NEXT_PUBLIC_COMPANY_ID || (typeof window!=='undefined' ? window.localStorage.getItem('companyId') || '' : '') }) as any[];
+      const inv = await apiGet('/api/v1/invoices', { companyId: cid, status: 'submitted' }) as any[];
+      const pay = await apiGet('/api/v1/payments', { companyId: cid }) as any[];
       setInvoices(inv||[]);
       setPayments(pay||[]);
     } catch (e: any) { setError(String(e)); }
@@ -41,8 +46,9 @@ export default function AccountantValidationPage() {
   async function approveInvoice(id?: string) {
     try {
       if (!id) return;
-      const companyId = (process as any).env?.NEXT_PUBLIC_COMPANY_ID || (typeof window!=='undefined' ? window.localStorage.getItem('companyId') || '' : '');
-      await apiPatch(`/api/v1/invoices/${id}/validate`, {}, { companyId });
+      const cid = getCompanyId();
+      if (!cid) return;
+      await apiPatch(`/api/v1/invoices/${id}/validate`, {}, { companyId: cid });
       showSuccess('Facture approuvée');
       await refresh();
     } catch (e:any) { showError(String(e)); }
@@ -50,8 +56,9 @@ export default function AccountantValidationPage() {
   async function rejectInvoice(id?: string) {
     try {
       if (!id) return;
-      const companyId = (process as any).env?.NEXT_PUBLIC_COMPANY_ID || (typeof window!=='undefined' ? window.localStorage.getItem('companyId') || '' : '');
-      await apiPatch(`/api/v1/invoices/${id}/cancel`, {}, { companyId });
+      const cid = getCompanyId();
+      if (!cid) return;
+      await apiPatch(`/api/v1/invoices/${id}/cancel`, {}, { companyId: cid });
       showSuccess('Facture rejetée');
       await refresh();
     } catch (e:any) { showError(String(e)); }

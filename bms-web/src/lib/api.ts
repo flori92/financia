@@ -4,7 +4,7 @@ function buildQuery(params?: Query) {
   const p = new URLSearchParams();
   if (!params) return '';
   Object.entries(params).forEach(([k, v]) => {
-    if (v === undefined || v === null) return;
+    if (v === undefined || v === null || v === '') return;
     p.set(k, String(v));
   });
   const s = p.toString();
