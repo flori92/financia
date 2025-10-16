@@ -44,12 +44,23 @@ export default function Page() {
   }, []);
 
   const kpis = useMemo(() => {
-    const totalPayments = payments.reduce((s, p) => s + (parseFloat(String(p.amount||0))||0), 0);
+    const asAmount = (v: any) => parseFloat(String(v||0))||0;
+    const customerPayments = payments.filter(p=> (p.partyType||'customer')==='customer');
+    const supplierPayments = payments.filter(p=> p.partyType==='supplier');
+    const totalPayments = customerPayments.reduce((s, p) => s + asAmount(p.amount), 0);
+    const totalExpenses = supplierPayments.reduce((s, p) => s + asAmount(p.amount), 0);
     const unpaid = invoices.filter(i => (i.paymentStatus||i.status) !== 'paid');
-    const unpaidTotal = unpaid.reduce((s, i) => s + (parseFloat(String(i.outstandingAmount||i.totalAmount||0))||0), 0);
-    const expenses = 0;
-    const balance = totalPayments - expenses;
-    return { totalPayments, unpaidCount: unpaid.length, unpaidTotal, balance };
+    const unpaidTotal = unpaid.reduce((s, i) => s + asAmount(i.outstandingAmount||i.totalAmount), 0);
+    const balance = totalPayments - totalExpenses;
+    
+    // Calcul runway simple
+    const now = Date.now();
+    const last30 = payments.filter(p=> (now - new Date(p.paymentDate||p.createdAt||now).getTime()) <= 30*24*3600*1000);
+    const last30Out = last30.filter(p=> p.partyType==='supplier').reduce((s,p)=> s + asAmount(p.amount), 0);
+    const avgDailyOut = last30Out / 30;
+    const runway = avgDailyOut > 0 ? Math.floor(balance / avgDailyOut) : 999;
+    
+    return { totalPayments, totalExpenses, unpaidCount: unpaid.length, unpaidTotal, balance, runway };
   }, [invoices, payments]);
 
   const chartData = useMemo(() => {
@@ -67,7 +78,10 @@ export default function Page() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Tableau de bord</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Tableau de bord</h1>
+          <p className="text-sm text-slate-600 mt-1">Vue d'ensemble de votre activité</p>
+        </div>
         <div className="flex gap-2">
           <button className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">
             Nouvelle transaction
@@ -78,10 +92,18 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <KpiCard title="Encaissements" value={nf(kpis.totalPayments)} hint={"Cumul paiements"} tone="success" />
-        <KpiCard title="Impayés" value={nf(kpis.unpaidTotal)} hint={`${kpis.unpaidCount} facture(s)`} tone="danger" />
-        <KpiCard title="Solde" value={nf(kpis.balance)} hint={"Trésorerie disponible"} />
+      {kpis.runway < 15 && kpis.runway >= 0 && (
+        <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-red-800">
+          <div className="font-semibold">🔴 Alerte Trésorerie Critique</div>
+          <div className="text-sm mt-1">Runway: {kpis.runway} jour(s) restant(s). Accélérez vos relances clients et différez les dépenses non urgentes.</div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <KpiCard title="Encaissements" value={nf(kpis.totalPayments)} hint={"Revenus totaux"} tone="success" />
+        <KpiCard title="Dépenses" value={nf(kpis.totalExpenses)} hint={"Sorties totales"} tone="danger" />
+        <KpiCard title="Impayés" value={nf(kpis.unpaidTotal)} hint={`${kpis.unpaidCount} facture(s)`} />
+        <KpiCard title="Solde" value={nf(kpis.balance)} hint={kpis.runway < 999 ? `Runway: ${kpis.runway}j` : "Situation saine"} />
       </div>
 
       <div className="card p-4">

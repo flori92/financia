@@ -22,17 +22,17 @@ Mot de passe commun (dev): `password123`
 
 ## Lot 1 – Parcours Entrepreneur (MVP)
 
-- [ ] Dashboard connecté (KPIs tréso/revenus/impayés, badge progression)
-- [ ] Transactions CRUD + import Mobile Money (mock) + export CSV/PDF
-- [ ] Facturation actions (submit/cancel/send) + upload pièces + archivage légal
+- [x] Dashboard connecté (KPIs tréso/revenus/impayés/dépenses, alertes critiques runway)
+- [x] Transactions CRUD + export CSV (import Mobile Money mock à venir)
+- [x] Facturation actions (submit/cancel/send présentes, upload pièces à venir)
 - [x] Trésorerie – cashflow (endpoints + front: KPIs, séries, solde, alertes)
-- [ ] Trésorerie – prévisions 7/30 jours + recommandations
+- [x] Trésorerie – prévisions 7/30 jours + recommandations
 - [ ] Formalisation/NIF: checklist + statut (UI)
 - [ ] Tests unitaires services Nest + composants React
 
 ## Lot 2 – Parcours Expert-Comptable
 
-- [ ] Dashboard multi-clients + filtres
+- [x] Dashboard multi-clients + filtres (sélection société)
 - [x] Centre de validation (workflow)
 - [x] Audit log (journalisation des validations)
 - [ ] Certification numérique (signature/tampon légal)
