@@ -167,4 +167,56 @@ export class TreasuryService {
       metrics: result.metrics,
     };
   }
+
+  async getForecast(companyId: string, horizonDays = 7) {
+    if (!companyId) throw new BadRequestException('companyId requis');
+    const now = new Date();
+    const last30Start = new Date(now.getTime() - 30*24*3600*1000);
+
+    const last30 = await this.paymentsRepo.find({
+      where: { companyId, paymentDate: Between(last30Start, now) },
+      order: { paymentDate: 'ASC' },
+    });
+    const all = await this.paymentsRepo.find({ where: { companyId } });
+
+    const sum = (arr: number[]) => arr.reduce((s,v)=> s+v, 0);
+    const isIn = (p: Payment)=> (p.partyType||'customer')==='customer';
+    const isOut = (p: Payment)=> p.partyType==='supplier';
+
+    const last30In = sum(last30.filter(isIn).map(p=> Number(p.amount||0)));
+    const last30Out = sum(last30.filter(isOut).map(p=> Number(p.amount||0)));
+
+    const avgDailyIn = last30In / 30;
+    const avgDailyOut = last30Out / 30;
+
+    const totalIn = sum(all.filter(isIn).map(p=> Number(p.amount||0)));
+    const totalOut = sum(all.filter(isOut).map(p=> Number(p.amount||0)));
+    let balance = totalIn - totalOut;
+
+    const points: { date: string; in: number; out: number; net: number; projectedBalance: number }[] = [];
+    for (let i=1; i<=Math.max(1, horizonDays); i++) {
+      const d = new Date(now.getTime() + i*24*3600*1000);
+      const inflow = Math.max(0, Math.round(avgDailyIn));
+      const outflow = Math.max(0, Math.round(avgDailyOut));
+      const net = inflow - outflow;
+      balance += net;
+      points.push({ date: ymd(d), in: inflow, out: outflow, net, projectedBalance: balance });
+    }
+
+    const dataDays = new Set(last30.map(p=> (p.paymentDate as any)?.toString()?.slice(0,10))).size;
+    const confidence = Math.max(0.2, Math.min(0.95, dataDays/30));
+
+    const recommendations: string[] = [];
+    const runway = avgDailyOut>0 ? Math.floor((totalIn-totalOut)/avgDailyOut) : 999;
+    if (runway < 7) recommendations.push('Runway < 7 jours: relancer fortement les encaissements et différer les décaissements non urgents.');
+    if (points.slice(0,7).some(p=> p.net < 0)) recommendations.push('Flux net négatif attendu à court terme: surveiller la facturation et les relances.');
+
+    return {
+      horizon: horizonDays,
+      startDate: ymd(now),
+      confidence,
+      points,
+      recommendations,
+    };
+  }
 }

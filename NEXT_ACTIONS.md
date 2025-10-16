@@ -12,6 +12,7 @@ Document de suivi unique couvrant la feuille de route produit et technique.
 - **Multi‑sociétés (livré)**: Sélection globale société + rafraîchissement des pages clés.
 - **Seeds (livré)**: Idempotence + paiements fournisseurs (sorties) + récupération IDs.
 - **SYSCOHADA (livré)**: Plan enrichi (55 comptes, classes 1–8) seedé.
+ - **Prévisions (livré)**: `GET /treasury/forecast` (horizon 7/30 jours, modèle naïf sur 30j) + carte “Prévisions” dans l’Aperçu.
 
 ---
 
@@ -37,8 +38,8 @@ Document de suivi unique couvrant la feuille de route produit et technique.
   - [ ] Upload pièces + archivage légal (backend `invoices.service.ts`).
 - **Trésorerie (`src/app/treasury/page.tsx`)**
   - [x] Flux de trésorerie (cashflow) via `treasury.service.ts`.
-  - [ ] Prévision 7/30 jours + recommandations.
-  - Note: cashflow livré (KPIs, séries, alertes, export CSV); prévisions à implémenter.
+  - [x] Prévision 7/30 jours + recommandations.
+  - Note: cashflow + prévisions livrés (modèle naïf 30j); itérations ML possibles plus tard.
 - **Formalisation / NIF**
   - [ ] Checklist documents, suivi statut (`nif.controller.ts`).
 - **Tech**

@@ -82,4 +82,16 @@ export class TreasuryController {
       warningRunwayDays: warningRunwayDays ? Number(warningRunwayDays) : 15,
     });
   }
+
+  @Get('forecast')
+  @ApiOperation({ summary: 'Prévisions de trésorerie (naïf 30j → horizon 7/30 jours)' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'horizonDays', required: false, description: 'Nombre de jours à prévoir (défaut: 7)' })
+  @ApiResponse({ status: 200, description: 'Série prévisionnelle' })
+  async getForecast(
+    @Query('companyId') companyId: string,
+    @Query('horizonDays') horizonDays?: number,
+  ) {
+    return this.treasuryService.getForecast(companyId, horizonDays ? Number(horizonDays) : 7);
+  }
 }

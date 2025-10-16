@@ -40,18 +40,22 @@ export default function TreasuryPage() {
   const [customMode, setCustomMode] = useState<boolean>(false);
   const [customStart, setCustomStart] = useState<string>("");
   const [customEnd, setCustomEnd] = useState<string>("");
+  const [horizon, setHorizon] = useState<number>(7);
+  const [forecast, setForecast] = useState<any|null>(null);
 
   async function refreshAll(cid: string, startDate: string, endDate: string) {
     setLoading(true); setError(null);
     try {
-      const [list, sum, ts]: any = await Promise.all([
+      const [list, sum, ts, fc]: any = await Promise.all([
         apiGet('/api/v1/payments', { companyId: cid }).catch(()=>[]),
         apiGet('/api/v1/treasury/summary', { companyId: cid, startDate, endDate }).catch(()=>null),
         apiGet('/api/v1/treasury/timeseries', { companyId: cid, startDate, endDate, granularity: 'month' }).catch(()=>null),
+        apiGet('/api/v1/treasury/forecast', { companyId: cid, horizonDays: horizon }).catch(()=>null),
       ]);
       setPayments(list||[]);
       setSummary(sum);
       setSeries(ts?.data||null);
+      setForecast(fc||null);
     } catch (e:any) {
       setError(String(e));
     } finally {
@@ -206,6 +210,49 @@ export default function TreasuryPage() {
             <KpiCard title="Entrées totales" value={nf(kpis.inTotal)} />
             <KpiCard title="Sorties totales" value={nf(kpis.outTotal)} />
             <KpiCard title="Net (90 jours)" value={nf(kpis.last90Net)} />
+          </div>
+          <div className="card p-4 mt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-base font-semibold">Prévisions</h3>
+              <div className="flex items-center gap-2 text-sm">
+                <span>Horizon:</span>
+                <select
+                  className="border border-app-border rounded-md px-2 py-1 bg-white text-slate-700"
+                  value={horizon}
+                  onChange={async (e)=>{
+                    const h = parseInt(e.target.value, 10) || 7;
+                    setHorizon(h);
+                    const cid = getCompanyId();
+                    if (cid) {
+                      try {
+                        const fc = await apiGet('/api/v1/treasury/forecast', { companyId: cid, horizonDays: h });
+                        setForecast(fc);
+                      } catch {}
+                    }
+                  }}
+                >
+                  <option value={7}>7 jours</option>
+                  <option value={30}>30 jours</option>
+                </select>
+              </div>
+            </div>
+            {forecast ? (
+              <div className="space-y-2 text-sm text-slate-700">
+                <div>Confiance: {Math.round((forecast.confidence||0)*100)}%</div>
+                <div>
+                  Solde projeté fin horizon: {nf((forecast.points?.[forecast.points.length-1]?.projectedBalance)||0)}
+                </div>
+                {Array.isArray(forecast.recommendations) && forecast.recommendations.length>0 && (
+                  <div className="space-y-1 mt-2">
+                    {forecast.recommendations.map((r:string,i:number)=>(
+                      <div key={i} className="rounded-md bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2">{r}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-sm text-slate-600">Prévisions indisponibles.</div>
+            )}
           </div>
           <div className="card p-4 mt-4">
             <div className="flex items-center justify-between mb-4">
