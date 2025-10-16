@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, LessThan } from 'typeorm';
 import { Payment } from '../payments/entities/payment.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 function parseDate(d: string | Date): Date { return d instanceof Date ? d : new Date(d); }
 function ym(d: Date): string { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
@@ -12,6 +13,7 @@ export class TreasuryService {
   constructor(
     @InjectRepository(Payment)
     private readonly paymentsRepo: Repository<Payment>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async getSummary(companyId: string, startDate: string, endDate: string) {
@@ -123,5 +125,46 @@ export class TreasuryService {
     if (alerts.length === 0 && net > 0) alerts.push({ level: 'info', message: `Situation saine: solde positif (${net} XOF), runway > ${warningRunwayDays} jours.` });
 
     return { alerts, metrics: { runway, net, last90Net, last30In, last30Out } };
+  }
+
+  async checkAndNotifyAlerts(params: {
+    companyId: string;
+    userEmail: string;
+    userPhone: string;
+    companyName: string;
+    criticalRunwayDays?: number;
+    warningRunwayDays?: number;
+  }) {
+    const { companyId, userEmail, userPhone, companyName } = params;
+    const criticalThreshold = params.criticalRunwayDays || 7; // Seuil pour notifications: 7 jours par défaut
+    const warningThreshold = params.warningRunwayDays || 15;
+
+    // Récupérer les alertes
+    const result = await this.getAlerts(companyId, criticalThreshold, warningThreshold);
+    
+    // Filtrer seulement les alertes critical et warning
+    const notifiableAlerts = result.alerts.filter(a => a.level === 'critical' || a.level === 'warning');
+    
+    if (notifiableAlerts.length === 0) {
+      return { notificationsSent: 0, message: 'Aucune alerte à notifier' };
+    }
+
+    // Envoyer notifications pour chaque alerte critique ou warning
+    for (const alert of notifiableAlerts) {
+      await this.notificationsService.notifyTreasuryAlert({
+        userEmail,
+        userPhone,
+        companyName,
+        runway: result.metrics.runway,
+        currentBalance: result.metrics.net,
+        level: alert.level as 'critical' | 'warning',
+      });
+    }
+
+    return {
+      notificationsSent: notifiableAlerts.length,
+      alerts: notifiableAlerts,
+      metrics: result.metrics,
+    };
   }
 }

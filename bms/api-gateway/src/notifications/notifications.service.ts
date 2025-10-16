@@ -356,4 +356,46 @@ Veuillez corriger les informations et soumettre une nouvelle demande.
       message: `❌ Demande NIF rejetée pour ${params.companyName}. Raison: ${params.reason}`,
     });
   }
+
+  /**
+   * Notification alerte trésorerie critique
+   */
+  async notifyTreasuryAlert(params: {
+    userEmail: string;
+    userPhone: string;
+    companyName: string;
+    runway: number;
+    currentBalance: number;
+    level: 'critical' | 'warning';
+  }): Promise<void> {
+    const emoji = params.level === 'critical' ? '🔴' : '🟡';
+    const urgency = params.level === 'critical' ? 'ALERTE CRITIQUE' : 'ATTENTION';
+    
+    const message = `
+${emoji} ${urgency} - Trésorerie
+
+Entreprise: ${params.companyName}
+Solde actuel: ${params.currentBalance.toLocaleString()} FCFA
+Jours de trésorerie: ${params.runway} jour(s)
+
+${params.level === 'critical' 
+  ? '⚠️ Votre trésorerie est critique ! Accélérez vos relances clients et surveillez vos dépenses.' 
+  : '⚠️ Votre trésorerie nécessite une attention. Surveillez vos encaissements à venir.'}
+
+Connectez-vous à votre tableau de bord pour plus de détails.
+    `.trim();
+
+    // Email
+    await this.sendEmail({
+      to: params.userEmail,
+      subject: `${emoji} ${urgency} - Trésorerie ${params.companyName}`,
+      message,
+    });
+
+    // SMS
+    await this.sendSMS({
+      to: params.userPhone,
+      message: `${emoji} ${urgency}: Trésorerie ${params.companyName} - ${params.runway}j de runway, ${params.currentBalance.toLocaleString()} FCFA`,
+    });
+  }
 }

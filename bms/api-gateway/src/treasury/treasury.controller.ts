@@ -55,4 +55,31 @@ export class TreasuryController {
       warningRunwayDays ? Number(warningRunwayDays) : 30,
     );
   }
+
+  @Get('check-and-notify')
+  @ApiOperation({ summary: 'Vérifier alertes et envoyer notifications automatiques (email/SMS)' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'userEmail', required: true })
+  @ApiQuery({ name: 'userPhone', required: true })
+  @ApiQuery({ name: 'companyName', required: true })
+  @ApiQuery({ name: 'criticalRunwayDays', required: false, description: 'Seuil notification critique (défaut: 7)' })
+  @ApiQuery({ name: 'warningRunwayDays', required: false, description: 'Seuil notification warning (défaut: 15)' })
+  @ApiResponse({ status: 200, description: 'Notifications envoyées' })
+  async checkAndNotifyAlerts(
+    @Query('companyId') companyId: string,
+    @Query('userEmail') userEmail: string,
+    @Query('userPhone') userPhone: string,
+    @Query('companyName') companyName: string,
+    @Query('criticalRunwayDays') criticalRunwayDays?: number,
+    @Query('warningRunwayDays') warningRunwayDays?: number,
+  ) {
+    return this.treasuryService.checkAndNotifyAlerts({
+      companyId,
+      userEmail,
+      userPhone,
+      companyName,
+      criticalRunwayDays: criticalRunwayDays ? Number(criticalRunwayDays) : 7,
+      warningRunwayDays: warningRunwayDays ? Number(warningRunwayDays) : 15,
+    });
+  }
 }
