@@ -22,15 +22,31 @@ export default function Page() {
   function showError(text: string){ setToast({ type:'error', text }); setTimeout(()=>setToast(null), 3500); }
 
   useEffect(() => {
-    const cid = getCompanyId();
-    if (!cid) return;
-    setLoading(true); setError(null);
-    Promise.all([
-      apiGet('/api/v1/invoices', { companyId: cid }).catch(() => []),
-      apiGet('/api/v1/payments', { companyId: cid }).catch(() => []),
-    ]).then(([inv, pay]) => { setInvoices(inv as any[]); setPayments(pay as any[]); })
-      .catch((e: unknown) => setError(String(e)))
-      .finally(() => setLoading(false));
+    // Petit délai pour s'assurer que localStorage est prêt
+    const timer = setTimeout(() => {
+      const cid = getCompanyId();
+      if (!cid) {
+        console.warn('Aucune société sélectionnée, chargement des companies...');
+        // Tenter de charger les companies pour initialiser companyId
+        apiGet('/api/v1/companies').then((list: any[]) => {
+          if (list && list[0]?.id) {
+            if (typeof window !== 'undefined') {
+              window.localStorage.setItem('companyId', list[0].id);
+              window.location.reload(); // Recharger pour initialiser correctement
+            }
+          }
+        }).catch(() => {});
+        return;
+      }
+      setLoading(true); setError(null);
+      Promise.all([
+        apiGet('/api/v1/invoices', { companyId: cid }).catch(() => []),
+        apiGet('/api/v1/payments', { companyId: cid }).catch(() => []),
+      ]).then(([inv, pay]) => { setInvoices(inv as any[]); setPayments(pay as any[]); })
+        .catch((e: unknown) => setError(String(e)))
+        .finally(() => setLoading(false));
+    }, 100); // 100ms délai
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
