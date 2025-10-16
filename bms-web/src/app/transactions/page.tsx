@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { KpiCard } from "@/components/kpi/KpiCard";
 import { apiGet, apiPost, apiPatch, apiDelete, getCompanyId } from "@/lib/api";
+import { FileUpload } from "@/components/upload/FileUpload";
 
 const columns = [
   { key: "date", header: "Date" },
@@ -10,10 +11,10 @@ const columns = [
   { key: "category", header: "Catégorie" },
   { key: "party", header: "Bénéficiaire/Payer" },
   { key: "amount", header: "Montant" },
-  { key: "actions", header: "Actions", render: () => (
+  { key: "actions", header: "Actions", render: (row: any) => (
     <div className="flex gap-2">
-      <button className="text-app-primary hover:underline">Voir</button>
-      <button className="text-slate-500 hover:underline">Justif</button>
+      <button onClick={row.onView} className="text-app-primary hover:underline">Voir</button>
+      <button onClick={row.onJustif} className="text-slate-500 hover:underline">Justif</button>
     </div>
   )},
 ];
@@ -44,6 +45,10 @@ export default function TransactionsPage() {
   const [method, setMethod] = useState<string>("cash");
   const [reference, setReference] = useState<string>("");
   const [toast, setToast] = useState<{type:'success'|'error', text:string}|null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<'details' | 'attachments' | null>(null);
+  const [attachments, setAttachments] = useState<any[]>([]);
+  const [selectedAttachments, setSelectedAttachments] = useState<Record<string, boolean>>({});
 
   function showSuccess(text: string){ setToast({ type:'success', text }); setTimeout(()=>setToast(null), 2500); }
   function showError(text: string){ setToast({ type:'error', text }); setTimeout(()=>setToast(null), 3500); }
@@ -58,6 +63,8 @@ export default function TransactionsPage() {
       amount: (p.partyType === 'supplier' ? '-' : '+') + nf(p.amount),
       onEdit: () => handleEdit(p.id, p.reference || ""),
       onDelete: () => handleDelete(p.id),
+      onView: () => handleView(p),
+      onJustif: () => handleJustif(p),
     }));
     setRows(mapped.length ? mapped : defaults);
   }
@@ -118,6 +125,62 @@ export default function TransactionsPage() {
     catch (e: unknown) { setError(String(e)); showError(String(e)); }
   }
 
+  function handleView(payment: any) {
+    setSelectedPayment(payment);
+    setViewMode('details');
+  }
+
+  async function handleJustif(payment: any) {
+    setSelectedPayment(payment);
+    setViewMode('attachments');
+    await loadAttachments(payment.id);
+  }
+
+  async function loadAttachments(paymentId: string) {
+    try {
+      const list = await apiGet(`/api/v1/uploads/entity/payment/${paymentId}`) as any[];
+      setAttachments(list || []);
+      setSelectedAttachments({});
+    } catch (e) {
+      setAttachments([]);
+      setSelectedAttachments({});
+    }
+  }
+
+  async function deleteAttachment(id: string) {
+    try {
+      await apiDelete(`/api/v1/uploads/${id}`);
+      if (selectedPayment) await loadAttachments(selectedPayment.id);
+      showSuccess('Pièce supprimée');
+    } catch (e: unknown) {
+      showError(String(e));
+    }
+  }
+
+  async function deleteSelectedAttachments() {
+    try {
+      const ids = Object.entries(selectedAttachments).filter(([_,v])=>v).map(([id])=>id);
+      if (!ids.length) return;
+      await apiPost('/api/v1/uploads/batch-delete', { ids });
+      if (selectedPayment) await loadAttachments(selectedPayment.id);
+      showSuccess(`${ids.length} pièce(s) supprimée(s)`);
+    } catch (e: unknown) {
+      showError(String(e));
+    }
+  }
+
+  async function renameAttachment(id: string, currentName: string) {
+    try {
+      const name = typeof window !== 'undefined' ? window.prompt('Nouveau nom du fichier', currentName) : currentName;
+      if (!name) return;
+      await apiPatch(`/api/v1/uploads/${id}`, { originalName: name });
+      if (selectedPayment) await loadAttachments(selectedPayment.id);
+      showSuccess('Nom mis à jour');
+    } catch (e: unknown) {
+      showError(String(e));
+    }
+  }
+
   function exportCsv() {
     const rowsToExport = raw.length ? raw : [];
     const header = ['paymentNumber','paymentDate','amount','currency','paymentMethod','partyType','partyId','companyId','status','reference'];
@@ -164,6 +227,114 @@ export default function TransactionsPage() {
           <SimpleTable columns={columns as any} data={rows} />
         )}
       </div>
+
+      {selectedPayment && viewMode === 'details' && (
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Détails du paiement</h3>
+            <button onClick={() => setViewMode(null)} className="text-slate-500 hover:text-slate-700">✕</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="text-slate-600">Numéro</div>
+              <div className="font-medium">{selectedPayment.paymentNumber || selectedPayment.reference || '—'}</div>
+            </div>
+            <div>
+              <div className="text-slate-600">Date</div>
+              <div className="font-medium">{fd(selectedPayment.paymentDate || selectedPayment.createdAt)}</div>
+            </div>
+            <div>
+              <div className="text-slate-600">Montant</div>
+              <div className="font-medium">{nf(selectedPayment.amount)}</div>
+            </div>
+            <div>
+              <div className="text-slate-600">Devise</div>
+              <div className="font-medium">{selectedPayment.currency || 'XOF'}</div>
+            </div>
+            <div>
+              <div className="text-slate-600">Mode de paiement</div>
+              <div className="font-medium">{selectedPayment.paymentMethod || '—'}</div>
+            </div>
+            <div>
+              <div className="text-slate-600">Référence</div>
+              <div className="font-medium">{selectedPayment.reference || '—'}</div>
+            </div>
+            <div>
+              <div className="text-slate-600">Type</div>
+              <div className="font-medium">{selectedPayment.partyType === 'customer' ? 'Client (Encaissement)' : 'Fournisseur (Décaissement)'}</div>
+            </div>
+            <div>
+              <div className="text-slate-600">Statut</div>
+              <div className="font-medium">{selectedPayment.status || 'draft'}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedPayment && viewMode === 'attachments' && (
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Pièces justificatives — {selectedPayment.paymentNumber || selectedPayment.reference}</h3>
+            <button onClick={() => setViewMode(null)} className="text-slate-500 hover:text-slate-700">✕</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2">
+              <div className="text-sm text-slate-600 mb-2">Fichiers existants</div>
+              {attachments.length > 0 ? (
+                <ul className="space-y-2 text-sm">
+                  {attachments.map((a:any)=> (
+                    <li key={a.id} className="p-2 border border-app-border rounded-md">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={!!selectedAttachments[a.id]}
+                          onChange={(e)=> setSelectedAttachments(prev=> ({...prev, [a.id]: e.target.checked}))}
+                        />
+                        {String(a.mimeType||'').startsWith('image/') ? (
+                          <img src={a.publicUrl} alt={a.originalName} className="h-10 w-10 object-cover rounded border border-slate-200" />
+                        ) : (
+                          <div className="h-10 w-10 flex items-center justify-center rounded border border-slate-200 bg-slate-50 text-xs">PDF</div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="truncate font-medium">{a.originalName}</div>
+                          <div className="text-xs text-slate-500">{(a.size/1024/1024).toFixed(2)} MB</div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <a href={a.publicUrl} target="_blank" rel="noreferrer" className="text-app-primary hover:underline">Ouvrir</a>
+                          <button onClick={()=> renameAttachment(a.id, a.originalName)} className="text-slate-700 hover:underline">Renommer</button>
+                          <button onClick={()=> deleteAttachment(a.id)} className="text-rose-700 hover:underline">Supprimer</button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-sm text-slate-500">Aucune pièce jointe.</div>
+              )}
+              {attachments.length > 0 && (
+                <div className="mt-3">
+                  <button onClick={deleteSelectedAttachments} className="text-sm rounded-md bg-rose-600 text-white px-3 py-1.5 hover:bg-rose-700 disabled:opacity-50" disabled={!Object.values(selectedAttachments).some(Boolean)}>
+                    Supprimer la sélection
+                  </button>
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-sm text-slate-600 mb-2">Ajouter une pièce</div>
+              <FileUpload
+                label="Sélectionner un fichier"
+                accept="image/*,application/pdf"
+                maxSize={10}
+                entityType="payment"
+                entityId={selectedPayment.id}
+                companyId={typeof window !== 'undefined' ? (window.localStorage.getItem('companyId')||undefined) as any : undefined}
+                onUploadSuccess={async ()=> { await loadAttachments(selectedPayment.id); showSuccess('Pièce uploadée'); }}
+                onUploadError={(err)=> showError(String(err))}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
