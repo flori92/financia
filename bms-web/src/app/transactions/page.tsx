@@ -44,6 +44,8 @@ export default function TransactionsPage() {
   const [amount, setAmount] = useState<string>("");
   const [method, setMethod] = useState<string>("cash");
   const [reference, setReference] = useState<string>("");
+  const [partyType, setPartyType] = useState<string>("customer");
+  const [paymentDate, setPaymentDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [toast, setToast] = useState<{type:'success'|'error', text:string}|null>(null);
   const [selectedPayment, setSelectedPayment] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'details' | 'attachments' | null>(null);
@@ -91,20 +93,28 @@ export default function TransactionsPage() {
 
   async function handleCreate() {
     try {
-      const cid = getCompanyId(); if (!cid) return;
+      const cid = getCompanyId();
+      if (!cid) { showError('Aucune société sélectionnée'); return; }
+      if (!amount || parseFloat(amount) <= 0) { showError('Montant invalide'); return; }
+      
+      // Récupérer userId depuis localStorage ou utiliser une valeur par défaut
+      const userId = (typeof window !== 'undefined' && localStorage.getItem('userId')) || '00000000-0000-0000-0000-000000000001';
+      // Pour partyId, on utilise un UUID par défaut ou celui stocké
+      const defaultPartyId = '00000000-0000-0000-0000-000000000002';
+      
       const body = {
-        paymentDate: new Date().toISOString().slice(0,10),
-        amount: parseFloat(amount||'0')||0,
+        paymentDate: paymentDate || new Date().toISOString().slice(0, 10),
+        amount: parseFloat(amount),
         currency: 'XOF',
         paymentMethod: method,
         reference: reference || undefined,
-        partyType: 'customer',
-        partyId: (typeof window!=='undefined' && localStorage.getItem('default_party_id')) || '11111111-1111-1111-1111-111111111111',
+        partyType: partyType,
+        partyId: defaultPartyId,
         companyId: cid,
-        createdBy: '7e5d06a6-03ac-467e-abe0-d51d0ea722ff',
+        createdBy: userId,
       };
       await apiPost('/api/v1/payments', body);
-      setAmount(""); setReference(""); setMethod("cash");
+      setAmount(""); setReference(""); setMethod("cash"); setPaymentDate(new Date().toISOString().slice(0, 10));
       showSuccess('Paiement créé');
       await refresh();
     } catch (e: unknown) { setError(String(e)); showError(String(e)); }
@@ -198,6 +208,11 @@ export default function TransactionsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Transactions</h1>
         <div className="flex gap-2">
+          <input type="date" className="rounded-md border border-app-border px-3 py-2 text-sm" value={paymentDate} onChange={e=>setPaymentDate(e.target.value)} />
+          <select className="rounded-md border border-app-border px-3 py-2 text-sm" value={partyType} onChange={e=>setPartyType(e.target.value)}>
+            <option value="customer">Encaissement</option>
+            <option value="supplier">Décaissement</option>
+          </select>
           <input className="rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Montant" value={amount} onChange={e=>setAmount(e.target.value)} />
           <select className="rounded-md border border-app-border px-3 py-2 text-sm" value={method} onChange={e=>setMethod(e.target.value)}>
             <option value="cash">Espèces</option>
@@ -206,7 +221,7 @@ export default function TransactionsPage() {
             <option value="check">Chèque</option>
             <option value="card">Carte</option>
           </select>
-          <input className="rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Référence" value={reference} onChange={e=>setReference(e.target.value)} />
+          <input className="rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Référence (opt.)" value={reference} onChange={e=>setReference(e.target.value)} />
           <button onClick={handleCreate} className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Ajouter</button>
           <button onClick={exportCsv} className="rounded-md bg-white text-slate-700 border border-app-border text-sm px-3 py-2 hover:bg-slate-50">Exporter CSV</button>
         </div>
