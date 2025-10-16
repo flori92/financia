@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { UploadsController } from './uploads.controller';
 import { UploadsService } from './uploads.service';
 import { Upload } from './entities/upload.entity';
@@ -9,7 +10,7 @@ import { Upload } from './entities/upload.entity';
   imports: [
     TypeOrmModule.forFeature([Upload]),
     MulterModule.register({
-      dest: './uploads',
+      storage: memoryStorage(),
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB
       },

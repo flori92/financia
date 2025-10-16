@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Search, LogOut, User } from "lucide-react";
+import { Search, LogOut, User, Bell } from "lucide-react";
 import { apiGet, getCompanyId } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,8 @@ export function Topbar() {
   const [companyId, setCompanyId] = useState<string | undefined>(undefined);
   const [userEmail, setUserEmail] = useState<string>("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifMenu, setShowNotifMenu] = useState(false);
+  const [alerts, setAlerts] = useState<any[]>([]);
 
   useEffect(() => {
     apiGet('/api/v1/companies')
@@ -32,6 +34,17 @@ export function Topbar() {
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showProfileMenu]);
+
+  async function toggleNotifications() {
+    try {
+      if (showNotifMenu) { setShowNotifMenu(false); return; }
+      const cid = getCompanyId();
+      if (!cid) { setShowNotifMenu(!showNotifMenu); return; }
+      const res = await apiGet('/api/v1/treasury/alerts', { companyId: cid });
+      setAlerts(res?.alerts || []);
+      setShowNotifMenu(true);
+    } catch { setAlerts([]); setShowNotifMenu(true); }
+  }
 
   function onChangeCompany(val: string) {
     const v = val || undefined;
@@ -77,8 +90,26 @@ export function Topbar() {
             ))}
           </select>
         </div>
-        <button className="hidden md:inline-flex rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Nouvelle transaction</button>
-        <button className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Notifications">🔔</button>
+        <button onClick={()=> router.push('/transactions')} className="hidden md:inline-flex rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Nouvelle transaction</button>
+        <div className="relative">
+          <button
+            onClick={(e)=>{ e.stopPropagation(); toggleNotifications(); }}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
+            aria-label="Notifications"
+          >
+            <Bell className="h-4 w-4" />
+          </button>
+          {showNotifMenu && (
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-slate-200 py-2 z-50">
+              <div className="px-4 py-2 text-sm font-medium text-slate-700 border-b border-slate-200">Notifications</div>
+              {alerts.length ? alerts.map((a:any, i:number)=> (
+                <div key={i} className={`px-4 py-2 text-sm ${a.level==='critical' ? 'text-red-700' : a.level==='warning' ? 'text-amber-700' : 'text-green-700'}`}>{a.message}</div>
+              )) : (
+                <div className="px-4 py-3 text-sm text-slate-600">Aucune alerte</div>
+              )}
+            </div>
+          )}
+        </div>
         <div className="relative">
           <button 
             onClick={(e) => {

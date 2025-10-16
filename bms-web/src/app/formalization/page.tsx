@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { CheckCircle, Circle, XCircle, Clock, FileText, Upload, AlertTriangle } from "lucide-react";
-import { apiGet, apiPost, apiPatch, getCompanyId } from "@/lib/api";
+import { apiGet, apiPost, apiPatch, getCompanyId, apiDelete } from "@/lib/api";
+import { FileUpload } from "@/components/upload/FileUpload";
 
 const STATUS_CONFIG = {
   pending: { label: "En attente", color: "bg-slate-100 text-slate-700", icon: Clock },
@@ -31,6 +32,30 @@ export default function FormalizationPage() {
     phone: "",
     email: "",
   });
+
+  function extractUploadId(url: string): string | null {
+    if (!url) return null;
+    try {
+      const parts = url.split('/');
+      return parts[parts.length - 1] || null;
+    } catch { return null; }
+  }
+
+  async function handleDeleteDocument(docKey: string) {
+    try {
+      if (!nifRequest) return;
+      const url = nifRequest.documents?.[docKey];
+      const uploadId = extractUploadId(url);
+      if (uploadId) {
+        await apiDelete(`/api/v1/uploads/${uploadId}`);
+      }
+      await apiPatch(`/api/v1/nif/request/${nifRequest.id}/document`, { key: docKey, url: '' });
+      await refresh();
+      showSuccess('Document supprimé');
+    } catch (e: any) {
+      showError(String(e));
+    }
+  }
 
   function showSuccess(text: string){ setToast({ type:'success', text }); setTimeout(()=>setToast(null), 2500); }
   function showError(text: string){ setToast({ type:'error', text }); setTimeout(()=>setToast(null), 3500); }
@@ -298,14 +323,32 @@ export default function FormalizationPage() {
                           {doc.label}
                           {doc.required && <span className="text-red-500 ml-1">*</span>}
                         </div>
-                        {uploaded && <div className="text-xs text-slate-500">Téléchargé</div>}
+                        {uploaded && (
+                          <div className="text-xs text-slate-500 flex items-center gap-3">
+                            <a href={uploaded} target="_blank" rel="noreferrer" className="text-app-primary hover:underline">Ouvrir</a>
+                            <button onClick={()=> handleDeleteDocument(doc.key)} className="text-rose-700 hover:underline">Supprimer</button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     {!uploaded && (
-                      <button className="flex items-center gap-1 text-sm text-app-primary hover:underline">
-                        <Upload className="h-4 w-4" />
-                        Uploader
-                      </button>
+                      <div className="w-60">
+                        <FileUpload
+                          label={`Ajouter ${doc.label}`}
+                          accept="image/*,application/pdf"
+                          maxSize={10}
+                          entityType="nif_request"
+                          entityId={nifRequest?.id}
+                          companyId={typeof window !== 'undefined' ? (window.localStorage.getItem('companyId')||undefined) as any : undefined}
+                          onUploadSuccess={async (u:any)=>{
+                            try {
+                              await apiPatch(`/api/v1/nif/request/${nifRequest.id}/document`, { key: doc.key, url: u.publicUrl });
+                              await refresh();
+                            } catch (e) { console.error(e); }
+                          }}
+                          onUploadError={(err)=> console.error(err)}
+                        />
+                      </div>
                     )}
                   </div>
                 );

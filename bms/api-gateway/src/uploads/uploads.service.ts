@@ -19,6 +19,24 @@ export class UploadsService {
     }
   }
 
+  async deleteMany(ids: string[]): Promise<number> {
+    let count = 0;
+    for (const id of ids) {
+      try {
+        await this.deleteUpload(id);
+        count++;
+      } catch {}
+    }
+    return count;
+  }
+
+  async updateName(id: string, originalName: string): Promise<Upload> {
+    const upload = await this.getUpload(id);
+    if (!upload) throw new BadRequestException('Upload non trouvé');
+    upload.originalName = originalName?.trim() || upload.originalName;
+    return this.uploadsRepo.save(upload);
+  }
+
   async saveFile(
     file: Express.Multer.File,
     userId: string,
@@ -39,14 +57,18 @@ export class UploadsService {
       mimeType: file.mimetype,
       size: file.size,
       filePath,
-      publicUrl: `/uploads/${fileName}`,
+      publicUrl: '',
       entityType,
       entityId,
       uploadedBy: userId,
       companyId,
     });
 
-    return this.uploadsRepo.save(upload);
+    // Enregistrer pour obtenir l'ID
+    const saved = await this.uploadsRepo.save(upload);
+    // Mettre à jour l'URL publique accessible via l'API
+    saved.publicUrl = `/api/v1/uploads/${saved.id}`;
+    return this.uploadsRepo.save(saved);
   }
 
   async getUpload(id: string): Promise<Upload> {

@@ -2,8 +2,10 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Delete,
   Param,
+  Body,
   Query,
   UseGuards,
   UseInterceptors,
@@ -99,6 +101,24 @@ export class UploadsController {
     @Param('entityId') entityId: string,
   ) {
     return this.uploadsService.getUploadsByEntity(entityType, entityId);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Renommer un fichier (originalName)' })
+  @ApiResponse({ status: 200, description: 'Nom mis à jour' })
+  async rename(
+    @Param('id') id: string,
+    @Body() body: { originalName: string },
+  ) {
+    return this.uploadsService.updateName(id, body?.originalName || '');
+  }
+
+  @Post('batch-delete')
+  @ApiOperation({ summary: 'Supprimer plusieurs fichiers' })
+  @ApiResponse({ status: 200, description: 'Fichiers supprimés' })
+  async batchDelete(@Body() body: { ids: string[] }) {
+    const count = await this.uploadsService.deleteMany(Array.isArray(body?.ids) ? body.ids : []);
+    return { deleted: count };
   }
 
   @Delete(':id')

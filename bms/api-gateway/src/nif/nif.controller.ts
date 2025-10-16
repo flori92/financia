@@ -50,6 +50,17 @@ export class NifController {
     return this.nifService.submitRequest(id, req.user.userId);
   }
 
+  @Patch('request/:id/document')
+  @ApiOperation({ summary: 'Mettre à jour un document de la demande NIF' })
+  @ApiResponse({ status: 200, description: 'Document mis à jour' })
+  async updateDocument(
+    @Param('id') id: string,
+    @Request() req,
+    @Body() body: { key: string; url: string },
+  ) {
+    return this.nifService.updateDocument(id, req.user.userId, body.key, body.url);
+  }
+
   @Get('verify/:nifNumber')
   @ApiOperation({ summary: 'Vérifier la validité d\'un NIF' })
   @ApiResponse({ status: 200, description: 'Résultat vérification' })

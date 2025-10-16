@@ -44,6 +44,19 @@ export class NifService {
     return this.nifRequestRepository.save(request);
   }
 
+  async updateDocument(id: string, userId: string, key: string, url: string) {
+    const request = await this.getRequest(id, userId);
+    if (!request) throw new NotFoundException('Demande NIF non trouvée');
+    const docs = request.documents || {} as any;
+    if (!url) {
+      delete (docs as any)[key];
+    } else {
+      (docs as any)[key] = url;
+    }
+    request.documents = docs as any;
+    return this.nifRequestRepository.save(request);
+  }
+
   async getRequest(id: string, userId: string) {
     const request = await this.nifRequestRepository.findOne({
       where: { id, userId },

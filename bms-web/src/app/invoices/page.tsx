@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { KpiCard } from "@/components/kpi/KpiCard";
-import { apiGet, apiPatch, apiPost } from "@/lib/api";
+import { apiGet, apiPatch, apiPost, apiDelete } from "@/lib/api";
+import { FileUpload } from "@/components/upload/FileUpload";
 
 const columns = [
   { key: "date", header: "Date" },
@@ -22,6 +23,7 @@ const columns = [
       <button onClick={row.onSubmit} className="text-emerald-700 hover:underline">Soumettre</button>
       <button onClick={row.onCancel} className="text-rose-700 hover:underline">Annuler</button>
       <button onClick={row.onSend} className="text-sky-700 hover:underline">Envoyer</button>
+      <button onClick={row.onAttach} className="text-slate-700 hover:underline">Pièces</button>
     </div>
   )},
 ];
@@ -52,6 +54,9 @@ export default function InvoicesPage() {
   const [error, setError] = useState<string | null>(null);
   const [raw, setRaw] = useState<any[]>([]);
   const [toast, setToast] = useState<{type:'success'|'error', text:string}|null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<any[]>([]);
+  const [selectedAttachments, setSelectedAttachments] = useState<Record<string, boolean>>({});
 
   function showSuccess(text: string){ setToast({ type:'success', text }); setTimeout(()=>setToast(null), 2500); }
   function showError(text: string){ setToast({ type:'error', text }); setTimeout(()=>setToast(null), 3500); }
@@ -67,6 +72,7 @@ export default function InvoicesPage() {
       onSubmit: () => handleSubmit(inv.id),
       onCancel: () => handleCancel(inv.id),
       onSend: () => handleSend(inv.id, 'whatsapp'),
+      onAttach: () => handleAttach(inv.id),
     }));
     if (mapped.length) setRows(mapped); else setRows([]);
   }
@@ -91,6 +97,58 @@ export default function InvoicesPage() {
   }
   async function handleSend(id?: string, method: 'whatsapp'|'sms'|'email' = 'whatsapp') {
     try { if (!id) return; await apiPost(`/api/v1/invoices/${id}/send`, { method }); showSuccess('Facture envoyée'); await refresh(); } catch (e: unknown) { setError(String(e)); showError(String(e)); }
+  }
+
+  async function loadAttachments(invoiceId: string) {
+    try {
+      const list = await apiGet(`/api/v1/uploads/entity/invoice/${invoiceId}`) as any[];
+      setAttachments(list || []);
+      setSelectedAttachments({});
+    } catch (e) {
+      setAttachments([]);
+      setSelectedAttachments({});
+    }
+  }
+
+  function handleAttach(id?: string) {
+    if (!id) return;
+    setSelectedId(id);
+    loadAttachments(id);
+  }
+
+  async function deleteAttachment(id: string) {
+    try {
+      await apiDelete(`/api/v1/uploads/${id}`);
+      if (selectedId) await loadAttachments(selectedId);
+      showSuccess('Pièce supprimée');
+    } catch (e: unknown) {
+      showError(String(e));
+    }
+  }
+
+  async function deleteSelectedAttachments() {
+    try {
+      const ids = Object.entries(selectedAttachments).filter(([_,v])=>v).map(([id])=>id);
+      if (!ids.length) return;
+      // Suppression batch
+      await apiPost('/api/v1/uploads/batch-delete', { ids });
+      if (selectedId) await loadAttachments(selectedId);
+      showSuccess(`${ids.length} pièce(s) supprimée(s)`);
+    } catch (e: unknown) {
+      showError(String(e));
+    }
+  }
+
+  async function renameAttachment(id: string, currentName: string) {
+    try {
+      const name = typeof window !== 'undefined' ? window.prompt('Nouveau nom du fichier', currentName) : currentName;
+      if (!name) return;
+      await apiPatch(`/api/v1/uploads/${id}`, { originalName: name });
+      if (selectedId) await loadAttachments(selectedId);
+      showSuccess('Nom mis à jour');
+    } catch (e: unknown) {
+      showError(String(e));
+    }
   }
 
   useEffect(() => { refresh(); }, []);
@@ -129,6 +187,70 @@ export default function InvoicesPage() {
           <SimpleTable columns={columns as any} data={rows} />
         )}
       </div>
+
+      {selectedId && (
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Pièces jointes — {rows.find(r=>r.id===selectedId)?.invoice || selectedId}</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2">
+              <div className="text-sm text-slate-600 mb-2">Fichiers existants</div>
+              {attachments.length > 0 ? (
+                <ul className="space-y-2 text-sm">
+                  {attachments.map((a:any)=> (
+                    <li key={a.id} className="p-2 border border-app-border rounded-md">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={!!selectedAttachments[a.id]}
+                          onChange={(e)=> setSelectedAttachments(prev=> ({...prev, [a.id]: e.target.checked}))}
+                        />
+                        {String(a.mimeType||'').startsWith('image/') ? (
+                          <img src={a.publicUrl} alt={a.originalName} className="h-10 w-10 object-cover rounded border border-slate-200" />
+                        ) : (
+                          <div className="h-10 w-10 flex items-center justify-center rounded border border-slate-200 bg-slate-50">PDF</div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="truncate font-medium">{a.originalName}</div>
+                          <div className="text-xs text-slate-500">{(a.size/1024/1024).toFixed(2)} MB • {a.mimeType}</div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <a href={a.publicUrl} target="_blank" rel="noreferrer" className="text-app-primary hover:underline">Ouvrir</a>
+                          <button onClick={()=> renameAttachment(a.id, a.originalName)} className="text-slate-700 hover:underline">Renommer</button>
+                          <button onClick={()=> deleteAttachment(a.id)} className="text-rose-700 hover:underline">Supprimer</button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-sm text-slate-500">Aucune pièce jointe.</div>
+              )}
+              {attachments.length > 0 && (
+                <div className="mt-3">
+                  <button onClick={deleteSelectedAttachments} className="text-sm rounded-md bg-rose-600 text-white px-3 py-1.5 hover:bg-rose-700 disabled:opacity-50" disabled={!Object.values(selectedAttachments).some(Boolean)}>
+                    Supprimer la sélection
+                  </button>
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-sm text-slate-600 mb-2">Ajouter une pièce</div>
+              <FileUpload
+                label="Sélectionner un fichier"
+                accept="image/*,application/pdf"
+                maxSize={10}
+                entityType="invoice"
+                entityId={selectedId}
+                companyId={typeof window !== 'undefined' ? (window.localStorage.getItem('companyId')||undefined) as any : undefined}
+                onUploadSuccess={async ()=> { await loadAttachments(selectedId); showSuccess('Pièce uploadée'); }}
+                onUploadError={(err)=> showError(String(err))}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
