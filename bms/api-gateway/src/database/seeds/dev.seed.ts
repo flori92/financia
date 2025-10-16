@@ -280,17 +280,69 @@ export async function runDevSeed(dataSource: DataSource) {
       `, [company3Id, entrepreneur.id]);
     }
 
-    // 4. Créer des comptes OHADA de test
+    // 4. Créer des comptes OHADA de test (Plan SYSCOHADA révisé 2017)
     console.log('Creating test OHADA accounts...');
     
     const accounts = [
+      // Classe 1: Comptes de ressources durables
       { code: '101', name: 'Capital social', syscohadaClass: 1, accountType: 'equity' },
-      { code: '411', name: 'Clients', syscohadaClass: 4, accountType: 'asset' },
+      { code: '106', name: 'Écarts de réévaluation', syscohadaClass: 1, accountType: 'equity' },
+      { code: '11', name: 'Réserves', syscohadaClass: 1, accountType: 'equity' },
+      { code: '12', name: 'Report à nouveau', syscohadaClass: 1, accountType: 'equity' },
+      { code: '13', name: 'Résultat net de l\'exercice', syscohadaClass: 1, accountType: 'equity' },
+      { code: '16', name: 'Emprunts et dettes assimilées', syscohadaClass: 1, accountType: 'liability' },
+      
+      // Classe 2: Comptes d'actif immobilisé
+      { code: '21', name: 'Immobilisations incorporelles', syscohadaClass: 2, accountType: 'asset' },
+      { code: '22', name: 'Terrains', syscohadaClass: 2, accountType: 'asset' },
+      { code: '23', name: 'Bâtiments, installations techniques et agencements', syscohadaClass: 2, accountType: 'asset' },
+      { code: '24', name: 'Matériel', syscohadaClass: 2, accountType: 'asset' },
+      { code: '26', name: 'Titres de participation', syscohadaClass: 2, accountType: 'asset' },
+      
+      // Classe 3: Comptes de stocks
+      { code: '31', name: 'Marchandises', syscohadaClass: 3, accountType: 'asset' },
+      { code: '32', name: 'Matières premières et fournitures', syscohadaClass: 3, accountType: 'asset' },
+      { code: '33', name: 'Autres approvisionnements', syscohadaClass: 3, accountType: 'asset' },
+      { code: '36', name: 'Produits finis', syscohadaClass: 3, accountType: 'asset' },
+      
+      // Classe 4: Comptes de tiers
       { code: '401', name: 'Fournisseurs', syscohadaClass: 4, accountType: 'liability' },
+      { code: '411', name: 'Clients', syscohadaClass: 4, accountType: 'asset' },
+      { code: '421', name: 'Personnel - Avances et acomptes', syscohadaClass: 4, accountType: 'liability' },
+      { code: '422', name: 'Personnel - Rémunérations dues', syscohadaClass: 4, accountType: 'liability' },
+      { code: '43', name: 'Organismes sociaux', syscohadaClass: 4, accountType: 'liability' },
+      { code: '44', name: 'État et collectivités publiques', syscohadaClass: 4, accountType: 'liability' },
+      { code: '46', name: 'Débiteurs et créditeurs divers', syscohadaClass: 4, accountType: 'asset' },
+      
+      // Classe 5: Comptes de trésorerie
       { code: '512', name: 'Banque', syscohadaClass: 5, accountType: 'asset' },
+      { code: '52', name: 'Titres de placement', syscohadaClass: 5, accountType: 'asset' },
       { code: '571', name: 'Caisse', syscohadaClass: 5, accountType: 'asset' },
-      { code: '701', name: 'Ventes de marchandises', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '581', name: 'Virements internes', syscohadaClass: 5, accountType: 'asset' },
+      
+      // Classe 6: Comptes de charges
       { code: '601', name: 'Achats de marchandises', syscohadaClass: 6, accountType: 'expense' },
+      { code: '605', name: 'Autres achats', syscohadaClass: 6, accountType: 'expense' },
+      { code: '61', name: 'Transports', syscohadaClass: 6, accountType: 'expense' },
+      { code: '62', name: 'Services extérieurs', syscohadaClass: 6, accountType: 'expense' },
+      { code: '63', name: 'Autres services extérieurs', syscohadaClass: 6, accountType: 'expense' },
+      { code: '64', name: 'Impôts et taxes', syscohadaClass: 6, accountType: 'expense' },
+      { code: '66', name: 'Charges de personnel', syscohadaClass: 6, accountType: 'expense' },
+      { code: '67', name: 'Frais financiers', syscohadaClass: 6, accountType: 'expense' },
+      { code: '68', name: 'Dotations aux amortissements', syscohadaClass: 6, accountType: 'expense' },
+      
+      // Classe 7: Comptes de produits
+      { code: '701', name: 'Ventes de marchandises', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '702', name: 'Ventes de produits finis', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '706', name: 'Services vendus', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '707', name: 'Produits accessoires', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '71', name: 'Subventions d\'exploitation', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '77', name: 'Revenus financiers', syscohadaClass: 7, accountType: 'revenue' },
+      { code: '78', name: 'Reprises de charges', syscohadaClass: 7, accountType: 'revenue' },
+      
+      // Classe 8: Comptes des autres charges et autres produits
+      { code: '81', name: 'Valeurs comptables des cessions d\'immobilisations', syscohadaClass: 8, accountType: 'expense' },
+      { code: '82', name: 'Produits des cessions d\'immobilisations', syscohadaClass: 8, accountType: 'revenue' },
     ];
 
     const accountCompanyId = company1Id || company2Id || company3Id;
