@@ -5,20 +5,6 @@ import { KpiCard } from "@/components/kpi/KpiCard";
 import { apiGet, apiPost, apiPatch, apiDelete, getCompanyId } from "@/lib/api";
 import { FileUpload } from "@/components/upload/FileUpload";
 
-const columns = [
-  { key: "date", header: "Date" },
-  { key: "desc", header: "Description" },
-  { key: "category", header: "Catégorie" },
-  { key: "party", header: "Bénéficiaire/Payer" },
-  { key: "amount", header: "Montant" },
-  { key: "actions", header: "Actions", render: (row: any) => (
-    <div className="flex gap-2">
-      <button onClick={row.onView} className="text-app-primary hover:underline">Voir</button>
-      <button onClick={row.onJustif} className="text-slate-500 hover:underline">Justif</button>
-    </div>
-  )},
-];
-
 function nf(v: any) {
   const n = typeof v === "number" ? v : parseFloat(String(v || 0));
   return new Intl.NumberFormat("fr-FR").format(isNaN(n) ? 0 : n) + " FCFA";
@@ -97,10 +83,10 @@ export default function TransactionsPage() {
       if (!cid) { showError('Aucune société sélectionnée'); return; }
       if (!amount || parseFloat(amount) <= 0) { showError('Montant invalide'); return; }
       
-      // Récupérer userId depuis localStorage ou utiliser une valeur par défaut
-      const userId = (typeof window !== 'undefined' && localStorage.getItem('userId')) || '00000000-0000-0000-0000-000000000001';
-      // Pour partyId, on utilise un UUID par défaut ou celui stocké
-      const defaultPartyId = '00000000-0000-0000-0000-000000000002';
+      // Récupérer userId depuis localStorage ou utiliser UUID par défaut valide
+      const userId = (typeof window !== 'undefined' && localStorage.getItem('userId')) || '550e8400-e29b-41d4-a716-446655440000';
+      // Pour partyId, UUID par défaut valide (sera ignoré en prod mais valide pour tests)
+      const defaultPartyId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
       
       const body = {
         paymentDate: paymentDate || new Date().toISOString().slice(0, 10),
@@ -113,11 +99,17 @@ export default function TransactionsPage() {
         companyId: cid,
         createdBy: userId,
       };
+      
+      console.log('Creating payment with body:', body); // Debug
       await apiPost('/api/v1/payments', body);
       setAmount(""); setReference(""); setMethod("cash"); setPaymentDate(new Date().toISOString().slice(0, 10));
       showSuccess('Paiement créé');
       await refresh();
-    } catch (e: unknown) { setError(String(e)); showError(String(e)); }
+    } catch (e: unknown) { 
+      console.error('Error creating payment:', e); // Debug
+      setError(String(e)); 
+      showError(String(e)); 
+    }
   }
 
   async function handleEdit(id?: string, currentRef?: string) {
@@ -199,6 +191,20 @@ export default function TransactionsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'payments.csv'; a.click(); URL.revokeObjectURL(url);
   }
+
+  const columns = [
+    { key: "date", header: "Date" },
+    { key: "desc", header: "Description" },
+    { key: "category", header: "Catégorie" },
+    { key: "party", header: "Bénéficiaire/Payer" },
+    { key: "amount", header: "Montant" },
+    { key: "actions", header: "Actions", render: (row: any) => (
+      <div className="flex gap-2">
+        <button onClick={() => row.onView && row.onView()} className="text-app-primary hover:underline">Voir</button>
+        <button onClick={() => row.onJustif && row.onJustif()} className="text-slate-500 hover:underline">Justif</button>
+      </div>
+    )},
+  ];
 
   return (
     <div className="space-y-6">
