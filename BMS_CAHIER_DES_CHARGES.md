@@ -489,3 +489,34 @@ POST   /api/v1/badges/award         # Attribuer badge
 ---
 
 **Suite dans BMS_ARCHITECTURE.md...**
+
+---
+
+## 🆕 Mises à jour – 16 Octobre 2025
+
+- **[Trésorerie – Backend]**
+  - Endpoints livrés: `GET /api/v1/treasury/summary`, `GET /api/v1/treasury/timeseries`, `GET /api/v1/treasury/alerts`, `GET /api/v1/treasury/check-and-notify`.
+  - Calculs: solde initial/final, flux in/out, net, séries temporelles, runway (jours de trésorerie), alertes configurables.
+- **[Trésorerie – Frontend]**
+  - Page `treasury/page.tsx`: KPIs Entrées/Sorties/Net(90j), graphique barres (Recettes/Dépenses) + courbe (Solde cumulé), filtre période (3/6/12 mois) et dates personnalisées, export CSV, alertes colorisées.
+- **[Notifications]**
+  - Notifications automatiques (email/SMS) via `NotificationsService` pour alertes critiques (runway < 7j) et warning (runway < 15j).
+- **[Paramètres Société]**
+  - Seuils personnalisables par société: `treasuryCriticalThreshold` (par défaut 7), `treasuryWarningThreshold` (par défaut 15).
+  - API: `GET /api/v1/companies/:id`, `PATCH /api/v1/companies/:id/treasury-settings`.
+  - UI: page `settings/page.tsx` pour modifier les seuils.
+- **[Multi‑sociétés]**
+  - Propagation globale du `companyId` et rafraîchissements automatiques sur les pages clés.
+- **[Seeds & Plan Comptable]**
+  - Seeds idempotents (companies, invoices, invoice_items, payments) + paiements fournisseurs.
+  - Plan SYSCOHADA enrichi de 7 → 55 comptes (classes 1–8) insérés en seed.
+
+### API Trésorerie (ajout)
+
+```
+GET /api/v1/treasury/summary?companyId&startDate&endDate
+GET /api/v1/treasury/timeseries?companyId&startDate&endDate&granularity=day|month
+GET /api/v1/treasury/alerts?companyId&criticalRunwayDays&warningRunwayDays
+GET /api/v1/treasury/check-and-notify?companyId&userEmail&userPhone&companyName
+```
+

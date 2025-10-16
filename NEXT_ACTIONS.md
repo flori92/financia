@@ -4,6 +4,17 @@ Document de suivi unique couvrant la feuille de route produit et technique.
 
 ---
 
+## 🆕 Mises à jour – 16 Octobre 2025
+
+- **Trésorerie (livré)**: Endpoints `summary`, `timeseries`, `alerts`, `check-and-notify`; page front avec KPIs, graphique, filtre période (3/6/12 mois + dates), export CSV, alertes runway.
+- **Notifications (livré)**: Envoi email/SMS automatique pour alertes critiques (<7j) et warning (<15j).
+- **Settings (livré)**: Seuils trésorerie configurables par société; endpoints GET/PATCH + page `/settings`.
+- **Multi‑sociétés (livré)**: Sélection globale société + rafraîchissement des pages clés.
+- **Seeds (livré)**: Idempotence + paiements fournisseurs (sorties) + récupération IDs.
+- **SYSCOHADA (livré)**: Plan enrichi (55 comptes, classes 1–8) seedé.
+
+---
+
 ## Lot 0 – Préparation Immédiate
 
 - **[backlog]** Finaliser la cartographie des lots 1→4 et ouvrir les issues associées.
@@ -25,8 +36,9 @@ Document de suivi unique couvrant la feuille de route produit et technique.
   - [ ] Actions Submit/Cancel/Send (WhatsApp/SMS/Email).
   - [ ] Upload pièces + archivage légal (backend `invoices.service.ts`).
 - **Trésorerie (`src/app/treasury/page.tsx`)**
-  - [ ] Flux de trésorerie (cashflow) via `accounting.service.ts`.
+  - [x] Flux de trésorerie (cashflow) via `treasury.service.ts`.
   - [ ] Prévision 7/30 jours + recommandations.
+  - Note: cashflow livré (KPIs, séries, alertes, export CSV); prévisions à implémenter.
 - **Formalisation / NIF**
   - [ ] Checklist documents, suivi statut (`nif.controller.ts`).
 - **Tech**

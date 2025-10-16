@@ -4,35 +4,38 @@
 
 - [x] Backlog unifié dans `NEXT_ACTIONS.md`
 - [x] Seeds de base (entreprise, factures, paiements, allocation)
-- [x] Demande NIF de démo (under_review)
+- [x] Demande NIF de démo (pending)
 - [x] Utilisateur démo Entrepreneur (`demo@bms.test`)
 - [x] Utilisateurs démo (Comptable, Admin fiscal, Banque)
 - [x] Normalisation route Paiements (`/api/v1/payments`)
 - [x] Documentation rationalisée (`BMS_CAHIER_DES_CHARGES.md` + `NEXT_ACTIONS.md`)
+- [x] Multi‑sociétés – sélection et propagation (Topbar + `bms-company-changed`)
 
-## Personas – Comptes démo
+## Personas – Comptes démo (alignés sur les seeds)
 
-- Entrepreneur: `demo@bms.test`
-- Comptable: `accountant@bms.test`
-- Admin fiscal: `taxadmin@bms.test`
-- Banque: `bank@bms.test`
+- Entrepreneur: `entrepreneur@test.bj`
+- Comptable: `comptable@cabinet.bj`
+- Admin fiscal: `taxadmin@dgi.bj`
+- Admin: `admin@bms.bj`
 
-Mot de passe commun (dev): `BmsDemo123!`
+Mot de passe commun (dev): `password123`
 
 ## Lot 1 – Parcours Entrepreneur (MVP)
 
 - [ ] Dashboard connecté (KPIs tréso/revenus/impayés, badge progression)
 - [ ] Transactions CRUD + import Mobile Money (mock) + export CSV/PDF
 - [ ] Facturation actions (submit/cancel/send) + upload pièces + archivage légal
-- [ ] Trésorerie (cashflow) + prévisions 7/30 jours
+- [x] Trésorerie – cashflow (endpoints + front: KPIs, séries, solde, alertes)
+- [ ] Trésorerie – prévisions 7/30 jours + recommandations
 - [ ] Formalisation/NIF: checklist + statut (UI)
 - [ ] Tests unitaires services Nest + composants React
 
 ## Lot 2 – Parcours Expert-Comptable
 
 - [ ] Dashboard multi-clients + filtres
-- [ ] Centre de validation (workflow)
-- [ ] Certification numérique + audit log
+- [x] Centre de validation (workflow)
+- [x] Audit log (journalisation des validations)
+- [ ] Certification numérique (signature/tampon légal)
 - [ ] Suivi formalisation + rappels
 
 ## Lot 3 – Administration Fiscale & Banques
