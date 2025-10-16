@@ -1,11 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, LogOut, User } from "lucide-react";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export function Topbar() {
+  const router = useRouter();
   const [companies, setCompanies] = useState<any[]>([]);
   const [companyId, setCompanyId] = useState<string | undefined>(undefined);
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
     apiGet('/api/v1/companies')
@@ -15,7 +19,19 @@ export function Topbar() {
         setCompanyId(current);
       })
       .catch(() => {});
+    
+    if (typeof window !== 'undefined') {
+      setUserEmail(window.localStorage.getItem('user_email') || 'Utilisateur');
+    }
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = () => setShowProfileMenu(false);
+    if (showProfileMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showProfileMenu]);
 
   function onChangeCompany(val: string) {
     const v = val || undefined;
@@ -26,21 +42,12 @@ export function Topbar() {
     }
   }
 
-  async function devLogin() {
-    try {
-      const res = await fetch('http://localhost:3001/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'comptable@cabinet.bj', password: 'password123' })
-      });
-      const data = await res.json();
-      if (!res.ok) { console.error(data); return; }
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('bms_token', data.access_token);
-        try { window.dispatchEvent(new Event('bms-company-changed')); } catch {}
-        location.reload();
-      }
-    } catch (e) { console.error(e); }
+  function handleLogout() {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('bms_token');
+      window.localStorage.removeItem('user_email');
+      router.push('/login');
+    }
   }
   return (
     <header className="h-14 bg-app-topbar text-white flex items-center px-4 gap-3">
@@ -70,10 +77,35 @@ export function Topbar() {
             ))}
           </select>
         </div>
-        <button onClick={devLogin} className="hidden md:inline-flex rounded-md bg-white/10 text-white text-sm px-3 py-2 hover:bg-white/20">Se connecter (dev)</button>
         <button className="hidden md:inline-flex rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Nouvelle transaction</button>
         <button className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Notifications">🔔</button>
-        <button className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Profil">👤</button>
+        <div className="relative">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowProfileMenu(!showProfileMenu);
+            }}
+            className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-3 py-1.5" 
+            aria-label="Profil"
+          >
+            <User className="h-4 w-4" />
+            <span className="hidden md:inline text-sm">{userEmail.split('@')[0]}</span>
+          </button>
+          {showProfileMenu && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-slate-200 py-1 z-50">
+              <div className="px-4 py-2 border-b border-slate-200">
+                <p className="text-sm font-medium text-slate-700">{userEmail}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              >
+                <LogOut className="h-4 w-4" />
+                Déconnexion
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
