@@ -24,10 +24,11 @@ Mot de passe commun (dev): `password123`
 
 - [x] Dashboard connecté (KPIs tréso/revenus/impayés/dépenses, alertes critiques runway)
 - [x] Transactions CRUD + export CSV (import Mobile Money mock à venir)
-- [x] Facturation actions (submit/cancel/send présentes, upload pièces à venir)
+- [x] Facturation actions (submit/cancel/send présentes, upload pièces système prêt)
 - [x] Trésorerie – cashflow (endpoints + front: KPIs, séries, solde, alertes)
 - [x] Trésorerie – prévisions 7/30 jours + recommandations
 - [x] Formalisation/NIF: page complète (checklist documents, statut, timeline, formulaire)
+- [x] Système upload fichiers (backend + composant réutilisable FileUpload)
 - [ ] Tests unitaires services Nest + composants React
 
 ## Lot 2 – Parcours Expert-Comptable
