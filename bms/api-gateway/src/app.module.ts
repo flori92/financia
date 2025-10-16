@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
@@ -66,6 +67,9 @@ import { TreasuryModule } from './treasury/treasury.module';
 
     // Health Check
     TerminusModule,
+
+    // Scheduler (cron jobs)
+    ScheduleModule.forRoot(),
 
     // Business Modules
     AuthModule,
