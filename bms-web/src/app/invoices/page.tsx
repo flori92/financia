@@ -57,6 +57,14 @@ export default function InvoicesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [attachments, setAttachments] = useState<any[]>([]);
   const [selectedAttachments, setSelectedAttachments] = useState<Record<string, boolean>>({});
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [newInvoice, setNewInvoice] = useState({
+    partyName: '',
+    totalAmount: '',
+    invoiceDate: new Date().toISOString().slice(0, 10),
+    dueDate: '',
+    description: ''
+  });
 
   function showSuccess(text: string){ setToast({ type:'success', text }); setTimeout(()=>setToast(null), 2500); }
   function showError(text: string){ setToast({ type:'error', text }); setTimeout(()=>setToast(null), 3500); }
@@ -151,6 +159,34 @@ export default function InvoicesPage() {
     }
   }
 
+  async function handleCreateInvoice() {
+    try {
+      const cid = getCompanyId();
+      if (!cid) { showError('Aucune société sélectionnée'); return; }
+      if (!newInvoice.partyName.trim()) { showError('Le nom du client est obligatoire'); return; }
+      if (!newInvoice.totalAmount || parseFloat(newInvoice.totalAmount) <= 0) { showError('Montant invalide'); return; }
+      
+      const body = {
+        partyName: newInvoice.partyName,
+        totalAmount: parseFloat(newInvoice.totalAmount),
+        invoiceDate: newInvoice.invoiceDate,
+        dueDate: newInvoice.dueDate || new Date(Date.now() + 30*24*3600*1000).toISOString().slice(0, 10),
+        description: newInvoice.description,
+        companyId: cid,
+        partyId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', // UUID par défaut
+        currency: 'XOF',
+      };
+      
+      await apiPost('/api/v1/invoices', body);
+      showSuccess('Facture créée');
+      setNewInvoice({ partyName: '', totalAmount: '', invoiceDate: new Date().toISOString().slice(0, 10), dueDate: '', description: '' });
+      setShowNewForm(false);
+      await refresh();
+    } catch (e) {
+      showError(String(e));
+    }
+  }
+
   useEffect(() => { refresh(); }, []);
   useEffect(() => {
     const h = () => { refresh(); };
@@ -169,9 +205,43 @@ export default function InvoicesPage() {
         <div className="flex gap-2">
           <input className="rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Rechercher par nom ou numéro" />
           <button className="rounded-md bg-white text-slate-700 border border-app-border text-sm px-3 py-2 hover:bg-slate-50">Exporter</button>
-          <button className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Nouvelle facture</button>
+          <button onClick={() => setShowNewForm(!showNewForm)} className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">
+            {showNewForm ? 'Annuler' : 'Nouvelle facture'}
+          </button>
         </div>
       </div>
+
+      {showNewForm && (
+        <div className="card p-4">
+          <h3 className="text-lg font-semibold mb-4">Nouvelle facture</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Client *</label>
+              <input value={newInvoice.partyName} onChange={e=>setNewInvoice({...newInvoice, partyName: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Nom du client" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Montant Total (FCFA) *</label>
+              <input type="number" value={newInvoice.totalAmount} onChange={e=>setNewInvoice({...newInvoice, totalAmount: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Ex: 150000" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Date de facture</label>
+              <input type="date" value={newInvoice.invoiceDate} onChange={e=>setNewInvoice({...newInvoice, invoiceDate: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Date d'échéance</label>
+              <input type="date" value={newInvoice.dueDate} onChange={e=>setNewInvoice({...newInvoice, dueDate: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+              <textarea value={newInvoice.description} onChange={e=>setNewInvoice({...newInvoice, description: e.target.value})} className="w-full rounded-md border border-app-border px-3 py-2 text-sm" rows={3} placeholder="Description des services ou produits..."></textarea>
+            </div>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <button onClick={handleCreateInvoice} className="rounded-md bg-app-primary text-white text-sm px-4 py-2 hover:bg-[#0F766E]">Créer la facture</button>
+            <button onClick={() => setShowNewForm(false)} className="rounded-md bg-white text-slate-700 border border-app-border text-sm px-4 py-2 hover:bg-slate-50">Annuler</button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <KpiCard title="Total factures" value="932 700 FCFA" />
