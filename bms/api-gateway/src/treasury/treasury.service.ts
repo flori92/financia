@@ -85,4 +85,43 @@ export class TreasuryService {
     const data = entries.map(([name, v])=>{ const net = (v.in||0)-(v.out||0); running += net; return { date: name, in: v.in, out: v.out, net, cumulative: running }; });
     return { granularity, data };
   }
+
+  async getAlerts(companyId: string, criticalRunwayDays = 15, warningRunwayDays = 30) {
+    if (!companyId) throw new BadRequestException('companyId requis');
+    
+    const now = new Date();
+    const last30Start = new Date(now.getTime() - 30*24*3600*1000);
+    const last90Start = new Date(now.getTime() - 90*24*3600*1000);
+
+    const last30 = await this.paymentsRepo.find({
+      where: { companyId, paymentDate: Between(last30Start, now) },
+    });
+    const last90 = await this.paymentsRepo.find({
+      where: { companyId, paymentDate: Between(last90Start, now) },
+    });
+    const all = await this.paymentsRepo.find({ where: { companyId } });
+
+    const last30In = last30.filter(p=> (p.partyType||'customer')==='customer').reduce((s,p)=> s + Number(p.amount||0), 0);
+    const last30Out = last30.filter(p=> p.partyType==='supplier').reduce((s,p)=> s + Number(p.amount||0), 0);
+    const last90In = last90.filter(p=> (p.partyType||'customer')==='customer').reduce((s,p)=> s + Number(p.amount||0), 0);
+    const last90Out = last90.filter(p=> p.partyType==='supplier').reduce((s,p)=> s + Number(p.amount||0), 0);
+    const totalIn = all.filter(p=> (p.partyType||'customer')==='customer').reduce((s,p)=> s + Number(p.amount||0), 0);
+    const totalOut = all.filter(p=> p.partyType==='supplier').reduce((s,p)=> s + Number(p.amount||0), 0);
+    const net = totalIn - totalOut;
+    const last90Net = last90In - last90Out;
+
+    const avgDailyOut = last30Out / 30;
+    const runway = avgDailyOut > 0 ? Math.floor(net / avgDailyOut) : 999;
+
+    const alerts: { level: 'critical'|'warning'|'info', message: string }[] = [];
+    
+    if (runway < criticalRunwayDays && runway >= 0) alerts.push({ level: 'critical', message: `Trésorerie critique: ${runway} jours de runway restants. Accélérer relances clients.` });
+    else if (runway < warningRunwayDays && runway >= criticalRunwayDays) alerts.push({ level: 'warning', message: `Attention: ${runway} jours de runway. Surveiller encaissements à venir.` });
+    
+    if (last90Net < 0) alerts.push({ level: 'warning', message: `Tendance négative: flux net négatif sur 90 jours (${last90Net} XOF).` });
+    if (last30In === 0) alerts.push({ level: 'warning', message: `Aucun encaissement sur les 30 derniers jours. Vérifier synchronisation.` });
+    if (alerts.length === 0 && net > 0) alerts.push({ level: 'info', message: `Situation saine: solde positif (${net} XOF), runway > ${warningRunwayDays} jours.` });
+
+    return { alerts, metrics: { runway, net, last90Net, last30In, last30Out } };
+  }
 }

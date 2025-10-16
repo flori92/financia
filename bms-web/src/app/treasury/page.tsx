@@ -15,6 +15,20 @@ function nf(v: number) { return new Intl.NumberFormat("fr-FR").format(v) + " FCF
 function fd(s: any) { const d = s? new Date(s): null; return !d||isNaN(d.getTime())? "": d.toLocaleDateString("fr-FR"); }
 function ym(d: string | Date) { const dt = new Date(d); return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,'0'); }
 
+function exportCSV(data: any[], filename: string) {
+  if (!data || data.length === 0) return;
+  const headers = Object.keys(data[0]);
+  const csvContent = [
+    headers.join(';'),
+    ...data.map(row => headers.map(h => row[h] || '').join(';'))
+  ].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+
 export default function TreasuryPage() {
   const [active, setActive] = useState("overview");
   const [loading, setLoading] = useState(false);
@@ -23,13 +37,12 @@ export default function TreasuryPage() {
   const [summary, setSummary] = useState<any|null>(null);
   const [series, setSeries] = useState<{ date:string, in:number, out:number, net:number, cumulative:number }[]|null>(null);
   const [rangeMonths, setRangeMonths] = useState<number>(12);
+  const [customMode, setCustomMode] = useState<boolean>(false);
+  const [customStart, setCustomStart] = useState<string>("");
+  const [customEnd, setCustomEnd] = useState<string>("");
 
-  async function refreshAll(cid: string, months: number) {
+  async function refreshAll(cid: string, startDate: string, endDate: string) {
     setLoading(true); setError(null);
-    const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth()-(months-1), 1);
-    const startDate = start.toISOString().slice(0,10);
-    const endDate = now.toISOString().slice(0,10);
     try {
       const [list, sum, ts]: any = await Promise.all([
         apiGet('/api/v1/payments', { companyId: cid }).catch(()=>[]),
@@ -49,14 +62,26 @@ export default function TreasuryPage() {
   useEffect(() => {
     const cid = getCompanyId();
     if (!cid) return;
-    refreshAll(cid, rangeMonths);
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth()-11, 1);
+    const startDate = start.toISOString().slice(0,10);
+    const endDate = now.toISOString().slice(0,10);
+    setCustomStart(startDate);
+    setCustomEnd(endDate);
+    refreshAll(cid, startDate, endDate);
   }, []);
 
   useEffect(() => {
     const h = () => {
       const cid = getCompanyId();
       if (!cid) return;
-      refreshAll(cid, rangeMonths);
+      if (customMode && customStart && customEnd) {
+        refreshAll(cid, customStart, customEnd);
+      } else {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth()-(rangeMonths-1), 1);
+        refreshAll(cid, start.toISOString().slice(0,10), now.toISOString().slice(0,10));
+      }
     };
     if (typeof window !== 'undefined') {
       window.addEventListener('bms-company-changed', h);
@@ -120,24 +145,30 @@ export default function TreasuryPage() {
     };
   }), [payments]);
 
-  const forecast = useMemo(() => {
-    const now = Date.now();
-    const days = payments
-      .filter(p => (now - new Date(p.paymentDate||p.createdAt||now).getTime()) <= 30*24*3600*1000)
-      .map(p => ({ d: new Date(p.paymentDate||p.createdAt).toDateString(), v: parseFloat(String(p.amount||0))||0 }));
-    const byDay: Record<string, number> = {};
-    for (const x of days) byDay[x.d] = (byDay[x.d]||0) + x.v;
-    const vals = Object.values(byDay);
-    const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
-    const next_7_days = Array.from({length:7},()=> Math.round(avg));
-    const next_30_days = Array.from({length:30},()=> Math.round(avg));
-    const confidence = vals.length >= 7 ? 0.7 : 0.4;
-    const daysOfRunway = (kpis.net/ (avg || 1)) || 0;
-    const recommendations: string[] = [];
-    if (daysOfRunway < 15) recommendations.push('Trésorerie critique: <15 jours – accélérer relances clients.');
-    if (avg === 0) recommendations.push('Aucune entrée récente: vérifier synchronisation paiements.');
-    return { next7: next_7_days, next30: next_30_days, confidence, recommendations };
-  }, [payments, kpis.net]);
+  const alerts = useMemo(() => {
+    const result: { level: 'critical' | 'warning' | 'info', message: string }[] = [];
+    const asAmount = (v: any) => parseFloat(String(v||0))||0;
+    
+    // Calcul runway (jours de trésorerie disponible)
+    const last30In = payments.filter(p => (p.partyType||'customer')==='customer' && (Date.now() - new Date(p.paymentDate||p.createdAt||Date.now()).getTime()) <= 30*24*3600*1000).reduce((s,p)=> s + asAmount(p.amount), 0);
+    const last30Out = payments.filter(p => p.partyType==='supplier' && (Date.now() - new Date(p.paymentDate||p.createdAt||Date.now()).getTime()) <= 30*24*3600*1000).reduce((s,p)=> s + asAmount(p.amount), 0);
+    const avgDailyOut = last30Out / 30;
+    const runway = avgDailyOut > 0 ? Math.floor(kpis.net / avgDailyOut) : 999;
+    
+    if (runway < 15 && runway >= 0) result.push({ level: 'critical', message: `🔴 Trésorerie critique: ${runway} jours de runway restants. Accélérer relances clients.` });
+    else if (runway < 30 && runway >= 15) result.push({ level: 'warning', message: `🟡 Attention: ${runway} jours de runway. Surveiller encaissements à venir.` });
+    
+    // Tendance négative
+    if (kpis.last90Net < 0) result.push({ level: 'warning', message: `🟡 Tendance négative: flux net négatif sur 90 jours (${nf(kpis.last90Net)}).` });
+    
+    // Aucune entrée récente
+    if (last30In === 0) result.push({ level: 'warning', message: `🟡 Aucun encaissement sur les 30 derniers jours. Vérifier synchronisation.` });
+    
+    // Solde positif (info)
+    if (result.length === 0 && kpis.net > 0) result.push({ level: 'info', message: `✅ Situation saine: solde positif (${nf(kpis.net)}), runway > 30 jours.` });
+    
+    return result;
+  }, [payments, kpis]);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -162,6 +193,15 @@ export default function TreasuryPage() {
 
       {active === "overview" && (
         <>
+          {alerts.filter(a => a.level === 'critical').length > 0 && (
+            <div className="space-y-2 mb-4">
+              {alerts.filter(a => a.level === 'critical').map((alert, i) => (
+                <div key={i} className="rounded-md px-4 py-3 bg-red-50 border border-red-200 text-red-800">
+                  {alert.message}
+                </div>
+              ))}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <KpiCard title="Entrées totales" value={nf(kpis.inTotal)} />
             <KpiCard title="Sorties totales" value={nf(kpis.outTotal)} />
@@ -170,22 +210,76 @@ export default function TreasuryPage() {
           <div className="card p-4 mt-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Évolution de la trésorerie</h2>
-              <div className="flex items-center gap-2 text-sm">
-                <span>Période:</span>
-                <select
-                  className="border border-app-border rounded-md px-2 py-1 bg-white text-slate-700"
-                  value={rangeMonths}
-                  onChange={(e)=>{
-                    const m = parseInt(e.target.value,10)||12;
-                    setRangeMonths(m);
-                    const cid = getCompanyId();
-                    if (cid) refreshAll(cid, m);
+              <div className="flex items-center gap-3 text-sm">
+                <button
+                  onClick={()=> {
+                    const exportData = chartData.map(d => ({
+                      Date: d.name,
+                      Recettes: d.recettes,
+                      Depenses: d.depenses,
+                      Net: d.net,
+                      SoldeCumule: d.solde
+                    }));
+                    exportCSV(exportData, `tresorerie_${new Date().toISOString().slice(0,10)}.csv`);
                   }}
+                  className="rounded-md bg-white text-slate-700 border border-app-border text-xs px-3 py-1.5 hover:bg-slate-50"
                 >
-                  <option value={3}>3 mois</option>
-                  <option value={6}>6 mois</option>
-                  <option value={12}>12 mois</option>
-                </select>
+                  Exporter CSV
+                </button>
+                <button
+                  onClick={()=> setCustomMode(!customMode)}
+                  className="text-app-primary underline hover:text-[#0F766E]"
+                >
+                  {customMode ? "Période rapide" : "Dates personnalisées"}
+                </button>
+                {!customMode ? (
+                  <>
+                    <span>Période:</span>
+                    <select
+                      className="border border-app-border rounded-md px-2 py-1 bg-white text-slate-700"
+                      value={rangeMonths}
+                      onChange={(e)=>{
+                        const m = parseInt(e.target.value,10)||12;
+                        setRangeMonths(m);
+                        const cid = getCompanyId();
+                        if (cid) {
+                          const now = new Date();
+                          const start = new Date(now.getFullYear(), now.getMonth()-(m-1), 1);
+                          refreshAll(cid, start.toISOString().slice(0,10), now.toISOString().slice(0,10));
+                        }
+                      }}
+                    >
+                      <option value={3}>3 mois</option>
+                      <option value={6}>6 mois</option>
+                      <option value={12}>12 mois</option>
+                    </select>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="date"
+                      value={customStart}
+                      onChange={(e)=> setCustomStart(e.target.value)}
+                      className="border border-app-border rounded-md px-2 py-1 bg-white text-slate-700"
+                    />
+                    <span>→</span>
+                    <input
+                      type="date"
+                      value={customEnd}
+                      onChange={(e)=> setCustomEnd(e.target.value)}
+                      className="border border-app-border rounded-md px-2 py-1 bg-white text-slate-700"
+                    />
+                    <button
+                      onClick={()=>{
+                        const cid = getCompanyId();
+                        if (cid && customStart && customEnd) refreshAll(cid, customStart, customEnd);
+                      }}
+                      className="rounded-md bg-app-primary text-white text-xs px-3 py-1.5 hover:bg-[#0F766E]"
+                    >
+                      Appliquer
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             <div className="h-80">
@@ -221,14 +315,25 @@ export default function TreasuryPage() {
       )}
 
       {active === "flows" && (
-        <div className="card p-4 text-sm text-slate-600">
-          <div className="mb-3 text-base font-medium">Prévisions encaissements</div>
-          <div className="mb-2">7 jours: {forecast.next7.slice(0,7).map(nf).join(' | ')}</div>
-          <div className="mb-4">Confiance: {(forecast.confidence*100).toFixed(0)}%</div>
-          {forecast.recommendations.length>0 && (
-            <div className="space-y-1">
-              {forecast.recommendations.map((r,i)=>(<div key={i} className="rounded-md bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2">{r}</div>))}
+        <div className="card p-4">
+          <div className="mb-4 text-lg font-semibold">Alertes et Recommandations</div>
+          {alerts.length > 0 ? (
+            <div className="space-y-2">
+              {alerts.map((alert, i) => (
+                <div 
+                  key={i} 
+                  className={`rounded-md px-4 py-3 ${
+                    alert.level === 'critical' ? 'bg-red-50 border border-red-200 text-red-800' :
+                    alert.level === 'warning' ? 'bg-amber-50 border border-amber-200 text-amber-800' :
+                    'bg-green-50 border border-green-200 text-green-800'
+                  }`}
+                >
+                  {alert.message}
+                </div>
+              ))}
             </div>
+          ) : (
+            <div className="text-slate-600 text-sm">Aucune alerte pour le moment.</div>
           )}
         </div>
       )}

@@ -37,4 +37,22 @@ export class TreasuryController {
   ) {
     return this.treasuryService.getTimeseries(companyId, startDate, endDate, granularity);
   }
+
+  @Get('alerts')
+  @ApiOperation({ summary: 'Alertes trésorerie (runway, tendances, seuils configurables)' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'criticalRunwayDays', required: false, description: 'Seuil critique en jours (défaut: 15)' })
+  @ApiQuery({ name: 'warningRunwayDays', required: false, description: 'Seuil warning en jours (défaut: 30)' })
+  @ApiResponse({ status: 200, description: 'Alertes et métriques' })
+  async getAlerts(
+    @Query('companyId') companyId: string,
+    @Query('criticalRunwayDays') criticalRunwayDays?: number,
+    @Query('warningRunwayDays') warningRunwayDays?: number,
+  ) {
+    return this.treasuryService.getAlerts(
+      companyId,
+      criticalRunwayDays ? Number(criticalRunwayDays) : 15,
+      warningRunwayDays ? Number(warningRunwayDays) : 30,
+    );
+  }
 }
