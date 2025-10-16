@@ -553,6 +553,108 @@ export class AccountingService {
   }
 
   /**
+   * Initialiser le plan comptable SYSCOHADA pour une société
+   * Retourne le nombre de comptes créés
+   */
+  async seedSyscohada(companyId: string): Promise<number> {
+    if (!companyId) {
+      throw new BadRequestException('companyId est requis');
+    }
+
+    // Comptes de référence (extraits SYSCOHADA, représentatifs des classes 1 à 8)
+    const defs: Array<{ n: string; name: string; type: 'asset'|'liability'|'equity'|'revenue'|'expense'; cls: number }>= [
+      // Classe 1 — Ressources durables (equity/liability)
+      { n:'101', name:'Capital social', type:'equity', cls:1 },
+      { n:'106', name:'Réserves', type:'equity', cls:1 },
+      { n:'110', name:'Report à nouveau', type:'equity', cls:1 },
+      { n:'120', name:'Résultat de l\'exercice', type:'equity', cls:1 },
+      { n:'160', name:'Emprunts obligataires', type:'liability', cls:1 },
+      { n:'161', name:'Emprunts auprès des établissements de crédit', type:'liability', cls:1 },
+      { n:'168', name:'Provisions pour risques et charges', type:'liability', cls:1 },
+      { n:'170', name:'Subventions d\'investissement', type:'equity', cls:1 },
+
+      // Classe 2 — Actif immobilisé (asset)
+      { n:'201', name:'Immobilisations incorporelles', type:'asset', cls:2 },
+      { n:'211', name:'Terrains', type:'asset', cls:2 },
+      { n:'212', name:'Constructions', type:'asset', cls:2 },
+      { n:'213', name:'Installations techniques', type:'asset', cls:2 },
+      { n:'215', name:'Matériel et outillage', type:'asset', cls:2 },
+      { n:'218', name:'Matériel de transport', type:'asset', cls:2 },
+      { n:'2183', name:'Mobilier et matériel de bureau', type:'asset', cls:2 },
+
+      // Classe 3 — Stocks (asset)
+      { n:'31', name:'Matières premières', type:'asset', cls:3 },
+      { n:'32', name:'Autres approvisionnements', type:'asset', cls:3 },
+      { n:'33', name:'Produits en cours', type:'asset', cls:3 },
+      { n:'34', name:'Produits finis', type:'asset', cls:3 },
+      { n:'35', name:'Marchandises', type:'asset', cls:3 },
+
+      // Classe 4 — Tiers (asset/liability)
+      { n:'401', name:'Fournisseurs', type:'liability', cls:4 },
+      { n:'404', name:'Fournisseurs d\'immobilisations', type:'liability', cls:4 },
+      { n:'411', name:'Clients', type:'asset', cls:4 },
+      { n:'416', name:'Clients douteux', type:'asset', cls:4 },
+      { n:'421', name:'Personnel - Rémunérations dues', type:'liability', cls:4 },
+      { n:'431', name:'Sécurité sociale', type:'liability', cls:4 },
+      { n:'4456', name:'TVA déductible', type:'asset', cls:4 },
+      { n:'4457', name:'TVA collectée', type:'liability', cls:4 },
+
+      // Classe 5 — Trésorerie (asset)
+      { n:'512', name:'Banque', type:'asset', cls:5 },
+      { n:'531', name:'Caisse', type:'asset', cls:5 },
+
+      // Classe 6 — Charges (expense)
+      { n:'601', name:'Achats stockés - matières premières', type:'expense', cls:6 },
+      { n:'602', name:'Achats stockés - autres approvisionnements', type:'expense', cls:6 },
+      { n:'606', name:'Achats non stockés', type:'expense', cls:6 },
+      { n:'607', name:'Achats de marchandises', type:'expense', cls:6 },
+      { n:'611', name:'Sous-traitance générale', type:'expense', cls:6 },
+      { n:'613', name:'Locations', type:'expense', cls:6 },
+      { n:'615', name:'Entretien et réparations', type:'expense', cls:6 },
+      { n:'618', name:'Divers - services extérieurs', type:'expense', cls:6 },
+      { n:'63', name:'Impôts et taxes', type:'expense', cls:6 },
+      { n:'64', name:'Charges de personnel', type:'expense', cls:6 },
+      { n:'68', name:'Dotations aux amortissements', type:'expense', cls:6 },
+
+      // Classe 7 — Produits (revenue)
+      { n:'701', name:'Ventes de produits finis', type:'revenue', cls:7 },
+      { n:'706', name:'Prestations de services', type:'revenue', cls:7 },
+      { n:'707', name:'Ventes de marchandises', type:'revenue', cls:7 },
+      { n:'75', name:'Autres produits de gestion courante', type:'revenue', cls:7 },
+      { n:'781', name:'Reprises sur amortissements et provisions', type:'revenue', cls:7 },
+
+      // Classe 8 — Comptes spéciaux (mixte)
+      { n:'86', name:'Charges exceptionnelles', type:'expense', cls:8 },
+      { n:'87', name:'Produits exceptionnels', type:'revenue', cls:8 },
+    ];
+
+    // Récupérer les comptes existants pour éviter les doublons
+    const existing = await this.accountsRepository.find({ where: { companyId } });
+    const existingNumbers = new Set(existing.map((a) => a.accountNumber));
+
+    let created = 0;
+    for (const d of defs) {
+      if (existingNumbers.has(d.n)) continue;
+      // Valider la combinaison classe/type
+      this.validateSyscohadaClass(d.cls, d.type);
+      const account = this.accountsRepository.create({
+        accountNumber: d.n,
+        accountName: d.name,
+        accountType: d.type,
+        syscohadaClass: d.cls,
+        companyId,
+        currency: 'XOF',
+        isActive: true,
+        balance: 0,
+      });
+      await this.accountsRepository.save(account);
+      created++;
+    }
+
+    return created;
+  }
+
+  /**
    * Récupérer les écritures d'un compte
    */
   private async getAccountEntries(
@@ -574,5 +676,105 @@ export class AccountingService {
     }
 
     return query.orderBy('entry.entryDate', 'ASC').getMany();
+  }
+
+  // ============================================
+  // ÉTATS COMPTABLES
+  // ============================================
+
+  async getTrialBalance(
+    companyId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<{
+    rows: Array<{ number: string; name: string; debit: number; credit: number; balance: number }>;
+    totals: { debit: number; credit: number; balance: number };
+  }> {
+    if (!companyId) throw new BadRequestException('companyId requis');
+    const accounts = await this.findAllAccounts(companyId);
+    const rows: Array<{ number: string; name: string; debit: number; credit: number; balance: number }> = [];
+    let totalDebit = 0;
+    let totalCredit = 0;
+
+    for (const acc of accounts) {
+      const entries = await this.getAccountEntries(acc.id, startDate, endDate);
+      const debit = entries.reduce((s, l) => s + Number(l.debit || 0), 0);
+      const credit = entries.reduce((s, l) => s + Number(l.credit || 0), 0);
+      const balance = debit - credit;
+      if (debit !== 0 || credit !== 0) {
+        rows.push({ number: acc.accountNumber, name: acc.accountName, debit, credit, balance });
+      }
+      totalDebit += debit;
+      totalCredit += credit;
+    }
+
+    return { rows, totals: { debit: totalDebit, credit: totalCredit, balance: totalDebit - totalCredit } };
+  }
+
+  async getProfitLoss(
+    companyId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<{
+    revenues: Array<{ number: string; name: string; amount: number }>;
+    expenses: Array<{ number: string; name: string; amount: number }>;
+    totals: { revenues: number; expenses: number; result: number };
+  }> {
+    if (!companyId) throw new BadRequestException('companyId requis');
+    const accounts = await this.findAllAccounts(companyId);
+    const revRows: Array<{ number: string; name: string; amount: number }> = [];
+    const expRows: Array<{ number: string; name: string; amount: number }> = [];
+    let totalRev = 0;
+    let totalExp = 0;
+
+    for (const acc of accounts) {
+      if (acc.accountType !== 'revenue' && acc.accountType !== 'expense') continue;
+      const entries = await this.getAccountEntries(acc.id, startDate, endDate);
+      const debit = entries.reduce((s, l) => s + Number(l.debit || 0), 0);
+      const credit = entries.reduce((s, l) => s + Number(l.credit || 0), 0);
+      const movement = acc.accountType === 'expense' ? (debit - credit) : (credit - debit);
+      if (movement === 0) continue;
+      if (acc.accountType === 'expense') { expRows.push({ number: acc.accountNumber, name: acc.accountName, amount: movement }); totalExp += movement; }
+      else { revRows.push({ number: acc.accountNumber, name: acc.accountName, amount: movement }); totalRev += movement; }
+    }
+
+    return { revenues: revRows, expenses: expRows, totals: { revenues: totalRev, expenses: totalExp, result: totalRev - totalExp } };
+  }
+
+  async getBalanceSheet(
+    companyId: string,
+    date: string,
+  ): Promise<{
+    assets: Array<{ number: string; name: string; amount: number }>;
+    liabilities: Array<{ number: string; name: string; amount: number }>;
+    equity: Array<{ number: string; name: string; amount: number }>;
+    totals: { assets: number; liabilitiesEquity: number };
+  }> {
+    if (!companyId) throw new BadRequestException('companyId requis');
+    const accounts = await this.findAllAccounts(companyId);
+    const assets: Array<{ number: string; name: string; amount: number }> = [];
+    const liabilities: Array<{ number: string; name: string; amount: number }> = [];
+    const equity: Array<{ number: string; name: string; amount: number }> = [];
+    let totalAssets = 0;
+    let totalLE = 0;
+
+    const startEpoch = '1970-01-01';
+    for (const acc of accounts) {
+      const entries = await this.getAccountEntries(acc.id, startEpoch, date);
+      const debit = entries.reduce((s, l) => s + Number(l.debit || 0), 0);
+      const credit = entries.reduce((s, l) => s + Number(l.credit || 0), 0);
+      const amount = this.computeSignedBalance(acc.accountType, debit, credit);
+      if (amount === 0) continue;
+      if (acc.accountType === 'asset') { assets.push({ number: acc.accountNumber, name: acc.accountName, amount }); totalAssets += amount; }
+      else if (acc.accountType === 'liability') { liabilities.push({ number: acc.accountNumber, name: acc.accountName, amount }); totalLE += amount; }
+      else if (acc.accountType === 'equity') { equity.push({ number: acc.accountNumber, name: acc.accountName, amount }); totalLE += amount; }
+    }
+
+    return { assets, liabilities, equity, totals: { assets: totalAssets, liabilitiesEquity: totalLE } };
+  }
+
+  private computeSignedBalance(accountType: string, debit: number, credit: number): number {
+    if (accountType === 'asset' || accountType === 'expense') return debit - credit;
+    return credit - debit; // liability, equity, revenue
   }
 }

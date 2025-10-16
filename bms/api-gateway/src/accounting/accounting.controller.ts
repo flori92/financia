@@ -19,6 +19,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { AccountingService } from './accounting.service';
+import { AccountingAutomationService } from './accounting-automation.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
@@ -33,7 +34,10 @@ import { JournalEntry } from './entities/journal-entry.entity';
 // @UseGuards(JwtAuthGuard) // À décommenter quand l'auth est configurée
 @ApiBearerAuth()
 export class AccountingController {
-  constructor(private readonly accountingService: AccountingService) {}
+  constructor(
+    private readonly accountingService: AccountingService,
+    private readonly accountingAutomation: AccountingAutomationService,
+  ) {}
 
   // ============================================
   // ENDPOINTS GESTION DES COMPTES
@@ -51,6 +55,47 @@ export class AccountingController {
     @Body() createAccountDto: CreateAccountDto,
   ): Promise<Account> {
     return this.accountingService.createAccount(createAccountDto);
+  }
+
+  // ============================================
+  // ÉTATS COMPTABLES
+  // ============================================
+
+  @Get('trial-balance')
+  @ApiOperation({ summary: 'Balance de vérification' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'startDate', required: true })
+  @ApiQuery({ name: 'endDate', required: true })
+  async getTrialBalance(
+    @Query('companyId') companyId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.accountingService.getTrialBalance(companyId, startDate, endDate);
+  }
+
+  @Get('profit-loss')
+  @ApiOperation({ summary: 'Compte de résultat (P&L)' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'startDate', required: true })
+  @ApiQuery({ name: 'endDate', required: true })
+  async getProfitLoss(
+    @Query('companyId') companyId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.accountingService.getProfitLoss(companyId, startDate, endDate);
+  }
+
+  @Get('balance-sheet')
+  @ApiOperation({ summary: 'Bilan' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'date', required: true })
+  async getBalanceSheet(
+    @Query('companyId') companyId: string,
+    @Query('date') date: string,
+  ) {
+    return this.accountingService.getBalanceSheet(companyId, date);
   }
 
   @Get('accounts')
@@ -85,6 +130,19 @@ export class AccountingController {
     );
   }
 
+  // ============================================
+  // SEED PLAN COMPTABLE SYSCOHADA
+  // ============================================
+
+  @Post('seed-syscohada')
+  @ApiOperation({ summary: 'Initialiser le plan comptable SYSCOHADA pour une société' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({ status: 201, description: 'Comptes créés' })
+  async seedSyscohada(@Query('companyId') companyId: string) {
+    const created = await this.accountingService.seedSyscohada(companyId);
+    return { created };
+  }
+
   @Get('accounts/:id')
   @ApiOperation({ summary: 'Récupérer un compte par ID' })
   @ApiResponse({ status: 200, description: 'Compte trouvé', type: Account })
@@ -95,11 +153,7 @@ export class AccountingController {
 
   @Put('accounts/:id')
   @ApiOperation({ summary: 'Mettre à jour un compte' })
-  @ApiResponse({
-    status: 200,
-    description: 'Compte mis à jour',
-    type: Account,
-  })
+  @ApiResponse({ status: 200, description: 'Compte mis à jour', type: Account })
   @ApiResponse({ status: 404, description: 'Compte non trouvé' })
   async updateAccount(
     @Param('id') id: string,
@@ -267,5 +321,69 @@ export class AccountingController {
       startDate,
       endDate,
     );
+  }
+
+  // ============================================
+  // AUTOMATISATION DES ÉCRITURES
+  // ============================================
+
+  @Post('auto/sale')
+  @ApiOperation({ summary: 'Générer automatiquement une écriture de vente' })
+  async autoGenerateSaleEntry(@Body() body: {
+    companyId: string;
+    invoiceNumber: string;
+    invoiceDate: string;
+    customerName: string;
+    amountHT: number;
+    vatAmount: number;
+    amountTTC: number;
+    serviceType?: 'goods' | 'services';
+    userId: string;
+  }) {
+    return this.accountingAutomation.generateSaleEntry(body);
+  }
+
+  @Post('auto/purchase')
+  @ApiOperation({ summary: 'Générer automatiquement une écriture d\'achat' })
+  async autoGeneratePurchaseEntry(@Body() body: {
+    companyId: string;
+    invoiceNumber: string;
+    invoiceDate: string;
+    supplierName: string;
+    amountHT: number;
+    vatAmount: number;
+    amountTTC: number;
+    purchaseType?: 'goods' | 'services';
+    userId: string;
+  }) {
+    return this.accountingAutomation.generatePurchaseEntry(body);
+  }
+
+  @Post('auto/customer-payment')
+  @ApiOperation({ summary: 'Générer automatiquement une écriture d\'encaissement client' })
+  async autoGenerateCustomerPayment(@Body() body: {
+    companyId: string;
+    paymentNumber: string;
+    paymentDate: string;
+    customerName: string;
+    amount: number;
+    paymentMethod: 'bank' | 'cash' | 'mobile_money';
+    userId: string;
+  }) {
+    return this.accountingAutomation.generateCustomerPaymentEntry(body);
+  }
+
+  @Post('auto/supplier-payment')
+  @ApiOperation({ summary: 'Générer automatiquement une écriture de décaissement fournisseur' })
+  async autoGenerateSupplierPayment(@Body() body: {
+    companyId: string;
+    paymentNumber: string;
+    paymentDate: string;
+    supplierName: string;
+    amount: number;
+    paymentMethod: 'bank' | 'cash' | 'mobile_money';
+    userId: string;
+  }) {
+    return this.accountingAutomation.generateSupplierPaymentEntry(body);
   }
 }
