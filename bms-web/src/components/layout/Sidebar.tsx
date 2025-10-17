@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2 } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -22,6 +22,7 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/trial-balance", label: "Balance de Vérification", icon: LineChart },
   { href: "/accountant/profit-loss", label: "Compte de Résultat", icon: LineChart },
   { href: "/accountant/balance-sheet", label: "Bilan", icon: LineChart },
+  { href: "/accountant/bank", label: "Rapprochement Bancaire", icon: Building2 },
 ];
 
 export function Sidebar() {

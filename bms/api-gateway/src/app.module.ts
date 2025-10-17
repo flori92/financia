@@ -24,6 +24,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
 import { TreasuryModule } from './treasury/treasury.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { BankingModule } from './banking/banking.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { UploadsModule } from './uploads/uploads.module';
     InvoicesModule,
     PaymentsModule,
     TreasuryModule,
+    BankingModule,
     MobileMoneyModule,
     AccountingModule,
     SyncModule,
