@@ -19,6 +19,7 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/validation", label: "Centre de Validation", icon: FileCheck },
   { href: "/accountant/chart-of-accounts", label: "Plan Comptable SYSCOHADA", icon: Landmark },
   { href: "/accountant/journal", label: "Journal des Écritures", icon: FileText },
+  { href: "/accountant/general-ledger", label: "Grand Livre", icon: LayoutDashboard },
   { href: "/accountant/trial-balance", label: "Balance de Vérification", icon: LineChart },
   { href: "/accountant/profit-loss", label: "Compte de Résultat", icon: LineChart },
   { href: "/accountant/balance-sheet", label: "Bilan", icon: LineChart },

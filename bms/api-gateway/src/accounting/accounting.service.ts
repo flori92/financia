@@ -12,6 +12,7 @@ import { JournalEntryLine } from './entities/journal-entry-line.entity';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
+import { AccountingClosureService } from './accounting-closure.service';
 
 /**
  * Service de gestion comptable conforme OHADA
@@ -25,6 +26,7 @@ export class AccountingService {
     private journalEntriesRepository: Repository<JournalEntry>,
     @InjectRepository(JournalEntryLine)
     private journalEntryLinesRepository: Repository<JournalEntryLine>,
+    private closureService: AccountingClosureService,
   ) {}
 
   // ============================================
@@ -149,6 +151,18 @@ export class AccountingService {
   async createJournalEntry(
     createJournalEntryDto: CreateJournalEntryDto,
   ): Promise<JournalEntry> {
+    // Vérifier que la date n'est pas dans une période clôturée
+    const entryDate = new Date(createJournalEntryDto.entryDate);
+    const isLocked = await this.closureService.isDateLocked(
+      createJournalEntryDto.companyId,
+      entryDate,
+    );
+    if (isLocked) {
+      throw new BadRequestException(
+        `Impossible de créer une écriture à la date ${entryDate.toLocaleDateString('fr-FR')}. Cette période est clôturée.`,
+      );
+    }
+
     // Valider que les débits = crédits
     let totalDebit = 0;
     let totalCredit = 0;
@@ -398,54 +412,123 @@ export class AccountingService {
   }
 
   /**
-   * Générer le Grand Livre (General Ledger)
+   * Générer le Grand Livre (General Ledger) avec détail des mouvements
+   * (Version améliorée avec solde progressif)
    */
   async generateGeneralLedger(
     companyId: string,
     accountNumber?: string,
     startDate?: string,
     endDate?: string,
-  ): Promise<any> {
-    let accounts: Account[];
+  ): Promise<{
+    movements: Array<{
+      date: string;
+      entryNumber: string;
+      description: string;
+      reference: string;
+      debit: number;
+      credit: number;
+      balance: number;
+    }>;
+    account: { number: string; name: string; type: string } | null;
+    summary: { totalDebit: number; totalCredit: number; finalBalance: number };
+  }> {
+    if (!companyId) throw new BadRequestException('companyId requis');
 
+    // Si un compte est spécifié, récupérer ses détails
+    let account: Account | null = null;
     if (accountNumber) {
-      const account = await this.accountsRepository.findOne({
-        where: { accountNumber, companyId },
+      account = await this.accountsRepository.findOne({
+        where: { companyId, accountNumber },
       });
       if (!account) {
-        throw new NotFoundException(`Compte ${accountNumber} non trouvé`);
+        throw new NotFoundException(`Compte ${accountNumber} introuvable`);
       }
-      accounts = [account];
-    } else {
-      accounts = await this.findAllAccounts(companyId);
     }
 
-    const ledger = [];
+    // Construire la requête
+    const query = this.journalEntriesRepository
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.lines', 'line')
+      .leftJoinAndSelect('line.account', 'account')
+      .where('entry.company_id = :companyId', { companyId })
+      .andWhere('entry.status = :status', { status: 'posted' });
 
-    for (const account of accounts) {
-      const entries = await this.getAccountEntries(
-        account.id,
-        startDate,
-        endDate,
-      );
-
-      ledger.push({
-        account: {
-          number: account.accountNumber,
-          name: account.accountName,
-          balance: account.balance,
-        },
-        entries: entries.map((line) => ({
-          date: line.journalEntry.entryDate,
-          reference: line.journalEntry.entryNumber,
-          description: line.label,
-          debit: line.debit,
-          credit: line.credit,
-        })),
-      });
+    if (startDate) {
+      query.andWhere('entry.entry_date >= :startDate', { startDate });
     }
 
-    return ledger;
+    if (endDate) {
+      query.andWhere('entry.entry_date <= :endDate', { endDate });
+    }
+
+    if (accountNumber && account) {
+      query.andWhere('line.account_id = :accountId', { accountId: account.id });
+    }
+
+    const entries = await query
+      .orderBy('entry.entry_date', 'ASC')
+      .addOrderBy('entry.entry_number', 'ASC')
+      .getMany();
+
+    // Construire les mouvements
+    const movements: Array<{
+      date: string;
+      entryNumber: string;
+      description: string;
+      reference: string;
+      debit: number;
+      credit: number;
+      balance: number;
+    }> = [];
+
+    let runningBalance = 0;
+    let totalDebit = 0;
+    let totalCredit = 0;
+
+    for (const entry of entries) {
+      for (const line of entry.lines) {
+        // Filtrer par compte si spécifié
+        if (accountNumber && account && line.account.id !== account.id) {
+          continue;
+        }
+
+        const debit = parseFloat(String(line.debit || 0));
+        const credit = parseFloat(String(line.credit || 0));
+
+        totalDebit += debit;
+        totalCredit += credit;
+
+        // Calcul du solde progressif (débit - crédit pour simplifier)
+        runningBalance += debit - credit;
+
+        movements.push({
+          date: entry.entryDate.toISOString().slice(0, 10),
+          entryNumber: entry.entryNumber,
+          description: line.label || entry.description,
+          reference: entry.reference || '',
+          debit,
+          credit,
+          balance: runningBalance,
+        });
+      }
+    }
+
+    return {
+      movements,
+      account: account
+        ? {
+            number: account.accountNumber,
+            name: account.accountName,
+            type: account.accountType,
+          }
+        : null,
+      summary: {
+        totalDebit,
+        totalCredit,
+        finalBalance: runningBalance,
+      },
+    };
   }
 
   // ============================================
