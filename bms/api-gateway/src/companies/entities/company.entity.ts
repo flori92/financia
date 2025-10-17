@@ -65,6 +65,9 @@ export class Company {
   @Column({ name: 'default_currency', default: 'XOF' })
   defaultCurrency: string;
 
+  @Column({ name: 'vat_rate', type: 'decimal', precision: 5, scale: 2, default: 18.00 })
+  vatRate: number;
+
   // Treasury Settings
   @Column({ name: 'treasury_critical_threshold', type: 'int', default: 7 })
   treasuryCriticalThreshold: number;
