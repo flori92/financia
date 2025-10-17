@@ -53,8 +53,44 @@ export default function FinancialAnalysisPage() {
             </ResponsiveContainer>
           </div>
         )}
-        {tab === 'balance' && <div className="text-sm text-slate-600">Bilan financier (à connecter au backend).</div>}
-        {tab === 'ratios' && <div className="text-sm text-slate-600">Ratios financiers (marges, rotation, liquidité).</div>}
+        {tab === 'balance' && (
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              Bilan Financier
+            </h3>
+            <p className="text-sm text-slate-600 mb-6">
+              Le bilan comptable complet (Actif / Passif) est disponible dans l'espace comptable.
+            </p>
+            <a 
+              href="/accountant/balance-sheet"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-app-primary text-white rounded-lg hover:bg-app-primary/90 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Accéder au Bilan Comptable
+            </a>
+          </div>
+        )}
+        {tab === 'ratios' && (
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              Ratios Financiers
+            </h3>
+            <p className="text-sm text-slate-600 mb-6">
+              Les ratios financiers (liquidité, solvabilité) sont disponibles dans le Dashboard Comptable.
+            </p>
+            <a 
+              href="/accountant"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-app-primary text-white rounded-lg hover:bg-app-primary/90 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Accéder au Dashboard Comptable
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

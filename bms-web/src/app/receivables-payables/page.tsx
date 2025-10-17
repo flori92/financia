@@ -37,24 +37,40 @@ const suppliers = [
 ];
 
 export default function ReceivablesPayablesPage() {
-  const [active, setActive] = useState("clients");
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Créances & Dettes</h1>
-        <div className="flex gap-2">
-          <input className="rounded-md border border-app-border px-3 py-2 text-sm" placeholder="Rechercher..." />
-        </div>
       </div>
 
-      <Tabs tabs={[{ id: 'clients', label: 'Clients' }, { id: 'suppliers', label: 'Fournisseurs' }]} defaultId="clients" onChange={setActive} />
-
-      <div className="card p-4">
-        {active === 'clients' ? (
-          <SimpleTable columns={clientCols as any} data={clients} />
-        ) : (
-          <SimpleTable columns={supplierCols as any} data={suppliers} />
-        )}
+      <div className="card p-8">
+        <div className="text-center py-8">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">
+            Balance Âgée des Créances et Dettes
+          </h3>
+          <p className="text-sm text-slate-600 mb-6">
+            Le module complet d'analyse des créances clients et dettes fournisseurs par ancienneté est disponible dans l'espace comptable.
+          </p>
+          <a 
+            href="/accountant/aged-balance"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-app-primary text-white rounded-lg hover:bg-app-primary/90 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Accéder à la Balance Âgée
+          </a>
+          <div className="mt-6 text-xs text-slate-500">
+            <p className="font-medium mb-2">Fonctionnalités disponibles :</p>
+            <ul className="space-y-1 text-left max-w-md mx-auto">
+              <li>• Analyse créances clients par ancienneté (0-30j, 30-60j, 60-90j, &gt;90j)</li>
+              <li>• Analyse dettes fournisseurs par ancienneté</li>
+              <li>• Détail par tiers avec plus ancienne date</li>
+              <li>• Alertes automatiques sur impayés &gt;90 jours</li>
+              <li>• Graphiques visuels de répartition</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
