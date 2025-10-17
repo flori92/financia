@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Query,
   Param,
@@ -16,7 +17,9 @@ import {
 } from '@nestjs/swagger';
 import { BankingService } from './banking.service';
 import { ImportCsvDto, ReconcileDto } from './dto/import-csv.dto';
+import { CreateBankAccountDto, UpdateBankAccountDto } from './dto/bank-account.dto';
 import { BankTransaction } from './entities/bank-transaction.entity';
+import { BankAccount } from './entities/bank-account.entity';
 
 /**
  * Contrôleur pour la gestion bancaire
@@ -104,5 +107,76 @@ export class BankingController {
   })
   async ignore(@Param('id') id: string): Promise<BankTransaction> {
     return this.bankingService.ignore(id);
+  }
+
+  // ==========================================
+  // GESTION DES COMPTES BANCAIRES
+  // ==========================================
+
+  @Post('accounts')
+  @ApiOperation({ summary: 'Créer un compte bancaire' })
+  @ApiResponse({
+    status: 201,
+    description: 'Compte bancaire créé',
+    type: BankAccount,
+  })
+  async createAccount(@Body() dto: CreateBankAccountDto): Promise<BankAccount> {
+    return this.bankingService.createBankAccount(dto);
+  }
+
+  @Get('accounts')
+  @ApiOperation({ summary: 'Récupérer tous les comptes bancaires avec soldes' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des comptes bancaires avec soldes calculés',
+  })
+  async findAllAccounts(@Query('companyId') companyId: string): Promise<any[]> {
+    return this.bankingService.findAllAccounts(companyId);
+  }
+
+  @Get('accounts/:id')
+  @ApiOperation({ summary: 'Récupérer un compte bancaire par ID' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'Détails du compte bancaire',
+    type: BankAccount,
+  })
+  async findAccountById(
+    @Param('id') id: string,
+    @Query('companyId') companyId: string,
+  ): Promise<BankAccount> {
+    return this.bankingService.findAccountById(id, companyId);
+  }
+
+  @Put('accounts/:id')
+  @ApiOperation({ summary: 'Mettre à jour un compte bancaire' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'Compte bancaire mis à jour',
+    type: BankAccount,
+  })
+  async updateAccount(
+    @Param('id') id: string,
+    @Query('companyId') companyId: string,
+    @Body() dto: UpdateBankAccountDto,
+  ): Promise<BankAccount> {
+    return this.bankingService.updateBankAccount(id, companyId, dto);
+  }
+
+  @Delete('accounts/:id')
+  @ApiOperation({ summary: 'Supprimer un compte bancaire' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'Compte bancaire supprimé',
+  })
+  async deleteAccount(
+    @Param('id') id: string,
+    @Query('companyId') companyId: string,
+  ): Promise<void> {
+    return this.bankingService.deleteBankAccount(id, companyId);
   }
 }

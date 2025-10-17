@@ -2,11 +2,14 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { BankTransaction } from './entities/bank-transaction.entity';
+import { BankAccount } from './entities/bank-account.entity';
 import { ImportCsvDto, ReconcileDto } from './dto/import-csv.dto';
+import { CreateBankAccountDto, UpdateBankAccountDto } from './dto/bank-account.dto';
 import { Payment } from '../payments/entities/payment.entity';
 
 /**
  * Service de gestion bancaire:
+ * - Gestion des comptes bancaires
  * - Import de relevés CSV
  * - Rapprochement semi-automatique avec les paiements
  */
@@ -15,6 +18,8 @@ export class BankingService {
   constructor(
     @InjectRepository(BankTransaction)
     private bankTransactionsRepo: Repository<BankTransaction>,
+    @InjectRepository(BankAccount)
+    private bankAccountsRepo: Repository<BankAccount>,
     @InjectRepository(Payment)
     private paymentsRepo: Repository<Payment>,
   ) {}
@@ -254,5 +259,126 @@ export class BankingService {
     }
 
     return null;
+  }
+
+  /**
+   * ==========================================
+   * GESTION DES COMPTES BANCAIRES
+   * ==========================================
+   */
+
+  /**
+   * Créer un compte bancaire
+   */
+  async createBankAccount(dto: CreateBankAccountDto): Promise<BankAccount> {
+    const account = this.bankAccountsRepo.create(dto);
+    return this.bankAccountsRepo.save(account);
+  }
+
+  /**
+   * Récupérer tous les comptes bancaires avec soldes calculés
+   */
+  async findAllAccounts(companyId: string): Promise<Array<{
+    id: string;
+    name: string;
+    accountNumber: string;
+    iban: string | null;
+    bankName: string | null;
+    currency: string;
+    openingBalance: number;
+    currentBalance: number;
+    lastTransactionDate: Date | null;
+    isActive: boolean;
+    transactionCount: number;
+  }>> {
+    const accounts = await this.bankAccountsRepo.find({
+      where: { companyId },
+      order: { name: 'ASC' },
+    });
+
+    const accountsWithBalances = await Promise.all(
+      accounts.map(async (account) => {
+        // Calculer le solde actuel depuis les transactions
+        const transactions = await this.bankTransactionsRepo.find({
+          where: { companyId, accountId: account.id },
+          order: { transactionDate: 'DESC' },
+        });
+
+        const transactionSum = transactions.reduce(
+          (sum, tx) => sum + parseFloat(String(tx.amount || 0)),
+          0,
+        );
+
+        const currentBalance = parseFloat(String(account.openingBalance || 0)) + transactionSum;
+
+        const lastTransaction = transactions.length > 0 ? transactions[0] : null;
+
+        return {
+          id: account.id,
+          name: account.name,
+          accountNumber: account.accountNumber,
+          iban: account.iban,
+          bankName: account.bankName,
+          currency: account.currency,
+          openingBalance: parseFloat(String(account.openingBalance || 0)),
+          currentBalance,
+          lastTransactionDate: lastTransaction?.transactionDate || null,
+          isActive: account.isActive,
+          transactionCount: transactions.length,
+        };
+      }),
+    );
+
+    return accountsWithBalances;
+  }
+
+  /**
+   * Récupérer un compte bancaire par ID
+   */
+  async findAccountById(id: string, companyId: string): Promise<BankAccount> {
+    const account = await this.bankAccountsRepo.findOne({
+      where: { id, companyId },
+    });
+
+    if (!account) {
+      throw new BadRequestException('Compte bancaire introuvable');
+    }
+
+    return account;
+  }
+
+  /**
+   * Mettre à jour un compte bancaire
+   */
+  async updateBankAccount(
+    id: string,
+    companyId: string,
+    dto: UpdateBankAccountDto,
+  ): Promise<BankAccount> {
+    const account = await this.findAccountById(id, companyId);
+
+    Object.assign(account, dto);
+
+    return this.bankAccountsRepo.save(account);
+  }
+
+  /**
+   * Supprimer un compte bancaire
+   */
+  async deleteBankAccount(id: string, companyId: string): Promise<void> {
+    const account = await this.findAccountById(id, companyId);
+
+    // Vérifier qu'il n'y a pas de transactions liées
+    const transactionCount = await this.bankTransactionsRepo.count({
+      where: { accountId: id },
+    });
+
+    if (transactionCount > 0) {
+      throw new BadRequestException(
+        'Impossible de supprimer un compte avec des transactions',
+      );
+    }
+
+    await this.bankAccountsRepo.remove(account);
   }
 }

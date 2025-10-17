@@ -5,6 +5,7 @@ import { KpiCard } from "@/components/kpi/KpiCard";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { Building2, Landmark, TrendingUp, TrendingDown } from "lucide-react";
 
 const txColumns = [
   { key: "date", header: "Date" },
@@ -27,6 +28,135 @@ function exportCSV(data: any[], filename: string) {
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();
+}
+
+function BankAccountsList() {
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const cid = getCompanyId();
+    if (!cid) return;
+    
+    setLoading(true);
+    apiGet('/api/v1/banking/accounts', { companyId: cid })
+      .then((data: any) => {
+        setAccounts(data || []);
+        setError(null);
+      })
+      .catch((e: any) => setError(String(e)))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="card p-8 text-center text-slate-500">Chargement des comptes bancaires...</div>;
+  }
+
+  if (error) {
+    return <div className="card p-8 text-center text-rose-600">{error}</div>;
+  }
+
+  if (accounts.length === 0) {
+    return (
+      <div className="card p-8 text-center">
+        <Landmark className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">Aucun compte bancaire</h3>
+        <p className="text-sm text-slate-600 mb-4">
+          Ajoutez vos comptes bancaires pour suivre vos soldes en temps réel.
+        </p>
+      </div>
+    );
+  }
+
+  const totalBalance = accounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
+
+  return (
+    <div className="space-y-4">
+      {/* KPI Solde Total */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="card p-4 bg-gradient-to-br from-emerald-50 to-emerald-100">
+          <div className="text-sm text-emerald-700 mb-1">Solde Total</div>
+          <div className="text-2xl font-bold text-emerald-900">{nf(totalBalance)}</div>
+          <div className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+            <TrendingUp className="w-3 h-3" />
+            {accounts.length} compte(s) actif(s)
+          </div>
+        </div>
+      </div>
+
+      {/* Liste des comptes */}
+      <div className="card">
+        <div className="p-4 border-b border-app-border">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Building2 className="w-5 h-5" />
+            Comptes Bancaires
+          </h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50">
+              <tr className="text-left">
+                <th className="p-3 font-medium text-slate-700">Nom du compte</th>
+                <th className="p-3 font-medium text-slate-700">Banque</th>
+                <th className="p-3 font-medium text-slate-700">N° Compte</th>
+                <th className="p-3 font-medium text-slate-700">IBAN</th>
+                <th className="p-3 font-medium text-slate-700 text-right">Solde Actuel</th>
+                <th className="p-3 font-medium text-slate-700">Dernière Transaction</th>
+                <th className="p-3 font-medium text-slate-700 text-center">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {accounts.map((account) => (
+                <tr key={account.id} className="border-b border-app-border hover:bg-slate-50">
+                  <td className="p-3 font-medium text-slate-900">{account.name}</td>
+                  <td className="p-3 text-slate-700">{account.bankName || '—'}</td>
+                  <td className="p-3 font-mono text-xs text-slate-600">{account.accountNumber}</td>
+                  <td className="p-3 font-mono text-xs text-slate-600">{account.iban || '—'}</td>
+                  <td className={`p-3 text-right font-mono font-semibold ${
+                    account.currentBalance >= 0 ? 'text-emerald-700' : 'text-rose-700'
+                  }`}>
+                    {nf(account.currentBalance)}
+                  </td>
+                  <td className="p-3 text-slate-600 text-xs">
+                    {account.lastTransactionDate 
+                      ? fd(account.lastTransactionDate)
+                      : 'Aucune transaction'
+                    }
+                  </td>
+                  <td className="p-3 text-center">
+                    {account.isActive ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                        Actif
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
+                        <div className="w-2 h-2 rounded-full bg-slate-400" />
+                        Inactif
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="p-4 bg-slate-50 border-t border-app-border">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600">
+              Total: {accounts.length} compte(s) • {accounts.filter(a => a.isActive).length} actif(s)
+            </span>
+            <span className="font-semibold text-slate-900">
+              Solde global: <span className={totalBalance >= 0 ? 'text-emerald-700' : 'text-rose-700'}>
+                {nf(totalBalance)}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function TreasuryPage() {
@@ -384,9 +514,7 @@ export default function TreasuryPage() {
         </div>
       )}
 
-      {active === "accounts" && (
-        <div className="card p-4 text-sm text-slate-600">Comptes bancaires (liste et soldes).</div>
-      )}
+      {active === "accounts" && <BankAccountsList />}
 
       {active === "flows" && (
         <div className="card p-4">

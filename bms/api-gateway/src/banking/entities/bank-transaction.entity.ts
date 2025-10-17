@@ -41,6 +41,9 @@ export class BankTransaction {
   })
   status: 'pending' | 'reconciled' | 'ignored';
 
+  @Column({ name: 'account_id', type: 'uuid', nullable: true })
+  accountId: string;
+
   @Column({ name: 'payment_id', type: 'uuid', nullable: true })
   paymentId: string;
 
