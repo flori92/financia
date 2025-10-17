@@ -386,4 +386,26 @@ export class AccountingController {
   }) {
     return this.accountingAutomation.generateSupplierPaymentEntry(body);
   }
+
+  // ============================================
+  // BALANCE ÂGÉE (CRÉANCES/DETTES)
+  // ============================================
+
+  @Get('aged-balance')
+  @ApiOperation({ summary: 'Balance âgée des créances clients ou dettes fournisseurs' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'type', enum: ['receivables', 'payables'], required: true })
+  @ApiQuery({ name: 'asOfDate', required: false, description: 'Date d\'analyse (défaut: aujourd\'hui)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Balance âgée avec ventilation par tranches d\'ancienneté',
+  })
+  async getAgedBalance(
+    @Query('companyId') companyId: string,
+    @Query('type') type: 'receivables' | 'payables',
+    @Query('asOfDate') asOfDate?: string,
+  ): Promise<any> {
+    const date = asOfDate || new Date().toISOString().slice(0, 10);
+    return this.accountingService.getAgedBalance(companyId, type, date);
+  }
 }

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -20,6 +20,7 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/chart-of-accounts", label: "Plan Comptable SYSCOHADA", icon: Landmark },
   { href: "/accountant/journal", label: "Journal des Écritures", icon: FileText },
   { href: "/accountant/general-ledger", label: "Grand Livre", icon: LayoutDashboard },
+  { href: "/accountant/aged-balance", label: "Balance Âgée", icon: Clock },
   { href: "/accountant/trial-balance", label: "Balance de Vérification", icon: LineChart },
   { href: "/accountant/profit-loss", label: "Compte de Résultat", icon: LineChart },
   { href: "/accountant/balance-sheet", label: "Bilan", icon: LineChart },
