@@ -20,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { AccountingService } from './accounting.service';
 import { AccountingAutomationService } from './accounting-automation.service';
+import { AccountingDashboardService } from './accounting-dashboard.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
@@ -37,6 +38,7 @@ export class AccountingController {
   constructor(
     private readonly accountingService: AccountingService,
     private readonly accountingAutomation: AccountingAutomationService,
+    private readonly dashboardService: AccountingDashboardService,
   ) {}
 
   // ============================================
@@ -407,5 +409,20 @@ export class AccountingController {
   ): Promise<any> {
     const date = asOfDate || new Date().toISOString().slice(0, 10);
     return this.accountingService.getAgedBalance(companyId, type, date);
+  }
+
+  // ============================================
+  // DASHBOARD COMPTABLE
+  // ============================================
+
+  @Get('dashboard/metrics')
+  @ApiOperation({ summary: 'Métriques du dashboard comptable (KPI, graphiques, alertes)' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard avec KPI, évolution, top clients/fournisseurs, ratios, alertes',
+  })
+  async getDashboardMetrics(@Query('companyId') companyId: string): Promise<any> {
+    return this.dashboardService.getDashboardMetrics(companyId);
   }
 }

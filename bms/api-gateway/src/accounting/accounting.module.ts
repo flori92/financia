@@ -5,6 +5,7 @@ import { AccountingClosureController } from './accounting-closure.controller';
 import { AccountingService } from './accounting.service';
 import { AccountingAutomationService } from './accounting-automation.service';
 import { AccountingClosureService } from './accounting-closure.service';
+import { AccountingDashboardService } from './accounting-dashboard.service';
 import { Account } from './entities/account.entity';
 import { JournalEntry } from './entities/journal-entry.entity';
 import { JournalEntryLine } from './entities/journal-entry-line.entity';
@@ -23,7 +24,7 @@ import { PeriodClosure } from './entities/period-closure.entity';
     TypeOrmModule.forFeature([Account, JournalEntry, JournalEntryLine, PeriodClosure]),
   ],
   controllers: [AccountingController, AccountingClosureController],
-  providers: [AccountingService, AccountingAutomationService, AccountingClosureService],
-  exports: [AccountingService, AccountingAutomationService, AccountingClosureService],
+  providers: [AccountingService, AccountingAutomationService, AccountingClosureService, AccountingDashboardService],
+  exports: [AccountingService, AccountingAutomationService, AccountingClosureService, AccountingDashboardService],
 })
 export class AccountingModule {}
