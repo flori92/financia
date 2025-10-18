@@ -54,6 +54,16 @@ export default function GeneralLedgerPage() {
 
   useEffect(() => { loadAccounts(); }, []);
 
+  // Écouter les changements de société
+  useEffect(() => {
+    const handleCompanyChange = () => {
+      loadAccounts();
+      if (ledgerData) loadLedger(); // Recharger si déjà chargé
+    };
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
+  }, [ledgerData]);
+
   const nf = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (

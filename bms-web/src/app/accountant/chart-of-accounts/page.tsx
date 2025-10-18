@@ -37,6 +37,13 @@ export default function ChartOfAccountsPage() {
 
   useEffect(() => { refresh(); }, []);
 
+  // Écouter les changements de société
+  useEffect(() => {
+    const handleCompanyChange = () => refresh();
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
+  }, []);
+
   const filteredAccounts = accounts.filter((acc: any) => {
     const matchClass = filterClass === 'all' || acc.syscohadaClass === filterClass;
     const matchSearch = !search || 

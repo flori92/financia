@@ -37,6 +37,13 @@ export default function AgedBalancePage() {
 
   useEffect(() => { loadData(); }, [activeTab, asOfDate]);
 
+  // Écouter les changements de société
+  useEffect(() => {
+    const handleCompanyChange = () => loadData();
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
+  }, [activeTab, asOfDate]);
+
   const nf = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   const getPercentage = (part: number, total: number) => {

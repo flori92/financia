@@ -26,6 +26,13 @@ export default function BalanceSheetPage() {
 
   useEffect(()=>{ refresh(); },[]);
 
+  // Écouter les changements de société
+  useEffect(() => {
+    const handleCompanyChange = () => refresh();
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

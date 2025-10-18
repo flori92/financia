@@ -24,7 +24,14 @@ export default function AccountantDashboardPage() {
     }
   }
 
-  useEffect(() => { loadDashboard(); }, []);
+  useEffect(() => { 
+    loadDashboard(); 
+    
+    // Écouter les changements de société
+    const handleCompanyChange = () => loadDashboard();
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
+  }, []);
 
   const nf = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 

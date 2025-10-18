@@ -41,6 +41,13 @@ export default function JournalPage() {
 
   useEffect(()=>{ refresh(); },[]);
 
+  // Écouter les changements de société
+  useEffect(() => {
+    const handleCompanyChange = () => refresh();
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
+  }, []);
+
   function addLine(){ setLines(prev=> [...prev, {}]); }
   function removeLine(idx: number){ setLines(prev=> prev.filter((_,i)=> i!==idx)); }
   function updateLine(idx: number, patch: Partial<LineInput>){ setLines(prev=> prev.map((l,i)=> i===idx? { ...l, ...patch }: l)); }

@@ -53,6 +53,15 @@ export default function VatReturnPage() {
     }
   }
 
+  // Écouter les changements de société
+  useEffect(() => {
+    const handleCompanyChange = () => {
+      if (vatReturn) calculate(); // Recalculer si déjà chargé
+    };
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
+  }, [vatReturn, startDate, endDate]);
+
   function setQuickPeriod(type: 'month' | 'quarter' | 'year') {
     const now = new Date();
     const year = now.getFullYear();
