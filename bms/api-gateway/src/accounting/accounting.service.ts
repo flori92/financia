@@ -451,15 +451,15 @@ export class AccountingService {
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.lines', 'line')
       .leftJoinAndSelect('line.account', 'account')
-      .where('entry.company_id = :companyId', { companyId })
+      .where('entry.companyId = :companyId', { companyId })
       .andWhere('entry.status = :status', { status: 'posted' });
 
     if (startDate) {
-      query.andWhere('entry.entry_date >= :startDate', { startDate });
+      query.andWhere('entry.entryDate >= :startDate', { startDate });
     }
 
     if (endDate) {
-      query.andWhere('entry.entry_date <= :endDate', { endDate });
+      query.andWhere('entry.entryDate <= :endDate', { endDate });
     }
 
     if (accountNumber && account) {
@@ -467,8 +467,8 @@ export class AccountingService {
     }
 
     const entries = await query
-      .orderBy('entry.entry_date', 'ASC')
-      .addOrderBy('entry.entry_number', 'ASC')
+      .orderBy('entry.entryDate', 'ASC')
+      .addOrderBy('entry.entryNumber', 'ASC')
       .getMany();
 
     // Construire les mouvements
@@ -903,8 +903,8 @@ export class AccountingService {
       .leftJoinAndSelect('line.journalEntry', 'entry')
       .where('line.account_id = :accountId', { accountId: account.id })
       .andWhere('entry.status = :status', { status: 'posted' })
-      .andWhere('entry.entry_date <= :asOfDate', { asOfDate })
-      .orderBy('entry.entry_date', 'ASC')
+      .andWhere('entry.entryDate <= :asOfDate', { asOfDate })
+      .orderBy('entry.entryDate', 'ASC')
       .getMany();
 
     // Grouper par tiers (label de la ligne = nom client/fournisseur)
@@ -924,7 +924,9 @@ export class AccountingService {
       }
       
       byParty.get(party)!.push({
-        date: line.journalEntry.entryDate,
+        date: typeof line.journalEntry.entryDate === 'string' 
+          ? new Date(line.journalEntry.entryDate) 
+          : line.journalEntry.entryDate,
         amount,
       });
     }
