@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Tabs } from "@/components/ui/Tabs";
+import { Tabs } from "@/components/ui/tabs";
 import { KpiCard } from "@/components/kpi/KpiCard";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";

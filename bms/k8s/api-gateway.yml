@@ -35,9 +35,17 @@ spec:
       labels:
         app: bms-api-gateway
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: api-gateway
-          image: myorg/bms-api-gateway:latest
+          image: myorg/bms-api-gateway:1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           envFrom:
@@ -45,6 +53,12 @@ spec:
                 name: bms-api-gateway-config
             - secretRef:
                 name: bms-api-gateway-secrets
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           resources:
             requests:
               cpu: "100m"

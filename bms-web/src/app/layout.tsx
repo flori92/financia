@@ -1,6 +1,7 @@
 import "../styles/globals.css";
 import type { Metadata } from "next";
 import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 
 export const metadata: Metadata = {
   title: "BMS Web",
@@ -11,7 +12,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className="min-h-screen bg-app-bg text-slate-900">
-        <ConditionalLayout>{children}</ConditionalLayout>
+        <SessionProvider>
+          <ConditionalLayout>{children}</ConditionalLayout>
+        </SessionProvider>
       </body>
     </html>
   );
