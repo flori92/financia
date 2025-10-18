@@ -4,7 +4,7 @@ import { FrappeApiService } from './services/frappe-api.service';
 import { FrappeSyncService } from './services/frappe-sync.service';
 
 @ApiTags('Frappe Bridge')
-@Controller('api/v1/frappe')
+@Controller('frappe')
 export class FrappeBridgeController {
   constructor(
     private frappeApi: FrappeApiService,
