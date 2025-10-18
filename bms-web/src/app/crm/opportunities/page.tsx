@@ -75,11 +75,11 @@ export default function OpportunitiesPage() {
     setDraggedOpportunity(opportunityId);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
-  const handleDrop = async (e: React.DragEvent, stageId: string) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, stageId: string) => {
     e.preventDefault();
     const opportunityId = draggedOpportunity;
     if (!opportunityId || !companyId) return;
