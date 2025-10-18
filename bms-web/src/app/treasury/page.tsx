@@ -5,7 +5,7 @@ import { KpiCard } from "@/components/kpi/KpiCard";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { apiGet, getCompanyId } from "@/lib/api";
-import { Building2, Landmark, TrendingUp, TrendingDown } from "lucide-react";
+import { Building2, Landmark, TrendingUp, TrendingDown, Plus, X } from "lucide-react";
 
 const txColumns = [
   { key: "date", header: "Date" },
@@ -34,8 +34,19 @@ function BankAccountsList() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    bankName: '',
+    accountNumber: '',
+    iban: '',
+    bic: '',
+    currency: 'XOF',
+    openingBalance: 0
+  });
 
-  useEffect(() => {
+  const loadAccounts = () => {
     const cid = getCompanyId();
     if (!cid) return;
     
@@ -47,7 +58,36 @@ function BankAccountsList() {
       })
       .catch((e: any) => setError(String(e)))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadAccounts();
   }, []);
+
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cid = getCompanyId();
+    if (!cid) return;
+
+    setCreating(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/banking/accounts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, companyId: cid })
+      });
+
+      if (!response.ok) throw new Error('Erreur lors de la création du compte');
+      
+      setShowModal(false);
+      setFormData({ name: '', bankName: '', accountNumber: '', iban: '', bic: '', currency: 'XOF', openingBalance: 0 });
+      loadAccounts();
+    } catch (err: any) {
+      alert(err.message || 'Erreur lors de la création');
+    } finally {
+      setCreating(false);
+    }
+  };
 
   if (loading) {
     return <div className="card p-8 text-center text-slate-500">Chargement des comptes bancaires...</div>;
@@ -57,21 +97,179 @@ function BankAccountsList() {
     return <div className="card p-8 text-center text-rose-600">{error}</div>;
   }
 
+  const renderModal = () => {
+    if (!showModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b border-app-border flex items-center justify-between">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <Building2 className="w-5 h-5" />
+              Nouveau Compte Bancaire
+            </h2>
+            <button
+              onClick={() => setShowModal(false)}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <form onSubmit={handleCreateAccount} className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Nom du compte <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Ex: Compte Principal BSIC"
+                className="input-field"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Nom de la banque
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankName}
+                  onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                  placeholder="Ex: BSIC Bénin"
+                  className="input-field"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  N° de compte <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.accountNumber}
+                  onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                  placeholder="Ex: 123456789"
+                  className="input-field font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  IBAN
+                </label>
+                <input
+                  type="text"
+                  value={formData.iban}
+                  onChange={(e) => setFormData({ ...formData, iban: e.target.value })}
+                  placeholder="Ex: BJ06 BJ12 0123 4567 8901 2345"
+                  className="input-field font-mono"
+                  maxLength={34}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  BIC/SWIFT
+                </label>
+                <input
+                  type="text"
+                  value={formData.bic}
+                  onChange={(e) => setFormData({ ...formData, bic: e.target.value })}
+                  placeholder="Ex: BSICBJBJ"
+                  className="input-field font-mono"
+                  maxLength={11}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Devise
+                </label>
+                <select
+                  value={formData.currency}
+                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                  className="input-field"
+                >
+                  <option value="XOF">XOF (Franc CFA)</option>
+                  <option value="EUR">EUR (Euro)</option>
+                  <option value="USD">USD (Dollar)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Solde d'ouverture
+                </label>
+                <input
+                  type="number"
+                  value={formData.openingBalance}
+                  onChange={(e) => setFormData({ ...formData, openingBalance: parseFloat(e.target.value) || 0 })}
+                  placeholder="0"
+                  className="input-field"
+                  step="0.01"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="btn-secondary flex-1"
+                disabled={creating}
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                className="btn-primary flex-1"
+                disabled={creating}
+              >
+                {creating ? 'Création...' : 'Créer le compte'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   if (accounts.length === 0) {
     return (
-      <div className="card p-8 text-center">
-        <Landmark className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">Aucun compte bancaire</h3>
-        <p className="text-sm text-slate-600 mb-4">
-          Ajoutez vos comptes bancaires pour suivre vos soldes en temps réel.
-        </p>
-      </div>
+      <>
+        <div className="card p-8 text-center">
+          <Landmark className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Aucun compte bancaire</h3>
+          <p className="text-sm text-slate-600 mb-4">
+            Ajoutez vos comptes bancaires pour suivre vos soldes en temps réel.
+          </p>
+          <button
+            onClick={() => setShowModal(true)}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter un compte bancaire
+          </button>
+        </div>
+        {renderModal()}
+      </>
     );
   }
 
   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
 
   return (
+    <>
     <div className="space-y-4">
       {/* KPI Solde Total */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -87,11 +285,18 @@ function BankAccountsList() {
 
       {/* Liste des comptes */}
       <div className="card">
-        <div className="p-4 border-b border-app-border">
+        <div className="p-4 border-b border-app-border flex items-center justify-between">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Building2 className="w-5 h-5" />
             Comptes Bancaires
           </h3>
+          <button
+            onClick={() => setShowModal(true)}
+            className="btn-primary text-sm inline-flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter un compte
+          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -156,6 +361,8 @@ function BankAccountsList() {
         </div>
       </div>
     </div>
+    {renderModal()}
+    </>
   );
 }
 
