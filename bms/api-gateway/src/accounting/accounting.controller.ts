@@ -301,7 +301,7 @@ export class AccountingController {
     );
   }
 
-  @Get('reports/general-ledger')
+  @Get('general-ledger')
   @ApiOperation({ summary: 'Générer le Grand Livre' })
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'accountNumber', required: false })
