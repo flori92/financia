@@ -6,27 +6,38 @@ import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
 import { TerminusModule } from '@nestjs/terminus';
 
-// Modules
+// Core Modules
 import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
+import { AccountingModule } from './accounting/accounting.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { PaymentsModule } from './payments/payments.module';
-import { MobileMoneyModule } from './mobile-money/mobile-money.module';
-import { AccountingModule } from './accounting/accounting.module';
-import { SyncModule } from './sync/sync.module';
-import { NifModule } from './nif/nif.module';
-import { ScoringModule } from './scoring/scoring.module';
-import { LoansModule } from './loans/loans.module';
-import { FrappeBridgeModule } from './frappe-bridge/frappe-bridge.module';
-import { HealthController } from './health/health.controller';
-import { AppController } from './app.controller';
-import { NotificationsModule } from './notifications/notifications.module';
-import { AuditModule } from './audit/audit.module';
-import { TreasuryModule } from './treasury/treasury.module';
-import { UploadsModule } from './uploads/uploads.module';
-import { BankingModule } from './banking/banking.module';
 import { TaxModule } from './tax/tax.module';
 import { CrmModule } from './crm/crm.module';
+
+// AI & Analytics
+import { AIModule } from './ai/ai.module';
+import { ReportingModule } from './reporting/reporting.module';
+
+// Financial Services
+import { BankingModule } from './banking/banking.module';
+import { MobileMoneyModule } from './mobile-money/mobile-money.module';
+import { TreasuryModule } from './treasury/treasury.module';
+import { ScoringModule } from './scoring/scoring.module';
+import { LoansModule } from './loans/loans.module';
+
+// Integration & Support
+import { IntegrationsModule } from './integrations/integrations.module';
+import { FrappeBridgeModule } from './frappe-bridge/frappe-bridge.module';
+import { SyncModule } from './sync/sync.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AuditModule } from './audit/audit.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { NifModule } from './nif/nif.module';
+
+// Controllers
+import { HealthController } from './health/health.controller';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [

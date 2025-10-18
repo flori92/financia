@@ -3,22 +3,25 @@ import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { AuthGuard } from "../auth/AuthGuard";
+import { UserProfileProvider } from '@/components/user-profile/user-profile-provider';
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
+  const noLayoutPages = ['/login', '/register', '/reset-password'];
 
-  if (isLoginPage) {
+  if (noLayoutPages.includes(pathname)) {
     return <>{children}</>;
   }
 
   return (
     <AuthGuard>
-      <Sidebar />
-      <div className="ml-sidebar">
-        <Topbar />
-        <main className="p-6 max-w-[1280px] mx-auto">{children}</main>
-      </div>
+      <UserProfileProvider>
+        <Sidebar />
+        <div className="ml-sidebar">
+          <Topbar />
+          <main className="p-6 max-w-[1280px] mx-auto">{children}</main>
+        </div>
+      </UserProfileProvider>
     </AuthGuard>
   );
 }

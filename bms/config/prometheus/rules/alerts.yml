@@ -1,0 +1,89 @@
+groups:
+  - name: bank_sync_alerts
+    rules:
+      - alert: BankSyncFailure
+        expr: increase(bank_sync_duration_seconds_count{status="error"}[1h]) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Échecs répétés de synchronisation bancaire"
+          description: "{{ $value }} échecs de synchronisation détectés dans la dernière heure"
+
+      - alert: HighBankSyncLatency
+        expr: rate(bank_sync_duration_seconds_sum[5m]) / rate(bank_sync_duration_seconds_count[5m]) > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence élevée de synchronisation bancaire"
+          description: "La latence moyenne de synchronisation dépasse 30 secondes"
+
+  - name: transaction_alerts
+    rules:
+      - alert: HighTransactionVolume
+        expr: sum(increase(bank_transactions_processed_total[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Volume anormalement élevé de transactions"
+          description: "Plus de 1000 transactions traitées en 5 minutes"
+
+      - alert: HighAnomalyRate
+        expr: rate(bank_anomalies_detected_total[1h]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux élevé d'anomalies détectées"
+          description: "Plus de 10 anomalies détectées par heure"
+
+  - name: api_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taux d'erreur API élevé"
+          description: "Plus de 5% des requêtes API génèrent des erreurs"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence API élevée"
+          description: "95ème percentile de latence > 2s"
+
+  - name: infrastructure_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Utilisation CPU élevée"
+          description: "L'utilisation CPU dépasse 80% depuis 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Utilisation mémoire élevée"
+          description: "L'utilisation de la mémoire dépasse 85%"
+
+      - alert: DiskSpaceRunningOut
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Espace disque faible"
+          description: "Moins de 10% d'espace disque disponible"
