@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
 const ENTREPRENEUR_NAV = [
   { href: "/", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/crm/contacts", label: "Contacts CRM", icon: Users },
+  { href: "/crm/opportunities", label: "Opportunités", icon: UserCheck },
   { href: "/invoices", label: "Factures Clients", icon: FileText },
   { href: "/treasury", label: "Trésorerie", icon: Wallet },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },

@@ -26,6 +26,7 @@ import { TreasuryModule } from './treasury/treasury.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { BankingModule } from './banking/banking.module';
 import { TaxModule } from './tax/tax.module';
+import { CrmModule } from './crm/crm.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { TaxModule } from './tax/tax.module';
     TreasuryModule,
     BankingModule,
     TaxModule,
+    CrmModule,
     MobileMoneyModule,
     AccountingModule,
     SyncModule,

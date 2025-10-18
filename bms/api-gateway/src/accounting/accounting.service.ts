@@ -502,8 +502,12 @@ export class AccountingService {
         // Calcul du solde progressif (débit - crédit pour simplifier)
         runningBalance += debit - credit;
 
+        const entryDateStr = typeof entry.entryDate === 'string'
+          ? (entry.entryDate as string).slice(0, 10)
+          : (entry.entryDate as Date).toISOString().slice(0, 10);
+
         movements.push({
-          date: entry.entryDate.toISOString().slice(0, 10),
+          date: entryDateStr,
           entryNumber: entry.entryNumber,
           description: line.label || entry.description,
           reference: entry.reference || '',
