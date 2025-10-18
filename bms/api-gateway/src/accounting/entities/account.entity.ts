@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -24,13 +25,14 @@ import { ApiProperty } from '@nestjs/swagger';
  * - Classe 8: Comptes spéciaux
  */
 @Entity('accounts')
+@Unique(['companyId', 'accountNumber'])
 export class Account {
   @ApiProperty({ description: 'ID unique du compte' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ApiProperty({ description: 'Numéro du compte (ex: 411, 512, 601)' })
-  @Column({ unique: true, length: 20 })
+  @Column({ length: 20 })
   accountNumber: string;
 
   @ApiProperty({ description: 'Nom du compte' })
