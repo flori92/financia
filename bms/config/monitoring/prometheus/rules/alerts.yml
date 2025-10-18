@@ -1,0 +1,68 @@
+groups:
+  - name: bms_alerts
+    rules:
+      # Alertes système
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90% for 5 minutes"
+
+      # Alertes applicatives
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5% for 5 minutes"
+
+      - alert: SlowResponses
+        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow response times detected"
+          description: "95th percentile of response times is above 2 seconds"
+
+      # Alertes métier
+      - alert: FailedBankSync
+        expr: bms_bank_sync_failures_total > 0
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Bank synchronization failures detected"
+          description: "One or more bank synchronization attempts have failed"
+
+      - alert: ReconciliationBacklog
+        expr: bms_unreconciled_transactions_total > 100
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Large reconciliation backlog"
+          description: "More than 100 transactions are pending reconciliation"
+
+      - alert: AnomalyDetectionFailure
+        expr: bms_anomaly_detection_errors_total > 0
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Anomaly detection system failure"
+          description: "The anomaly detection system is experiencing errors"
