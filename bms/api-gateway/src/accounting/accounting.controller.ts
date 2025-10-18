@@ -31,7 +31,7 @@ import { JournalEntry } from './entities/journal-entry.entity';
  * Contrôleur pour la gestion comptable OHADA
  */
 @ApiTags('Accounting (OHADA)')
-@Controller('api/v1/accounting')
+@Controller('accounting')
 // @UseGuards(JwtAuthGuard) // À décommenter quand l'auth est configurée
 @ApiBearerAuth()
 export class AccountingController {
