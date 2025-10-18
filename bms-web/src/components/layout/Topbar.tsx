@@ -65,7 +65,7 @@ export function Topbar() {
   return (
     <header className="h-14 bg-app-topbar text-white flex items-center px-4 gap-3">
       <button className="md:hidden inline-flex h-8 w-8 items-center justify-center rounded-md bg-white/10 hover:bg-white/20" aria-label="Menu">
-        ☰
+        <span className="text-lg">=</span>
       </button>
       <div className="flex-1 max-w-[720px] mx-auto hidden md:flex items-center">
         <div className="relative w-full">

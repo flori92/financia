@@ -211,7 +211,7 @@ export default function AccountantDashboardPage() {
               Actif circulant / Passif circulant
             </div>
             <div className={`text-sm ${data.financialRatios.liquidityRatio >= 1.5 ? 'text-emerald-700' : data.financialRatios.liquidityRatio >= 1 ? 'text-amber-700' : 'text-rose-700'}`}>
-              {data.financialRatios.liquidityRatio >= 1.5 ? '✓ Excellent' : data.financialRatios.liquidityRatio >= 1 ? '⚠ Acceptable' : '✗ Faible'}
+              {data.financialRatios.liquidityRatio >= 1.5 ? 'Excellent' : data.financialRatios.liquidityRatio >= 1 ? 'Acceptable' : 'Faible'}
             </div>
           </div>
 
@@ -224,7 +224,7 @@ export default function AccountantDashboardPage() {
               Capitaux propres / Total passif
             </div>
             <div className={`text-sm ${data.financialRatios.solvencyRatio >= 0.5 ? 'text-emerald-700' : data.financialRatios.solvencyRatio >= 0.3 ? 'text-amber-700' : 'text-rose-700'}`}>
-              {data.financialRatios.solvencyRatio >= 0.5 ? '✓ Solide' : data.financialRatios.solvencyRatio >= 0.3 ? '⚠ Modéré' : '✗ Fragile'}
+              {data.financialRatios.solvencyRatio >= 0.5 ? 'Solide' : data.financialRatios.solvencyRatio >= 0.3 ? 'Modéré' : 'Fragile'}
             </div>
           </div>
         </div>

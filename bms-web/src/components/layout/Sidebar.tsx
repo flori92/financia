@@ -76,7 +76,7 @@ export function Sidebar() {
       </nav>
       <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 p-3">
         <div className="flex items-center gap-3 text-sm">
-          <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">👤</div>
+          <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-medium">{userName.charAt(0).toUpperCase()}</div>
           <div>
             <div className="font-medium leading-tight">{userName}</div>
             <div className="text-white/70 text-xs">{displayRole}</div>

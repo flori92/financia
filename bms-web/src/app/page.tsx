@@ -193,7 +193,7 @@ export default function Page() {
 
       {kpis.runway < 15 && kpis.runway >= 0 && (
         <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-red-800">
-          <div className="font-semibold">🔴 Alerte Trésorerie Critique</div>
+          <div className="font-semibold">Alerte Trésorerie Critique</div>
           <div className="text-sm mt-1">Runway: {kpis.runway} jour(s) restant(s). Accélérez vos relances clients et différez les dépenses non urgentes.</div>
         </div>
       )}
@@ -230,7 +230,7 @@ export default function Page() {
         <div className="card p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Importer des paiements (CSV)</h3>
-            <button onClick={() => setShowImport(false)} className="text-slate-500 hover:text-slate-700">✕</button>
+            <button onClick={() => setShowImport(false)} className="text-slate-500 hover:text-slate-700">×</button>
           </div>
           <div className="text-sm text-slate-600 mb-3">
             Format attendu : colonnes <code className="bg-slate-100 px-1 rounded">amount, paymentDate, paymentMethod, reference, partyType, partyId</code>

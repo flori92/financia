@@ -119,7 +119,7 @@ export default function ChartOfAccountsPage() {
           <div className="text-sm text-slate-500 py-8 text-center">Chargement du plan comptable...</div>
         ) : filteredAccounts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-slate-400 mb-2">📊</div>
+            <div className="text-slate-400 mb-2"></div>
             <div className="text-sm text-slate-600">
               {search || filterClass !== 'all' ? 'Aucun compte trouvé avec ces filtres' : 'Aucun compte dans le plan comptable'}
             </div>
@@ -170,7 +170,7 @@ export default function ChartOfAccountsPage() {
       </div>
 
       <div className="card p-4 bg-slate-50">
-        <h3 className="text-sm font-semibold text-slate-700 mb-2">📚 Classes SYSCOHADA</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-2">Classes SYSCOHADA</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
           {Object.entries(CLASSES_INFO).map(([cls, info]) => (
             <div key={cls} className="flex items-center gap-2">

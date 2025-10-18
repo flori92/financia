@@ -265,14 +265,14 @@ export default function VatReturnPage() {
 
           {/* Instructions */}
           <div className="card p-4 bg-blue-50 border border-blue-200">
-            <h4 className="font-semibold text-blue-900 mb-2">💡 Instructions pour la déclaration DGI</h4>
+            <h4 className="font-semibold text-blue-900 mb-2">Instructions pour la déclaration DGI</h4>
             <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
               <li>Exportez le fichier CSV via le bouton "Exporter CSV"</li>
               <li>Connectez-vous au portail e-impôts de la DGI du Bénin</li>
               <li>Sélectionnez "Déclaration de TVA" pour la période concernée</li>
               <li>Saisissez les montants dans les cases correspondantes</li>
               <li>Le montant à payer est : <strong>{nf(Math.max(0, vatReturn.vatNet))} FCFA</strong></li>
-              {vatReturn.vatNet < 0 && <li className="text-amber-700">⚠️ Vous avez un crédit de TVA de {nf(Math.abs(vatReturn.vatNet))} FCFA reportable</li>}
+              {vatReturn.vatNet < 0 && <li className="text-amber-700">Vous avez un crédit de TVA de {nf(Math.abs(vatReturn.vatNet))} FCFA reportable</li>}
             </ul>
           </div>
         </>

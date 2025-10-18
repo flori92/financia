@@ -77,7 +77,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Seuil Critique (jours) 🔴
+              Seuil Critique (jours)
             </label>
             <input
               type="number"
@@ -94,7 +94,7 @@ export default function SettingsPage() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Seuil Warning (jours) 🟡
+              Seuil Warning (jours)
             </label>
             <input
               type="number"

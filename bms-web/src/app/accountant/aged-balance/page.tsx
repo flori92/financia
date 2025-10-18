@@ -231,7 +231,7 @@ export default function AgedBalancePage() {
               <div className="flex items-start gap-2">
                 <AlertTriangle className="w-5 h-5 text-rose-700 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-rose-900 mb-1">⚠️ Attention : Montants en souffrance</h4>
+                  <h4 className="font-semibold text-rose-900 mb-1">Attention : Montants en souffrance</h4>
                   <p className="text-sm text-rose-800">
                     {activeTab === 'receivables' 
                       ? `Vous avez ${nf(Math.abs(data.totals.over90))} FCFA de créances impayées depuis plus de 90 jours. Considérez des actions de recouvrement.`

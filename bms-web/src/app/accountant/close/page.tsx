@@ -101,7 +101,7 @@ export default function ClosePeriodPage() {
         <div className="flex gap-2 items-start">
           <AlertTriangle className="w-5 h-5 text-amber-700 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-amber-900 mb-1">⚠️ Attention : Action irréversible</h4>
+            <h4 className="font-semibold text-amber-900 mb-1">Attention : Action irréversible</h4>
             <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
               <li>La clôture verrouille définitivement toutes les écritures de la période</li>
               <li>Une OD de clôture sera automatiquement générée</li>

@@ -496,17 +496,17 @@ export default function TreasuryPage() {
     const avgDailyOut = last30Out / 30;
     const runway = avgDailyOut > 0 ? Math.floor(kpis.net / avgDailyOut) : 999;
     
-    if (runway < 15 && runway >= 0) result.push({ level: 'critical', message: `🔴 Trésorerie critique: ${runway} jours de runway restants. Accélérer relances clients.` });
-    else if (runway < 30 && runway >= 15) result.push({ level: 'warning', message: `🟡 Attention: ${runway} jours de runway. Surveiller encaissements à venir.` });
+    if (runway < 15 && runway >= 0) result.push({ level: 'critical', message: `Trésorerie critique: ${runway} jours de runway restants. Accélérer relances clients.` });
+    else if (runway < 30 && runway >= 15) result.push({ level: 'warning', message: `Attention: ${runway} jours de runway. Surveiller encaissements à venir.` });
     
     // Tendance négative
-    if (kpis.last90Net < 0) result.push({ level: 'warning', message: `🟡 Tendance négative: flux net négatif sur 90 jours (${nf(kpis.last90Net)}).` });
+    if (kpis.last90Net < 0) result.push({ level: 'warning', message: `Tendance négative: flux net négatif sur 90 jours (${nf(kpis.last90Net)}).` });
     
     // Aucune entrée récente
-    if (last30In === 0) result.push({ level: 'warning', message: `🟡 Aucun encaissement sur les 30 derniers jours. Vérifier synchronisation.` });
+    if (last30In === 0) result.push({ level: 'warning', message: `Aucun encaissement sur les 30 derniers jours. Vérifier synchronisation.` });
     
     // Solde positif (info)
-    if (result.length === 0 && kpis.net > 0) result.push({ level: 'info', message: `✅ Situation saine: solde positif (${nf(kpis.net)}), runway > 30 jours.` });
+    if (result.length === 0 && kpis.net > 0) result.push({ level: 'info', message: `Situation saine: solde positif (${nf(kpis.net)}), runway > 30 jours.` });
     
     return result;
   }, [payments, kpis]);

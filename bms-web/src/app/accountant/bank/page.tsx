@@ -255,7 +255,7 @@ export default function BankPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Rapprocher la transaction</h3>
               <button onClick={() => { setSelectedTx(null); setSuggestions([]); }} className="text-slate-500 hover:text-slate-700">
-                ✕
+                ×
               </button>
             </div>
 

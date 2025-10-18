@@ -259,7 +259,7 @@ export default function TransactionsPage() {
         <div className="card p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Détails du paiement</h3>
-            <button onClick={() => setViewMode(null)} className="text-slate-500 hover:text-slate-700">✕</button>
+            <button onClick={() => setViewMode(null)} className="text-slate-500 hover:text-slate-700">×</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
@@ -302,7 +302,7 @@ export default function TransactionsPage() {
         <div className="card p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Pièces justificatives — {selectedPayment.paymentNumber || selectedPayment.reference}</h3>
-            <button onClick={() => setViewMode(null)} className="text-slate-500 hover:text-slate-700">✕</button>
+            <button onClick={() => setViewMode(null)} className="text-slate-500 hover:text-slate-700">×</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
