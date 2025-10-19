@@ -40,15 +40,25 @@ export function Topbar() {
     }
   }, [showProfileMenu]);
 
-  async function toggleNotifications() {
+  async function toggleNotifications(e: React.MouseEvent) {
+    e.stopPropagation();
     try {
-      if (showNotifMenu) { setShowNotifMenu(false); return; }
+      if (showNotifMenu) { 
+        setShowNotifMenu(false); 
+        return; 
+      }
       const cid = getCompanyId();
-      if (!cid) { setShowNotifMenu(!showNotifMenu); return; }
+      if (!cid) { 
+        setShowNotifMenu(true); 
+        return; 
+      }
       const res = await apiGet('/api/v1/treasury/alerts', { companyId: cid });
       setAlerts(res?.alerts || []);
       setShowNotifMenu(true);
-    } catch { setAlerts([]); setShowNotifMenu(true); }
+    } catch { 
+      setAlerts([]); 
+      setShowNotifMenu(true); 
+    }
   }
 
   function onChangeCompany(val: string) {
@@ -97,16 +107,20 @@ export function Topbar() {
         </div>
         <button
           type="button"
-          onClick={() => router.push('/accountant/journal')}
-          className="hidden md:inline-flex rounded-md bg-[#0D9488] text-white text-sm px-3 py-2 hover:bg-[#0B7C74]"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            router.push('/accountant/journal');
+          }}
+          className="hidden md:inline-flex rounded-md bg-[#0D9488] text-white text-sm px-3 py-2 hover:bg-[#0B7C74] font-medium transition-colors"
         >
           Nouvelle écriture
         </button>
         <div className="relative">
           <button
             type="button"
-            onClick={toggleNotifications}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
+            onClick={(e) => toggleNotifications(e)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
@@ -125,8 +139,12 @@ export function Topbar() {
         <div className="relative profile-menu">
           <button
             type="button"
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-3 py-1.5" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowProfileMenu(!showProfileMenu);
+            }}
+            className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-3 py-1.5 transition-colors" 
             aria-label="Profil"
           >
             <User className="h-4 w-4" />

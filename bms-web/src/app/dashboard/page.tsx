@@ -489,20 +489,32 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-2 text-xs">
               <button
-                onClick={() => setChartPeriod('12months')}
-                className={`px-3 py-1.5 rounded-lg transition ${chartPeriod === '12months' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setChartPeriod('12months');
+                }}
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${chartPeriod === '12months' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-300'}`}
               >
                 12 mois
               </button>
               <button
-                onClick={() => setChartPeriod('year')}
-                className={`px-3 py-1.5 rounded-lg transition ${chartPeriod === 'year' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setChartPeriod('year');
+                }}
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${chartPeriod === 'year' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-300'}`}
               >
                 Année
               </button>
               <button
-                onClick={() => setChartPeriod('multi')}
-                className={`px-3 py-1.5 rounded-lg transition ${chartPeriod === 'multi' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setChartPeriod('multi');
+                }}
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${chartPeriod === 'multi' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-300'}`}
               >
                 Multi-années
               </button>
@@ -558,7 +570,13 @@ export default function DashboardPage() {
               ))}
               {!alerts.length && <div className="text-sm text-gray-500">Aucune alerte en cours</div>}
             </div>
-            <button className="w-full mt-3 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">Voir toutes les alertes →</button>
+            <button
+              type="button"
+              onClick={() => window.location.href = '/dashboard/alerts'}
+              className="w-full mt-3 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Voir toutes les alertes →
+            </button>
           </div>
 
           <div className="bg-gradient-to-br from-[#0F3D3A] to-[#0D9488] rounded-xl p-6 text-white">
