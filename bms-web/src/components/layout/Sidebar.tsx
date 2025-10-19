@@ -1,18 +1,21 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
 const ENTREPRENEUR_NAV = [
   { href: "/", label: "Tableau de bord", icon: LayoutDashboard },
-  { href: "/crm/contacts", label: "Contacts CRM", icon: Users },
-  { href: "/crm/opportunities", label: "Opportunités", icon: UserCheck },
-  { href: "/invoices", label: "Factures Clients", icon: FileText },
+  { href: "/crm/contacts", label: "CRM", icon: Users },
+  { href: "/invoices", label: "Factures", icon: FileText },
+  { href: "/purchases", label: "Achats", icon: ShoppingCart },
+  { href: "/manufacturing", label: "Production", icon: Factory },
+  { href: "/inventory", label: "Stock", icon: Building2 },
+  { href: "/hr", label: "RH", icon: Briefcase },
+  { href: "/projects", label: "Projets", icon: FolderKanban },
+  { href: "/budget", label: "Budget", icon: LineChart },
   { href: "/treasury", label: "Trésorerie", icon: Wallet },
-  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { href: "/formalization", label: "Formalisation & NIF", icon: FileCheck },
   { href: "/settings", label: "Paramètres", icon: Settings },
 ];
 

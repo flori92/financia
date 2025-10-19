@@ -8,11 +8,9 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
 
   async function loadProducts() {
-    const cid = getCompanyId();
-    if (!cid) return;
     setLoading(true);
     try {
-      const result = await apiGet('/api/v1/inventory/products', { companyId: cid });
+      const result = await apiGet('/api/v1/inventory/items');
       setProducts(result);
     } catch (e) {
       console.error(e);
@@ -23,7 +21,7 @@ export default function InventoryPage() {
 
   useEffect(() => { loadProducts(); }, []);
 
-  const alertProducts = products.filter(p => p.stock < p.minStock);
+  const alertProducts = products.filter(p => p.quantity < 50);
 
   return (
     <div className="space-y-6">
@@ -51,7 +49,7 @@ export default function InventoryPage() {
         </div>
         <div className="card p-4">
           <div className="text-sm text-slate-600">Valeur stock</div>
-          <div className="text-2xl font-bold">{(products.reduce((sum, p) => sum + (p.stock * p.cost), 0) / 1000000).toFixed(1)}M</div>
+          <div className="text-2xl font-bold">{(products.reduce((sum, p) => sum + (p.quantity * p.unitPrice), 0) / 1000000).toFixed(1)}M</div>
         </div>
         <div className="card p-4 bg-amber-50">
           <div className="text-sm text-amber-700">Alertes</div>
@@ -65,9 +63,8 @@ export default function InventoryPage() {
             <tr className="text-left border-b border-app-border">
               <th className="pb-3">SKU</th>
               <th className="pb-3">Produit</th>
-              <th className="pb-3">Catégorie</th>
+              <th className="pb-3">Entrepôt</th>
               <th className="pb-3 text-right">Stock</th>
-              <th className="pb-3 text-right">Min</th>
               <th className="pb-3 text-right">Prix</th>
               <th className="pb-3">Statut</th>
             </tr>
@@ -77,16 +74,15 @@ export default function InventoryPage() {
               <tr key={product.id} className="border-b border-app-border hover:bg-slate-50">
                 <td className="py-3 font-mono text-sm">{product.sku}</td>
                 <td className="py-3 font-medium">{product.name}</td>
-                <td className="py-3 text-sm text-slate-600">{product.category}</td>
-                <td className="py-3 text-right font-semibold">{product.stock}</td>
-                <td className="py-3 text-right text-sm text-slate-600">{product.minStock}</td>
-                <td className="py-3 text-right">{product.price.toLocaleString()} FCFA</td>
+                <td className="py-3 text-sm text-slate-600">{product.warehouse}</td>
+                <td className="py-3 text-right font-semibold">{product.quantity}</td>
+                <td className="py-3 text-right">{product.unitPrice.toLocaleString()} FCFA</td>
                 <td className="py-3">
-                  {product.stock < product.minStock ? (
+                  {product.quantity < 50 ? (
                     <span className="px-2 py-1 text-xs rounded-full bg-rose-100 text-rose-700">
                       Rupture
                     </span>
-                  ) : product.stock < product.minStock * 1.5 ? (
+                  ) : product.quantity < 100 ? (
                     <span className="px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-700">
                       Faible
                     </span>

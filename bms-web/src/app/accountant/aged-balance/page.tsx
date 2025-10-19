@@ -113,30 +113,30 @@ export default function AgedBalancePage() {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
               <div className="bg-emerald-50 p-4 rounded-lg">
                 <div className="text-sm text-emerald-700 mb-1">0-30 jours</div>
-                <div className="text-xl font-semibold text-emerald-900">{nf(Math.abs(data.totals.current))} FCFA</div>
-                <div className="text-xs text-emerald-600 mt-1">{getPercentage(data.totals.current, data.totals.total)}%</div>
+                <div className="text-xl font-semibold text-emerald-900">{nf(Math.abs(data.totals?.current || 0))} FCFA</div>
+                <div className="text-xs text-emerald-600 mt-1">{getPercentage(data.totals?.current || 0, data.totals?.total || 0)}%</div>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-sm text-blue-700 mb-1">30-60 jours</div>
-                <div className="text-xl font-semibold text-blue-900">{nf(Math.abs(data.totals.days30_60))} FCFA</div>
-                <div className="text-xs text-blue-600 mt-1">{getPercentage(data.totals.days30_60, data.totals.total)}%</div>
+                <div className="text-xl font-semibold text-blue-900">{nf(Math.abs(data.totals?.days30_60 || 0))} FCFA</div>
+                <div className="text-xs text-blue-600 mt-1">{getPercentage(data.totals?.days30_60 || 0, data.totals?.total || 0)}%</div>
               </div>
               <div className="bg-amber-50 p-4 rounded-lg">
                 <div className="text-sm text-amber-700 mb-1">60-90 jours</div>
-                <div className="text-xl font-semibold text-amber-900">{nf(Math.abs(data.totals.days60_90))} FCFA</div>
-                <div className="text-xs text-amber-600 mt-1">{getPercentage(data.totals.days60_90, data.totals.total)}%</div>
+                <div className="text-xl font-semibold text-amber-900">{nf(Math.abs(data.totals?.days60_90 || 0))} FCFA</div>
+                <div className="text-xs text-amber-600 mt-1">{getPercentage(data.totals?.days60_90 || 0, data.totals?.total || 0)}%</div>
               </div>
               <div className="bg-rose-50 p-4 rounded-lg">
                 <div className="text-sm text-rose-700 mb-1 flex items-center gap-1">
                   <AlertTriangle className="w-3 h-3" />
                   &gt; 90 jours
                 </div>
-                <div className="text-xl font-semibold text-rose-900">{nf(Math.abs(data.totals.over90))} FCFA</div>
-                <div className="text-xs text-rose-600 mt-1">{getPercentage(data.totals.over90, data.totals.total)}%</div>
+                <div className="text-xl font-semibold text-rose-900">{nf(Math.abs(data.totals?.over90 || 0))} FCFA</div>
+                <div className="text-xs text-rose-600 mt-1">{getPercentage(data.totals?.over90 || 0, data.totals?.total || 0)}%</div>
               </div>
               <div className="bg-slate-100 p-4 rounded-lg">
                 <div className="text-sm text-slate-700 mb-1">Total</div>
-                <div className="text-xl font-semibold text-slate-900">{nf(Math.abs(data.totals.total))} FCFA</div>
+                <div className="text-xl font-semibold text-slate-900">{nf(Math.abs(data.totals?.total || 0))} FCFA</div>
                 <div className="text-xs text-slate-600 mt-1">100%</div>
               </div>
             </div>

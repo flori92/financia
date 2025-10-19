@@ -7,7 +7,7 @@ import { UserProfileProvider } from '@/components/user-profile/user-profile-prov
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const noLayoutPages = ['/login', '/register', '/reset-password'];
+  const noLayoutPages = ['/', '/login', '/register', '/reset-password'];
 
   if (noLayoutPages.includes(pathname)) {
     return <>{children}</>;

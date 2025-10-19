@@ -2879,3 +2879,135 @@ Import trace for requested module:
  GET /login 200 in 71ms
  GET /api/auth/session 304 in 37ms
  GET /api/auth/session 304 in 7ms
+ GET /accountant 200 in 270ms
+ GET /api/auth/session 304 in 22ms
+ GET /api/auth/session 304 in 6ms
+ GET /login 200 in 84ms
+ GET /api/auth/session 304 in 19ms
+ GET /api/auth/session 304 in 11ms
+ GET /accountant 200 in 187ms
+ GET /api/auth/session 304 in 28ms
+ GET /api/auth/session 304 in 14ms
+ ✓ Compiled in 1204ms (569 modules)
+ ✓ Compiled in 1240ms (957 modules)
+ ✓ Compiled /login in 128ms (393 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 657ms (395 modules)
+ GET / 200 in 807ms
+ ✓ Compiled /api/auth/[...nextauth] in 179ms (413 modules)
+ GET /api/auth/session 304 in 227ms
+ GET /api/auth/session 304 in 4ms
+ ✓ Compiled in 1246ms (958 modules)
+ ✓ Compiled /accountant in 203ms (395 modules)
+ ✓ Compiled /accountant/validation in 425ms (395 modules)
+ ✓ Compiled /accountant/chart-of-accounts in 286ms (392 modules)
+ ✓ Compiled /accountant/journal in 129ms (396 modules)
+ ✓ Compiled /accountant/general-ledger in 173ms (396 modules)
+ ✓ Compiled /accountant/aged-balance in 295ms (402 modules)
+ GET / 200 in 352ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1205ms (416 modules)
+ GET /api/auth/session 304 in 1378ms
+ GET /api/auth/session 304 in 7ms
+ ✓ Compiled /login in 306ms (413 modules)
+ ✓ Compiled /accountant in 145ms (420 modules)
+ ✓ Compiled in 1234ms (954 modules)
+ ✓ Compiled /accountant/trial-balance in 404ms (390 modules)
+ ✓ Compiled /accountant/bank in 225ms (393 modules)
+ ✓ Compiled /accountant/tax/vat in 144ms (400 modules)
+ ✓ Compiled /accountant/close in 248ms (402 modules)
+ ○ Compiling /transactions ...
+ ✓ Compiled /transactions in 675ms (971 modules)
+ ✓ Compiled /login in 155ms (415 modules)
+ ✓ Compiled in 640ms (574 modules)
+ ✓ Compiled in 2.3s (949 modules)
+ ✓ Compiled in 947ms (963 modules)
+ GET /accountant 200 in 148ms
+ ✓ Compiled /api/auth/[...nextauth] in 274ms (407 modules)
+ GET /api/auth/session 304 in 312ms
+ GET /api/auth/session 304 in 6ms
+ ○ Compiling /accountant/validation ...
+ ✓ Compiled /accountant/validation in 554ms (411 modules)
+ ✓ Compiled /accountant/chart-of-accounts in 160ms (415 modules)
+ ✓ Compiled /accountant/journal in 153ms (415 modules)
+ ✓ Compiled /accountant/general-ledger in 172ms (422 modules)
+ ✓ Compiled /accountant/aged-balance in 238ms (428 modules)
+ ✓ Compiled /accountant/trial-balance in 117ms (417 modules)
+ ✓ Compiled /accountant/profit-loss in 237ms (421 modules)
+ ✓ Compiled in 569ms (574 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /accountant/profit-loss 200 in 477ms
+ GET /api/auth/session 304 in 97ms
+ GET /api/auth/session 304 in 31ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 1489ms (958 modules)
+ GET /accountant/profit-loss 200 in 1611ms
+ GET /api/auth/session 304 in 37ms
+ GET /api/auth/session 304 in 11ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 2.1s (958 modules)
+ GET /accountant/profit-loss 200 in 1821ms
+ GET /api/auth/session 304 in 81ms
+ GET /api/auth/session 304 in 26ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 2.2s (972 modules)
+ GET /accountant/profit-loss 200 in 1832ms
+ GET /api/auth/session 304 in 146ms
+ GET /api/auth/session 304 in 77ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 1594ms (976 modules)
+ GET /accountant/profit-loss 200 in 881ms
+ GET /api/auth/session 304 in 76ms
+ GET /api/auth/session 304 in 16ms
+ ○ Compiling /accountant/aged-balance ...
+ ✓ Compiled /accountant/aged-balance in 922ms (390 modules)
+ GET /accountant/aged-balance 200 in 1276ms
+ ✓ Compiled /api/auth/[...nextauth] in 208ms (408 modules)
+ GET /api/auth/session 304 in 282ms
+ GET /api/auth/session 304 in 29ms
+ ✓ Compiled /accountant in 196ms (410 modules)
+ ✓ Compiled in 1374ms (963 modules)
+ ✓ Compiled in 722ms (576 modules)
+ ✓ Compiled in 1108ms (949 modules)
+ ✓ Compiled in 713ms (576 modules)
+ ✓ Compiled in 317ms (576 modules)
+ ✓ Compiled in 1876ms (949 modules)
+ ✓ Compiled in 2.9s (949 modules)
+ ✓ Compiled in 1748ms (949 modules)
+ ✓ Compiled in 1430ms (949 modules)
+ ✓ Compiled in 263ms (576 modules)
+ ✓ Compiled in 1257ms (949 modules)
+ ✓ Compiled in 1224ms (949 modules)
+ ✓ Compiled in 818ms (949 modules)
+ ✓ Compiled in 856ms (949 modules)
+ ✓ Compiled in 288ms (576 modules)
+ ✓ Compiled in 848ms (949 modules)
+ ✓ Compiled in 892ms (949 modules)
+ ✓ Compiled in 914ms (949 modules)
+ ✓ Compiled in 305ms (576 modules)
+ ✓ Compiled in 474ms (576 modules)
+ ✓ Compiled in 439ms (576 modules)
+ ✓ Compiled in 996ms (576 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 667ms (394 modules)
+ GET / 200 in 957ms
+ GET / 200 in 82ms
+ GET /accountant 200 in 121ms
+ ✓ Compiled /api/auth/[...nextauth] in 492ms (405 modules)
+ GET /api/auth/session 304 in 550ms
+ GET /api/auth/session 304 in 38ms
+ ✓ Compiled / in 116ms (412 modules)
+ GET / 200 in 449ms
+ GET /api/auth/session 304 in 18ms
+ GET /api/auth/session 304 in 12ms
+ ✓ Compiled /login in 286ms (416 modules)
+ ✓ Compiled /accountant/chart-of-accounts in 194ms (420 modules)
+ ✓ Compiled /accountant/trial-balance in 170ms (424 modules)
+ GET /accountant/trial-balance 200 in 587ms
+ GET /api/auth/session 304 in 14ms
+ GET /api/auth/session 304 in 11ms
+ ✓ Compiled /accountant/balance-sheet in 225ms (428 modules)
+ ✓ Compiled in 991ms (576 modules)

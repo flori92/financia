@@ -36,13 +36,7 @@ export class ReconciliationService {
             where: {
                 companyId,
                 accountId,
-                status: 'pending',
-                ...(dateRange && {
-                    date: {
-                        gte: dateRange.start,
-                        lte: dateRange.end
-                    }
-                })
+                status: 'pending'
             },
             order: { date: 'ASC' }
         });
@@ -52,13 +46,7 @@ export class ReconciliationService {
             where: {
                 companyId,
                 bankAccountId: accountId,
-                status: 'pending',
-                ...(dateRange && {
-                    date: {
-                        gte: dateRange.start,
-                        lte: dateRange.end
-                    }
-                })
+                status: 'pending'
             },
             order: { date: 'ASC' }
         });
@@ -210,7 +198,7 @@ export class ReconciliationService {
             where: {
                 companyId: transaction.companyId,
                 bankAccountId: transaction.accountId,
-                reconciled: false
+                status: 'pending'
             }
         });
 

@@ -36,7 +36,7 @@ export default function LoginPage() {
         const role = email.includes('comptable') || email.includes('accountant') ? 'accountant' : 'entrepreneur';
         window.localStorage.setItem("user_role", role);
         // Rediriger vers la page appropriée
-        const redirectTo = role === 'accountant' ? '/accountant' : '/';
+        const redirectTo = role === 'accountant' ? '/accountant' : '/dashboard';
         router.push(redirectTo);
       }
     } catch (e) {
