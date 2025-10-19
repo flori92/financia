@@ -74,10 +74,11 @@ export function DashboardCustomizer({ widgets, onUpdate }: DashboardCustomizerPr
               ))}
             </div>
 
-            <div className="p-6 border-t flex justify-end gap-3">
+            <div className="p-6 border-t bg-gray-50 flex justify-between items-center">
+              <p className="text-sm text-gray-600">Les modifications sont enregistrées automatiquement</p>
               <button
                 onClick={() => setIsOpen(false)}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                className="px-6 py-2.5 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74] font-medium transition-colors"
               >
                 Fermer
               </button>
