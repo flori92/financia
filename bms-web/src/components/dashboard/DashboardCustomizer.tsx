@@ -36,8 +36,8 @@ export function DashboardCustomizer({ widgets, onUpdate }: DashboardCustomizerPr
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="text-xl font-bold">Personnaliser le dashboard</h2>
               <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -53,9 +53,9 @@ export function DashboardCustomizer({ widgets, onUpdate }: DashboardCustomizerPr
                     {widgets.filter(w => w.category === category).map(widget => (
                       <div
                         key={widget.id}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                       >
-                        <span className="text-sm">{widget.title}</span>
+                        <span className="text-sm font-medium text-gray-900">{widget.title}</span>
                         <button
                           onClick={() => toggleWidget(widget.id)}
                           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${
