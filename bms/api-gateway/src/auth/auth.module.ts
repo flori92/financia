@@ -9,6 +9,8 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { User } from './entities/user.entity';
+import { TwoFactorService } from './services/two-factor.service';
+import { TwoFactorController } from './two-factor.controller';
 
 @Module({
   imports: [
@@ -24,8 +26,8 @@ import { User } from './entities/user.entity';
       }),
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
-  exports: [AuthService],
+  controllers: [AuthController, TwoFactorController],
+  providers: [AuthService, JwtStrategy, LocalStrategy, TwoFactorService],
+  exports: [AuthService, TwoFactorService],
 })
 export class AuthModule {}

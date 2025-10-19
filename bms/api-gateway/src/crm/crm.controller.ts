@@ -26,6 +26,7 @@ import { FilterContactsDto } from './dto/filter-contacts.dto';
 import { ImportContactsDto } from './dto/import-contacts.dto';
 import { ExportContactsDto } from './dto/export-contacts.dto';
 import { Contact } from './entities/contact.entity';
+import { Tag } from './entities/tag.entity';
 
 /**
  * Contrôleur pour la gestion CRM (Contacts, Opportunités, Activités)
@@ -213,23 +214,25 @@ export class CrmController {
     );
   }
 
-  @Get('contacts/stats')
-  @ApiOperation({ summary: 'Obtenir les statistiques des contacts' })
+  @Get('stats')
+  @ApiOperation({ summary: 'Obtenir les statistiques CRM globales' })
   @ApiQuery({ name: 'companyId', required: true, description: 'ID de la société' })
   @ApiResponse({
     status: 200,
-    description: 'Statistiques des contacts',
+    description: 'Statistiques CRM',
     schema: {
       type: 'object',
       properties: {
-        total: { type: 'number' },
+        totalContacts: { type: 'number' },
+        activeOpportunities: { type: 'number' },
+        totalValue: { type: 'number' },
+        recentActivity: { type: 'number' },
         byType: { type: 'object' },
         byStatus: { type: 'object' },
-        recentActivity: { type: 'number' },
       },
     },
   })
-  async getContactStats(@Query('companyId') companyId: string) {
+  async getCrmStats(@Query('companyId') companyId: string) {
     return this.crmService.getContactStats(companyId);
   }
 

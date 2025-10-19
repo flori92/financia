@@ -52,6 +52,18 @@ export class User {
   @Column({ name: 'last_login_at', nullable: true })
   lastLoginAt: Date;
 
+  @Column({ name: 'two_factor_secret', nullable: true })
+  twoFactorSecret: string | null;
+
+  @Column({ name: 'two_factor_enabled', default: false })
+  twoFactorEnabled: boolean;
+
+  @Column({ name: 'two_factor_temp_secret', nullable: true })
+  twoFactorTempSecret: string | null;
+
+  @Column({ name: 'two_factor_backup_codes', type: 'jsonb', nullable: true })
+  twoFactorBackupCodes: string[] | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

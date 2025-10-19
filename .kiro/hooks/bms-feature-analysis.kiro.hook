@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "name": "BMS Feature Analysis & Structuring",
+  "description": "Monitors changes to BMS project files and analyzes the current implementation against the comprehensive feature requirements for a professional accounting and CRM software. Provides structural recommendations and identifies missing functionalities.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "bms/**/*.ts",
+      "bms/**/*.tsx",
+      "bms/**/*.py",
+      "bms/**/*.json",
+      "bms-web/**/*.ts",
+      "bms-web/**/*.tsx",
+      "*.md",
+      "BMS_CAHIER_DES_CHARGES.md",
+      "ANALYSE_COMPLETE_FINALISATION.md",
+      "FINALISATION_100_POURCENT.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the current BMS project structure and implementation against these comprehensive requirements:\n\n**REQUIRED FEATURES:**\n- Multi-tenant architecture with data isolation\n- REST/GraphQL APIs for integrations\n- Microservices architecture (accounting, CRM, invoicing, fiscal)\n- PostgreSQL with replication and automatic backups\n- Redis distributed cache\n- Async processing queues\n- Cloud storage for documents\n- Complete audit logging\n- Multi-factor authentication (2FA/MFA)\n- Encryption (data at rest and in transit)\n- Granular role-based permissions\n- GDPR compliance\n- Complete accounting module (chart of accounts, journals, bank reconciliation, ledgers, balance sheets)\n- Invoicing module (quotes, invoices, recurring billing, multi-currency, payment tracking)\n- CRM module (contacts, pipeline, opportunities, communications, tasks)\n- Analytics & reporting (dashboards, KPIs, financial reports, commercial reports)\n- Tax/fiscal module (VAT, declarations, compliance)\n- User management with teams and collaboration\n- Banking integrations (Budget Insight, Bridge API, EBICS, Open Banking)\n- E-commerce integrations (WooCommerce, Shopify, PrestaShop)\n- Payment gateways (Stripe, PayPal, SEPA)\n- Mobile apps (iOS/Android with offline mode)\n- Responsive web interface with dark mode\n- Document OCR and automation\n- Workflow automation\n- Multi-language support\n\n**YOUR TASK:**\n1. Review the modified files and understand what has changed\n2. Analyze the current project structure in bms/api-gateway, bms-web, and related directories\n3. Identify which features from the requirements are already implemented\n4. Identify which features are missing or incomplete\n5. Provide specific recommendations for:\n   - Code structure improvements\n   - Missing modules that need to be created\n   - Integration points that need to be added\n   - Security enhancements required\n   - Performance optimizations needed\n   - Database schema additions\n   - API endpoints to implement\n   - Frontend components to build\n6. Prioritize recommendations based on:\n   - Core functionality (accounting, invoicing, CRM)\n   - Security and compliance\n   - User experience\n   - Scalability\n7. Suggest concrete next steps with file paths and implementation approach\n\nFocus on making BMS a complete, professional, and competitive accounting and CRM software platform."
+  }
+}

@@ -13,8 +13,8 @@ import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAnomaly } from './entities/bank-anomaly.entity';
 import { BankWebhookEvent } from './entities/bank-webhook-event.entity';
 import { BullModule } from '@nestjs/bull';
-import { NotificationsModule } from '../notifications/notifications.module';
-import { AIModule } from '../ai/ai.module';
+import { NotificationsModule } from '../../notifications/notifications.module';
+import { AIModule } from '../../ai/ai.module';
 
 @Module({
   imports: [

@@ -5,15 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BankApiModule } from '../bank-api.module';
-import { NotificationsModule } from '../../notifications/notifications.module';
-import { AIModule } from '../../ai/ai.module';
-import { AuthModule } from '../../auth/auth.module';
+import { NotificationsModule } from '../../../notifications/notifications.module';
+import { AIModule } from '../../../ai/ai.module';
+import { AuthModule } from '../../../auth/auth.module';
 import { BankConnection } from '../entities/bank-connection.entity';
 import { BankAccount } from '../entities/bank-account.entity';
 import { BankTransaction } from '../entities/bank-transaction.entity';
 import { BankAnomaly } from '../entities/bank-anomaly.entity';
 import { CreateBankConnectionDto } from '../dto/bank-api.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 
 describe('BankApi (e2e)', () => {
     let app: INestApplication;

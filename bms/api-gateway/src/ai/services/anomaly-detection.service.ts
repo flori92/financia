@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as tf from '@tensorflow/tfjs-node';
-import { NotificationGateway } from '../notifications/gateways/notification.gateway';
-import { BankTransaction } from '../banking/entities/bank-transaction.entity';
-import { AnomalyDetectionModel } from './models/anomaly-detection.model';
-import { TransactionAnomaly } from './entities/transaction-anomaly.entity';
+import { NotificationGateway } from '../../notifications/gateways/notification.gateway';
+import { BankTransaction } from '../../banking/entities/bank-transaction.entity';
+import { AnomalyDetectionModel } from '../models/anomaly-detection.model';
+import { TransactionAnomaly } from '../entities/transaction-anomaly.entity';
 
 @Injectable()
 export class AnomalyDetectionService {
