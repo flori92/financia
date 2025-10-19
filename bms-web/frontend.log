@@ -4103,3 +4103,8 @@ Import trace for requested module:
  ✓ Compiled /invoices/reminders in 790ms (1073 modules)
  ✓ Compiled in 1158ms (661 modules)
  ✓ Compiled in 2.5s (663 modules)
+ GET /invoices/reminders 200 in 598ms
+ ✓ Compiled /api/auth/[...nextauth] in 390ms (437 modules)
+ GET /api/auth/session 304 in 449ms
+ GET /api/auth/session 304 in 20ms
+ ✓ Compiled in 1145ms (663 modules)

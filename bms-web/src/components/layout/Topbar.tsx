@@ -90,7 +90,15 @@ export function Topbar() {
             ))}
           </select>
         </div>
-        <button onClick={()=> router.push('/accountant/journal')} className="hidden md:inline-flex rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Nouvelle écriture</button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            router.push('/accountant/journal');
+          }}
+          className="hidden md:inline-flex rounded-md bg-[#0D9488] text-white text-sm px-3 py-2 hover:bg-[#0B7C74]"
+        >
+          Nouvelle écriture
+        </button>
         <div className="relative">
           <button
             onClick={(e)=>{ e.stopPropagation(); toggleNotifications(); }}
