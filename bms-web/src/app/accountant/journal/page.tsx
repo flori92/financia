@@ -1,12 +1,21 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Download, Upload, Camera, X } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Search, Filter, Upload, Camera, X } from "lucide-react";
 
 export default function JournalPage() {
   const [entries, setEntries] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    account: "",
+    minAmount: "",
+    maxAmount: "",
+    status: ""
+  });
 
   useEffect(() => {
     loadData();
@@ -49,8 +58,44 @@ export default function JournalPage() {
     }
   };
 
-  const totalDebit = entries.reduce((sum, e) => sum + (e.debit?.amount || 0), 0);
-  const totalCredit = entries.reduce((sum, e) => sum + (e.credit?.amount || 0), 0);
+  const filteredEntries = useMemo(() => {
+    return entries.filter(entry => {
+      const entryDate = entry.date ? new Date(entry.date) : undefined;
+      const debitAmount = entry.debit?.amount || 0;
+      const creditAmount = entry.credit?.amount || 0;
+      const entryAmount = Math.max(debitAmount, creditAmount);
+
+      if (filters.startDate) {
+        const start = new Date(filters.startDate);
+        if (entryDate && entryDate < start) return false;
+      }
+      if (filters.endDate) {
+        const end = new Date(filters.endDate);
+        if (entryDate && entryDate > end) return false;
+      }
+      if (filters.account) {
+        const accountMatch = entry.debit?.account === filters.account || entry.credit?.account === filters.account;
+        if (!accountMatch) return false;
+      }
+      if (filters.minAmount && entryAmount < Number(filters.minAmount)) {
+        return false;
+      }
+      if (filters.maxAmount && entryAmount > Number(filters.maxAmount)) {
+        return false;
+      }
+      if (filters.status && filters.status !== "all") {
+        const normalizedStatus = filters.status === "validated" ? "Validé" : filters.status === "draft" ? "Brouillon" : filters.status;
+        if ((entry.status || "Validé") !== normalizedStatus) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [entries, filters]);
+
+  const totalDebit = filteredEntries.reduce((sum, e) => sum + (e.debit?.amount || 0), 0);
+  const totalCredit = filteredEntries.reduce((sum, e) => sum + (e.credit?.amount || 0), 0);
+  const hasActiveFilters = useMemo(() => Object.values(filters).some(Boolean), [filters]);
 
   return (
     <div className="space-y-6">
@@ -109,11 +154,121 @@ export default function JournalPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button
+            type="button"
+            onClick={() => setShowFilters(prev => !prev)}
+            className={`relative flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg transition ${
+              hasActiveFilters ? "bg-[#0D9488]/10 border-[#0D9488] text-[#0D9488]" : "hover:bg-gray-50"
+            }`}
+          >
             <Filter className="w-4 h-4" />
             Filtres
+            {hasActiveFilters && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#0D9488]" />}
           </button>
         </div>
+
+        {showFilters && (
+          <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <form
+              className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setShowFilters(false);
+              }}
+            >
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1" htmlFor="filter-start-date">Date de début</label>
+                <input
+                  id="filter-start-date"
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(event) => setFilters(prev => ({ ...prev, startDate: event.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1" htmlFor="filter-end-date">Date de fin</label>
+                <input
+                  id="filter-end-date"
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(event) => setFilters(prev => ({ ...prev, endDate: event.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1" htmlFor="filter-account">Compte</label>
+                <select
+                  id="filter-account"
+                  value={filters.account}
+                  onChange={(event) => setFilters(prev => ({ ...prev, account: event.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
+                >
+                  <option value="">Tous les comptes</option>
+                  {accounts.map((account) => (
+                    <option key={account.code} value={account.code}>{account.code} - {account.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1" htmlFor="filter-min-amount">Montant min.</label>
+                <input
+                  id="filter-min-amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={filters.minAmount}
+                  onChange={(event) => setFilters(prev => ({ ...prev, minAmount: event.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1" htmlFor="filter-max-amount">Montant max.</label>
+                <input
+                  id="filter-max-amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={filters.maxAmount}
+                  onChange={(event) => setFilters(prev => ({ ...prev, maxAmount: event.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1" htmlFor="filter-status">Statut</label>
+                <select
+                  id="filter-status"
+                  value={filters.status}
+                  onChange={(event) => setFilters(prev => ({ ...prev, status: event.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
+                >
+                  <option value="">Tous les statuts</option>
+                  <option value="validated">Validé</option>
+                  <option value="draft">Brouillon</option>
+                  <option value="rejected">Rejeté</option>
+                </select>
+              </div>
+            </form>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilters({ startDate: "", endDate: "", account: "", minAmount: "", maxAmount: "", status: "" });
+                }}
+                className="text-sm px-3 py-2 rounded-lg border border-gray-300 hover:bg-white"
+              >
+                Réinitialiser
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowFilters(false)}
+                className="text-sm px-3 py-2 rounded-lg bg-[#0D9488] text-white hover:bg-[#0B7C74]"
+              >
+                Appliquer
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -132,9 +287,9 @@ export default function JournalPage() {
             <tbody>
               {loading ? (
                 <tr><td colSpan={8} className="text-center py-8 text-gray-500">Chargement...</td></tr>
-              ) : entries.length === 0 ? (
+              ) : filteredEntries.length === 0 ? (
                 <tr><td colSpan={8} className="text-center py-8 text-gray-500">Aucune écriture</td></tr>
-              ) : entries.map((entry, idx) => (
+              ) : filteredEntries.map((entry, idx) => (
                 <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 font-mono text-sm">{entry.id}</td>
                   <td className="py-3 px-4 text-sm">{new Date(entry.date).toLocaleDateString('fr-FR')}</td>

@@ -4136,3 +4136,16 @@ Import trace for requested module:
  ✓ Compiled /api/auth/[...nextauth] in 267ms (451 modules)
  GET /api/auth/session 304 in 356ms
  GET /api/auth/session 304 in 193ms
+ ✓ Compiled in 2.2s (1101 modules)
+ GET /dashboard 200 in 214ms
+ ✓ Compiled /api/auth/[...nextauth] in 248ms (452 modules)
+ GET /api/auth/session 304 in 302ms
+ GET /api/auth/session 304 in 66ms
+ ✓ Compiled /accountant/journal in 378ms (460 modules)
+ ✓ Compiled in 1431ms (1104 modules)
+ ✓ Compiled /accountant/general-ledger in 257ms (443 modules)
+ ✓ Compiled /accountant/trial-balance in 171ms (444 modules)
+ ○ Compiling /accountant/bank ...
+ ✓ Compiled /accountant/bank in 670ms (445 modules)
+ ✓ Compiled /accountant/close in 469ms (432 modules)
+ ✓ Compiled in 1117ms (1094 modules)

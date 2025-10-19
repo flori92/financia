@@ -488,7 +488,13 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-semibold">Évolution trésorerie & CA</h2>
-              <p className="text-sm text-gray-500 mt-1">Analyse croisée sur 12 mois avec prévisionnel</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {chartPeriod === '1month' && 'Analyse du dernier mois avec prévisionnel'}
+                {chartPeriod === '3months' && 'Analyse sur 3 mois avec prévisionnel'}
+                {chartPeriod === '6months' && 'Analyse sur 6 mois avec prévisionnel'}
+                {chartPeriod === 'year' && 'Analyse sur 12 mois avec prévisionnel'}
+                {chartPeriod === 'multi' && 'Analyse multi-années avec prévisionnel'}
+              </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <button
