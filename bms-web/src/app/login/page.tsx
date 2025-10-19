@@ -32,11 +32,21 @@ export default function LoginPage() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("bms_token", data.access_token);
         window.localStorage.setItem("user_email", email);
-        // Déterminer le rôle selon l'email
-        const role = email.includes('comptable') || email.includes('accountant') ? 'accountant' : 'entrepreneur';
-        window.localStorage.setItem("user_role", role);
-        // Rediriger vers la page appropriée
-        const redirectTo = role === 'accountant' ? '/accountant' : '/dashboard';
+        window.localStorage.setItem("user_data", JSON.stringify(data.user || {}));
+        
+        // Déterminer le rôle et la redirection
+        let redirectTo = '/dashboard';
+        if (email.includes('comptable') || email.includes('accountant')) {
+          window.localStorage.setItem("user_role", 'accountant');
+          redirectTo = '/accountant';
+        } else if (email.includes('admin')) {
+          window.localStorage.setItem("user_role", 'admin');
+          redirectTo = '/dashboard';
+        } else {
+          window.localStorage.setItem("user_role", 'entrepreneur');
+          redirectTo = '/dashboard';
+        }
+        
         router.push(redirectTo);
       }
     } catch (e) {
