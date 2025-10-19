@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, In } from 'typeorm';
-import { JournalEntry } from './entities/journal-entry.entity';
-import { Account } from './entities/account.entity';
-import { Company } from '../companies/entities/company.entity';
-import { TaxDeclaration } from '../tax/entities/tax-declaration.entity';
+import { JournalEntry } from '../entities/journal-entry.entity';
+import { Account } from '../entities/account.entity';
+import { Company } from '../../companies/entities/company.entity';
 import * as moment from 'moment';
 
 /**
@@ -19,8 +18,8 @@ export class AccountingAnalyticsService {
         private accountsRepo: Repository<Account>,
         @InjectRepository(Company)
         private companiesRepo: Repository<Company>,
-        @InjectRepository(TaxDeclaration)
-        private taxDeclarationsRepo: Repository<TaxDeclaration>,
+        // @InjectRepository(TaxDeclaration)
+        // private taxDeclarationsRepo: Repository<TaxDeclaration>,
     ) {}
 
     /**
@@ -61,7 +60,7 @@ export class AccountingAnalyticsService {
         // Métriques globales du cabinet
         const cabinetMetrics = {
             totalClients: companies.length,
-            clientsActifs: companies.filter(c => c.subscriptions.some(s => s.isActive)).length,
+            clientsActifs: companies.length, // TODO: Add subscriptions field to Company entity
             declarationsEnAttente: declarations.filter(d => d.status === 'pending').length,
             declarationsProches: declarations.filter(d => {
                 const dueDate = moment(d.dueDate);
@@ -183,11 +182,11 @@ export class AccountingAnalyticsService {
     private calculateEntryRevenue(entry: JournalEntry): number {
         // Logique pour calculer le revenu à partir d'une écriture
         return entry.lines
-            .filter(line => line.account.startsWith('7')) // Comptes de produits
+            .filter(line => line.account?.accountNumber?.startsWith('7')) // Comptes de produits
             .reduce((sum, line) => sum + (line.credit - line.debit), 0);
     }
 
-    private getUpcomingDeadlines(declarations: TaxDeclaration[]): Array<{
+    private getUpcomingDeadlines(declarations: any[]): Array<{
         dueDate: string;
         type: string;
         company: string;

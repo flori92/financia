@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { OCRService } from './services/ocr.service';
+import { OcrService } from './services/ocr.service';
 import { AnomalyDetectionService } from './services/anomaly-detection.service';
-import { PredictionService } from './services/prediction.service';
-import { VirtualAssistantService } from './services/virtual-assistant.service';
 
 @Injectable()
 export class AIService {
   constructor(
-    private readonly ocrService: OCRService,
+    private readonly ocrService: OcrService,
     private readonly anomalyDetection: AnomalyDetectionService,
-    private readonly prediction: PredictionService,
-    private readonly virtualAssistant: VirtualAssistantService,
   ) {}
 
   async processDocument(file: Express.Multer.File) {
@@ -18,14 +14,17 @@ export class AIService {
   }
 
   async analyzeData(data: any) {
-    return this.anomalyDetection.analyze(data);
+    // TODO: Implement full anomaly detection
+    return { status: 'not_implemented', message: 'Anomaly detection coming soon' };
   }
 
   async getPrediction(data: any) {
-    return this.prediction.getPrediction(data);
+    // TODO: Implement prediction service
+    return { status: 'not_implemented', message: 'Prediction service coming soon' };
   }
 
   async chatResponse(content: string, context?: any) {
-    return this.virtualAssistant.getResponse(content, context);
+    // TODO: Implement virtual assistant
+    return { status: 'not_implemented', message: 'Virtual assistant coming soon' };
   }
 }

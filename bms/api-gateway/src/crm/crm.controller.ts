@@ -27,6 +27,8 @@ import { ImportContactsDto } from './dto/import-contacts.dto';
 import { ExportContactsDto } from './dto/export-contacts.dto';
 import { Contact } from './entities/contact.entity';
 import { Tag } from './entities/tag.entity';
+import { LeadScoringService } from './lead-scoring.service';
+import { FormalizationService } from './formalization.service';
 
 /**
  * Contrôleur pour la gestion CRM (Contacts, Opportunités, Activités)
@@ -38,6 +40,8 @@ export class CrmController {
   constructor(
     private readonly crmService: CrmService,
     private readonly crmImportService: CrmImportService,
+    private readonly leadScoringService: LeadScoringService,
+    private readonly formalizationService: FormalizationService,
   ) {}
 
   // ============================================
@@ -263,5 +267,148 @@ export class CrmController {
   })
   async findAllTags(@Query('companyId') companyId: string): Promise<Tag[]> {
     return this.crmService.findAllTags(companyId);
+  }
+
+  // ============================================
+  // SCORING DES LEADS
+  // ============================================
+
+  @Post('contacts/:id/calculate-score')
+  @ApiOperation({ summary: 'Calculer le score d\'un lead' })
+  @ApiResponse({
+    status: 200,
+    description: 'Score calculé',
+    schema: {
+      type: 'object',
+      properties: {
+        score: { type: 'number' },
+        category: { type: 'string' },
+      },
+    },
+  })
+  async calculateLeadScore(
+    @Param('id') id: string,
+    @Query('companyId') companyId: string,
+  ) {
+    const score = await this.leadScoringService.calculateScore(id, companyId);
+    const category = this.leadScoringService.getScoreCategory(score);
+    return { score, category };
+  }
+
+  @Post('leads/calculate-all-scores')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Recalculer tous les scores' })
+  @ApiResponse({ status: 200, description: 'Scores recalculés' })
+  async calculateAllScores(@Query('companyId') companyId: string) {
+    await this.leadScoringService.calculateAllScores(companyId);
+    return { message: 'Scores recalculés avec succès' };
+  }
+
+  @Get('leads/hot')
+  @ApiOperation({ summary: 'Obtenir les leads chauds (score >= 70)' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'minScore', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des leads chauds',
+    type: [Contact],
+  })
+  async getHotLeads(
+    @Query('companyId') companyId: string,
+    @Query('minScore') minScore?: number,
+  ) {
+    return this.leadScoringService.getHotLeads(companyId, minScore);
+  }
+
+  // ============================================
+  // FORMALISATION (NIF, RCCM)
+  // ============================================
+
+  @Get('contacts/:id/formalization-status')
+  @ApiOperation({ summary: 'Vérifier le statut de formalisation' })
+  @ApiResponse({
+    status: 200,
+    description: 'Statut de formalisation',
+    schema: {
+      type: 'object',
+      properties: {
+        isFormal: { type: 'boolean' },
+        hasNIF: { type: 'boolean' },
+        hasRCCM: { type: 'boolean' },
+        hasVAT: { type: 'boolean' },
+        completionRate: { type: 'number' },
+        missingSteps: { type: 'array', items: { type: 'string' } },
+      },
+    },
+  })
+  async checkFormalizationStatus(
+    @Param('id') id: string,
+    @Query('companyId') companyId: string,
+  ) {
+    return this.formalizationService.checkFormalizationStatus(id, companyId);
+  }
+
+  @Post('contacts/:id/register-nif')
+  @ApiOperation({ summary: 'Enregistrer le NIF d\'un contact' })
+  @ApiResponse({
+    status: 200,
+    description: 'NIF enregistré',
+    type: Contact,
+  })
+  @ApiResponse({ status: 400, description: 'Format NIF invalide' })
+  async registerNIF(
+    @Param('id') id: string,
+    @Body() body: { nif: string; companyId: string },
+  ) {
+    return this.formalizationService.registerNIF(id, body.companyId, body.nif);
+  }
+
+  @Post('contacts/:id/register-rccm')
+  @ApiOperation({ summary: 'Enregistrer le RCCM d\'un contact' })
+  @ApiResponse({
+    status: 200,
+    description: 'RCCM enregistré',
+    type: Contact,
+  })
+  async registerRCCM(
+    @Param('id') id: string,
+    @Body() body: { rccm: string; companyId: string },
+  ) {
+    return this.formalizationService.registerRCCM(id, body.companyId, body.rccm);
+  }
+
+  @Get('formalization/informal-contacts')
+  @ApiOperation({ summary: 'Obtenir les contacts non formalisés' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des contacts informels',
+    type: [Contact],
+  })
+  async getInformalContacts(@Query('companyId') companyId: string) {
+    return this.formalizationService.getInformalContacts(companyId);
+  }
+
+  @Get('formalization/report')
+  @ApiOperation({ summary: 'Rapport de formalisation' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'Statistiques de formalisation',
+    schema: {
+      type: 'object',
+      properties: {
+        total: { type: 'number' },
+        formal: { type: 'number' },
+        informal: { type: 'number' },
+        withNIF: { type: 'number' },
+        withRCCM: { type: 'number' },
+        withVAT: { type: 'number' },
+        formalizationRate: { type: 'number' },
+      },
+    },
+  })
+  async getFormalizationReport(@Query('companyId') companyId: string) {
+    return this.formalizationService.getFormalizationReport(companyId);
   }
 }

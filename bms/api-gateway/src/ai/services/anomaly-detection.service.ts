@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as tf from '@tensorflow/tfjs-node';
+// import * as tf from '@tensorflow/tfjs-node'; // TODO: Install TensorFlow
 import { NotificationGateway } from '../../notifications/gateways/notification.gateway';
 import { BankTransaction } from '../../banking/entities/bank-transaction.entity';
 import { AnomalyDetectionModel } from '../models/anomaly-detection.model';
@@ -169,6 +169,13 @@ export class AnomalyDetectionService {
             'telecom', 'education', 'health', 'shopping', 'other'
         ];
         return categories.map(cat => cat === category ? 1 : 0);
+    }
+
+    private async updateTransactionStatus(transactionId: string, anomalyChecked: boolean) {
+        await this.transactionRepo.update(transactionId, {
+            anomalyChecked,
+            status: 'pending' // Ne pas modifier le status de réconciliation
+        });
     }
 
     private determineAnomalyType(

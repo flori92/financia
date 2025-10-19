@@ -12,15 +12,24 @@ export class ReportingService {
   ) {}
 
   async getDashboard(companyId: string) {
-    return this.dashboard.getDashboard(companyId);
+    return this.dashboard.getDashboardData(companyId);
   }
 
-  async getFinancialReports(companyId: string, startDate: string, endDate: string) {
-    return this.financialReport.getReports(companyId, startDate, endDate);
+  async getFinancialReports(companyId: string, startDate: Date, endDate: Date) {
+    const balanceSheet = await this.financialReport.generateBalanceSheet(companyId, endDate);
+    const incomeStatement = await this.financialReport.generateIncomeStatement(companyId, startDate, endDate);
+    const cashFlow = await this.financialReport.generateCashFlowStatement(companyId, startDate, endDate);
+    
+    return {
+      balanceSheet,
+      incomeStatement,
+      cashFlow,
+    };
   }
 
   async getCustomAnalysis(params: any) {
-    return this.analytics.analyze(params);
+    // TODO: Implement custom analysis
+    return { status: 'not_implemented' };
   }
 
   async getKPIs(companyId: string) {

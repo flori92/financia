@@ -22,6 +22,18 @@ export class BankTransaction {
   @Column({ name: 'transaction_date', type: 'date' })
   transactionDate: Date;
 
+  @Column({ name: 'date', type: 'timestamp' })
+  date: Date;
+
+  @Column({ name: 'description', type: 'varchar', length: 500 })
+  description: string;
+
+  @Column({ name: 'transaction_type', type: 'varchar', length: 10 })
+  type: 'credit' | 'debit';
+
+  @Column({ name: 'anomaly_checked', type: 'boolean', default: false })
+  anomalyChecked: boolean;
+
   @Column({ type: 'decimal', precision: 15, scale: 2 })
   amount: number;
 

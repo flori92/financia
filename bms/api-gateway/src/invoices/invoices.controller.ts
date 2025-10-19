@@ -15,6 +15,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { InvoicesService } from './invoices.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
+import { CompanyId } from '../common/decorators/company-id.decorator';
 
 @ApiTags('invoices')
 @ApiBearerAuth()
@@ -24,19 +26,25 @@ export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
   @Post()
+  @RequirePermissions('invoices:create')
   @ApiOperation({ summary: 'Créer une nouvelle facture' })
   @ApiResponse({ status: 201, description: 'Facture créée avec succès' })
   @ApiResponse({ status: 400, description: 'Données invalides' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
-  async create(@Body() createInvoiceDto: CreateInvoiceDto, @Request() req) {
+  async create(
+    @Body() createInvoiceDto: CreateInvoiceDto,
+    @CompanyId() companyId: string,
+    @Request() req,
+  ) {
     return this.invoicesService.create(createInvoiceDto, req.user.userId);
   }
 
   @Get()
+  @RequirePermissions('invoices:read')
   @ApiOperation({ summary: 'Lister toutes les factures' })
   @ApiResponse({ status: 200, description: 'Liste des factures' })
   async findAll(
-    @Query('companyId') companyId: string,
+    @CompanyId() companyId: string,
     @Query('status') status?: string,
     @Query('paymentStatus') paymentStatus?: string,
     @Query('startDate') startDate?: string,
@@ -47,48 +55,53 @@ export class InvoicesController {
   }
 
   @Get(':id')
+  @RequirePermissions('invoices:read')
   @ApiOperation({ summary: 'Obtenir une facture par ID' })
   @ApiResponse({ status: 200, description: 'Facture trouvée' })
   @ApiResponse({ status: 404, description: 'Facture non trouvée' })
-  async findOne(@Param('id') id: string, @Query('companyId') companyId: string) {
+  async findOne(@Param('id') id: string, @CompanyId() companyId: string) {
     return this.invoicesService.findOne(id, companyId);
   }
 
   @Patch(':id/submit')
+  @RequirePermissions('invoices:update')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Soumettre une facture (draft → submitted)' })
   @ApiResponse({ status: 200, description: 'Facture soumise' })
-  async submit(@Param('id') id: string, @Query('companyId') companyId: string) {
+  async submit(@Param('id') id: string, @CompanyId() companyId: string) {
     return this.invoicesService.submit(id, companyId);
   }
 
   @Patch(':id/cancel')
+  @RequirePermissions('invoices:delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Annuler une facture' })
   @ApiResponse({ status: 200, description: 'Facture annulée' })
-  async cancel(@Param('id') id: string, @Query('companyId') companyId: string) {
+  async cancel(@Param('id') id: string, @CompanyId() companyId: string) {
     return this.invoicesService.cancel(id, companyId);
   }
 
   @Patch(':id/validate')
+  @RequirePermissions('invoices:validate')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Valider une facture (comptable)' })
   @ApiResponse({ status: 200, description: 'Facture validée' })
   async validate(
     @Param('id') id: string,
-    @Query('companyId') companyId: string,
+    @CompanyId() companyId: string,
     @Request() req,
   ) {
     return this.invoicesService.validate(id, companyId, req.user.userId);
   }
 
   @Post(':id/send')
+  @RequirePermissions('invoices:send')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Envoyer une facture par WhatsApp/SMS/Email' })
   @ApiResponse({ status: 200, description: 'Facture envoyée' })
   async send(
     @Param('id') id: string,
-    @Query('companyId') companyId: string,
+    @CompanyId() companyId: string,
     @Body('method') method: 'whatsapp' | 'sms' | 'email',
   ) {
     return this.invoicesService.sendInvoice(id, companyId, method);

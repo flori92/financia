@@ -5,8 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BeforeInsert,
+  ManyToOne,
+  ManyToMany,
+  JoinColumn,
+  JoinTable,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Company } from '../../companies/entities/company.entity';
+import { Role } from '../../rbac/entities/role.entity';
 
 @Entity('users')
 export class User {
@@ -19,6 +25,13 @@ export class User {
   @Column({ unique: true, nullable: true })
   phone: string;
 
+  @Column({ type: 'uuid', nullable: true, name: 'company_id' })
+  companyId: string;
+
+  @ManyToOne(() => Company)
+  @JoinColumn({ name: 'company_id' })
+  company: Company;
+
   @Column()
   password: string;
 
@@ -29,7 +42,15 @@ export class User {
   lastName: string;
 
   @Column({ default: 'user' })
-  role: string;
+  role: string; // Kept for backward compatibility
+
+  @ManyToMany(() => Role, { eager: true })
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
+  })
+  roles: Role[];
 
   @Column({ name: 'ux_level', default: 'simple' })
   uxLevel: 'simple' | 'intermediate' | 'expert';

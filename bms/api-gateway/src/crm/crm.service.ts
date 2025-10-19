@@ -22,7 +22,7 @@ export class CrmService {
     private readonly activityRepository: Repository<Activity>,
     @InjectRepository(Opportunity)
     private readonly opportunityRepository: Repository<Opportunity>,
-  ) {}
+  ) { }
 
   async createContact(createContactDto: CreateContactDto): Promise<Contact> {
     this.logger.log(`Création contact pour société ${createContactDto.companyId}`);
@@ -296,7 +296,7 @@ export class CrmService {
   }
 
   // Méthodes pour les tags
-  async createTag(name: string, color?: string, companyId: string): Promise<Tag> {
+  async createTag(name: string, companyId: string, color?: string): Promise<Tag> {
     const tag = this.tagRepository.create({
       name,
       color,

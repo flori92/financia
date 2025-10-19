@@ -1,10 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
 import { TerminusModule } from '@nestjs/terminus';
+import { TenantMiddleware } from './common/middleware/tenant.middleware';
+import { PermissionsGuard } from './rbac/guards/permissions.guard';
+import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 
 // Core Modules
 import { AuthModule } from './auth/auth.module';
@@ -34,6 +38,12 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { NifModule } from './nif/nif.module';
+
+// New Modules
+import { CommonModule } from './common/common.module';
+import { GdprModule } from './gdpr/gdpr.module';
+import { AutomationModule } from './automation/automation.module';
+import { RbacModule } from './rbac/rbac.module';
 
 // Controllers
 import { HealthController } from './health/health.controller';
@@ -113,7 +123,39 @@ import { AppController } from './app.controller';
 
     // Uploads
     UploadsModule,
+
+    // New Modules
+    CommonModule,
+    GdprModule,
+    AutomationModule,
+    RbacModule,
+    AIModule,
+    ReportingModule,
+    IntegrationsModule,
   ],
   controllers: [AppController, HealthController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(TenantMiddleware)
+      .exclude(
+        'api/v1/auth/login',
+        'api/v1/auth/register',
+        'api/v1/auth/refresh',
+        'api/v1/health/(.*)',
+        'api/docs/(.*)',
+      )
+      .forRoutes('*');
+  }
+}

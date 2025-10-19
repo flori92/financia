@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, Mail, Phone, MapPin, Globe, Building, FileText } from 'lucide-react';
+import { Edit, Mail, Phone, MapPin, Building, FileText } from 'lucide-react';
 
 export default function ContactDetailPage() {
   const params = useParams();

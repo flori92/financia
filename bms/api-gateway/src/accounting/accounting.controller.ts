@@ -26,13 +26,16 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { Account } from './entities/account.entity';
 import { JournalEntry } from './entities/journal-entry.entity';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
+import { CompanyId } from '../common/decorators/company-id.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 /**
  * Contrôleur pour la gestion comptable OHADA
  */
 @ApiTags('Accounting (OHADA)')
 @Controller('accounting')
-// @UseGuards(JwtAuthGuard) // À décommenter quand l'auth est configurée
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class AccountingController {
   constructor(
@@ -46,6 +49,7 @@ export class AccountingController {
   // ============================================
 
   @Post('accounts')
+  @RequirePermissions('accounting:create')
   @ApiOperation({ summary: 'Créer un nouveau compte' })
   @ApiResponse({
     status: 201,
@@ -101,15 +105,10 @@ export class AccountingController {
   }
 
   @Get('accounts')
+  @RequirePermissions('accounting:read')
   @ApiOperation({ summary: 'Récupérer tous les comptes d\'une société' })
-  @ApiQuery({ name: 'companyId', required: true })
-  @ApiResponse({
-    status: 200,
-    description: 'Liste des comptes',
-    type: [Account],
-  })
   async findAllAccounts(
-    @Query('companyId') companyId: string,
+    @CompanyId() companyId: string,
   ): Promise<Account[]> {
     return this.accountingService.findAllAccounts(companyId);
   }
@@ -165,6 +164,7 @@ export class AccountingController {
   }
 
   @Delete('accounts/:id')
+  @RequirePermissions('accounting:delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Supprimer un compte' })
   @ApiResponse({ status: 204, description: 'Compte supprimé' })
@@ -182,6 +182,7 @@ export class AccountingController {
   // ============================================
 
   @Post('journal-entries')
+  @RequirePermissions('accounting:create')
   @ApiOperation({ summary: 'Créer une nouvelle écriture comptable' })
   @ApiResponse({
     status: 201,
@@ -233,6 +234,7 @@ export class AccountingController {
   }
 
   @Post('journal-entries/:id/post')
+  @RequirePermissions('accounting:validate')
   @ApiOperation({ summary: 'Valider (poster) une écriture' })
   @ApiResponse({
     status: 200,
