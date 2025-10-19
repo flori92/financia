@@ -379,9 +379,7 @@ export default function DashboardPage() {
               <button onClick={reload} className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium">
                 Actualiser
               </button>
-              <div className="ml-auto">
-                <DashboardCustomizer widgets={widgets} onUpdate={handleWidgetsUpdate} />
-              </div>
+              <DashboardCustomizer widgets={widgets} onUpdate={handleWidgetsUpdate} />
             </div>
             <p className="text-white/80 text-lg mt-2 mb-6">
               Vue consolidée de votre activité comptable, trésorerie et fiscale

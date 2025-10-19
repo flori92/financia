@@ -28,10 +28,11 @@ export function DashboardCustomizer({ widgets, onUpdate }: DashboardCustomizerPr
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50"
+        className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-white/30 rounded-lg hover:bg-white/90 transition-colors"
+        title="Personnaliser le tableau de bord"
       >
         <Settings className="w-4 h-4" />
-        Personnaliser
+        <span className="font-medium">Personnaliser</span>
       </button>
 
       {isOpen && (
