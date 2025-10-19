@@ -3015,3 +3015,155 @@ Import trace for requested module:
  ✓ Compiled in 300ms (576 modules)
  ✓ Compiled in 373ms (576 modules)
  ✓ Compiled in 2.9s (946 modules)
+ GET /accountant/balance-sheet 200 in 165ms
+ ✓ Compiled /api/auth/[...nextauth] in 305ms (402 modules)
+ GET /api/auth/session 304 in 345ms
+ GET /api/auth/session 304 in 10ms
+ ✓ Compiled /accountant/validation in 347ms (408 modules)
+ ✓ Compiled /accountant/chart-of-accounts in 229ms (408 modules)
+ ✓ Compiled /accountant/journal in 199ms (412 modules)
+ ✓ Compiled /accountant/general-ledger in 251ms (419 modules)
+ ✓ Compiled /accountant/profit-loss in 169ms (423 modules)
+ ⨯ ./src/app/layout.tsx:3:1
+Module not found: Can't resolve '@/components/layout/ModernLayout'
+[0m [90m 1 |[39m [36mimport[39m [32m"../styles/globals.css"[39m[33m;[39m[0m
+[0m [90m 2 |[39m [36mimport[39m type { [33mMetadata[39m } [36mfrom[39m [32m"next"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mModernLayout[39m } [36mfrom[39m [32m"@/components/layout/ModernLayout"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mSessionProvider[39m } [36mfrom[39m [32m"@/components/providers/SessionProvider"[39m[33m;[39m[0m
+[0m [90m 5 |[39m[0m
+[0m [90m 6 |[39m [36mexport[39m [36mconst[39m metadata[33m:[39m [33mMetadata[39m [33m=[39m {[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ./src/app/layout.tsx:3:1
+Module not found: Can't resolve '@/components/layout/ModernLayout'
+[0m [90m 1 |[39m [36mimport[39m [32m"../styles/globals.css"[39m[33m;[39m[0m
+[0m [90m 2 |[39m [36mimport[39m type { [33mMetadata[39m } [36mfrom[39m [32m"next"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mModernLayout[39m } [36mfrom[39m [32m"@/components/layout/ModernLayout"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mSessionProvider[39m } [36mfrom[39m [32m"@/components/providers/SessionProvider"[39m[33m;[39m[0m
+[0m [90m 5 |[39m[0m
+[0m [90m 6 |[39m [36mexport[39m [36mconst[39m metadata[33m:[39m [33mMetadata[39m [33m=[39m {[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ○ Compiling /_error ...
+ GET /accountant/profit-loss 500 in 6314ms
+ ⚠ ./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 404 in 4115ms
+ GET /accountant/profit-loss 200 in 263ms
+ ⚠ ./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+ ⚠ ./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+ GET /api/auth/session 304 in 1730ms
+ GET /api/auth/session 304 in 35ms
+ ⚠ ./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'FileInvoice' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'FileInvoice').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+
+./src/components/layout/ModernSidebar.tsx
+Attempted import error: 'CrystalBall' is not exported from '__barrel_optimize__?names=Activity,AlertTriangle,ArrowRightLeft,BarChart3,BellRing,BookOpen,Building2,Calculator,CalendarClock,CheckCircle,ChevronDown,CreditCard,CrystalBall,Database,FileBarChart,FileCheck,FileInvoice,FilePlus2,FileText,Gauge,GitBranch,GitCompare,Landmark,Layers,LayoutDashboard,LineChart,Link2,ListTree,Lock,LogOut,Monitor,Package,PenTool,Percent,PieChart,Pin,Plug,Receipt,ScanSearch,Send,Settings,Shield,ShieldCheck,ShoppingBag,ShoppingCart,Target,TrendingUp,UserCog,Users,Wallet!=!lucide-react' (imported as 'CrystalBall').
+
+Import trace for requested module:
+./src/components/layout/ModernSidebar.tsx
+./src/components/layout/ModernLayout.tsx
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /accountant/profit-loss 200 in 724ms
+ GET /api/auth/session 304 in 642ms
+ GET /api/auth/session 304 in 90ms
