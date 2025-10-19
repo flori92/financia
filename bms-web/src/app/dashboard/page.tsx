@@ -114,6 +114,7 @@ export default function DashboardPage() {
   const { data, loading, error, reload } = useDashboardData();
   const metrics: DashboardMetrics | undefined = data?.metrics;
   const [widgets, setWidgets] = useState<WidgetConfig[]>(defaultWidgets);
+  const [chartPeriod, setChartPeriod] = useState<'12months' | 'year' | 'multi'>('12months');
 
   useEffect(() => {
     const saved = localStorage.getItem("dashboardWidgets");
@@ -239,14 +240,21 @@ export default function DashboardPage() {
 
   const chartData = useMemo<ChartDatum[]>(() => {
     if (!evolution.length) return [];
-    const treasurySlice = treasurySeries.slice(-evolution.length);
-    return evolution.map((item: DashboardMetrics["evolutionChart"][number], index: number): ChartDatum => ({
+    let dataToShow = evolution;
+    if (chartPeriod === '12months') {
+      dataToShow = evolution.slice(-12);
+    } else if (chartPeriod === 'year') {
+      const currentYear = new Date().getFullYear();
+      dataToShow = evolution.filter((_, i) => i >= 0 && i < 12);
+    }
+    const treasurySlice = treasurySeries.slice(-dataToShow.length);
+    return dataToShow.map((item: DashboardMetrics["evolutionChart"][number], index: number): ChartDatum => ({
       label: item.month,
       revenue: item.revenue,
       expenses: item.expenses,
       balance: treasurySlice[index]?.balance ?? treasuryBalance
     }));
-  }, [evolution, treasurySeries, treasuryBalance]);
+  }, [evolution, treasurySeries, treasuryBalance, chartPeriod]);
 
   const quickStats: QuickStat[] = [
     {
@@ -482,9 +490,24 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-500 mt-1">Analyse croisée sur 12 mois avec prévisionnel</p>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <span className="px-3 py-1.5 rounded-lg bg-[#0D9488] text-white">12 mois</span>
-              <span className="px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100 transition">Année</span>
-              <span className="px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100 transition">Multi-années</span>
+              <button
+                onClick={() => setChartPeriod('12months')}
+                className={`px-3 py-1.5 rounded-lg transition ${chartPeriod === '12months' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                12 mois
+              </button>
+              <button
+                onClick={() => setChartPeriod('year')}
+                className={`px-3 py-1.5 rounded-lg transition ${chartPeriod === 'year' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                Année
+              </button>
+              <button
+                onClick={() => setChartPeriod('multi')}
+                className={`px-3 py-1.5 rounded-lg transition ${chartPeriod === 'multi' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                Multi-années
+              </button>
             </div>
           </div>
 

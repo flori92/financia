@@ -4073,3 +4073,33 @@ Import trace for requested module:
  ✓ Compiled /api/auth/[...nextauth] in 1004ms (459 modules)
  GET /api/auth/session 304 in 1159ms
  GET /api/auth/session 304 in 18ms
+ ○ Compiling /accountant/journal ...
+ ✓ Compiled /accountant/journal in 762ms (447 modules)
+ ✓ Compiled in 462ms (652 modules)
+ ✓ Compiled /accountant/general-ledger in 485ms (452 modules)
+ ✓ Compiled /accountant/trial-balance in 255ms (443 modules)
+ ✓ Compiled /accountant/bank in 207ms (449 modules)
+ ✓ Compiled in 1736ms (1096 modules)
+ ○ Compiling /accountant/close ...
+ ✓ Compiled /accountant/close in 561ms (444 modules)
+ ✓ Compiled in 10.7s (1078 modules)
+ GET /accountant/bank 200 in 684ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1359ms (444 modules)
+ GET /api/auth/session 304 in 1447ms
+ GET /api/auth/session 304 in 24ms
+ ✓ Compiled /_not-found in 359ms (1085 modules)
+ GET /accountant/assets 404 in 100ms
+ GET /api/auth/session 304 in 54ms
+ GET /api/auth/session 304 in 16ms
+ ✓ Compiled in 1286ms (1099 modules)
+ GET /accountant/assets 404 in 695ms
+ GET /api/auth/session 304 in 87ms
+ GET /api/auth/session 304 in 66ms
+ ✓ Compiled /treasury in 319ms (451 modules)
+ ✓ Compiled /treasury/forecast in 488ms (1091 modules)
+ ✓ Compiled /treasury/operations in 356ms (1093 modules)
+ ○ Compiling /invoices/reminders ...
+ ✓ Compiled /invoices/reminders in 790ms (1073 modules)
+ ✓ Compiled in 1158ms (661 modules)
+ ✓ Compiled in 2.5s (663 modules)

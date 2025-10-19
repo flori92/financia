@@ -1,47 +1,107 @@
 "use client";
-import { useState } from "react";
-import { Plus, Search, Filter, Download, Send, Eye, Edit } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react";
+import { EmailDialog } from "@/components/shared/EmailDialog";
 
 export default function InvoicesPage() {
-  const [invoices] = useState([
-    { 
-      id: "FAC-2025-001", 
-      client: "ABC Corp", 
-      date: "2025-01-15", 
-      dueDate: "2025-02-14", 
-      amount: 120000, 
-      status: "Payée",
-      type: "Facture"
-    },
-    { 
-      id: "FAC-2025-002", 
-      client: "XYZ SARL", 
-      date: "2025-01-16", 
-      dueDate: "2025-02-15", 
-      amount: 85000, 
-      status: "En attente",
-      type: "Facture"
-    },
-    { 
-      id: "DEV-2025-003", 
-      client: "Tech Solutions", 
-      date: "2025-01-17", 
-      dueDate: "2025-01-31", 
-      amount: 150000, 
-      status: "Brouillon",
-      type: "Devis"
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [invoicesRes, clientsRes] = await Promise.all([
+        fetch('http://localhost:3001/api/v1/invoices').then(r => r.json()),
+        fetch('http://localhost:3001/api/v1/crm/contacts').then(r => r.json())
+      ]);
+      setInvoices(invoicesRes);
+      setClients(clientsRes);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  const handleAddInvoice = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const invoice = {
+      clientId: formData.get('clientId'),
+      dueDate: formData.get('dueDate'),
+      amount: Number(formData.get('amount')),
+      items: [{ description: formData.get('description'), quantity: 1, unitPrice: Number(formData.get('amount')) }]
+    };
+    
+    try {
+      await fetch('http://localhost:3001/api/v1/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(invoice)
+      });
+      setShowAddForm(false);
+      loadData();
+    } catch (err) {
+      alert('Erreur lors de la création');
+    }
+  };
+
+  const handleSendInvoice = async () => {
+    if (!selectedInvoice) return;
+    try {
+      await fetch(`http://localhost:3001/api/v1/invoices/${selectedInvoice.id}/send`, { method: 'POST' });
+      alert(`Facture ${selectedInvoice.number} envoyée par email`);
+    } catch (err) {
+      alert("Erreur lors de l'envoi");
+    }
+  };
+
+  const handleExport = () => {
+    const csv = [
+      ['Numéro', 'Client', 'Date', 'Échéance', 'Montant', 'Statut'].join(','),
+      ...invoices.map(inv => [inv.number, getClientName(inv.clientId), inv.date, inv.dueDate, inv.amount, inv.status].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'factures.csv';
+    a.click();
+  };
+
+  const getClientName = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId);
+    return client?.name || 'Client inconnu';
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Payée': return 'bg-green-100 text-green-800';
-      case 'En attente': return 'bg-orange-100 text-orange-800';
-      case 'Brouillon': return 'bg-gray-100 text-gray-800';
-      case 'Retard': return 'bg-red-100 text-red-800';
+      case 'paid': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-orange-100 text-orange-800';
+      case 'overdue': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'paid': return 'Payée';
+      case 'pending': return 'En attente';
+      case 'overdue': return 'En retard';
+      default: return status;
+    }
+  };
+
+  const totalRevenue = invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
+  const unpaidAmount = invoices.filter(inv => inv.status === 'pending').reduce((sum, inv) => sum + inv.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -51,28 +111,33 @@ export default function InvoicesPage() {
           <p className="text-gray-600">Gestion complète du cycle de vente</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+          >
             <Download className="w-4 h-4" />
             Export Factur-X
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]">
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
+          >
             <Plus className="w-4 h-4" />
             Nouvelle facture
           </button>
         </div>
       </div>
 
-      {/* KPIs Facturation */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">CA du mois</div>
-          <div className="text-2xl font-semibold text-[#0D9488]">355 000 FCFA</div>
+          <div className="text-2xl font-semibold text-[#0D9488]">{totalRevenue.toLocaleString()} FCFA</div>
           <div className="text-xs text-green-600">+12% vs mois dernier</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Factures impayées</div>
-          <div className="text-2xl font-semibold text-orange-600">85 000 FCFA</div>
-          <div className="text-xs text-gray-600">1 facture</div>
+          <div className="text-2xl font-semibold text-orange-600">{unpaidAmount.toLocaleString()} FCFA</div>
+          <div className="text-xs text-gray-600">{invoices.filter(inv => inv.status === 'pending').length} facture(s)</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">DSO moyen</div>
@@ -116,10 +181,14 @@ export default function InvoicesPage() {
               </tr>
             </thead>
             <tbody>
-              {invoices.map((invoice, idx) => (
+              {loading ? (
+                <tr><td colSpan={7} className="text-center py-8 text-gray-500">Chargement...</td></tr>
+              ) : invoices.length === 0 ? (
+                <tr><td colSpan={7} className="text-center py-8 text-gray-500">Aucune facture</td></tr>
+              ) : invoices.map((invoice, idx) => (
                 <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-mono text-sm">{invoice.id}</td>
-                  <td className="py-3 px-4">{invoice.client}</td>
+                  <td className="py-3 px-4 font-mono text-sm">{invoice.number}</td>
+                  <td className="py-3 px-4">{getClientName(invoice.clientId)}</td>
                   <td className="py-3 px-4 text-sm">{new Date(invoice.date).toLocaleDateString('fr-FR')}</td>
                   <td className="py-3 px-4 text-sm">{new Date(invoice.dueDate).toLocaleDateString('fr-FR')}</td>
                   <td className="py-3 px-4 text-right font-medium">
@@ -127,18 +196,25 @@ export default function InvoicesPage() {
                   </td>
                   <td className="py-3 px-4 text-center">
                     <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(invoice.status)}`}>
-                      {invoice.status}
+                      {getStatusLabel(invoice.status)}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <button className="p-1 text-gray-600 hover:text-[#0D9488]">
+                      <button className="p-1 text-gray-600 hover:text-[#0D9488]" title="Voir">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="p-1 text-gray-600 hover:text-[#0D9488]">
+                      <button className="p-1 text-gray-600 hover:text-[#0D9488]" title="Modifier">
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button className="p-1 text-gray-600 hover:text-[#0D9488]">
+                      <button
+                        onClick={() => {
+                          setSelectedInvoice(invoice);
+                          setShowEmailDialog(true);
+                        }}
+                        className="p-1 text-gray-600 hover:text-[#0D9488]"
+                        title="Envoyer"
+                      >
                         <Send className="w-4 h-4" />
                       </button>
                     </div>
@@ -149,6 +225,60 @@ export default function InvoicesPage() {
           </table>
         </div>
       </div>
+
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold">Nouvelle facture</h2>
+              <button onClick={() => setShowAddForm(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleAddInvoice} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Client</label>
+                <select name="clientId" required className="w-full px-3 py-2 border rounded-lg">
+                  <option value="">Sélectionner un client</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>{client.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <input name="description" required className="w-full px-3 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Échéance</label>
+                  <input name="dueDate" type="date" required className="w-full px-3 py-2 border rounded-lg" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Montant (FCFA)</label>
+                <input name="amount" type="number" required className="w-full px-3 py-2 border rounded-lg" />
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <button type="button" onClick={() => setShowAddForm(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                  Annuler
+                </button>
+                <button type="submit" className="px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]">
+                  Créer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <EmailDialog
+        isOpen={showEmailDialog}
+        onClose={() => setShowEmailDialog(false)}
+        onSend={handleSendInvoice}
+        defaultTo={selectedInvoice ? getClientName(selectedInvoice.clientId) : ""}
+        defaultSubject={selectedInvoice ? `Facture ${selectedInvoice.number}` : ""}
+      />
     </div>
   );
 }

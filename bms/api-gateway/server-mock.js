@@ -58,42 +58,52 @@ const journalEntries = [
   { id: 'je-3', date: '2025-01-17', reference: 'SA-001', description: 'Salaires janvier', debit: { account: '661000', amount: 3200000 }, credit: { account: '421000', amount: 3200000 } }
 ];
 
-const mockDashboard = {
-  kpiMonth: { revenue: 12000000, expenses: 8500000, netIncome: 3500000, margin: 29.2 },
-  evolutionChart: Array.from({ length: 12 }, (_, i) => ({
-    month: new Date(2025, i, 1).toLocaleDateString('fr-FR', { month: 'short' }),
-    revenue: 8000000 + Math.random() * 6000000,
-    expenses: 5000000 + Math.random() * 4000000
-  })),
-  topClients: clients.slice(0, 3),
-  topSuppliers: [{ name: 'Fournisseur Tech', amount: 4500000 }, { name: 'Fournisseur Matériel', amount: 3200000 }],
-  financialRatios: { 
-    liquidityRatio: 1.8, 
-    solvencyRatio: 0.65,
-    currentAssets: 35000000,
-    currentLiabilities: 19500000,
-    equity: 73500000,
-    totalLiabilities: 39000000
-  },
-  recentActivity: { 
-    entries: [
-      { description: 'Vente Ministère Digital', type: 'Vente', amount: 2500000, date: '2025-01-15' },
-      { description: 'Achat fournitures bureau', type: 'Achat', amount: -850000, date: '2025-01-16' },
-      { description: 'Paiement salaires', type: 'Salaire', amount: -3200000, date: '2025-01-17' },
-      { description: 'Encaissement Banque Atlantique', type: 'Encaissement', amount: 4200000, date: '2025-01-18' },
-      { description: 'Règlement fournisseur', type: 'Paiement', amount: -1500000, date: '2025-01-19' }
-    ] 
-  },
-  alerts: [
-    { type: 'danger', title: 'Facture en retard critique', message: 'FA-2025-003 dépasse 90 jours (1 800 000 FCFA)' },
-    { type: 'warning', title: 'TVA à déclarer', message: 'Déclaration CA3 due le 15/02/2025' },
-    { type: 'info', title: 'Rapprochement bancaire', message: '5 opérations à rapprocher' }
-  ]
-};
+function calculateDashboard() {
+  const totalRevenue = syscohadaAccounts.filter(a => a.type === 'Produits').reduce((sum, a) => sum + a.balance, 0);
+  const totalExpenses = syscohadaAccounts.filter(a => a.type === 'Charges').reduce((sum, a) => sum + a.balance, 0);
+  const netIncome = totalRevenue - totalExpenses;
+  const margin = totalRevenue ? ((netIncome / totalRevenue) * 100) : 0;
+  
+  return {
+    kpiMonth: { revenue: totalRevenue, expenses: totalExpenses, netIncome, margin },
+    evolutionChart: Array.from({ length: 12 }, (_, i) => ({
+      month: new Date(2025, i, 1).toLocaleDateString('fr-FR', { month: 'short' }),
+      revenue: totalRevenue * (0.7 + Math.random() * 0.6),
+      expenses: totalExpenses * (0.7 + Math.random() * 0.6)
+    })),
+    topClients: clients.slice(0, 3),
+    topSuppliers: [{ name: 'Fournisseur Tech', amount: 4500000 }, { name: 'Fournisseur Matériel', amount: 3200000 }],
+    financialRatios: { 
+      liquidityRatio: 1.8, 
+      solvencyRatio: 0.65,
+      currentAssets: syscohadaAccounts.filter(a => ['Stocks', 'Créances', 'Trésorerie'].includes(a.type)).reduce((s, a) => s + Math.abs(a.balance), 0),
+      currentLiabilities: syscohadaAccounts.filter(a => a.type === 'Dettes').reduce((s, a) => s + Math.abs(a.balance), 0),
+      equity: syscohadaAccounts.filter(a => a.type === 'Capitaux propres').reduce((s, a) => s + Math.abs(a.balance), 0),
+      totalLiabilities: syscohadaAccounts.filter(a => a.type === 'Dettes').reduce((s, a) => s + Math.abs(a.balance), 0)
+    },
+    recentActivity: { 
+      entries: journalEntries.slice(-5).map(je => ({
+        description: je.description,
+        type: je.reference.startsWith('VT') ? 'Vente' : je.reference.startsWith('AC') ? 'Achat' : 'Opération',
+        amount: je.debit.amount - je.credit.amount,
+        date: je.date
+      }))
+    },
+    alerts: [
+      ...invoices.filter(inv => inv.status === 'overdue').map(inv => ({
+        type: 'danger',
+        title: 'Facture en retard critique',
+        message: `${inv.number} dépasse 90 jours (${inv.amount.toLocaleString()} FCFA)`
+      })),
+      { type: 'warning', title: 'TVA à déclarer', message: 'Déclaration CA3 due le 15/02/2025' },
+      { type: 'info', title: 'Rapprochement bancaire', message: '5 opérations à rapprocher' }
+    ]
+  };
+}
 
-app.get('/api/v1/accounting/dashboard/metrics', (req, res) => res.json(mockDashboard));
+app.get('/api/v1/accounting/dashboard/metrics', (req, res) => res.json(calculateDashboard()));
 app.get('/api/v1/accounting/accounts', (req, res) => res.json([]));
-app.get('/api/v1/accounting/journal-entries', (req, res) => res.json([]));
+app.get('/api/v1/accounting/journal-entries', (req, res) => res.json(journalEntries));
 app.get('/api/v1/accounting/aged-balance', (req, res) => {
   const type = req.query.type;
   res.json({ 
@@ -561,6 +571,13 @@ app.post('/api/v1/accounting/journal-entries', (req, res) => {
     ...req.body
   };
   journalEntries.push(newEntry);
+  
+  // Update account balances
+  const debitAccount = syscohadaAccounts.find(a => a.code === req.body.debit?.account);
+  const creditAccount = syscohadaAccounts.find(a => a.code === req.body.credit?.account);
+  if (debitAccount) debitAccount.balance += req.body.debit.amount;
+  if (creditAccount) creditAccount.balance -= req.body.credit.amount;
+  
   res.json(newEntry);
 });
 
