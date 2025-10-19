@@ -1,291 +1,127 @@
 "use client";
-import { useState, useEffect } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
-import { Download, Calendar } from "lucide-react";
+import { useState } from "react";
+import { Download, Upload, Send, Calculator, FileText } from "lucide-react";
 
-export default function VatReturnPage() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<string>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10)
-  );
-  const [endDate, setEndDate] = useState<string>(new Date().toISOString().slice(0, 10));
-  const [vatReturn, setVatReturn] = useState<any | null>(null);
-  const [toast, setToast] = useState<{type:'success'|'error', text:string}|null>(null);
+export default function VATPage() {
+  const [vatData] = useState({
+    period: "2025-01",
+    collectee: 125000,
+    deductible: 45000,
+    netVat: 80000,
+    status: "À télétransmettre"
+  });
 
-  function showSuccess(text: string){ setToast({ type:'success', text }); setTimeout(()=>setToast(null), 2500); }
-  function showError(text: string){ setToast({ type:'error', text }); setTimeout(()=>setToast(null), 3500); }
-
-  async function calculate() {
-    const cid = getCompanyId();
-    if (!cid) { showError('Aucune société sélectionnée'); return; }
-    if (!startDate || !endDate) { showError('Dates requises'); return; }
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiGet('/api/v1/tax/vat/return', { companyId: cid, startDate, endDate });
-      setVatReturn(data);
-      showSuccess('Déclaration calculée');
-    } catch (e: any) {
-      setError(String(e));
-      showError(String(e));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function exportCsv() {
-    const cid = getCompanyId();
-    if (!cid || !vatReturn) return;
-    
-    try {
-      const csv = await apiGet('/api/v1/tax/vat/return/export', { companyId: cid, startDate, endDate });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `declaration-tva-${startDate}-${endDate}.csv`;
-      a.click();
-      showSuccess('Export CSV téléchargé');
-    } catch (e: any) {
-      showError(String(e));
-    }
-  }
-
-  // Écouter les changements de société
-  useEffect(() => {
-    const handleCompanyChange = () => {
-      if (vatReturn) calculate(); // Recalculer si déjà chargé
-    };
-    window.addEventListener('bms-company-changed', handleCompanyChange);
-    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
-  }, [vatReturn, startDate, endDate]);
-
-  function setQuickPeriod(type: 'month' | 'quarter' | 'year') {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    
-    if (type === 'month') {
-      setStartDate(new Date(year, month, 1).toISOString().slice(0, 10));
-      setEndDate(new Date(year, month + 1, 0).toISOString().slice(0, 10));
-    } else if (type === 'quarter') {
-      const quarterStart = Math.floor(month / 3) * 3;
-      setStartDate(new Date(year, quarterStart, 1).toISOString().slice(0, 10));
-      setEndDate(new Date(year, quarterStart + 3, 0).toISOString().slice(0, 10));
-    } else if (type === 'year') {
-      setStartDate(new Date(year, 0, 1).toISOString().slice(0, 10));
-      setEndDate(new Date(year, 11, 31).toISOString().slice(0, 10));
-    }
-  }
-
-  const nf = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const [vatDetails] = useState([
+    { account: "445710", description: "TVA collectée 20%", base: 625000, rate: 20, amount: 125000 },
+    { account: "445620", description: "TVA déductible achats", base: 225000, rate: 20, amount: -45000 }
+  ]);
 
   return (
     <div className="space-y-6">
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 rounded-md px-4 py-3 shadow-lg ${toast.type==='success'?'bg-emerald-50 text-emerald-800':'bg-rose-50 text-rose-800'}`}>
-          {toast.text}
-        </div>
-      )}
-
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Déclaration de TVA</h1>
-      </div>
-
-      {/* Sélection période */}
-      <div className="card p-4">
-        <h3 className="text-lg font-semibold mb-3">Période de déclaration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Date de début</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-md border border-app-border px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Date de fin</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-md border border-app-border px-3 py-2 text-sm"
-            />
-          </div>
+        <div>
+          <h1 className="text-2xl font-semibold">TVA - Déclaration CA3</h1>
+          <p className="text-gray-600">Gestion complète de la TVA et télétransmission</p>
         </div>
-        
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setQuickPeriod('month')}
-            className="text-xs px-3 py-1 rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200"
-          >
-            Mois en cours
-          </button>
-          <button
-            onClick={() => setQuickPeriod('quarter')}
-            className="text-xs px-3 py-1 rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200"
-          >
-            Trimestre en cours
-          </button>
-          <button
-            onClick={() => setQuickPeriod('year')}
-            className="text-xs px-3 py-1 rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200"
-          >
-            Année en cours
-          </button>
-        </div>
-
         <div className="flex gap-2">
-          <button
-            onClick={calculate}
-            disabled={loading}
-            className="rounded-md bg-app-primary text-white text-sm px-4 py-2 hover:bg-[#0F766E] disabled:opacity-50 flex items-center gap-2"
-          >
-            <Calendar className="w-4 h-4" />
-            {loading ? 'Calcul...' : 'Calculer la déclaration'}
+          <button className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+            <Calculator className="w-4 h-4" />
+            Recalculer
           </button>
-          {vatReturn && (
-            <button
-              onClick={exportCsv}
-              className="rounded-md bg-white text-slate-700 border border-app-border text-sm px-4 py-2 hover:bg-slate-50 flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Exporter CSV
-            </button>
-          )}
+          <button className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200">
+            <Send className="w-4 h-4" />
+            Télétransmettre
+          </button>
         </div>
       </div>
 
-      {error && <div className="card p-4 text-sm text-rose-600">{error}</div>}
+      {/* Résumé TVA */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-600">TVA collectée</div>
+          <div className="text-2xl font-semibold text-green-600">
+            {new Intl.NumberFormat('fr-FR').format(vatData.collectee)} FCFA
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-600">TVA déductible</div>
+          <div className="text-2xl font-semibold text-blue-600">
+            {new Intl.NumberFormat('fr-FR').format(vatData.deductible)} FCFA
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-600">TVA nette à payer</div>
+          <div className="text-2xl font-semibold text-orange-600">
+            {new Intl.NumberFormat('fr-FR').format(vatData.netVat)} FCFA
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-600">Échéance</div>
+          <div className="text-lg font-semibold">15/02/2025</div>
+          <div className="text-xs text-red-600">Dans 15 jours</div>
+        </div>
+      </div>
 
-      {/* Résultats */}
-      {vatReturn && (
-        <>
-          {/* Synthèse */}
-          <div className="card p-4">
-            <h3 className="text-lg font-semibold mb-4">Synthèse TVA</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-sm text-blue-700 mb-1">Chiffre d'affaires HT</div>
-                <div className="text-2xl font-semibold text-blue-900">{nf(vatReturn.revenueHT)} FCFA</div>
-              </div>
-              <div className="bg-emerald-50 p-4 rounded-lg">
-                <div className="text-sm text-emerald-700 mb-1">TVA collectée</div>
-                <div className="text-2xl font-semibold text-emerald-900">{nf(vatReturn.vatCollected)} FCFA</div>
-              </div>
-              <div className="bg-amber-50 p-4 rounded-lg">
-                <div className="text-sm text-amber-700 mb-1">Achats HT</div>
-                <div className="text-2xl font-semibold text-amber-900">{nf(vatReturn.purchasesHT)} FCFA</div>
-              </div>
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <div className="text-sm text-orange-700 mb-1">TVA déductible</div>
-                <div className="text-2xl font-semibold text-orange-900">{nf(vatReturn.vatDeductible)} FCFA</div>
-              </div>
-              <div className={`p-4 rounded-lg ${vatReturn.vatNet >= 0 ? 'bg-rose-50' : 'bg-slate-50'}`}>
-                <div className={`text-sm mb-1 ${vatReturn.vatNet >= 0 ? 'text-rose-700' : 'text-slate-700'}`}>
-                  {vatReturn.vatNet >= 0 ? 'TVA nette à payer' : 'Crédit de TVA'}
-                </div>
-                <div className={`text-2xl font-semibold ${vatReturn.vatNet >= 0 ? 'text-rose-900' : 'text-slate-900'}`}>
-                  {nf(Math.abs(vatReturn.vatNet))} FCFA
-                </div>
-              </div>
+      {/* Détail TVA */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold mb-4">Détail de la déclaration CA3</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-medium text-gray-900">Compte</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-900">Description</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-900">Base HT</th>
+                <th className="text-center py-3 px-4 font-medium text-gray-900">Taux</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-900">Montant TVA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vatDetails.map((item, idx) => (
+                <tr key={idx} className="border-b border-gray-100">
+                  <td className="py-3 px-4 font-mono text-sm">{item.account}</td>
+                  <td className="py-3 px-4">{item.description}</td>
+                  <td className="py-3 px-4 text-right">
+                    {new Intl.NumberFormat('fr-FR').format(item.base)} FCFA
+                  </td>
+                  <td className="py-3 px-4 text-center">{item.rate}%</td>
+                  <td className={`py-3 px-4 text-right font-medium ${item.amount > 0 ? 'text-green-600' : 'text-blue-600'}`}>
+                    {item.amount > 0 ? '+' : ''}{new Intl.NumberFormat('fr-FR').format(item.amount)} FCFA
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold mb-4">Actions disponibles</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <FileText className="w-8 h-8 text-[#0D9488]" />
+            <div className="text-left">
+              <div className="font-medium">Générer CA3</div>
+              <div className="text-sm text-gray-600">Export PDF de la déclaration</div>
             </div>
-          </div>
-
-          {/* Détail Produits */}
-          <div className="card p-4">
-            <h3 className="text-lg font-semibold mb-3">Détail des Produits (Classe 7)</h3>
-            {vatReturn.details.revenues.length === 0 ? (
-              <div className="text-sm text-slate-500">Aucun produit dans la période</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left border-b border-app-border">
-                      <th className="pb-2">Compte</th>
-                      <th className="pb-2">Libellé</th>
-                      <th className="pb-2 text-right">Montant HT</th>
-                      <th className="pb-2 text-right">TVA (18%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {vatReturn.details.revenues.map((item: any, idx: number) => (
-                      <tr key={idx} className="border-b border-app-border">
-                        <td className="py-2 font-mono">{item.accountNumber}</td>
-                        <td className="py-2">{item.accountName}</td>
-                        <td className="py-2 text-right font-mono">{nf(item.amountHT)}</td>
-                        <td className="py-2 text-right font-mono text-emerald-700">{nf(item.vat)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="font-semibold border-t-2 border-app-border">
-                      <td colSpan={2} className="pt-2">Total</td>
-                      <td className="pt-2 text-right">{nf(vatReturn.revenueHT)}</td>
-                      <td className="pt-2 text-right text-emerald-700">{nf(vatReturn.vatCollected)}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Détail Charges */}
-          <div className="card p-4">
-            <h3 className="text-lg font-semibold mb-3">Détail des Charges (Classe 6)</h3>
-            {vatReturn.details.purchases.length === 0 ? (
-              <div className="text-sm text-slate-500">Aucune charge dans la période</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left border-b border-app-border">
-                      <th className="pb-2">Compte</th>
-                      <th className="pb-2">Libellé</th>
-                      <th className="pb-2 text-right">Montant HT</th>
-                      <th className="pb-2 text-right">TVA (18%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {vatReturn.details.purchases.map((item: any, idx: number) => (
-                      <tr key={idx} className="border-b border-app-border">
-                        <td className="py-2 font-mono">{item.accountNumber}</td>
-                        <td className="py-2">{item.accountName}</td>
-                        <td className="py-2 text-right font-mono">{nf(item.amountHT)}</td>
-                        <td className="py-2 text-right font-mono text-orange-700">{nf(item.vat)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="font-semibold border-t-2 border-app-border">
-                      <td colSpan={2} className="pt-2">Total</td>
-                      <td className="pt-2 text-right">{nf(vatReturn.purchasesHT)}</td>
-                      <td className="pt-2 text-right text-orange-700">{nf(vatReturn.vatDeductible)}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Instructions */}
-          <div className="card p-4 bg-blue-50 border border-blue-200">
-            <h4 className="font-semibold text-blue-900 mb-2">Instructions pour la déclaration DGI</h4>
-            <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-              <li>Exportez le fichier CSV via le bouton "Exporter CSV"</li>
-              <li>Connectez-vous au portail e-impôts de la DGI du Bénin</li>
-              <li>Sélectionnez "Déclaration de TVA" pour la période concernée</li>
-              <li>Saisissez les montants dans les cases correspondantes</li>
-              <li>Le montant à payer est : <strong>{nf(Math.max(0, vatReturn.vatNet))} FCFA</strong></li>
-              {vatReturn.vatNet < 0 && <li className="text-amber-700">Vous avez un crédit de TVA de {nf(Math.abs(vatReturn.vatNet))} FCFA reportable</li>}
-            </ul>
-          </div>
-        </>
-      )}
+          </button>
+          <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <Upload className="w-8 h-8 text-blue-600" />
+            <div className="text-left">
+              <div className="font-medium">Import DEB/DES</div>
+              <div className="text-sm text-gray-600">Échanges intracommunautaires</div>
+            </div>
+          </button>
+          <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <Download className="w-8 h-8 text-purple-600" />
+            <div className="text-left">
+              <div className="font-medium">Export FEC</div>
+              <div className="text-sm text-gray-600">Fichier des écritures comptables</div>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

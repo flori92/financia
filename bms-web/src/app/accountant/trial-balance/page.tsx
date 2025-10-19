@@ -1,90 +1,96 @@
 "use client";
-import { useEffect, useState } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
+import { useState } from "react";
+import { Download, Printer, Calendar } from "lucide-react";
 
 export default function TrialBalancePage() {
-  const [rows, setRows] = useState<any[]>([]);
-  const [totals, setTotals] = useState<{debit:number,credit:number,balance:number}>({debit:0,credit:0,balance:0});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string|null>(null);
-  const [startDate, setStartDate] = useState<string>(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0,10));
-  const [endDate, setEndDate] = useState<string>(new Date().toISOString().slice(0,10));
+  const [balanceData] = useState([
+    { account: "101000", name: "Capital social", debit: 0, credit: 100000 },
+    { account: "411000", name: "Clients", debit: 85000, credit: 0 },
+    { account: "401000", name: "Fournisseurs", debit: 0, credit: 25000 },
+    { account: "701000", name: "Ventes", debit: 0, credit: 150000 },
+    { account: "607000", name: "Achats", debit: 80000, credit: 0 },
+    { account: "512000", name: "Banque", debit: 110000, credit: 0 }
+  ]);
 
-  async function refresh() {
-    const cid = getCompanyId(); if (!cid) return;
-    setLoading(true); setError(null);
-    try {
-      const data = await apiGet('/api/v1/accounting/trial-balance', { companyId: cid, startDate, endDate }) as any;
-      setRows(data?.rows || []);
-      setTotals(data?.totals || {debit:0,credit:0,balance:0});
-    } catch (e:any) { setError(String(e)); }
-    finally { setLoading(false); }
-  }
-
-  useEffect(()=>{ refresh(); },[]);
-
-  // Écouter les changements de société
-  useEffect(() => {
-    const handleCompanyChange = () => refresh();
-    window.addEventListener('bms-company-changed', handleCompanyChange);
-    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
-  }, []);
+  const totalDebit = balanceData.reduce((sum, item) => sum + item.debit, 0);
+  const totalCredit = balanceData.reduce((sum, item) => sum + item.credit, 0);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Balance de vérification</h1>
-          <p className="text-sm text-slate-600 mt-1">Période: {startDate} → {endDate}</p>
+          <h1 className="text-2xl font-semibold">Balance générale</h1>
+          <p className="text-gray-600">Balance des comptes au 31/01/2025</p>
         </div>
-        <div className="flex items-center gap-2">
-          <input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} className="rounded-md border border-app-border px-3 py-2 text-sm" />
-          <input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} className="rounded-md border border-app-border px-3 py-2 text-sm" />
-          <button onClick={refresh} className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Actualiser</button>
+        <div className="flex gap-2">
+          <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+            <Printer className="w-4 h-4" />
+            Imprimer
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]">
+            <Download className="w-4 h-4" />
+            Exporter
+          </button>
         </div>
       </div>
 
-      {error && <div className="text-sm text-rose-600">{error}</div>}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold">Balance au 31 janvier 2025</h2>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-gray-400" />
+            <input type="date" className="border border-gray-300 rounded-lg px-3 py-2" defaultValue="2025-01-31" />
+          </div>
+        </div>
 
-      <div className="card p-4">
-        {loading ? (
-          <div className="text-sm text-slate-500">Chargement…</div>
-        ) : (
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full">
             <thead>
-              <tr className="text-left border-b border-app-border">
-                <th className="pb-2 w-32">N°</th>
-                <th className="pb-2">Libellé</th>
-                <th className="pb-2 w-32 text-right">Débit</th>
-                <th className="pb-2 w-32 text-right">Crédit</th>
-                <th className="pb-2 w-32 text-right">Solde</th>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-medium text-gray-900">Compte</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-900">Libellé</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-900">Débit</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-900">Crédit</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-900">Solde</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r:any)=> (
-                <tr key={r.number} className="border-b border-app-border">
-                  <td className="py-2 font-mono">{r.number}</td>
-                  <td className="py-2">{r.name}</td>
-                  <td className="py-2 text-right">{r.debit.toLocaleString('fr-FR')}</td>
-                  <td className="py-2 text-right">{r.credit.toLocaleString('fr-FR')}</td>
-                  <td className="py-2 text-right">{r.balance.toLocaleString('fr-FR')}</td>
+              {balanceData.map((item, idx) => (
+                <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-3 px-4 font-mono text-sm">{item.account}</td>
+                  <td className="py-3 px-4">{item.name}</td>
+                  <td className="py-3 px-4 text-right font-medium">
+                    {item.debit > 0 ? new Intl.NumberFormat('fr-FR').format(item.debit) + ' FCFA' : '-'}
+                  </td>
+                  <td className="py-3 px-4 text-right font-medium">
+                    {item.credit > 0 ? new Intl.NumberFormat('fr-FR').format(item.credit) + ' FCFA' : '-'}
+                  </td>
+                  <td className={`py-3 px-4 text-right font-semibold ${
+                    (item.debit - item.credit) >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {new Intl.NumberFormat('fr-FR').format(Math.abs(item.debit - item.credit))} FCFA
+                  </td>
                 </tr>
               ))}
-              {rows.length===0 && (
-                <tr><td colSpan={5} className="py-6 text-center text-slate-500">Aucune écriture sur la période</td></tr>
-              )}
-            </tbody>
-            <tfoot>
-              <tr className="font-semibold">
-                <td className="pt-3">Total</td>
-                <td className="pt-3"></td>
-                <td className="pt-3 text-right">{totals.debit.toLocaleString('fr-FR')}</td>
-                <td className="pt-3 text-right">{totals.credit.toLocaleString('fr-FR')}</td>
-                <td className="pt-3 text-right">{totals.balance.toLocaleString('fr-FR')}</td>
+              <tr className="border-t-2 border-gray-300 bg-gray-50 font-semibold">
+                <td className="py-3 px-4" colSpan={2}>TOTAUX</td>
+                <td className="py-3 px-4 text-right text-green-600">
+                  {new Intl.NumberFormat('fr-FR').format(totalDebit)} FCFA
+                </td>
+                <td className="py-3 px-4 text-right text-red-600">
+                  {new Intl.NumberFormat('fr-FR').format(totalCredit)} FCFA
+                </td>
+                <td className="py-3 px-4 text-right">
+                  {totalDebit === totalCredit ? (
+                    <span className="text-green-600">✓ Équilibrée</span>
+                  ) : (
+                    <span className="text-red-600">⚠ Déséquilibrée</span>
+                  )}
+                </td>
               </tr>
-            </tfoot>
+            </tbody>
           </table>
-        )}
+        </div>
       </div>
     </div>
   );

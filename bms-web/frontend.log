@@ -3773,3 +3773,303 @@ Import trace for requested module:
 ./src/app/dashboard/page.tsx
  ✓ Compiled in 3.9s (1023 modules)
  ✓ Compiled in 945ms (1037 modules)
+ GET /dashboard 200 in 460ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 537ms (440 modules)
+ GET /api/auth/session 304 in 625ms
+ GET /api/auth/session 304 in 14ms
+ GET /dashboard 200 in 703ms
+ GET /api/auth/session 304 in 55ms
+ GET /api/auth/session 304 in 62ms
+ ○ Compiling /treasury ...
+ ✓ Compiled /treasury in 3.7s (2070 modules)
+ ✓ Compiled /accountant/general-ledger in 215ms (965 modules)
+ ✓ Compiled /accountant/trial-balance in 172ms (965 modules)
+ ✓ Compiled /accountant/bank in 235ms (972 modules)
+ ✓ Compiled /accountant/close in 174ms (977 modules)
+ ✓ Compiled /_not-found in 279ms (2092 modules)
+ GET /accountant/assets 404 in 88ms
+ GET /api/auth/session 304 in 17ms
+ GET /api/auth/session 304 in 12ms
+ ✓ Compiled in 3.1s (2010 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 4.5s (1999 modules)
+ GET /accountant/assets 404 in 7761ms
+ ✓ Compiled in 12.8s (2013 modules)
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 553ms (928 modules)
+ GET /api/auth/session 304 in 854ms
+ GET /api/auth/session 304 in 210ms
+ GET /accountant/assets 404 in 149ms
+ GET /api/auth/session 304 in 25ms
+ GET /api/auth/session 304 in 17ms
+ ○ Compiling /budget ...
+ ✓ Compiled /budget in 858ms (2027 modules)
+ ○ Compiling /inventory ...
+ ✓ Compiled /inventory in 911ms (2035 modules)
+ ○ Compiling /crm/contacts ...
+ ✓ Compiled /crm/contacts in 847ms (2051 modules)
+ ○ Compiling /api/crm/contacts ...
+ ✓ Compiled /api/crm/contacts in 644ms (972 modules)
+ GET /api/crm/contacts?search=&page=1&limit=20 404 in 862ms
+ GET /api/crm/contacts?search=&page=1&limit=20 404 in 52ms
+ ○ Compiling /invoices ...
+ ✓ Compiled /invoices in 623ms (2083 modules)
+ GET /api/crm/contacts?search=&page=1&limit=20 404 in 120ms
+ GET /api/crm/contacts?search=&page=1&limit=20 404 in 73ms
+ GET /treasury/forecast 404 in 111ms
+ GET /api/auth/session 304 in 123ms
+ GET /api/auth/session 304 in 15ms
+ GET /api/crm/contacts?search=&page=1&limit=20 404 in 246ms
+ GET /api/crm/contacts?search=&page=1&limit=20 404 in 73ms
+ ✓ Compiled in 2.8s (1118 modules)
+ ✓ Compiled in 2.8s (2023 modules)
+ ✓ Compiled in 4.1s (1000 modules)
+ ✓ Compiled in 825ms (615 modules)
+ ✓ Compiled in 446ms (616 modules)
+ ✓ Compiled in 1565ms (1003 modules)
+ ✓ Compiled in 1004ms (614 modules)
+ ✓ Compiled in 564ms (616 modules)
+ ✓ Compiled in 1087ms (616 modules)
+ ✓ Compiled in 678ms (616 modules)
+ ✓ Compiled in 809ms (616 modules)
+ ✓ Compiled in 1205ms (616 modules)
+ GET /inventory 200 in 202ms
+ ✓ Compiled /api/auth/[...nextauth] in 303ms (406 modules)
+ GET /api/auth/session 304 in 356ms
+ GET /api/auth/session 304 in 13ms
+ ○ Compiling /accountant/tax/vat ...
+ ✓ Compiled /accountant/tax/vat in 736ms (414 modules)
+ ✓ Compiled in 7.6s (1067 modules)
+ GET /accountant/tax/vat 200 in 594ms
+ ✓ Compiled /api/auth/[...nextauth] in 304ms (442 modules)
+ GET /api/auth/session 304 in 358ms
+ GET /api/auth/session 304 in 59ms
+ ○ Compiling /tax ...
+ ✓ Compiled /accountant/validation in 7.1s (1087 modules)
+ GET /tax/calendar 404 in 261ms
+ GET /api/auth/session 304 in 71ms
+ GET /api/auth/session 304 in 136ms
+ GET /dashboard/bi 404 in 52ms
+ GET /api/auth/session 304 in 26ms
+ GET /api/auth/session 304 in 13ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 563ms (460 modules)
+ ✓ Compiled in 2.3s (1079 modules)
+ ✓ Compiled in 980ms (645 modules)
+ ✓ Compiled in 331ms (645 modules)
+ ✓ Compiled in 15.8s (1079 modules)
+ ✓ Compiled in 631ms (645 modules)
+ ✓ Compiled in 457ms (645 modules)
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ○ Compiling /_error ...
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /dashboard 500 in 78ms
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 500 in 3857ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard 500 in 129ms
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 500 in 1234ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard 500 in 384ms
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 500 in 1251ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard 500 in 92ms
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 500 in 1168ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard 500 in 182ms
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 500 in 1216ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /dashboard/bi 500 in 1436ms
+ GET /dashboard/bi 500 in 62ms
+ GET /dashboard 500 in 111ms
+ ✓ Compiled /_not-found in 1241ms (639 modules)
+ GET /dashboard 500 in 102ms
+ ✓ Compiled in 709ms (639 modules)
+ GET /dashboard 500 in 211ms
+ ✓ Compiled in 1921ms (639 modules)
+ ✓ Compiled in 839ms (639 modules)
+ GET /dashboard 500 in 186ms
+ ○ Compiling /_not-found ...
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 500 in 2042ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard 500 in 256ms
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:362:1]
+ [2m362[0m |   const chartMax = chartData.reduce((max, item) => Math.max(max, item.revenue, item.expenses, Math.abs(item.balance)), 0);
+ [2m363[0m | 
+ [2m364[0m |   return (
+ [2m365[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m366[0m |       <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m367[0m |         <div className="flex items-start justify-between">
+ [2m368[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 500 in 675ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard 500 in 70ms
+ ✓ Compiled /_not-found in 5.5s (1081 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/5b9f6f354568bf83.webpack.hot-update.json 404 in 6038ms
+ GET /dashboard 200 in 527ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1004ms (459 modules)
+ GET /api/auth/session 304 in 1159ms
+ GET /api/auth/session 304 in 18ms

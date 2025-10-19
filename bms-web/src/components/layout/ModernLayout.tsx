@@ -16,11 +16,18 @@ export function ModernLayout({ children }: { children: React.ReactNode }) {
     <AuthGuard>
       <div className="flex min-h-screen bg-[#FAFBFC]">
         <ModernSidebar />
-        <div className="flex-1 ml-[72px] transition-all duration-300">
-          <ModernTopbar />
-          <main className="p-8">{children}</main>
+        <div className="main-content-wrapper flex-1">
+          <div className="main-content ml-[72px] transition-all duration-300">
+            <ModernTopbar />
+            <main className="p-8">{children}</main>
+          </div>
         </div>
       </div>
+      <style jsx global>{`
+        .sidebar.locked ~ .main-content-wrapper .main-content {
+          margin-left: 288px;
+        }
+      `}</style>
     </AuthGuard>
   );
 }

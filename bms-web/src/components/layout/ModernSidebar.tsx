@@ -12,89 +12,158 @@ import {
   ShieldCheck, CalendarClock, FileBarChart, Gauge, Monitor, Database,
   AlertTriangle, UserCog, Shield, LogOut, ListTree, ScrollText
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const menuItems = [
+type BadgeColor =
+  | "teal"
+  | "blue"
+  | "purple"
+  | "emerald"
+  | "orange"
+  | "red"
+  | "indigo"
+  | "pink"
+  | "sky"
+  | "amber";
+
+type SidebarSubItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  badge?: string;
+  badgeColor?: BadgeColor;
+};
+
+type SidebarItem = {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  href?: string;
+  submenu?: SidebarSubItem[];
+};
+
+const badgeColorClasses: Record<BadgeColor, string> = {
+  teal: "bg-teal-500/20 text-teal-100 border border-teal-500/40",
+  blue: "bg-blue-500/20 text-blue-100 border border-blue-500/40",
+  purple: "bg-purple-500/20 text-purple-100 border border-purple-500/40",
+  emerald: "bg-emerald-500/20 text-emerald-100 border border-emerald-500/40",
+  orange: "bg-orange-500/20 text-orange-100 border border-orange-500/40",
+  red: "bg-red-500 text-white",
+  indigo: "bg-indigo-500/20 text-indigo-100 border border-indigo-500/40",
+  pink: "bg-pink-500/20 text-pink-100 border border-pink-500/40",
+  sky: "bg-sky-500/20 text-sky-100 border border-sky-500/40",
+  amber: "bg-amber-400/20 text-amber-900 border border-amber-400/40"
+};
+
+const menuItems: SidebarItem[] = [
   { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
   {
-    id: "compta", label: "Comptabilité", icon: BookOpen, submenu: [
-      { label: "Plan comptable", icon: ListTree, href: "/accountant/chart-of-accounts" },
-      { label: "Saisie comptable", icon: PenTool, href: "/accountant/journal", badge: "OCR+IA" },
-      { label: "Journal comptable", icon: BookOpen, href: "/accountant/journal" },
-      { label: "Grand livre", icon: FileText, href: "/accountant/general-ledger" },
-      { label: "Balance générale", icon: Calculator, href: "/accountant/trial-balance" },
-      { label: "Lettrage & Pointage", icon: Link2, href: "/accountant/bank", badge: "Auto" },
-      { label: "Clôtures", icon: Lock, href: "/accountant/close" },
-      { label: "Immobilisations", icon: Building2, href: "/accountant/assets" }
+    id: "compta",
+    label: "Comptabilité",
+    icon: BookOpen,
+    submenu: [
+      { label: "Plan comptable", href: "/accountant/chart-of-accounts", icon: ListTree },
+      { label: "Saisie comptable", href: "/accountant/journal", icon: PenTool, badge: "OCR+IA", badgeColor: "teal" },
+      { label: "Journal comptable", href: "/accountant/journal", icon: BookOpen },
+      { label: "Grand livre", href: "/accountant/general-ledger", icon: FileText },
+      { label: "Balance générale", href: "/accountant/trial-balance", icon: Calculator },
+      { label: "Lettrage & Pointage", href: "/accountant/bank", icon: Link2, badge: "Auto", badgeColor: "blue" },
+      { label: "Clôtures", href: "/accountant/close", icon: Lock },
+      { label: "Immobilisations", href: "/accountant/assets", icon: Building2 }
     ]
   },
   {
-    id: "tresorerie", label: "Trésorerie", icon: Wallet, submenu: [
-      { label: "Multi-banques", icon: Landmark, href: "/treasury" },
-      { label: "Rapprochement bancaire", icon: GitCompare, href: "/accountant/bank", badge: "API" },
-      { label: "Prévisionnel trésorerie", icon: TrendingUp, href: "/treasury" },
-      { label: "Opérations", icon: ArrowRightLeft, href: "/treasury", badge: "SEPA" },
-      { label: "Cash Management", icon: Wallet, href: "/treasury" }
+    id: "tresorerie",
+    label: "Trésorerie",
+    icon: Wallet,
+    submenu: [
+      { label: "Multi-banques", href: "/treasury", icon: Landmark },
+      { label: "Rapprochement bancaire", href: "/accountant/bank", icon: GitCompare, badge: "API", badgeColor: "purple" },
+      { label: "Prévisionnel trésorerie", href: "/treasury/forecast", icon: TrendingUp },
+      { label: "Opérations", href: "/treasury/operations", icon: ArrowRightLeft, badge: "SEPA", badgeColor: "emerald" },
+      { label: "Cash Management", href: "/treasury", icon: Wallet }
     ]
   },
   {
-    id: "facturation", label: "Facturation & Ventes", icon: ShoppingCart, submenu: [
-      { label: "Cycle de vente", icon: ShoppingCart, href: "/invoices" },
-      { label: "Facturation", icon: ScrollText, href: "/invoices", badge: "e-invoicing" },
-      { label: "Catalogue produits", icon: Package, href: "/inventory" },
-      { label: "Encaissements", icon: CreditCard, href: "/invoices" },
-      { label: "Relances clients", icon: BellRing, href: "/invoices", badge: "4", badgeColor: "red" },
-      { label: "Analyse ventes", icon: BarChart3, href: "/invoices" }
+    id: "facturation",
+    label: "Facturation & Ventes",
+    icon: ShoppingCart,
+    submenu: [
+      { label: "Cycle de vente", href: "/sales/cycle", icon: ShoppingCart },
+      { label: "Facturation", href: "/invoices", icon: ScrollText, badge: "e-invoicing", badgeColor: "orange" },
+      { label: "Catalogue produits", href: "/inventory", icon: Package },
+      { label: "Encaissements", href: "/invoices/payments", icon: CreditCard },
+      { label: "Relances clients", href: "/invoices/reminders", icon: BellRing, badge: "4", badgeColor: "red" },
+      { label: "Analyse ventes", href: "/sales/analytics", icon: BarChart3 }
     ]
   },
   {
-    id: "achats", label: "Achats & Fournisseurs", icon: ShoppingBag, submenu: [
-      { label: "Cycle d'achat", icon: ShoppingBag, href: "/purchases" },
-      { label: "Gestion fournisseurs", icon: Users, href: "/purchases/suppliers" },
-      { label: "Paiements", icon: Send, href: "/purchases" },
-      { label: "Analyse achats", icon: PieChart, href: "/purchases" }
+    id: "achats",
+    label: "Achats & Fournisseurs",
+    icon: ShoppingBag,
+    submenu: [
+      { label: "Cycle d'achat", href: "/purchases", icon: ShoppingBag },
+      { label: "Gestion fournisseurs", href: "/purchases/suppliers", icon: Users },
+      { label: "Paiements", href: "/purchases/payments", icon: Send },
+      { label: "Analyse achats", href: "/purchases/analytics", icon: PieChart }
     ]
   },
   {
-    id: "budget", label: "Budget & Contrôle", icon: Target, submenu: [
-      { label: "Budgets prévisionnels", icon: Target, href: "/budget" },
-      { label: "Suivi budgétaire", icon: Activity, href: "/budget" },
-      { label: "Contrôle de gestion", icon: LineChart, href: "/budget" },
-      { label: "Comptabilité analytique", icon: Layers, href: "/budget", badge: "Multi-axes" }
+    id: "budget",
+    label: "Budget & Contrôle",
+    icon: Target,
+    submenu: [
+      { label: "Budgets prévisionnels", href: "/budget", icon: Target },
+      { label: "Suivi budgétaire", href: "/budget/tracking", icon: Activity },
+      { label: "Contrôle de gestion", href: "/budget/control", icon: LineChart },
+      { label: "Comptabilité analytique", href: "/budget/analytics", icon: Layers, badge: "Multi-axes", badgeColor: "indigo" }
     ]
   },
   {
-    id: "ca", label: "Chiffre d'Affaires", icon: TrendingUp, submenu: [
-      { label: "Reconnaissance CA", icon: CheckCircle, href: "/accountant/profit-loss" },
-      { label: "Analyse multidimensionnelle", icon: ScanSearch, href: "/accountant/profit-loss" },
-      { label: "Prévisions CA", icon: Sparkles, href: "/accountant/profit-loss", badge: "ML" },
-      { label: "Cohérence CA-Trésorerie", icon: GitBranch, href: "/accountant/profit-loss" }
+    id: "chiffre-affaires",
+    label: "Chiffre d'Affaires",
+    icon: TrendingUp,
+    submenu: [
+      { label: "Reconnaissance CA", href: "/accountant/profit-loss", icon: CheckCircle },
+      { label: "Analyse multidimensionnelle", href: "/accountant/profit-loss", icon: ScanSearch },
+      { label: "Prévisions CA", href: "/accountant/profit-loss", icon: Sparkles, badge: "ML", badgeColor: "pink" },
+      { label: "Cohérence CA-Trésorerie", href: "/accountant/profit-loss", icon: GitBranch }
     ]
   },
   {
-    id: "fiscal", label: "Fiscalité", icon: Percent, submenu: [
-      { label: "TVA", icon: Percent, href: "/accountant/tax/vat", badge: "CA3" },
-      { label: "IS / IR", icon: Receipt, href: "/tax" },
-      { label: "Taxes annexes", icon: FilePlus2, href: "/tax" },
-      { label: "Déclarations", icon: FileCheck, href: "/tax", badge: "Télé" },
-      { label: "Conformité & FEC", icon: ShieldCheck, href: "/accountant/validation" },
-      { label: "Calendrier fiscal", icon: CalendarClock, href: "/tax" }
+    id: "fiscalite",
+    label: "Fiscalité",
+    icon: Percent,
+    submenu: [
+      { label: "TVA", href: "/accountant/tax/vat", icon: Percent, badge: "CA3", badgeColor: "amber" },
+      { label: "IS / IR", href: "/tax", icon: Receipt },
+      { label: "Taxes annexes", href: "/tax/other", icon: FilePlus2 },
+      { label: "Déclarations", href: "/tax/declarations", icon: FileCheck, badge: "Télé", badgeColor: "sky" },
+      { label: "Conformité & FEC", href: "/accountant/validation", icon: ShieldCheck },
+      { label: "Calendrier fiscal", href: "/tax/calendar", icon: CalendarClock }
     ]
   },
   {
-    id: "reporting", label: "Reporting & BI", icon: BarChart3, submenu: [
-      { label: "États financiers", icon: FileBarChart, href: "/accountant/balance-sheet" },
-      { label: "Ratios financiers", icon: Gauge, href: "/accountant" },
-      { label: "Dashboards personnalisés", icon: Monitor, href: "/dashboard" },
-      { label: "BI avancée", icon: Database, href: "/dashboard", badge: "OLAP" },
-      { label: "Alertes intelligentes", icon: AlertTriangle, href: "/dashboard" }
+    id: "reporting",
+    label: "Reporting & BI",
+    icon: BarChart3,
+    submenu: [
+      { label: "États financiers", href: "/accountant/balance-sheet", icon: FileBarChart },
+      { label: "Ratios financiers", href: "/accountant", icon: Gauge },
+      { label: "Dashboards personnalisés", href: "/dashboard", icon: Monitor },
+      { label: "BI avancée", href: "/dashboard/bi", icon: Database, badge: "OLAP", badgeColor: "purple" },
+      { label: "Alertes intelligentes", href: "/dashboard/alerts", icon: AlertTriangle }
     ]
   },
-  { id: "integrations", label: "Intégrations", icon: Plug, href: "/settings" },
+  { id: "integrations", label: "Intégrations", icon: Plug, href: "/settings/integrations" },
   {
-    id: "systeme", label: "Système", icon: Settings, submenu: [
-      { label: "Paramètres", icon: Settings, href: "/settings" },
-      { label: "Utilisateurs & droits", icon: UserCog, href: "/settings" },
-      { label: "Audit & traçabilité", icon: Shield, href: "/settings" }
+    id: "systeme",
+    label: "Système",
+    icon: Settings,
+    submenu: [
+      { label: "Paramètres", href: "/settings", icon: Settings },
+      { label: "Utilisateurs & droits", href: "/settings/users", icon: UserCog },
+      { label: "Audit & traçabilité", href: "/settings/audit", icon: Shield }
     ]
   }
 ];
@@ -112,89 +181,95 @@ export function ModernSidebar() {
 
   return (
     <div
-      className={`fixed left-0 top-0 h-full bg-[#0F3D3A] text-white flex flex-col z-50 overflow-y-auto transition-all duration-300 ${
-        isLocked ? "w-72" : "w-[72px] hover:w-72"
+      id="sidebar"
+      className={`sidebar fixed left-0 top-0 h-full bg-[#0F3D3A] text-white flex flex-col z-50 overflow-y-auto transition-all duration-300 ease-in-out ${
+        isLocked ? "locked w-72" : "w-[72px]"
       }`}
-      onMouseEnter={() => !isLocked && setOpenMenus(["compta"])}
     >
-      <div className="p-6 border-b border-white/10 sticky top-0 bg-[#0F3D3A] z-10 flex items-center justify-between min-h-[88px]">
+      {/* Header */}
+      <div className="p-4 border-b border-white/10 sticky top-0 bg-[#0F3D3A] z-10 flex items-center justify-between min-h-[80px]">
         <div className="flex items-center gap-3">
-          <div className="text-2xl font-bold tracking-tighter">B</div>
-          <div className={`transition-opacity duration-300 ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-            <div className="text-2xl font-bold tracking-tighter">MS ERP</div>
-            <div className="text-xs text-white/60 mt-1 tracking-wide">Solution Comptable Intégrée</div>
+          <div className="text-2xl font-bold flex-shrink-0">B</div>
+          <div className="sidebar-content">
+            <div className="text-lg font-bold">BMS ERP</div>
+            <div className="text-xs text-white/60">Solution Comptable</div>
           </div>
         </div>
         <button
           onClick={() => setIsLocked(!isLocked)}
-          className={`p-1.5 rounded hover:bg-white/10 transition-all ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+          className="sidebar-content p-1.5 rounded hover:bg-white/10 transition-all"
         >
           <Pin className={`w-4 h-4 transition-transform ${isLocked ? "rotate-45" : ""}`} />
         </button>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      {/* Navigation */}
+      <nav className="flex-1 p-3 space-y-1">
         {menuItems.map((item) => (
           <div key={item.id}>
             {item.submenu ? (
               <>
                 <div
-                  className="flex items-center justify-between px-3 cursor-pointer hover:bg-white/5 rounded-lg py-2 transition-all"
+                  className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-white/5 rounded-lg transition-all"
                   onClick={() => toggleMenu(item.id)}
                 >
                   <div className="flex items-center gap-3">
-                    <item.icon className="w-[18px] h-[18px] flex-shrink-0" strokeWidth={1.5} />
-                    <span className={`text-sm font-semibold transition-opacity duration-300 ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                    <item.icon className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} />
+                    <span className="sidebar-content text-sm font-medium">
                       {item.label}
                     </span>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 flex-shrink-0 transition-all duration-300 ${
+                    className={`sidebar-content w-4 h-4 flex-shrink-0 transition-transform duration-300 ${
                       openMenus.includes(item.id) ? "rotate-180" : ""
-                    } ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                    }`}
                   />
                 </div>
                 <div
-                  className={`pl-3 overflow-hidden transition-all duration-300 ${
-                    openMenus.includes(item.id) ? "max-h-[1000px]" : "max-h-0"
+                  className={`submenu overflow-hidden transition-all duration-300 ${
+                    openMenus.includes(item.id) ? "open max-h-[500px]" : "max-h-0"
                   }`}
                 >
-                  {item.submenu.map((subItem, idx) => (
-                    <Link
-                      key={idx}
-                      href={subItem.href}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-                        pathname === subItem.href
-                          ? "bg-[#0D9488] text-white"
-                          : "text-white/70 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <subItem.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
-                      <div className={`flex items-center justify-between flex-1 transition-opacity duration-300 ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-                        <span className="text-sm font-medium">{subItem.label}</span>
+                  <div className="pl-5 pr-3 py-1 space-y-1">
+                    {item.submenu.map((subItem, idx) => (
+                      <Link
+                        key={idx}
+                        href={subItem.href}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                          pathname === subItem.href
+                            ? "bg-[#0D9488] text-white"
+                            : "text-white/70 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        <subItem.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+                        <span className="sidebar-content text-sm font-medium flex-1">
+                          {subItem.label}
+                        </span>
                         {subItem.badge && (
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            subItem.badgeColor === "red" ? "bg-red-500" : "bg-[#0D9488]"
-                          }`}>
+                          <span
+                            className={`sidebar-content text-xs px-2 py-0.5 rounded-full font-semibold ${
+                              subItem.badgeColor ? badgeColorClasses[subItem.badgeColor] : "bg-white/10 text-white"
+                            }`}
+                          >
                             {subItem.badge}
                           </span>
                         )}
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </>
             ) : (
               <Link
-                href={item.href}
+                href={item.href || "#"}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                   pathname === item.href
                     ? "bg-[#0D9488] text-white"
                     : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <item.icon className="w-[18px] h-[18px] flex-shrink-0" strokeWidth={1.5} />
-                <span className={`text-sm font-medium transition-opacity duration-300 ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                <item.icon className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} />
+                <span className="sidebar-content text-sm font-medium">
                   {item.label}
                 </span>
               </Link>
@@ -203,22 +278,58 @@ export function ModernSidebar() {
         ))}
       </nav>
 
+      {/* Footer */}
       <div className="p-4 border-t border-white/10 sticky bottom-0 bg-[#0F3D3A]">
         <div className="flex items-center gap-3 px-3 py-2 mb-2">
-          <div className="w-9 h-9 rounded-full bg-[#0D9488] flex items-center justify-center text-sm font-semibold flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-[#0D9488] flex items-center justify-center text-sm font-semibold flex-shrink-0">
             JD
           </div>
-          <div className={`flex-1 min-w-0 transition-opacity duration-300 ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+          <div className="sidebar-content flex-1 min-w-0">
             <div className="text-sm font-medium truncate">Jean Dupont</div>
             <div className="text-xs text-white/60">Expert-comptable</div>
           </div>
-          <LogOut className={`w-[18px] h-[18px] text-white/60 hover:text-white cursor-pointer transition-all flex-shrink-0 ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} strokeWidth={1.5} />
+          <LogOut className="sidebar-content w-4 h-4 text-white/60 hover:text-white cursor-pointer transition-all flex-shrink-0" strokeWidth={1.5} />
         </div>
-        <div className={`flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg text-xs transition-opacity duration-300 ${isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-          <ShieldCheck className="text-green-400 w-[14px] h-[14px] flex-shrink-0" strokeWidth={1.5} />
-          <span className="text-white/80">ISO 27001 • RGPD • SOC 2</span>
+        <div className="sidebar-content flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg text-xs">
+          <ShieldCheck className="text-green-400 w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+          <span className="text-white/80">Certifié ISO 27001</span>
         </div>
       </div>
+
+      <style jsx>{`
+        .sidebar {
+          width: 72px;
+        }
+        
+        .sidebar.locked {
+          width: 288px;
+        }
+        
+        .sidebar:hover {
+          width: 288px;
+        }
+        
+        .sidebar-content {
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          white-space: nowrap;
+        }
+        
+        .sidebar:hover .sidebar-content,
+        .sidebar.locked .sidebar-content {
+          opacity: 1;
+        }
+        
+        .submenu {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+        }
+        
+        .submenu.open {
+          max-height: 500px;
+        }
+      `}</style>
     </div>
   );
 }

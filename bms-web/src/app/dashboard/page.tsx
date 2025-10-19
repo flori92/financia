@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useDashboardData, DashboardMetrics, DashboardData, BankTransaction } from "@/hooks/useDashboardData";
+import { DashboardCustomizer } from "@/components/dashboard/DashboardCustomizer";
 import {
   Activity,
   AlertCircle,
@@ -90,9 +91,43 @@ function variation(current: number, previous: number) {
   return ((current - previous) / previous) * 100;
 }
 
+type WidgetConfig = {
+  id: string;
+  title: string;
+  visible: boolean;
+  category: string;
+};
+
+const defaultWidgets: WidgetConfig[] = [
+  { id: "kpis", title: "KPIs principaux", visible: true, category: "Indicateurs" },
+  { id: "ratios", title: "Ratios financiers", visible: true, category: "Indicateurs" },
+  { id: "chart", title: "Évolution trésorerie & CA", visible: true, category: "Graphiques" },
+  { id: "alerts", title: "Alertes", visible: true, category: "Notifications" },
+  { id: "stats", title: "Statistiques rapides", visible: true, category: "Indicateurs" },
+  { id: "modules", title: "Modules rapides", visible: true, category: "Modules" },
+  { id: "transactions", title: "Transactions récentes", visible: true, category: "Activité" },
+  { id: "tasks", title: "Tâches en attente", visible: true, category: "Activité" },
+  { id: "features", title: "Fonctionnalités ERP", visible: true, category: "Informations" },
+];
+
 export default function DashboardPage() {
   const { data, loading, error, reload } = useDashboardData();
   const metrics: DashboardMetrics | undefined = data?.metrics;
+  const [widgets, setWidgets] = useState<WidgetConfig[]>(defaultWidgets);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("dashboardWidgets");
+    if (saved) {
+      setWidgets(JSON.parse(saved));
+    }
+  }, []);
+
+  const handleWidgetsUpdate = (updated: WidgetConfig[]) => {
+    setWidgets(updated);
+    localStorage.setItem("dashboardWidgets", JSON.stringify(updated));
+  };
+
+  const isVisible = (id: string) => widgets.find(w => w.id === id)?.visible ?? true;
 
   const evolution = metrics?.evolutionChart ?? [];
   const treasurySeries = data?.forecast?.series ?? [];
@@ -336,6 +371,9 @@ export default function DashboardPage() {
               <button onClick={reload} className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium">
                 Actualiser
               </button>
+              <div className="ml-auto">
+                <DashboardCustomizer widgets={widgets} onUpdate={handleWidgetsUpdate} />
+              </div>
             </div>
             <p className="text-white/80 text-lg mt-2 mb-6">
               Vue consolidée de votre activité comptable, trésorerie et fiscale
@@ -365,7 +403,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {isVisible("kpis") && <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           {
             icon: <Wallet className="text-[#0D9488] w-[22px] h-[22px]" strokeWidth={1.5} />,
@@ -417,9 +455,9 @@ export default function DashboardPage() {
             </div>
           </div>
         ))}
-      </section>
+      </section>}
 
-      <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {isVisible("ratios") && <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
           { label: "BFR", value: formatCurrency(bfr), hint: "Variation vs N-1 indisponible", tone: "text-gray-500" },
           { label: "DSO", value: dso ? `${Math.round(dso)} jours` : "—", hint: "Optimiser le recouvrement", tone: "text-green-600" },
@@ -434,9 +472,9 @@ export default function DashboardPage() {
             <div className={`text-xs ${metric.tone}`}>{metric.hint}</div>
           </div>
         ))}
-      </section>
+      </section>}
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {isVisible("chart") && <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -514,9 +552,9 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {isVisible("modules") && <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {modules.map((module: QuickModule, idx: number) => (
           <div key={idx} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition">
             <div className="flex items-center gap-4 mb-4">
@@ -541,10 +579,10 @@ export default function DashboardPage() {
             </div>
           </div>
         ))}
-      </section>
+      </section>}
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+      {(isVisible("transactions") || isVisible("tasks")) && <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {isVisible("transactions") && <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">Transactions récentes</h2>
             <button className="text-sm font-medium text-[#0D9488] hover:text-[#0B7C74] flex items-center gap-1">
@@ -570,9 +608,9 @@ export default function DashboardPage() {
             ))}
             {!recentEntries.length && <div className="text-sm text-gray-500">Aucune transaction récente</div>}
           </div>
-        </div>
+        </div>}
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        {isVisible("tasks") && <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">Tâches en attente</h2>
             <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded">{tasks.length} actions</span>
@@ -597,10 +635,10 @@ export default function DashboardPage() {
             ))}
             {!tasks.length && <div className="text-sm text-gray-500">Aucune tâche prioritaire</div>}
           </div>
-        </div>
-      </section>
+        </div>}
+      </section>}
 
-      <section className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 text-white space-y-6">
+      {isVisible("features") && <section className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 text-white space-y-6">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight mb-2">Solution ERP complète et intégrée</h2>
           <p className="text-gray-300">Tous les modules pour gérer votre comptabilité, trésorerie, facturation et fiscalité</p>
@@ -639,7 +677,7 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
     </div>
   );
 }
