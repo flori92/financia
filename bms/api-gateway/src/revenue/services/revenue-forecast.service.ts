@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice } from '../../invoices/entities/invoice.entity';
-import { Opportunity } from '../../crm/entities/opportunity.entity';
+import { Opportunity, OpportunityStatus } from '../../crm/entities/opportunity.entity';
 
 @Injectable()
 export class RevenueForecastService {
@@ -50,7 +50,7 @@ export class RevenueForecastService {
 
   private async getPipelineRevenue(companyId: string) {
     const opportunities = await this.opportunityRepo.find({ 
-      where: { companyId, status: 'open' } 
+      where: { companyId, status: OpportunityStatus.OPEN } 
     });
     
     return opportunities.map(opp => ({

@@ -26,10 +26,12 @@ export class QuotesService {
     const invoice = await this.invoicesService.create({
       companyId: quote.companyId,
       partyName: quote.customerName,
-      invoiceType: 'sales',
-      reference: quote.quoteNumber,
-      totalAmount: quote.totalAmount,
-      items: [],
+      invoiceType: 'sales' as 'sales',
+      items: [{
+        itemName: 'Devis ' + quote.quoteNumber,
+        quantity: 1,
+        unitPrice: Number(quote.totalAmount),
+      }],
     }, userId);
 
     quote.status = 'converted';

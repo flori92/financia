@@ -17,7 +17,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     <AuthGuard>
       <UserProfileProvider>
         <Sidebar />
-        <div className="ml-sidebar">
+        <div className="ml-20 transition-all duration-300">
           <Topbar />
           <main className="p-6 max-w-[1280px] mx-auto">{children}</main>
         </div>

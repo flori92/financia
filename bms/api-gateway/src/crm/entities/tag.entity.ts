@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, ManyToOne } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
 import { Contact } from './contact.entity';
+import { Opportunity } from './opportunity.entity';
 
 @Entity('crm_tags')
 export class Tag {
@@ -25,6 +26,6 @@ export class Tag {
   @ManyToMany(() => Contact, (contact) => contact.tags)
   contacts: Contact[];
 
-  // Note: Removed opportunities relation to avoid circular dependency
-  // This will be handled in Opportunity entity instead
+  @ManyToMany(() => Opportunity, (opportunity) => opportunity.tags)
+  opportunities: Opportunity[];
 }

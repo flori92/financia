@@ -45,7 +45,7 @@ export class RecurringInvoicesService {
             ...template,
             id: undefined,
             invoiceDate: now,
-            reference: `${template.reference}-${now.getTime()}`,
+            invoiceNumber: `${template.invoiceNumber}-${now.getTime()}`,
           });
           const saved = await this.invoiceRepo.save(newInvoice);
           generated.push(saved);

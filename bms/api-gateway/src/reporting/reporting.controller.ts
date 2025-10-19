@@ -16,7 +16,7 @@ export class ReportingController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this.reportingService.getFinancialReports(companyId, startDate, endDate);
+    return this.reportingService.getFinancialReports(companyId, new Date(startDate), new Date(endDate));
   }
 
   @Post('custom-analysis')

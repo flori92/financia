@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -35,6 +35,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const [userName, setUserName] = useState("Utilisateur");
   const [userRole, setUserRole] = useState("Entrepreneur");
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -50,10 +52,25 @@ export function Sidebar() {
   const NAV = isAccountantRoute ? ACCOUNTANT_NAV : ENTREPRENEUR_NAV;
   const displayRole = isAccountantRoute ? 'Comptable' : userRole;
   return (
-    <aside className="fixed left-0 top-0 h-full w-sidebar bg-app-sidebar text-white">
-      <div className="h-14 flex items-center px-5 border-b border-white/5">
-        <div className="text-xl font-bold tracking-tight">BMS</div>
-        <div className="ml-1 text-app-accent" aria-hidden>▾</div>
+    <aside 
+      className={clsx(
+        "fixed left-0 top-0 h-full bg-app-sidebar text-white transition-all duration-300 ease-in-out z-50",
+        isExpanded || isLocked ? "w-64" : "w-20"
+      )}
+      onMouseEnter={() => !isLocked && setIsExpanded(true)}
+      onMouseLeave={() => !isLocked && setIsExpanded(false)}
+    >
+      <div className="h-14 flex items-center justify-between px-5 border-b border-white/5">
+        <div className={clsx("text-xl font-bold tracking-tight transition-opacity duration-200", isExpanded || isLocked ? "opacity-100" : "opacity-0")}>
+          BMS
+        </div>
+        <button
+          onClick={() => setIsLocked(!isLocked)}
+          className="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+          title={isLocked ? "Déverrouiller" : "Verrouiller ouvert"}
+        >
+          {isLocked ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
       <nav className="mt-3 px-2 space-y-1">
         {NAV.map((item) => {
@@ -64,24 +81,36 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={clsx(
-                "group flex items-center gap-3 rounded-md px-3 py-2 text-sm",
-                active ? "bg-white/5 text-white" : "text-white/80 hover:bg-app-sidebarHover hover:text-white"
+                "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
+                active ? "bg-white/5 text-white" : "text-white/80 hover:bg-app-sidebarHover hover:text-white",
+                !(isExpanded || isLocked) && "justify-center"
               )}
+              title={!(isExpanded || isLocked) ? item.label : undefined}
             >
-              <span className={clsx("h-4 w-4", active ? "text-app-accent" : "text-white/70 group-hover:text-white")}> 
-                <Icon className="h-4 w-4" />
+              <span className={clsx("h-5 w-5 flex-shrink-0", active ? "text-app-accent" : "text-white/70 group-hover:text-white")}> 
+                <Icon className="h-5 w-5" />
               </span>
-              <span>{item.label}</span>
+              <span className={clsx(
+                "whitespace-nowrap transition-all duration-200",
+                isExpanded || isLocked ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"
+              )}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
       </nav>
       <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 p-3">
-        <div className="flex items-center gap-3 text-sm">
-          <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-medium">{userName.charAt(0).toUpperCase()}</div>
-          <div>
-            <div className="font-medium leading-tight">{userName}</div>
-            <div className="text-white/70 text-xs">{displayRole}</div>
+        <div className={clsx("flex items-center gap-3 text-sm", !(isExpanded || isLocked) && "justify-center")}>
+          <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-medium flex-shrink-0">
+            {userName.charAt(0).toUpperCase()}
+          </div>
+          <div className={clsx(
+            "transition-all duration-200",
+            isExpanded || isLocked ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"
+          )}>
+            <div className="font-medium leading-tight whitespace-nowrap">{userName}</div>
+            <div className="text-white/70 text-xs whitespace-nowrap">{displayRole}</div>
           </div>
         </div>
       </div>

@@ -43,7 +43,7 @@ export default function AccountantDashboardPage() {
     return <div className="p-8 text-center text-rose-600">{error}</div>;
   }
 
-  if (!data) {
+  if (!data || !data.kpiMonth) {
     return <div className="p-8 text-center text-slate-500">Aucune donnée disponible</div>;
   }
 
