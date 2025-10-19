@@ -28,9 +28,14 @@ export function Topbar() {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = () => setShowProfileMenu(false);
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.profile-menu')) {
+        setShowProfileMenu(false);
+      }
+    };
     if (showProfileMenu) {
-      document.addEventListener('click', handleClickOutside);
+      setTimeout(() => document.addEventListener('click', handleClickOutside), 0);
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showProfileMenu]);
@@ -91,17 +96,16 @@ export function Topbar() {
           </select>
         </div>
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            router.push('/accountant/journal');
-          }}
+          type="button"
+          onClick={() => router.push('/accountant/journal')}
           className="hidden md:inline-flex rounded-md bg-[#0D9488] text-white text-sm px-3 py-2 hover:bg-[#0B7C74]"
         >
           Nouvelle écriture
         </button>
         <div className="relative">
           <button
-            onClick={(e)=>{ e.stopPropagation(); toggleNotifications(); }}
+            type="button"
+            onClick={toggleNotifications}
             className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
             aria-label="Notifications"
           >
@@ -118,12 +122,10 @@ export function Topbar() {
             </div>
           )}
         </div>
-        <div className="relative">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowProfileMenu(!showProfileMenu);
-            }}
+        <div className="relative profile-menu">
+          <button
+            type="button"
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-3 py-1.5" 
             aria-label="Profil"
           >
