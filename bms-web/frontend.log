@@ -3505,3 +3505,271 @@ Import trace for requested module:
  GET /login 200 in 776ms
  GET /api/auth/session 304 in 40ms
  GET /api/auth/session 304 in 18ms
+ ✓ Compiled /accountant in 8.8s (1036 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /accountant 200 in 5787ms
+ GET /api/auth/session 304 in 84ms
+ GET /api/auth/session 304 in 69ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 992ms (1019 modules)
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Expected ',', got ';'
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:98:1]
+ [2m 98[0m |       title: a.title,
+ [2m 99[0m |       message: a.message
+ [2m100[0m |     }));
+ [2m101[0m |     return [...acc, ...tre].sort((a, b) => ({ danger: 0, warning: 1, info: 2 }[a.level] - ({ danger: 0, warning: 1, info: 2 }[b.level]));
+     : [31;1m                                                                                                                                        ^[0m
+ [2m102[0m |   }, [metrics?.alerts, data?.treasuryAlerts?.alerts]);
+ [2m103[0m | 
+ [2m104[0m |   const tasks = useMemo(() => {
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx:4:1
+Module not found: Can't resolve '@/hooks/useDashboardData'
+[0m [90m 2 |[39m[0m
+[0m [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { useDashboardData } [36mfrom[39m [32m"@/hooks/useDashboardData"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 5 |[39m [36mimport[39m {[0m
+[0m [90m 6 |[39m   [33mActivity[39m[33m,[39m[0m
+[0m [90m 7 |[39m   [33mAlertCircle[39m[33m,[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/dashboard/page.tsx:4:1
+Module not found: Can't resolve '@/hooks/useDashboardData'
+[0m [90m 2 |[39m[0m
+[0m [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m {[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 5 |[39m   useDashboardData[33m,[39m[0m
+[0m [90m 6 |[39m   [33mDashboardMetrics[39m[33m,[39m[0m
+[0m [90m 7 |[39m   [33mDashboardData[39m[33m,[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/dashboard/page.tsx:4:1
+Module not found: Can't resolve '@/hooks/useDashboardData'
+[0m [90m 2 |[39m[0m
+[0m [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { useDashboardData[33m,[39m [33mDashboardMetrics[39m[33m,[39m [33mBankTransaction[39m } [36mfrom[39m [32m"@/hooks/useDashboardData"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 5 |[39m [36mimport[39m {[0m
+[0m [90m 6 |[39m   [33mActivity[39m[33m,[39m[0m
+[0m [90m 7 |[39m   [33mAlertCircle[39m[33m,[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/dashboard/page.tsx:4:1
+Module not found: Can't resolve '@/hooks/useDashboardData'
+[0m [90m 2 |[39m[0m
+[0m [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { useDashboardData[33m,[39m [33mDashboardMetrics[39m[33m,[39m [33mDashboardData[39m[33m,[39m [33mBankTransaction[39m } [36mfrom[39m [32m"@/hooks/useDashboardData"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 5 |[39m [36mimport[39m {[0m
+[0m [90m 6 |[39m   [33mActivity[39m[33m,[39m[0m
+[0m [90m 7 |[39m   [33mAlertCircle[39m[33m,[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:310:1]
+ [2m310[0m |   const lastClosureStatus = data?.lastClosure?.status ?? "";
+ [2m311[0m | 
+ [2m312[0m |   return (
+ [2m313[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m314[0m |       <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m315[0m |         <div className="flex items-start justify-between">
+ [2m316[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:310:1]
+ [2m310[0m |   const lastClosureStatus = data?.lastClosure?.status ?? "";
+ [2m311[0m | 
+ [2m312[0m |   return (
+ [2m313[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m314[0m |       <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m315[0m |         <div className="flex items-start justify-between">
+ [2m316[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:315:1]
+ [2m315[0m |   const lastClosureStatus = data?.lastClosure?.status ?? "";
+ [2m316[0m | 
+ [2m317[0m |   return (
+ [2m318[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m319[0m |       <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m320[0m |         <div className="flex items-start justify-between">
+ [2m321[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:304:1]
+ [2m304[0m |   const lastClosureStatus = data?.lastClosure?.status ?? "";
+ [2m305[0m | 
+ [2m306[0m |   return (
+ [2m307[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m308[0m |       <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m309[0m |         <div className="flex items-start justify-between">
+ [2m310[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:313:1]
+ [2m313[0m |   const lastClosureStatus = data?.lastClosure?.status ?? "";
+ [2m314[0m | 
+ [2m315[0m |   return (
+ [2m316[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m317[0m |       <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m318[0m |         <div className="flex items-start justify-between">
+ [2m319[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:315:1]
+ [2m315[0m |   const lastClosureStatus = data?.lastClosure?.status ?? "";
+ [2m316[0m | 
+ [2m317[0m |   return (
+ [2m318[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m319[0m |       <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m320[0m |         <div className="flex items-start justify-between">
+ [2m321[0m |           <div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:315:1]
+ [2m315[0m |   const lastClosureStatus = data?.lastClosure?.status ?? "";
+ [2m316[0m | 
+ [2m317[0m |   return (
+ [2m318[0m |     <div className="space-y-8">
+     : [31;1m     ^^^[0m
+ [2m319[0m |       <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+ [2m320[0m |         <div className="flex items-start justify-between">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:635:1]
+ [2m635[0m |         </div>
+ [2m636[0m |       </section>
+ [2m637[0m |     </div>
+ [2m638[0m |   );
+     : [31;1m   ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:635:1]
+ [2m635[0m |         </div>
+ [2m636[0m |       </section>
+ [2m637[0m |     </div>
+ [2m638[0m |   );
+     : [31;1m   ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:645:1]
+ [2m645[0m |         </div>
+ [2m646[0m |       </section>
+ [2m647[0m |     </div>
+ [2m648[0m |   );
+     : [31;1m   ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ⨯ ./src/app/dashboard/page.tsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4m/Users/floriace/MERP/bms-web/src/app/dashboard/page.tsx[0m:641:1]
+ [2m641[0m |         </div>
+ [2m642[0m |       </section>
+ [2m643[0m |     </div>
+ [2m644[0m |   );
+     : [31;1m   ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/dashboard/page.tsx
+ ✓ Compiled in 3.9s (1023 modules)
+ ✓ Compiled in 945ms (1037 modules)

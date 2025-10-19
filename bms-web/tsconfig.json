@@ -27,6 +27,9 @@
       "@/app/*": [
         "src/app/*"
       ],
+      "@/hooks/*": [
+        "src/hooks/*"
+      ],
       "@/lib/*": [
         "src/lib/*"
       ]

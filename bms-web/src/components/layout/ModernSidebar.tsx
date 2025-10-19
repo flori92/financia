@@ -6,11 +6,11 @@ import {
   LayoutDashboard, BookOpen, Wallet, ShoppingCart, ShoppingBag, Target,
   TrendingUp, Percent, BarChart3, Plug, Settings, ChevronDown, Pin,
   PenTool, FileText, Calculator, Link2, Lock, Building2, Landmark,
-  GitCompare, ArrowRightLeft, FileInvoice, Package, CreditCard, BellRing,
+  GitCompare, ArrowRightLeft, Package, CreditCard, BellRing,
   Users, Send, PieChart, Activity, LineChart, Layers, CheckCircle,
-  ScanSearch, CrystalBall, GitBranch, Receipt, FilePlus2, FileCheck,
+  ScanSearch, Sparkles, GitBranch, Receipt, FilePlus2, FileCheck,
   ShieldCheck, CalendarClock, FileBarChart, Gauge, Monitor, Database,
-  AlertTriangle, UserCog, Shield, LogOut, ListTree
+  AlertTriangle, UserCog, Shield, LogOut, ListTree, ScrollText
 } from "lucide-react";
 
 const menuItems = [
@@ -39,7 +39,7 @@ const menuItems = [
   {
     id: "facturation", label: "Facturation & Ventes", icon: ShoppingCart, submenu: [
       { label: "Cycle de vente", icon: ShoppingCart, href: "/invoices" },
-      { label: "Facturation", icon: FileInvoice, href: "/invoices", badge: "e-invoicing" },
+      { label: "Facturation", icon: ScrollText, href: "/invoices", badge: "e-invoicing" },
       { label: "Catalogue produits", icon: Package, href: "/inventory" },
       { label: "Encaissements", icon: CreditCard, href: "/invoices" },
       { label: "Relances clients", icon: BellRing, href: "/invoices", badge: "4", badgeColor: "red" },
@@ -66,7 +66,7 @@ const menuItems = [
     id: "ca", label: "Chiffre d'Affaires", icon: TrendingUp, submenu: [
       { label: "Reconnaissance CA", icon: CheckCircle, href: "/accountant/profit-loss" },
       { label: "Analyse multidimensionnelle", icon: ScanSearch, href: "/accountant/profit-loss" },
-      { label: "Prévisions CA", icon: CrystalBall, href: "/accountant/profit-loss", badge: "ML" },
+      { label: "Prévisions CA", icon: Sparkles, href: "/accountant/profit-loss", badge: "ML" },
       { label: "Cohérence CA-Trésorerie", icon: GitBranch, href: "/accountant/profit-loss" }
     ]
   },
