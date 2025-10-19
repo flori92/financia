@@ -6,6 +6,8 @@ import { JournalEntryLine } from '../accounting/entities/journal-entry-line.enti
 import { Account } from '../accounting/entities/account.entity';
 import { Company } from '../companies/entities/company.entity';
 import { VatReturnDto } from './dto/vat-return.dto';
+import { FecService } from './services/fec.service';
+import { DgfipService } from './services/dgfip.service';
 
 /**
  * Service de gestion fiscale (TVA, déclarations)
@@ -21,6 +23,8 @@ export class TaxService {
     private accountsRepo: Repository<Account>,
     @InjectRepository(Company)
     private companiesRepo: Repository<Company>,
+    private fecService: FecService,
+    private dgfipService: DgfipService,
   ) {}
 
   /**
@@ -199,5 +203,17 @@ export class TaxService {
     }
 
     return lines.join('\n');
+  }
+
+  async generateFEC(companyId: string, year: number) {
+    return this.fecService.generateFEC(companyId, year);
+  }
+
+  async transmitCA3(data: any) {
+    return this.dgfipService.transmitCA3(data);
+  }
+
+  async getTransmissionStatus(reference: string) {
+    return this.dgfipService.getTransmissionStatus(reference);
   }
 }

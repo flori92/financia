@@ -44,6 +44,11 @@ import { CommonModule } from './common/common.module';
 import { GdprModule } from './gdpr/gdpr.module';
 import { AutomationModule } from './automation/automation.module';
 import { RbacModule } from './rbac/rbac.module';
+import { BudgetModule } from './budget/budget.module';
+import { PurchasesModule } from './purchases/purchases.module';
+import { QuotesModule } from './quotes/quotes.module';
+import { RevenueModule } from './revenue/revenue.module';
+import { ControllingModule } from './controlling/controlling.module';
 
 // Controllers
 import { HealthController } from './health/health.controller';
@@ -132,6 +137,11 @@ import { AppController } from './app.controller';
     AIModule,
     ReportingModule,
     IntegrationsModule,
+    BudgetModule,
+    PurchasesModule,
+    QuotesModule,
+    RevenueModule,
+    ControllingModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

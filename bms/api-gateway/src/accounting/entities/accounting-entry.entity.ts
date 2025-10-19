@@ -23,8 +23,12 @@ export class AccountingEntry {
     @Column({ type: 'varchar', length: 50 })
     accountNumber: string;
 
-    @Column({ type: 'boolean', default: false })
-    reconciled: boolean;
+    @Column({ 
+        type: 'enum',
+        enum: ['pending', 'reconciled', 'ignored'],
+        default: 'pending'
+    })
+    status: 'pending' | 'reconciled' | 'ignored';
 
     @Column({ type: 'timestamp', nullable: true })
     reconciledAt: Date;

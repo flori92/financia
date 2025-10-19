@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import * as Fuse from 'fuse.js';
+import Fuse from 'fuse.js';
 import { BankTransaction } from '../entities/bank-transaction.entity';
 import { AccountingEntry } from '../../accounting/entities/accounting-entry.entity';
 import { ReconciliationMatch } from '../entities/reconciliation-match.entity';
@@ -36,7 +36,7 @@ export class ReconciliationService {
             where: {
                 companyId,
                 accountId,
-                reconciled: false,
+                status: 'pending',
                 ...(dateRange && {
                     date: {
                         gte: dateRange.start,
@@ -52,7 +52,7 @@ export class ReconciliationService {
             where: {
                 companyId,
                 bankAccountId: accountId,
-                reconciled: false,
+                status: 'pending',
                 ...(dateRange && {
                     date: {
                         gte: dateRange.start,
@@ -149,8 +149,14 @@ export class ReconciliationService {
         await this.reconciliationMatchRepo.save(match);
 
         // Mettre à jour les statuts
-        await this.bankTransactionRepo.update(transaction.id, { reconciled: true });
-        await this.accountingEntryRepo.update(entry.id, { reconciled: true });
+        await this.bankTransactionRepo.update(transaction.id, { 
+            status: 'reconciled',
+            reconciledAt: new Date(),
+        });
+        await this.accountingEntryRepo.update(entry.id, { 
+            status: 'reconciled',
+            reconciledAt: new Date()
+        });
     }
 
     async validateMatch(matchId: string, approved: boolean) {
@@ -164,8 +170,14 @@ export class ReconciliationService {
         }
 
         if (approved) {
-            await this.bankTransactionRepo.update(match.bankTransactionId, { reconciled: true });
-            await this.accountingEntryRepo.update(match.accountingEntryId, { reconciled: true });
+            await this.bankTransactionRepo.update(match.bankTransactionId, { 
+                status: 'reconciled',
+                reconciledAt: new Date(),
+            });
+            await this.accountingEntryRepo.update(match.accountingEntryId, { 
+                status: 'reconciled',
+                reconciledAt: new Date()
+            });
             match.status = 'validated';
         } else {
             match.status = 'rejected';
@@ -179,7 +191,7 @@ export class ReconciliationService {
             where: {
                 companyId,
                 accountId,
-                reconciled: false
+                status: 'pending'
             },
             order: { date: 'DESC' }
         });

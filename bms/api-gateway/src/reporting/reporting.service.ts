@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { DashboardService } from './services/dashboard.service';
 import { FinancialReportService } from './services/financial-report.service';
 import { AnalyticsService } from './services/analytics.service';
+import { SigService } from './services/sig.service';
+import { CafService } from './services/caf.service';
+import { RatiosService } from './services/ratios.service';
 
 @Injectable()
 export class ReportingService {
@@ -9,6 +12,9 @@ export class ReportingService {
     private readonly dashboard: DashboardService,
     private readonly financialReport: FinancialReportService,
     private readonly analytics: AnalyticsService,
+    private readonly sig: SigService,
+    private readonly caf: CafService,
+    private readonly ratios: RatiosService,
   ) {}
 
   async getDashboard(companyId: string) {
@@ -34,5 +40,17 @@ export class ReportingService {
 
   async getKPIs(companyId: string) {
     return this.dashboard.getKPIs(companyId);
+  }
+
+  async getSIG(companyId: string, startDate: string, endDate: string) {
+    return this.sig.calculateSIG(companyId, startDate, endDate);
+  }
+
+  async getCAF(companyId: string, startDate: string, endDate: string) {
+    return this.caf.calculateCAF(companyId, startDate, endDate);
+  }
+
+  async getRatios(companyId: string, date: string) {
+    return this.ratios.calculateRatios(companyId, date);
   }
 }

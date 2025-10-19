@@ -18,6 +18,17 @@ export class DateRangeDto {
     end: Date;
 }
 
+import { IsOptional } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+
+export class DateRangeDto {
+    @ApiPropertyOptional()
+    start: Date;
+
+    @ApiPropertyOptional()
+    end: Date;
+}
+
 export class StartReconciliationDto {
     @ApiPropertyOptional({ type: () => DateRangeDto })
     @IsOptional()
