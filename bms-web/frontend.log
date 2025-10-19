@@ -3011,3 +3011,7 @@ Import trace for requested module:
  GET /api/auth/session 304 in 11ms
  ✓ Compiled /accountant/balance-sheet in 225ms (428 modules)
  ✓ Compiled in 991ms (576 modules)
+ ✓ Compiled in 2.1s (576 modules)
+ ✓ Compiled in 300ms (576 modules)
+ ✓ Compiled in 373ms (576 modules)
+ ✓ Compiled in 2.9s (946 modules)
