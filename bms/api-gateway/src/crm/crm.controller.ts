@@ -19,9 +19,12 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { CrmService } from './crm.service';
+import { CrmImportService } from './crm-import.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { FilterContactsDto } from './dto/filter-contacts.dto';
+import { ImportContactsDto } from './dto/import-contacts.dto';
+import { ExportContactsDto } from './dto/export-contacts.dto';
 import { Contact } from './entities/contact.entity';
 
 /**
@@ -31,7 +34,10 @@ import { Contact } from './entities/contact.entity';
 @Controller('crm')
 @ApiBearerAuth()
 export class CrmController {
-  constructor(private readonly crmService: CrmService) {}
+  constructor(
+    private readonly crmService: CrmService,
+    private readonly crmImportService: CrmImportService,
+  ) {}
 
   // ============================================
   // GESTION DES CONTACTS
@@ -52,6 +58,38 @@ export class CrmController {
     return this.crmService.createContact(createContactDto);
   }
 
+  @Post('contacts/import')
+  @ApiOperation({ summary: 'Importer des contacts via un fichier CSV' })
+  @ApiResponse({
+    status: 200,
+    description: 'Résultat de l\'import avec statistiques',
+    schema: {
+      type: 'object',
+      properties: {
+        importId: { type: 'string', format: 'uuid' },
+        status: { type: 'string' },
+        totalRows: { type: 'number' },
+        successCount: { type: 'number' },
+        skippedCount: { type: 'number' },
+        errorCount: { type: 'number' },
+        errors: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              row: { type: 'number' },
+              message: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'CSV invalide' })
+  async importContacts(@Body() importDto: ImportContactsDto) {
+    return this.crmImportService.importContacts(importDto);
+  }
+
   @Get('contacts')
   @ApiOperation({ summary: 'Récupérer tous les contacts avec filtres' })
   @ApiQuery({ name: 'companyId', required: true, description: 'ID de la société' })
@@ -70,6 +108,25 @@ export class CrmController {
   })
   async findAllContacts(@Query() filterDto: FilterContactsDto) {
     return this.crmService.findAllContacts(filterDto);
+  }
+
+  @Post('contacts/export')
+  @ApiOperation({ summary: 'Exporter les contacts filtrés vers un CSV' })
+  @ApiResponse({
+    status: 200,
+    description: 'Fichier CSV encodé en base64',
+    schema: {
+      type: 'object',
+      properties: {
+        fileName: { type: 'string' },
+        mimeType: { type: 'string' },
+        base64Data: { type: 'string' },
+        rowCount: { type: 'number' },
+      },
+    },
+  })
+  async exportContacts(@Body() exportDto: ExportContactsDto) {
+    return this.crmImportService.exportContacts(exportDto);
   }
 
   @Get('contacts/:id')

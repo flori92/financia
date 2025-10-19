@@ -9,6 +9,8 @@ import { Tag } from './entities/tag.entity';
 import { Activity } from './entities/activity.entity';
 import { Opportunity } from './entities/opportunity.entity';
 import { PipelineStage } from './entities/pipeline-stage.entity';
+import { ContactImport } from './entities/contact-import.entity';
+import { CrmImportService } from './crm-import.service';
 
 /**
  * Module CRM pour la gestion des contacts, opportunités et activités
@@ -21,10 +23,11 @@ import { PipelineStage } from './entities/pipeline-stage.entity';
       Activity,
       Opportunity,
       PipelineStage,
+      ContactImport,
     ]),
   ],
   controllers: [CrmController, OpportunityController],
-  providers: [CrmService, OpportunityService],
-  exports: [CrmService, OpportunityService],
+  providers: [CrmService, OpportunityService, CrmImportService],
+  exports: [CrmService, OpportunityService, CrmImportService],
 })
 export class CrmModule {}
