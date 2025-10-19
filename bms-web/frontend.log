@@ -4121,3 +4121,18 @@ Import trace for requested module:
  ✓ Compiled in 2.2s (1098 modules)
  ✓ Compiled in 1244ms (1098 modules)
  ✓ Compiled in 686ms (663 modules)
+ GET /dashboard 200 in 278ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 750ms (453 modules)
+ GET /api/auth/session 304 in 817ms
+ GET /api/auth/session 304 in 16ms
+ ○ Compiling /dashboard/alerts ...
+ ✓ Compiled /dashboard/alerts in 817ms (1110 modules)
+ GET /dashboard/alerts 200 in 1567ms
+ GET /api/auth/session 304 in 86ms
+ GET /api/auth/session 304 in 58ms
+ ✓ Compiled in 1775ms (1099 modules)
+ GET /dashboard/alerts 200 in 332ms
+ ✓ Compiled /api/auth/[...nextauth] in 267ms (451 modules)
+ GET /api/auth/session 304 in 356ms
+ GET /api/auth/session 304 in 193ms

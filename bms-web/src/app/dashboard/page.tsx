@@ -114,7 +114,7 @@ export default function DashboardPage() {
   const { data, loading, error, reload } = useDashboardData();
   const metrics: DashboardMetrics | undefined = data?.metrics;
   const [widgets, setWidgets] = useState<WidgetConfig[]>(defaultWidgets);
-  const [chartPeriod, setChartPeriod] = useState<'12months' | 'year' | 'multi'>('12months');
+  const [chartPeriod, setChartPeriod] = useState<'1month' | '3months' | '6months' | 'year' | 'multi'>('6months');
 
   useEffect(() => {
     const saved = localStorage.getItem("dashboardWidgets");
@@ -241,11 +241,14 @@ export default function DashboardPage() {
   const chartData = useMemo<ChartDatum[]>(() => {
     if (!evolution.length) return [];
     let dataToShow = evolution;
-    if (chartPeriod === '12months') {
-      dataToShow = evolution.slice(-12);
+    if (chartPeriod === '1month') {
+      dataToShow = evolution.slice(-1);
+    } else if (chartPeriod === '3months') {
+      dataToShow = evolution.slice(-3);
+    } else if (chartPeriod === '6months') {
+      dataToShow = evolution.slice(-6);
     } else if (chartPeriod === 'year') {
-      const currentYear = new Date().getFullYear();
-      dataToShow = evolution.filter((_, i) => i >= 0 && i < 12);
+      dataToShow = evolution.slice(-12);
     }
     const treasurySlice = treasurySeries.slice(-dataToShow.length);
     return dataToShow.map((item: DashboardMetrics["evolutionChart"][number], index: number): ChartDatum => ({
@@ -492,11 +495,31 @@ export default function DashboardPage() {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
-                  setChartPeriod('12months');
+                  setChartPeriod('1month');
                 }}
-                className={`px-3 py-1.5 rounded-lg transition font-medium ${chartPeriod === '12months' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-300'}`}
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${chartPeriod === '1month' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-300'}`}
               >
-                12 mois
+                Mois
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setChartPeriod('3months');
+                }}
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${chartPeriod === '3months' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-300'}`}
+              >
+                3 mois
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setChartPeriod('6months');
+                }}
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${chartPeriod === '6months' ? 'bg-[#0D9488] text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-300'}`}
+              >
+                6 mois
               </button>
               <button
                 type="button"
