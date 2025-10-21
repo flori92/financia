@@ -33,22 +33,27 @@ export function Topbar() {
       if (!target.closest('.profile-menu')) {
         setShowProfileMenu(false);
       }
+      if (!target.closest('.notif-menu')) {
+        setShowNotifMenu(false);
+      }
     };
-    if (showProfileMenu) {
+    if (showProfileMenu || showNotifMenu) {
       setTimeout(() => document.addEventListener('click', handleClickOutside), 0);
       return () => document.removeEventListener('click', handleClickOutside);
     }
-  }, [showProfileMenu]);
+  }, [showProfileMenu, showNotifMenu]);
 
   async function toggleNotifications(e: React.MouseEvent) {
+    e.preventDefault();
     e.stopPropagation();
+    if (showNotifMenu) { 
+      setShowNotifMenu(false); 
+      return; 
+    }
     try {
-      if (showNotifMenu) { 
-        setShowNotifMenu(false); 
-        return; 
-      }
       const cid = getCompanyId();
       if (!cid) { 
+        setAlerts([]);
         setShowNotifMenu(true); 
         return; 
       }
@@ -116,7 +121,7 @@ export function Topbar() {
         >
           Nouvelle écriture
         </button>
-        <div className="relative">
+        <div className="relative notif-menu">
           <button
             type="button"
             onClick={(e) => toggleNotifications(e)}

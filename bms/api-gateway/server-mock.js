@@ -523,6 +523,27 @@ app.get('/api/v1/accounting/close/last', (req, res) => {
   });
 });
 
+app.get('/api/v1/accounting/closure', (req, res) => {
+  res.json([
+    {
+      id: '1',
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+      status: 'Clôturé',
+      createdAt: '2025-01-15'
+    }
+  ]);
+});
+
+app.get('/api/v1/accounting/closure/preview', (req, res) => {
+  res.json({
+    revenue: syscohadaAccounts.filter(a => a.type === 'Produits').reduce((sum, a) => sum + a.balance, 0),
+    expenses: syscohadaAccounts.filter(a => a.type === 'Charges').reduce((sum, a) => sum + a.balance, 0),
+    netProfit: 0,
+    canClose: true
+  });
+});
+
 app.get('/api/v1/tax/vat/return', (req, res) => {
   const collected = syscohadaAccounts.find(a => a.code === '443100')?.balance || 0;
   const deductible = syscohadaAccounts.find(a => a.code === '445200')?.balance || 0;
@@ -622,7 +643,431 @@ app.get('/api/v1/accountant/validation', (req, res) => {
   res.json({ fecStatus: "Valid", lastCheck: "2025-01-15" });
 });
 
+// Marketing endpoints
+app.get('/api/v1/marketing/campaigns', (req, res) => {
+  res.json([
+    {
+      id: '1',
+      name: 'Campagne Janvier 2025',
+      type: 'email',
+      recipients: 1500,
+      sent: 1500,
+      opened: 750,
+      clicked: 225,
+      openRate: 50,
+      clickRate: 15,
+      conversionRate: 8,
+      status: 'active',
+      createdAt: '2025-01-10'
+    },
+    {
+      id: '2',
+      name: 'Promotion Produits',
+      type: 'sms',
+      recipients: 800,
+      sent: 800,
+      opened: 640,
+      clicked: 160,
+      openRate: 80,
+      clickRate: 20,
+      conversionRate: 12,
+      status: 'completed',
+      createdAt: '2025-01-05'
+    },
+    {
+      id: '3',
+      name: 'Newsletter Février',
+      type: 'email',
+      recipients: 2000,
+      sent: 0,
+      opened: 0,
+      clicked: 0,
+      openRate: 0,
+      clickRate: 0,
+      conversionRate: 0,
+      status: 'draft',
+      createdAt: '2025-01-20'
+    }
+  ]);
+});
+
+app.post('/api/v1/marketing/campaigns', (req, res) => {
+  res.json({
+    id: Date.now().toString(),
+    ...req.body,
+    sent: 0,
+    opened: 0,
+    clicked: 0,
+    openRate: 0,
+    clickRate: 0,
+    status: 'draft',
+    createdAt: new Date().toISOString()
+  });
+});
+
+// Support endpoints
+app.get('/api/v1/support/tickets', (req, res) => {
+  res.json([
+    {
+      id: '1',
+      number: 'TKT-2025-001',
+      subject: 'Problème de connexion',
+      customer: 'Ministère Digital',
+      priority: 'high',
+      status: 'open',
+      assignedTo: 'Jean Dupont',
+      createdAt: '2025-01-20T10:00:00Z',
+      description: 'Impossible de se connecter depuis ce matin'
+    },
+    {
+      id: '2',
+      number: 'TKT-2025-002',
+      subject: 'Question sur facturation',
+      customer: 'Banque Atlantique',
+      priority: 'medium',
+      status: 'in_progress',
+      assignedTo: 'Marie Martin',
+      createdAt: '2025-01-19T14:30:00Z',
+      description: 'Comment générer un rapport de facturation mensuel?'
+    },
+    {
+      id: '3',
+      number: 'TKT-2025-003',
+      subject: 'Demande de formation',
+      customer: 'SuperMarché Erevan',
+      priority: 'low',
+      status: 'resolved',
+      assignedTo: 'Paul Dubois',
+      createdAt: '2025-01-18T09:15:00Z',
+      description: 'Formation sur le module comptabilité'
+    },
+    {
+      id: '4',
+      number: 'TKT-2025-004',
+      subject: 'Bug export PDF',
+      customer: 'Coopérative Agricole',
+      priority: 'high',
+      status: 'in_progress',
+      assignedTo: 'Jean Dupont',
+      createdAt: '2025-01-21T11:00:00Z',
+      description: 'Erreur lors de l\'export des factures en PDF'
+    },
+    {
+      id: '5',
+      number: 'TKT-2024-150',
+      subject: 'Mise à jour réussie',
+      customer: 'SARL TechAfrique',
+      priority: 'low',
+      status: 'closed',
+      assignedTo: 'Marie Martin',
+      createdAt: '2024-12-15T16:00:00Z',
+      description: 'Confirmation de la mise à jour du système'
+    }
+  ]);
+});
+
+app.post('/api/v1/support/tickets', (req, res) => {
+  res.json({
+    id: Date.now().toString(),
+    number: `TKT-2025-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+    ...req.body,
+    status: 'open',
+    createdAt: new Date().toISOString()
+  });
+});
+
+app.get('/api/v1/support/tickets/:id', (req, res) => {
+  res.json({
+    id: req.params.id,
+    number: 'TKT-2025-001',
+    subject: 'Problème de connexion',
+    customer: 'Ministère Digital',
+    priority: 'high',
+    status: 'open',
+    assignedTo: 'Jean Dupont',
+    createdAt: '2025-01-20T10:00:00Z',
+    description: 'Impossible de se connecter depuis ce matin',
+    comments: [
+      {
+        id: '1',
+        author: 'Jean Dupont',
+        text: 'Ticket pris en charge, investigation en cours',
+        createdAt: '2025-01-20T10:15:00Z'
+      }
+    ]
+  });
+});
+
+app.patch('/api/v1/support/tickets/:id', (req, res) => {
+  res.json({
+    id: req.params.id,
+    ...req.body,
+    updatedAt: new Date().toISOString()
+  });
+});
+
+// Communications endpoints
+app.get('/api/v1/communications/emails', (req, res) => {
+  res.json([
+    { id: '1', from: 'client@example.com', subject: 'Demande de devis', preview: 'Bonjour, je souhaiterais obtenir un devis pour...', date: '2025-01-20', read: false, starred: false, folder: 'inbox', hasAttachment: false },
+    { id: '2', from: 'fournisseur@example.com', subject: 'Facture #2025-001', preview: 'Veuillez trouver ci-joint la facture...', date: '2025-01-19', read: true, starred: true, folder: 'inbox', hasAttachment: true },
+    { id: '3', from: 'contact@client.com', subject: 'Confirmation commande', preview: 'Nous confirmons votre commande...', date: '2025-01-18', read: true, starred: false, folder: 'sent', hasAttachment: false }
+  ]);
+});
+
+app.get('/api/v1/communications/templates', (req, res) => {
+  res.json([
+    { id: '1', name: 'Relance Facture', channel: 'email', category: 'reminder', subject: 'Rappel: Facture impayée', content: 'Bonjour {nom}, nous vous rappelons que la facture {numero} est en attente de paiement...', usageCount: 45 },
+    { id: '2', name: 'Confirmation Commande', channel: 'email', category: 'notification', subject: 'Votre commande {numero}', content: 'Merci pour votre commande. Nous la traitons...', usageCount: 120 },
+    { id: '3', name: 'Relance SMS', channel: 'sms', category: 'reminder', content: 'Rappel: Facture {numero} échue. Montant: {montant} FCFA', usageCount: 78 },
+    { id: '4', name: 'Promo WhatsApp', channel: 'whatsapp', category: 'marketing', content: 'Offre spéciale! -20% sur tous nos produits ce mois-ci', usageCount: 34 }
+  ]);
+});
+
+app.get('/api/v1/communications/sms', (req, res) => {
+  res.json([
+    { id: '1', recipient: 'Client A', message: 'Rappel: Facture FA-001 échue. Montant: 500000 FCFA', type: 'reminder', status: 'delivered', sentAt: '2025-01-20T10:00:00Z', cost: 25 },
+    { id: '2', recipient: 'Client B', message: 'Votre commande CMD-123 est prête', type: 'notification', status: 'delivered', sentAt: '2025-01-20T09:30:00Z', cost: 25 },
+    { id: '3', recipient: 'Client C', message: 'Promo: -15% sur tous nos services', type: 'marketing', status: 'sent', sentAt: '2025-01-20T08:00:00Z', cost: 25 },
+    { id: '4', recipient: 'Client D', message: 'Rappel: Paiement en attente', type: 'reminder', status: 'pending', sentAt: '2025-01-20T11:00:00Z', cost: 25 }
+  ]);
+});
+
+app.get('/api/v1/communications/whatsapp', (req, res) => {
+  res.json([
+    { id: '1', contact: 'Client A', phone: '+229 97 00 00 01', message: 'Bonjour, votre facture FA-001 est disponible', type: 'notification', status: 'read', sentAt: '2025-01-20T10:00:00Z' },
+    { id: '2', contact: 'Client B', phone: '+229 97 00 00 02', message: 'Rappel: Paiement échéance demain', type: 'reminder', status: 'delivered', sentAt: '2025-01-20T09:00:00Z' },
+    { id: '3', contact: 'Client C', phone: '+229 97 00 00 03', message: 'Offre spéciale ce mois-ci!', type: 'marketing', status: 'sent', sentAt: '2025-01-20T08:00:00Z' }
+  ]);
+});
+
+// Entrepreneur endpoints
+app.get('/api/v1/entrepreneur/dashboard', (req, res) => {
+  res.json({
+    sales: 2500000,
+    salesGrowth: 15,
+    expenses: 1200000,
+    expensesGrowth: 8,
+    customers: 45,
+    newCustomers: 7,
+    creditScore: 85,
+    nif: 'BJ123456789',
+    rccm: 'RB/COT/2024/A/123',
+    taxRegime: 'Réel Simplifié',
+    legalStatus: 'SARL',
+    recentTransactions: [
+      { id: '1', type: 'sale', description: 'Vente produit A', amount: 150000, date: '2025-01-20' },
+      { id: '2', type: 'expense', description: 'Achat matières premières', amount: 80000, date: '2025-01-19' },
+      { id: '3', type: 'sale', description: 'Prestation service', amount: 200000, date: '2025-01-18' }
+    ],
+    notifications: [
+      { id: '1', type: 'warning', title: 'Déclaration TVA', message: 'À déposer avant le 15/02/2025' },
+      { id: '2', type: 'info', title: 'Nouveau client', message: '3 nouveaux clients cette semaine' },
+      { id: '3', type: 'success', title: 'Paiement reçu', message: 'Facture FA-045 payée' }
+    ]
+  });
+});
+
+// Tax Admin endpoints
+app.get('/api/v1/tax-admin/dashboard', (req, res) => {
+  res.json({
+    activeCompanies: 1250,
+    newCompanies: 45,
+    pendingDeclarations: 78,
+    monthlyRevenue: 450000000,
+    revenueGrowth: 12,
+    anomalies: 15,
+    compliantCompanies: 1050,
+    lateCompanies: 150,
+    nonCompliantCompanies: 50,
+    recentDeclarations: [
+      { id: '1', company: 'SARL TechAfrique', type: 'TVA', period: 'Janvier 2025', amount: 2500000, status: 'validated' },
+      { id: '2', company: 'SA Commerce Plus', type: 'IS', period: 'T4 2024', amount: 8500000, status: 'pending' },
+      { id: '3', company: 'EURL AgriPro', type: 'TVA', period: 'Janvier 2025', amount: 1200000, status: 'validated' }
+    ],
+    sectorStats: [
+      { name: 'Commerce', companies: 450, revenue: 180000000, complianceRate: 85 },
+      { name: 'Services', companies: 380, revenue: 150000000, complianceRate: 90 },
+      { name: 'Industrie', companies: 220, revenue: 95000000, complianceRate: 78 },
+      { name: 'Agriculture', companies: 200, revenue: 25000000, complianceRate: 72 }
+    ]
+  });
+});
+
+// Bank Partner endpoints
+app.get('/api/v1/bank-partner/dashboard', (req, res) => {
+  res.json({
+    activeClients: 850,
+    newClients: 32,
+    activeLoans: 245,
+    loanAmount: 1250000000,
+    repaymentRate: 94,
+    pendingApplications: 18,
+    excellentScore: 120,
+    goodScore: 85,
+    averageScore: 45,
+    poorScore: 12,
+    recentApplications: [
+      { id: '1', clientName: 'Jean Kouassi', business: 'Commerce alimentaire', amount: 5000000, creditScore: 82, duration: 12, status: 'approved' },
+      { id: '2', clientName: 'Marie Dossou', business: 'Salon de coiffure', amount: 2000000, creditScore: 68, duration: 6, status: 'pending' },
+      { id: '3', clientName: 'Paul Agbodjan', business: 'Transport', amount: 8000000, creditScore: 75, duration: 24, status: 'approved' }
+    ],
+    loanPortfolio: [
+      { id: '1', clientName: 'Jean Kouassi', business: 'Commerce', amount: 5000000, repaid: 2500000, remaining: 2500000, dueDate: '2025-12-31', status: 'current' },
+      { id: '2', clientName: 'Marie Dossou', business: 'Services', amount: 3000000, repaid: 2000000, remaining: 1000000, dueDate: '2025-06-30', status: 'current' },
+      { id: '3', clientName: 'Paul Agbodjan', business: 'Transport', amount: 8000000, repaid: 3000000, remaining: 5000000, dueDate: '2026-01-31', status: 'late' }
+    ]
+  });
+});
+
+// Communications endpoints
+app.get('/api/v1/communications/emails', (req, res) => {
+  res.json([
+    { id: '1', from: 'client@example.com', subject: 'Demande de devis', preview: 'Bonjour, je souhaiterais obtenir un devis pour...', date: '2025-01-20T10:00:00Z', read: false, starred: false, hasAttachment: false, folder: 'inbox' },
+    { id: '2', from: 'fournisseur@example.com', subject: 'Facture #2025-001', preview: 'Veuillez trouver ci-joint la facture...', date: '2025-01-19T14:30:00Z', read: true, starred: true, hasAttachment: true, folder: 'inbox' },
+    { id: '3', from: 'contact@client.com', subject: 'Confirmation commande', preview: 'Nous confirmons votre commande...', date: '2025-01-18T09:15:00Z', read: true, starred: false, hasAttachment: false, folder: 'sent' }
+  ]);
+});
+
+app.get('/api/v1/communications/templates', (req, res) => {
+  res.json([
+    { id: '1', name: 'Relance Facture', channel: 'email', category: 'reminder', subject: 'Rappel: Facture impayée', content: 'Bonjour {nom}, Nous vous rappelons que la facture {numero} d\'un montant de {montant} FCFA est en attente de paiement.', usageCount: 45 },
+    { id: '2', name: 'Confirmation Commande', channel: 'email', category: 'notification', subject: 'Votre commande #{numero}', content: 'Bonjour {nom}, Votre commande a bien été enregistrée et sera traitée dans les plus brefs délais.', usageCount: 120 },
+    { id: '3', name: 'Relance SMS', channel: 'sms', category: 'reminder', content: 'Rappel: Facture {numero} impayée. Montant: {montant} FCFA. Merci de régulariser.', usageCount: 78 },
+    { id: '4', name: 'Notification WhatsApp', channel: 'whatsapp', category: 'notification', content: 'Bonjour {nom}, Votre facture {numero} est disponible. Montant: {montant} FCFA.', usageCount: 92 },
+    { id: '5', name: 'Promotion Email', channel: 'email', category: 'marketing', subject: 'Offre spéciale pour vous!', content: 'Profitez de notre offre exceptionnelle: {offre}. Valable jusqu\'au {date}.', usageCount: 35 }
+  ]);
+});
+
+app.post('/api/v1/communications/templates', (req, res) => {
+  res.json({
+    id: Date.now().toString(),
+    ...req.body,
+    usageCount: 0,
+    createdAt: new Date().toISOString()
+  });
+});
+
+app.get('/api/v1/communications/sms', (req, res) => {
+  res.json([
+    { id: '1', recipient: '+229 97 12 34 56', message: 'Rappel: Facture FA-2025-001 impayée. Montant: 500,000 FCFA.', type: 'reminder', status: 'delivered', sentAt: '2025-01-20T10:00:00Z', cost: 25 },
+    { id: '2', recipient: '+229 96 23 45 67', message: 'Votre commande CMD-2025-045 a été expédiée.', type: 'notification', status: 'delivered', sentAt: '2025-01-19T15:30:00Z', cost: 25 },
+    { id: '3', recipient: '+229 95 34 56 78', message: 'Promotion: -20% sur tous nos produits ce weekend!', type: 'marketing', status: 'sent', sentAt: '2025-01-18T09:00:00Z', cost: 25 },
+    { id: '4', recipient: '+229 94 45 67 89', message: 'Votre paiement de 250,000 FCFA a bien été reçu. Merci!', type: 'notification', status: 'pending', sentAt: '2025-01-21T11:00:00Z', cost: 25 },
+    { id: '5', recipient: '+229 93 56 78 90', message: 'Rappel: Rendez-vous demain à 14h pour signature contrat.', type: 'reminder', status: 'failed', sentAt: '2025-01-17T16:00:00Z', cost: 0 }
+  ]);
+});
+
+app.post('/api/v1/communications/sms', (req, res) => {
+  res.json({
+    id: Date.now().toString(),
+    ...req.body,
+    status: 'pending',
+    sentAt: new Date().toISOString(),
+    cost: 25
+  });
+});
+
+app.get('/api/v1/communications/whatsapp', (req, res) => {
+  res.json([
+    { id: '1', contact: 'Jean Dupont', phone: '+229 97 12 34 56', message: 'Bonjour, votre facture FA-2025-001 est disponible.', type: 'notification', status: 'read', sentAt: '2025-01-20T10:00:00Z' },
+    { id: '2', contact: 'Marie Martin', phone: '+229 96 23 45 67', message: 'Rappel: Paiement en attente pour la facture FA-2025-002.', type: 'reminder', status: 'delivered', sentAt: '2025-01-19T15:30:00Z' },
+    { id: '3', contact: 'Paul Dubois', phone: '+229 95 34 56 78', message: 'Nouvelle promotion disponible! Consultez notre catalogue.', type: 'marketing', status: 'sent', sentAt: '2025-01-18T09:00:00Z' },
+    { id: '4', contact: 'Sophie Laurent', phone: '+229 94 45 67 89', message: 'Confirmation: Votre commande a été expédiée.', type: 'notification', status: 'read', sentAt: '2025-01-17T14:00:00Z' }
+  ]);
+});
+
+app.post('/api/v1/communications/whatsapp', (req, res) => {
+  res.json({
+    id: Date.now().toString(),
+    ...req.body,
+    status: 'sent',
+    sentAt: new Date().toISOString()
+  });
+});
+
+// Entrepreneur dashboard
+app.get('/api/v1/entrepreneur/dashboard', (req, res) => {
+  res.json({
+    sales: 2500000,
+    salesGrowth: 15,
+    expenses: 1800000,
+    expensesGrowth: 8,
+    customers: 45,
+    newCustomers: 7,
+    creditScore: 85,
+    nif: 'BJ123456789',
+    rccm: 'RB/COT/2024/A/123',
+    taxRegime: 'Régime Simplifié',
+    legalStatus: 'SARL',
+    recentTransactions: [
+      { id: '1', type: 'sale', description: 'Vente produits', amount: 150000, date: '2025-01-20' },
+      { id: '2', type: 'expense', description: 'Achat matières premières', amount: 80000, date: '2025-01-19' },
+      { id: '3', type: 'sale', description: 'Prestation service', amount: 200000, date: '2025-01-18' },
+      { id: '4', type: 'expense', description: 'Loyer boutique', amount: 50000, date: '2025-01-17' }
+    ],
+    notifications: [
+      { id: '1', type: 'warning', title: 'Déclaration TVA', message: 'Votre déclaration TVA est due le 15/02/2025' },
+      { id: '2', type: 'info', title: 'Nouveau client', message: '3 nouveaux clients cette semaine' },
+      { id: '3', type: 'success', title: 'Paiement reçu', message: 'Paiement de 150,000 FCFA reçu' }
+    ]
+  });
+});
+
+// Tax admin dashboard
+app.get('/api/v1/tax-admin/dashboard', (req, res) => {
+  res.json({
+    activeCompanies: 1250,
+    newCompanies: 45,
+    pendingDeclarations: 78,
+    monthlyRevenue: 125000000,
+    revenueGrowth: 12,
+    anomalies: 15,
+    compliantCompanies: 1050,
+    lateCompanies: 150,
+    nonCompliantCompanies: 50,
+    recentDeclarations: [
+      { id: '1', company: 'SARL TechAfrique', type: 'TVA', period: 'Janvier 2025', amount: 2500000, status: 'validated' },
+      { id: '2', company: 'SA Commerce Plus', type: 'IS', period: 'T4 2024', amount: 5000000, status: 'pending' },
+      { id: '3', company: 'EURL AgriPro', type: 'TVA', period: 'Janvier 2025', amount: 1200000, status: 'validated' }
+    ],
+    sectorStats: [
+      { name: 'Commerce', companies: 450, revenue: 45000000, complianceRate: 85 },
+      { name: 'Services', companies: 380, revenue: 38000000, complianceRate: 90 },
+      { name: 'Industrie', companies: 220, revenue: 28000000, complianceRate: 78 },
+      { name: 'Agriculture', companies: 200, revenue: 14000000, complianceRate: 72 }
+    ]
+  });
+});
+
+// Bank partner dashboard
+app.get('/api/v1/bank-partner/dashboard', (req, res) => {
+  res.json({
+    activeClients: 850,
+    newClients: 32,
+    activeLoans: 245,
+    loanAmount: 450000000,
+    repaymentRate: 94,
+    pendingApplications: 18,
+    excellentScore: 120,
+    goodScore: 85,
+    averageScore: 45,
+    poorScore: 12,
+    recentApplications: [
+      { id: '1', clientName: 'Jean Kouassi', business: 'Commerce alimentaire', amount: 2000000, creditScore: 85, duration: 12, status: 'approved' },
+      { id: '2', clientName: 'Marie Adjovi', business: 'Salon de coiffure', amount: 1500000, creditScore: 72, duration: 18, status: 'pending' },
+      { id: '3', clientName: 'Paul Dossou', business: 'Transport', amount: 5000000, creditScore: 68, duration: 24, status: 'pending' }
+    ],
+    loanPortfolio: [
+      { id: '1', clientName: 'Sophie Akakpo', business: 'Restaurant', amount: 3000000, repaid: 2000000, remaining: 1000000, dueDate: '2025-12-31', status: 'current' },
+      { id: '2', clientName: 'Marc Hounnou', business: 'Boutique', amount: 2500000, repaid: 1500000, remaining: 1000000, dueDate: '2025-06-30', status: 'current' },
+      { id: '3', clientName: 'Alice Gbedo', business: 'Artisanat', amount: 1800000, repaid: 800000, remaining: 1000000, dueDate: '2025-03-31', status: 'late' }
+    ]
+  });
+});
+
 app.all('*', (req, res) => {
+  console.log(`404 - ${req.method} ${req.path}`);
   res.status(404).json({ error: 'Not Found', path: req.path });
 });
 

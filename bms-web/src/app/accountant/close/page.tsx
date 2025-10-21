@@ -30,10 +30,41 @@ export default function ClosePeriodPage() {
     }
   }
 
+  function normalizePreview(raw: any) {
+    if (!raw || typeof raw !== 'object') {
+      return null;
+    }
+    const asNumber = (value: any): number => {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+      if (typeof value === 'string' && value.trim() !== '') {
+        const parsed = Number(value.replace(/\s/g, '').replace(',', '.'));
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+      return 0;
+    };
+
+    return {
+      ...raw,
+      totalRevenues: asNumber(raw.totalRevenues ?? raw.revenues ?? 0),
+      totalExpenses: asNumber(raw.totalExpenses ?? raw.expenses ?? 0),
+      result: asNumber(raw.result ?? raw.resultAmount ?? (asNumber(raw.totalRevenues) - asNumber(raw.totalExpenses))),
+      canClose: Boolean(raw.canClose),
+    };
+  }
+
   async function calculatePreview() {
     const cid = getCompanyId();
     if (!cid) { showError('Aucune société sélectionnée'); return; }
     if (!startDate || !endDate) { showError('Dates requises'); return; }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (start > end) {
+      showError('La date de début doit être antérieure à la date de fin');
+      return;
+    }
     
     setLoading(true);
     try {
@@ -42,14 +73,20 @@ export default function ClosePeriodPage() {
         startDate, 
         endDate 
       });
-      setPreview(data);
-      if (!data.canClose) {
-        showError(data.reason || 'Impossible de clôturer');
+      const normalized = normalizePreview(data);
+      if (!normalized) {
+        showError('Réponse inattendue du serveur');
+        setPreview(null);
+        return;
+      }
+      setPreview(normalized);
+      if (!normalized.canClose) {
+        showError(normalized.reason || 'Impossible de clôturer');
       } else {
         showSuccess('Calcul effectué');
       }
     } catch (e: any) {
-      showError(String(e));
+      showError(e?.message ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -82,7 +119,10 @@ export default function ClosePeriodPage() {
 
   useEffect(() => { refresh(); }, []);
 
-  const nf = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const nf = (value: number) => {
+    const safeValue = Number.isFinite(value) ? value : 0;
+    return safeValue.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  };
 
   return (
     <div className="space-y-6">
