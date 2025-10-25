@@ -1,11 +1,13 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, Filter, Upload, Camera, X } from "lucide-react";
+import { Plus, Search, Filter, Upload, Camera, X, Info } from "lucide-react";
 
 export default function JournalPage() {
   const [entries, setEntries] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showOcrModal, setShowOcrModal] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -16,6 +18,11 @@ export default function JournalPage() {
     maxAmount: "",
     status: ""
   });
+
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3200);
+  };
 
   useEffect(() => {
     loadData();
@@ -105,11 +112,17 @@ export default function JournalPage() {
           <p className="text-gray-600">Saisie et consultation des écritures comptables</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+          <button
+            onClick={() => setShowOcrModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+          >
             <Camera className="w-4 h-4" />
             OCR Facture
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+          <button
+            onClick={() => triggerToast("info", "Import de fichiers comptables disponible prochainement.")}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
             <Upload className="w-4 h-4" />
             Import
           </button>
@@ -145,6 +158,13 @@ export default function JournalPage() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-dashed border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+          <Info className="w-4 h-4 mt-0.5" />
+          <span>
+            Les fonctionnalités d&apos;OCR et d&apos;import s&apos;appuieront sur un connecteur DGI à venir. Cette section simule l&apos;interface finale.
+          </span>
+        </div>
+
         <div className="flex items-center gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -311,6 +331,67 @@ export default function JournalPage() {
           </table>
         </div>
       </div>
+
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-[60] rounded-lg px-4 py-3 text-sm shadow-lg ${
+            toast.type === "success"
+              ? "bg-emerald-600 text-white"
+              : toast.type === "error"
+                ? "bg-rose-600 text-white"
+                : "bg-slate-900 text-white"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
+
+      {showOcrModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between border-b px-6 py-4">
+              <div>
+                <h2 className="text-lg font-semibold">OCR facture – Prototype</h2>
+                <p className="text-sm text-gray-500">Déposez une facture PDF ou photo pour extraction automatique.</p>
+              </div>
+              <button onClick={() => setShowOcrModal(false)} className="rounded-lg p-2 hover:bg-gray-100">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-4 px-6 py-5 text-sm text-gray-600">
+              <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+                <p className="font-medium text-gray-700">Glissez-déposez votre facture ici</p>
+                <p className="mt-1 text-xs text-gray-500">Formats acceptés : PDF, JPG, PNG – 10 Mo max (simulation)</p>
+                <button
+                  onClick={() => triggerToast("success", "Extraction OCR simulée : données prêtes à être validées.")}
+                  className="mt-4 rounded-lg bg-[#0D9488] px-4 py-2 text-sm font-medium text-white hover:bg-[#0B7C74]"
+                >
+                  Lancer l&apos;extraction
+                </button>
+              </div>
+              <ul className="space-y-2 text-xs text-gray-500">
+                <li>• Lecture automatique des montants TTC/HT, TVA et date.</li>
+                <li>• Reconnaissance du fournisseur via le NIF / RCCM.</li>
+                <li>• Génération d&apos;une écriture 6/401 prête à valider.</li>
+              </ul>
+            </div>
+            <div className="flex justify-end gap-2 border-t px-6 py-4">
+              <button onClick={() => setShowOcrModal(false)} className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50">
+                Fermer
+              </button>
+              <button
+                onClick={() => {
+                  triggerToast("info", "Intégration API OCR planifiée sprint Q1.");
+                  setShowOcrModal(false);
+                }}
+                className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+              >
+                Notifier l&apos;équipe produit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAddForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">

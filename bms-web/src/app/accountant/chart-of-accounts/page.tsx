@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Plus, Search, Filter, Download, Upload } from "lucide-react";
+import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
 
 export default function ChartOfAccountsPage() {
   const [accounts] = useState([
@@ -10,6 +10,39 @@ export default function ChartOfAccountsPage() {
     { code: "701000", name: "Ventes de marchandises", type: "Produits", balance: -150000 },
     { code: "607000", name: "Achats de marchandises", type: "Charges", balance: 80000 }
   ]);
+  const [showModal, setShowModal] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "info"; message: string } | null>(null);
+  const [activeAction, setActiveAction] = useState<{ type: "import" | "export" | "create" | "edit"; payload?: any } | null>(null);
+
+  const triggerToast = (type: "success" | "info", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 2800);
+  };
+
+  const handleImport = () => {
+    setActiveAction({ type: "import" });
+    triggerToast("info", "Import CSV/Excel disponible prochainement.");
+  };
+
+  const handleExport = () => {
+    setActiveAction({ type: "export" });
+    triggerToast("success", "Export du plan comptable généré (simulation)." );
+  };
+
+  const openCreateModal = () => {
+    setActiveAction({ type: "create" });
+    setShowModal(true);
+  };
+
+  const openEditModal = (account: typeof accounts[number]) => {
+    setActiveAction({ type: "edit", payload: account });
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setActiveAction(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -19,15 +52,24 @@ export default function ChartOfAccountsPage() {
           <p className="text-gray-600">Gestion du plan comptable multi-dimensionnel</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+          <button
+            onClick={handleImport}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
             <Upload className="w-4 h-4" />
             Importer
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
             <Download className="w-4 h-4" />
             Exporter
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]">
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
+          >
             <Plus className="w-4 h-4" />
             Nouveau compte
           </button>
@@ -71,7 +113,10 @@ export default function ChartOfAccountsPage() {
                     {new Intl.NumberFormat('fr-FR').format(Math.abs(account.balance))} FCFA
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <button className="text-[#0D9488] hover:text-[#0B7C74] text-sm font-medium">
+                    <button
+                      onClick={() => openEditModal(account)}
+                      className="text-[#0D9488] hover:text-[#0B7C74] text-sm font-medium"
+                    >
                       Modifier
                     </button>
                   </td>
@@ -81,6 +126,85 @@ export default function ChartOfAccountsPage() {
           </table>
         </div>
       </div>
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
+            toast.type === "success" ? "bg-emerald-600 text-white" : "bg-slate-800 text-white"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">
+                  {activeAction?.type === "edit" ? "Modifier un compte" : "Créer un compte"}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Formulaire simulé — connexion API à venir.
+                </p>
+              </div>
+              <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Code</label>
+                <input
+                  type="text"
+                  defaultValue={activeAction?.payload?.code || "70XXXX"}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Libellé</label>
+                <input
+                  type="text"
+                  defaultValue={activeAction?.payload?.name || "Compte de test"}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Type</label>
+                  <select className="mt-1 w-full border rounded-lg px-3 py-2" defaultValue={activeAction?.payload?.type || "Charges"}>
+                    <option>Actif</option>
+                    <option>Passif</option>
+                    <option>Charges</option>
+                    <option>Produits</option>
+                    <option>Capitaux propres</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Solde initial</label>
+                  <input type="number" className="mt-1 w-full border rounded-lg px-3 py-2" defaultValue={activeAction?.payload?.balance || 0} />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button onClick={closeModal} className="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                Annuler
+              </button>
+              <button
+                onClick={() => {
+                  triggerToast("success", "Enregistrement simulé.");
+                  closeModal();
+                }}
+                className="px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
+              >
+                Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

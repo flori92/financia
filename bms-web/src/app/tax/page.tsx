@@ -1,11 +1,18 @@
 "use client";
 
+import Link from "next/link";
+
 export default function TaxPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Fiscalité</h1>
-        <button className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]">Nouvelle déclaration</button>
+        <Link
+          href="/tax/declarations"
+          className="rounded-md bg-app-primary text-white text-sm px-3 py-2 hover:bg-[#0F766E]"
+        >
+          Nouvelle déclaration
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -41,9 +48,26 @@ export default function TaxPage() {
           <div className="card p-4">
             <div className="font-medium">Ressources utiles</div>
             <ul className="mt-2 text-sm text-app-primary space-y-1">
-              <li><a href="#">Direction Générale des Impôts</a></li>
-              <li><a href="#">Guide Fiscal BJ</a></li>
-              <li><a href="#">Modèles & formulaires</a></li>
+              <li>
+                <a
+                  href="https://e-services.impots.bj/login-facile"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  Téléservices DGI (e-services)
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://sygmef.impots.bj/emcf/Vsfe"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  Portail SIGMEF - Déclaration fiscale
+                </a>
+              </li>
             </ul>
           </div>
         </div>

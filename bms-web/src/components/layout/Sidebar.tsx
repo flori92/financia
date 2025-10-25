@@ -64,9 +64,14 @@ export function Sidebar() {
       onMouseLeave={() => !isLocked && setIsExpanded(false)}
     >
       <div className="h-14 flex items-center justify-between px-5 border-b border-white/5">
-        <div className={clsx("text-xl font-bold tracking-tight transition-opacity duration-200", isExpanded || isLocked ? "opacity-100" : "opacity-0")}>
-          BMS
-        </div>
+        {isExpanded || isLocked ? (
+          <div>
+            <div className="text-xl font-bold tracking-tight">BMS</div>
+            <div className="text-xs text-white/60">Solution Comptable</div>
+          </div>
+        ) : (
+          <div className="text-xl font-bold tracking-tight">BMS</div>
+        )}
         <button
           onClick={() => setIsLocked(!isLocked)}
           className="p-1.5 hover:bg-white/10 rounded-md transition-colors"

@@ -15,6 +15,13 @@ export default function TrialBalancePage() {
   const totalDebit = balanceData.reduce((sum, item) => sum + item.debit, 0);
   const totalCredit = balanceData.reduce((sum, item) => sum + item.credit, 0);
 
+  const [toast, setToast] = useState<{ type: "success" | "info"; message: string } | null>(null);
+
+  const triggerToast = (type: "success" | "info", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 2600);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -23,11 +30,17 @@ export default function TrialBalancePage() {
           <p className="text-gray-600">Balance des comptes au 31/01/2025</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+          <button
+            onClick={() => triggerToast("info", "Impression PDF disponible prochainement.")}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
             <Printer className="w-4 h-4" />
             Imprimer
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]">
+          <button
+            onClick={() => triggerToast("success", "Export XLS généré (simulation).")}
+            className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
+          >
             <Download className="w-4 h-4" />
             Exporter
           </button>
@@ -92,6 +105,15 @@ export default function TrialBalancePage() {
           </table>
         </div>
       </div>
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
+            toast.type === "success" ? "bg-emerald-600 text-white" : "bg-slate-800 text-white"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }

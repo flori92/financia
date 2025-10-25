@@ -189,9 +189,9 @@ export function ModernSidebar() {
       {/* Header */}
       <div className="p-4 border-b border-white/10 sticky top-0 bg-[#0F3D3A] z-10 flex items-center justify-between min-h-[80px]">
         <div className="flex items-center gap-3">
-          <div className="text-2xl font-bold flex-shrink-0">B</div>
+          <div className="text-2xl font-bold flex-shrink-0 sidebar-logo-compact">BMS</div>
           <div className="sidebar-content">
-            <div className="text-lg font-bold">BMS ERP</div>
+            <div className="text-lg font-bold">BMS</div>
             <div className="text-xs text-white/60">Solution Comptable</div>
           </div>
         </div>
@@ -313,6 +313,16 @@ export function ModernSidebar() {
           opacity: 0;
           transition: opacity 0.3s ease;
           white-space: nowrap;
+        }
+
+        .sidebar-logo-compact {
+          transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-logo-compact,
+        .sidebar.locked .sidebar-logo-compact {
+          opacity: 0;
+          display: none;
         }
         
         .sidebar:hover .sidebar-content,
