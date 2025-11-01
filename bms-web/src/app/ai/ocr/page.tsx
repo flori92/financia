@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info } from "lucide-react";
+import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info, PenTool } from "lucide-react";
 
 type DocumentType = "invoice" | "receipt" | "bank_statement";
 
@@ -19,6 +19,9 @@ export default function OcrPage() {
   const [result, setResult] = useState<OcrResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState<any>(null);
+  const [modifiedFields, setModifiedFields] = useState<Set<string>>(new Set());
 
   const documentTypes: { value: DocumentType; label: string; icon: typeof FileText; description: string }[] = [
     { value: "invoice", label: "Facture", icon: FileText, description: "Extraction de factures fournisseurs" },
@@ -90,6 +93,11 @@ export default function OcrPage() {
         data,
         extractedAt: new Date().toISOString(),
       });
+      
+      // Initialiser les données éditables
+      setEditedData(JSON.parse(JSON.stringify(data)));
+      setIsEditing(false);
+      setModifiedFields(new Set());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
     } finally {
@@ -97,32 +105,137 @@ export default function OcrPage() {
     }
   };
 
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditedData(JSON.parse(JSON.stringify(result?.data)));
+    setModifiedFields(new Set());
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (result && editedData) {
+      setResult({
+        ...result,
+        data: editedData,
+      });
+      setIsEditing(false);
+      setModifiedFields(new Set());
+    }
+  };
+
+  const handleFieldChange = (fieldPath: string, value: any) => {
+    if (!editedData) return;
+
+    const newEditedData = { ...editedData };
+    const paths = fieldPath.split('.');
+    let current: any = newEditedData;
+
+    for (let i = 0; i < paths.length - 1; i++) {
+      current = current[paths[i]];
+    }
+    
+    current[paths[paths.length - 1]] = value;
+    
+    setEditedData(newEditedData);
+    setModifiedFields(new Set([...modifiedFields, fieldPath]));
+  };
+
+  const handleItemChange = (index: number, field: string, value: any) => {
+    if (!editedData || !editedData.items) return;
+
+    const newItems = [...editedData.items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    
+    setEditedData({ ...editedData, items: newItems });
+    setModifiedFields(new Set([...modifiedFields, `items.${index}.${field}`]));
+  };
+
+  const renderEditableField = (label: string, fieldPath: string, value: any, type: string = "text") => {
+    const isModified = modifiedFields.has(fieldPath);
+    const displayValue = isEditing ? editedData : result?.data;
+    const paths = fieldPath.split('.');
+    let currentValue = displayValue;
+    for (const path of paths) {
+      currentValue = currentValue?.[path];
+    }
+
+    if (isEditing) {
+      return (
+        <div>
+          <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
+            {label}
+            {isModified && <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">Modifié</span>}
+          </label>
+          <input
+            type={type}
+            value={currentValue || ''}
+            onChange={(e) => handleFieldChange(fieldPath, type === "number" ? parseFloat(e.target.value) : e.target.value)}
+            className={`mt-1 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#0D9488] ${
+              isModified ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+            }`}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <label className="text-sm font-medium text-gray-600">{label}</label>
+        <div className="mt-1 text-lg font-semibold">{type === "number" ? new Intl.NumberFormat("fr-FR").format(currentValue) : currentValue}</div>
+      </div>
+    );
+  };
+
   const renderExtractedData = () => {
     if (!result) return null;
 
     const { data, confidence } = result;
+    const displayData = isEditing ? editedData : data;
 
     if (selectedType === "invoice") {
       return (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-600">N° Facture</label>
-              <div className="mt-1 text-lg font-semibold">{data.invoiceNumber}</div>
-            </div>
+            {renderEditableField("N° Facture", "invoiceNumber", displayData.invoiceNumber)}
             <div>
               <label className="text-sm font-medium text-gray-600">Date</label>
-              <div className="mt-1 text-lg font-semibold">{new Date(data.date).toLocaleDateString("fr-FR")}</div>
+              {isEditing ? (
+                <input
+                  type="date"
+                  value={editedData.date || ''}
+                  onChange={(e) => handleFieldChange('date', e.target.value)}
+                  className={`mt-1 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#0D9488] ${
+                    modifiedFields.has('date') ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                  }`}
+                />
+              ) : (
+                <div className="mt-1 text-lg font-semibold">{new Date(displayData.date).toLocaleDateString("fr-FR")}</div>
+              )}
             </div>
+            {renderEditableField("Fournisseur", "supplierName", displayData.supplierName)}
             <div>
-              <label className="text-sm font-medium text-gray-600">Fournisseur</label>
-              <div className="mt-1 text-lg font-semibold">{data.supplierName}</div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-600">Montant TTC</label>
-              <div className="mt-1 text-lg font-semibold text-[#0D9488]">
-                {new Intl.NumberFormat("fr-FR").format(data.total)} FCFA
-              </div>
+              <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                Montant TTC
+                {modifiedFields.has('total') && <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">Modifié</span>}
+              </label>
+              {isEditing ? (
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editedData.total || ''}
+                  onChange={(e) => handleFieldChange('total', parseFloat(e.target.value))}
+                  className={`mt-1 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#0D9488] ${
+                    modifiedFields.has('total') ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                  }`}
+                />
+              ) : (
+                <div className="mt-1 text-lg font-semibold text-[#0D9488]">
+                  {new Intl.NumberFormat("fr-FR").format(displayData.total)} FCFA
+                </div>
+              )}
             </div>
           </div>
 
@@ -138,12 +251,50 @@ export default function OcrPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.items?.map((item: any, idx: number) => (
-                  <tr key={idx} className="border-b">
-                    <td className="py-2">{item.description}</td>
-                    <td className="text-right">{item.quantity}</td>
-                    <td className="text-right">{new Intl.NumberFormat("fr-FR").format(item.unitPrice)} FCFA</td>
-                    <td className="text-right font-medium">{new Intl.NumberFormat("fr-FR").format(item.total)} FCFA</td>
+                {displayData.items?.map((item: any, idx: number) => (
+                  <tr key={idx} className={`border-b ${modifiedFields.has(`items.${idx}`) ? 'bg-amber-50' : ''}`}>
+                    <td className="py-2">
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editedData.items[idx].description || ''}
+                          onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
+                          className="w-full px-2 py-1 border rounded"
+                        />
+                      ) : item.description}
+                    </td>
+                    <td className="text-right">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          value={editedData.items[idx].quantity || ''}
+                          onChange={(e) => handleItemChange(idx, 'quantity', parseInt(e.target.value))}
+                          className="w-20 px-2 py-1 border rounded text-right"
+                        />
+                      ) : item.quantity}
+                    </td>
+                    <td className="text-right">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={editedData.items[idx].unitPrice || ''}
+                          onChange={(e) => handleItemChange(idx, 'unitPrice', parseFloat(e.target.value))}
+                          className="w-28 px-2 py-1 border rounded text-right"
+                        />
+                      ) : `${new Intl.NumberFormat("fr-FR").format(item.unitPrice)} FCFA`}
+                    </td>
+                    <td className="text-right font-medium">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={editedData.items[idx].total || ''}
+                          onChange={(e) => handleItemChange(idx, 'total', parseFloat(e.target.value))}
+                          className="w-32 px-2 py-1 border rounded text-right"
+                        />
+                      ) : `${new Intl.NumberFormat("fr-FR").format(item.total)} FCFA`}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -151,17 +302,53 @@ export default function OcrPage() {
           </div>
 
           <div className="border-t pt-4 space-y-2">
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm items-center">
               <span>Sous-total HT</span>
-              <span>{new Intl.NumberFormat("fr-FR").format(data.subtotal)} FCFA</span>
+              {isEditing ? (
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editedData.subtotal || ''}
+                  onChange={(e) => handleFieldChange('subtotal', parseFloat(e.target.value))}
+                  className={`w-40 px-3 py-1 border rounded text-right ${
+                    modifiedFields.has('subtotal') ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                  }`}
+                />
+              ) : (
+                <span>{new Intl.NumberFormat("fr-FR").format(displayData.subtotal)} FCFA</span>
+              )}
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm items-center">
               <span>TVA</span>
-              <span>{new Intl.NumberFormat("fr-FR").format(data.vatAmount)} FCFA</span>
+              {isEditing ? (
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editedData.vatAmount || ''}
+                  onChange={(e) => handleFieldChange('vatAmount', parseFloat(e.target.value))}
+                  className={`w-40 px-3 py-1 border rounded text-right ${
+                    modifiedFields.has('vatAmount') ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                  }`}
+                />
+              ) : (
+                <span>{new Intl.NumberFormat("fr-FR").format(displayData.vatAmount)} FCFA</span>
+              )}
             </div>
-            <div className="flex justify-between text-lg font-bold">
+            <div className="flex justify-between text-lg font-bold items-center">
               <span>Total TTC</span>
-              <span className="text-[#0D9488]">{new Intl.NumberFormat("fr-FR").format(data.total)} FCFA</span>
+              {isEditing ? (
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editedData.total || ''}
+                  onChange={(e) => handleFieldChange('total', parseFloat(e.target.value))}
+                  className={`w-40 px-3 py-1 border rounded text-right font-bold ${
+                    modifiedFields.has('total') ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                  }`}
+                />
+              ) : (
+                <span className="text-[#0D9488]">{new Intl.NumberFormat("fr-FR").format(displayData.total)} FCFA</span>
+              )}
             </div>
           </div>
         </div>
@@ -413,13 +600,49 @@ export default function OcrPage() {
               <div className="bg-white rounded-xl border p-6">
                 <h3 className="font-semibold mb-4">Actions</h3>
                 <div className="space-y-3">
-                  <button className="w-full px-4 py-3 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74] transition-colors font-medium">
-                    Créer une écriture comptable
-                  </button>
-                  <button className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                    <Download className="w-4 h-4" />
-                    Exporter en JSON
-                  </button>
+                  {isEditing ? (
+                    <>
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+                        <div className="flex items-center gap-2 text-sm text-amber-800">
+                          <AlertCircle className="w-4 h-4" />
+                          <span className="font-medium">Mode édition activé</span>
+                        </div>
+                        <p className="text-xs text-amber-700 mt-1">
+                          {modifiedFields.size} champ(s) modifié(s)
+                        </p>
+                      </div>
+                      <button 
+                        onClick={handleSaveEdit}
+                        className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Sauvegarder les modifications
+                      </button>
+                      <button 
+                        onClick={handleCancelEdit}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        Annuler
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={handleEdit}
+                        className="w-full px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium flex items-center justify-center gap-2"
+                      >
+                        <PenTool className="w-4 h-4" />
+                        Modifier les données
+                      </button>
+                      <button className="w-full px-4 py-3 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74] transition-colors font-medium">
+                        Créer une écriture comptable
+                      </button>
+                      <button className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                        <Download className="w-4 h-4" />
+                        Exporter en JSON
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </>
