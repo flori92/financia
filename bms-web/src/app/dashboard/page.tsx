@@ -182,7 +182,7 @@ export default function DashboardPage() {
     const treasuryAlerts = (data?.treasuryAlerts?.alerts ?? []) as TreasuryAlert[];
     const tre = treasuryAlerts.map((alert): DashboardAlert => ({
       level: alert.level === "critical" ? "danger" : alert.level === "warning" ? "warning" : "info",
-      title: alert.title,
+      title: alert.title || "Alerte trésorerie",
       message: alert.message
     }));
     const order: Record<AlertLevel, number> = { danger: 0, warning: 1, info: 2 };
