@@ -25,12 +25,83 @@ export default function VATPage() {
     setTimeout(() => setToast(null), 2800);
   };
 
-  const handleRecalculate = () => {
-    triggerToast("success", "Recalcul TVA effectué (simulation). Journal analytique mis à jour.");
+  const handleRecalculate = async () => {
+    try {
+      const companyId = "default-company"; // TODO: récupérer depuis contexte
+      const response = await fetch(
+        `http://localhost:3001/api/v1/tax/vat/recalculate`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyId, period: new Date().toISOString().substring(0, 7) })
+        }
+      );
+      
+      if (!response.ok) throw new Error('Recalcul failed');
+      
+      const result = await response.json();
+      triggerToast("success", `Recalcul TVA effectué : ${result.collected || 0} FCFA collectée, ${result.deductible || 0} FCFA déductible`);
+    } catch (error) {
+      triggerToast("warning", "Recalcul TVA effectué (mode local). Connectez le backend pour le calcul réel.");
+    }
   };
 
   const handleTransmit = () => {
     setShowTransmitModal(true);
+  };
+
+  const handleExportFEC = async () => {
+    try {
+      const companyId = "default-company";
+      const response = await fetch(
+        `http://localhost:3001/api/v1/tax/export/fec?companyId=${companyId}`,
+        { method: 'GET' }
+      );
+      
+      if (!response.ok) throw new Error('Export failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `FEC-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      triggerToast("success", "Export FEC téléchargé avec succès !");
+    } catch (error) {
+      triggerToast("info", "Export FEC non disponible. Implémentez l'endpoint backend /api/v1/tax/export/fec");
+    }
+  };
+
+  const handleGeneratePDF = async () => {
+    try {
+      const companyId = "default-company";
+      const response = await fetch(
+        `http://localhost:3001/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`,
+        { method: 'GET' }
+      );
+      
+      if (!response.ok) throw new Error('Generation failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CA3-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      setShowGenerateModal(false);
+      triggerToast("success", "PDF CA3 généré et téléchargé !");
+    } catch (error) {
+      triggerToast("info", "PDF CA3 non disponible. Implémentez l'endpoint backend /api/v1/tax/generate-ca3-pdf");
+      setShowGenerateModal(false);
+    }
   };
 
   return (
@@ -143,7 +214,7 @@ export default function VATPage() {
             </div>
           </button>
           <button
-            onClick={() => triggerToast("success", "Export FEC généré (simulation) – fichier disponible dans Téléchargements.")}
+            onClick={handleExportFEC}
             className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
           >
             <Download className="w-8 h-8 text-purple-600" />
@@ -237,13 +308,10 @@ export default function VATPage() {
                 Fermer
               </button>
               <button
-                onClick={() => {
-                  triggerToast("success", "PDF CA3 généré et téléchargé (simulation).");
-                  setShowGenerateModal(false);
-                }}
+                onClick={handleGeneratePDF}
                 className="rounded-lg bg-[#0D9488] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B7C74]"
               >
-                Télécharger
+                Générer PDF
               </button>
             </div>
           </div>

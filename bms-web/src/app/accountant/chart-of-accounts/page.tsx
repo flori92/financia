@@ -24,9 +24,31 @@ export default function ChartOfAccountsPage() {
     triggerToast("info", "Import CSV/Excel disponible prochainement.");
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setActiveAction({ type: "export" });
-    triggerToast("success", "Export du plan comptable généré (simulation)." );
+    try {
+      const companyId = "default-company"; // TODO: récupérer depuis contexte
+      const response = await fetch(
+        `http://localhost:3001/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
+        { method: 'GET' }
+      );
+      
+      if (!response.ok) throw new Error('Export failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `plan-comptable-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      triggerToast("success", "Plan comptable exporté avec succès !");
+    } catch (error) {
+      triggerToast("info", "Erreur lors de l'export. Vérifiez que le backend est démarré.");
+    }
   };
 
   const openCreateModal = () => {
