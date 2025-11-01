@@ -5,7 +5,7 @@ import { BankingService } from './banking.service';
 import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAccount } from './entities/bank-account.entity';
 import { Payment } from '../payments/entities/payment.entity';
-import { BankConnectionModule } from './bank-connection/bank-connection.module';
+// import { BankConnectionModule } from './bank-connection/bank-connection.module';
 import { BankReconciliation } from './entities/bank-reconciliation.entity';
 import { JournalEntry } from '../accounting/entities/journal-entry.entity';
 import { JournalEntryLine } from '../accounting/entities/journal-entry-line.entity';
@@ -29,10 +29,10 @@ import { Account } from '../accounting/entities/account.entity';
       JournalEntryLine,
       Account,
     ]),
-    BankConnectionModule,
+    // BankConnectionModule,
   ],
   controllers: [BankingController],
   providers: [BankingService],
-  exports: [BankingService, BankConnectionModule],
+  exports: [BankingService],
 })
 export class BankingModule {}

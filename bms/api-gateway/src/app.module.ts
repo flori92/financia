@@ -4,7 +4,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
-import { CacheModule } from '@nestjs/cache-manager';
 import { TerminusModule } from '@nestjs/terminus';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { PermissionsGuard } from './rbac/guards/permissions.guard';
@@ -78,11 +77,7 @@ import { AppController } from './app.controller';
       }),
     }),
 
-    // Redis Cache
-    CacheModule.register({
-      isGlobal: true,
-      ttl: 300, // 5 minutes par défaut
-    }),
+    // Redis Cache (désactivé temporairement)
 
     // Bull Queue (pour sync async)
     BullModule.forRootAsync({
