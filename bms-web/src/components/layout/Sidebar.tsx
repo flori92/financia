@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -33,6 +33,10 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/bank", label: "Rapprochement Bancaire", icon: Building2 },
   { href: "/accountant/tax/vat", label: "Déclaration TVA", icon: Receipt },
   { href: "/accountant/close", label: "Clôture de Période", icon: Lock },
+  { href: "/accountant/revenue-recognition", label: "Reconnaissance CA", icon: TrendingUp },
+  { href: "/accountant/multi-dimensional-analysis", label: "Analyse Multidimensionnelle", icon: BarChart3 },
+  { href: "/accountant/ml-forecast", label: "Prévision CA ML", icon: Brain },
+  { href: "/accountant/cash-flow-coherence", label: "Cohérence CA Trésorerie", icon: ArrowRightLeft },
 ];
 
 export function Sidebar() {
