@@ -20,6 +20,8 @@ import { ImportCsvDto, ReconcileDto } from './dto/import-csv.dto';
 import { CreateBankAccountDto, UpdateBankAccountDto } from './dto/bank-account.dto';
 import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAccount } from './entities/bank-account.entity';
+import { ReconcileEntryDto } from './dto/reconcile-entry.dto';
+import { BankReconciliation } from './entities/bank-reconciliation.entity';
 
 /**
  * Contrôleur pour la gestion bancaire
@@ -74,6 +76,35 @@ export class BankingController {
     @Query('companyId') companyId: string,
   ): Promise<any[]> {
     return this.bankingService.suggestReconciliation(companyId, id);
+  }
+
+  // =====================
+  // Rapprochement OHADA ↔ JournalEntry
+  // =====================
+
+  @Get('transactions/:id/entry-suggest')
+  @ApiOperation({ summary: "Suggérer des écritures comptables (JournalEntry) à rapprocher" })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({ status: 200, description: 'Écritures suggérées' })
+  async suggestEntry(
+    @Param('id') id: string,
+    @Query('companyId') companyId: string,
+  ) {
+    return this.bankingService.suggestEntryReconciliation(companyId, id);
+  }
+
+  @Post('reconcile-entry')
+  @ApiOperation({ summary: 'Rapprocher une transaction bancaire avec une écriture comptable' })
+  @ApiResponse({ status: 201, description: 'Rapprochement effectué', type: BankReconciliation })
+  async reconcileEntry(@Body() dto: ReconcileEntryDto): Promise<BankReconciliation> {
+    return this.bankingService.reconcileEntry(dto);
+  }
+
+  @Delete('reconciliations/:id')
+  @ApiOperation({ summary: 'Annuler un rapprochement (OHADA)' })
+  @ApiResponse({ status: 200, description: 'Rapprochement annulé' })
+  async deleteReconciliation(@Param('id') id: string): Promise<void> {
+    return this.bankingService.unreconcileEntry(id);
   }
 
   @Post('reconcile')

@@ -107,7 +107,7 @@ import { AppController } from './app.controller';
     InvoicesModule,
     PaymentsModule,
     TreasuryModule,
-    // BankingModule, // Temporairement désactivé
+    BankingModule,
     CrmModule,
     TaxModule,
     MobileMoneyModule,

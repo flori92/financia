@@ -6,6 +6,10 @@ import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAccount } from './entities/bank-account.entity';
 import { Payment } from '../payments/entities/payment.entity';
 import { BankConnectionModule } from './bank-connection/bank-connection.module';
+import { BankReconciliation } from './entities/bank-reconciliation.entity';
+import { JournalEntry } from '../accounting/entities/journal-entry.entity';
+import { JournalEntryLine } from '../accounting/entities/journal-entry-line.entity';
+import { Account } from '../accounting/entities/account.entity';
 
 /**
  * Module de gestion bancaire
@@ -16,8 +20,16 @@ import { BankConnectionModule } from './bank-connection/bank-connection.module';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BankTransaction, BankAccount, Payment]),
-    BankConnectionModule
+    TypeOrmModule.forFeature([
+      BankTransaction,
+      BankAccount,
+      Payment,
+      BankReconciliation,
+      JournalEntry,
+      JournalEntryLine,
+      Account,
+    ]),
+    BankConnectionModule,
   ],
   controllers: [BankingController],
   providers: [BankingService],

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { BankTransaction } from './entities/bank-transaction.entity';
@@ -6,6 +6,9 @@ import { BankAccount } from './entities/bank-account.entity';
 import { ImportCsvDto, ReconcileDto } from './dto/import-csv.dto';
 import { CreateBankAccountDto, UpdateBankAccountDto } from './dto/bank-account.dto';
 import { Payment } from '../payments/entities/payment.entity';
+import { BankReconciliation } from './entities/bank-reconciliation.entity';
+import { JournalEntry } from '../accounting/entities/journal-entry.entity';
+import { ReconcileEntryDto } from './dto/reconcile-entry.dto';
 
 /**
  * Service de gestion bancaire:
@@ -22,6 +25,10 @@ export class BankingService {
     private bankAccountsRepo: Repository<BankAccount>,
     @InjectRepository(Payment)
     private paymentsRepo: Repository<Payment>,
+    @InjectRepository(BankReconciliation)
+    private bankReconciliationRepo: Repository<BankReconciliation>,
+    @InjectRepository(JournalEntry)
+    private journalEntryRepo: Repository<JournalEntry>,
   ) {}
 
   /**
@@ -180,6 +187,163 @@ export class BankingService {
     bankTx.reconciledBy = dto.userId;
 
     return this.bankTransactionsRepo.save(bankTx);
+  }
+
+  /**
+   * ==========================================
+   * RAPPROCHEMENT CONTRE JOURNAL ENTRY (OHADA)
+   * ==========================================
+   */
+
+  /**
+   * Suggérer des écritures (JournalEntry) à rapprocher avec une transaction bancaire
+   * Critères:
+   * - Périmètre date: ±7 jours autour de transactionDate
+   * - Compte banque: 512*
+   * - Montant ligne (débit/crédit) proche du montant transaction (±5%)
+   * - Statut écriture: posted
+   */
+  async suggestEntryReconciliation(
+    companyId: string,
+    bankTransactionId: string,
+  ): Promise<
+    Array<{
+      journalEntryId: string;
+      entryNumber: string;
+      entryDate: Date;
+      matchedAmount: number;
+      delta: number;
+      confidence: number;
+    }>
+  > {
+    const bankTx = await this.bankTransactionsRepo.findOne({
+      where: { id: bankTransactionId, companyId },
+    });
+    if (!bankTx) throw new NotFoundException('Transaction bancaire introuvable');
+
+    const startDate = new Date(bankTx.transactionDate);
+    startDate.setDate(startDate.getDate() - 7);
+    const endDate = new Date(bankTx.transactionDate);
+    endDate.setDate(endDate.getDate() + 7);
+
+    const txAbs = Math.abs(Number(bankTx.amount));
+    const minAmount = txAbs * 0.95;
+    const maxAmount = txAbs * 1.05;
+
+    // Charger les écritures avec lignes + comptes (512*)
+    const qb = this.journalEntryRepo
+      .createQueryBuilder('je')
+      .leftJoinAndSelect('je.lines', 'jel')
+      .leftJoinAndSelect('jel.account', 'acc')
+      .where('je.companyId = :companyId', { companyId })
+      .andWhere('je.status = :status', { status: 'posted' })
+      .andWhere('je.entryDate BETWEEN :start AND :end', { start: startDate, end: endDate })
+      .andWhere("acc.accountNumber LIKE '512%'");
+
+    if (bankTx.type === 'debit') {
+      qb.andWhere('jel.debit BETWEEN :minAmount AND :maxAmount', { minAmount, maxAmount })
+        .orderBy('ABS(jel.debit - :txAmount)', 'ASC')
+        .setParameter('txAmount', txAbs);
+    } else if (bankTx.type === 'credit') {
+      qb.andWhere('jel.credit BETWEEN :minAmount AND :maxAmount', { minAmount, maxAmount })
+        .orderBy('ABS(jel.credit - :txAmount)', 'ASC')
+        .setParameter('txAmount', txAbs);
+    } else {
+      // Si type inconnu, considérer debit et credit
+      qb.andWhere('(jel.debit BETWEEN :minAmount AND :maxAmount OR jel.credit BETWEEN :minAmount AND :maxAmount)', { minAmount, maxAmount })
+        .orderBy('ABS(COALESCE(jel.debit,0) + COALESCE(jel.credit,0) - :txAmount)', 'ASC')
+        .setParameter('txAmount', txAbs);
+    }
+
+    const candidates = await qb.limit(10).getMany();
+
+    // Consolider par écriture (au cas où plusieurs lignes 512*)
+    const results = candidates.map((je) => {
+      const amt = this.computeBankAmountFromEntry(je, bankTx.type);
+      const delta = Math.abs(Number(amt) - txAbs);
+      const confidence = Math.max(0, 1 - delta / Math.max(1, txAbs));
+      return {
+        journalEntryId: je.id,
+        entryNumber: je.entryNumber,
+        entryDate: je.entryDate,
+        matchedAmount: Number(amt),
+        delta: Number(delta),
+        confidence: Number(confidence.toFixed(2)),
+      };
+    })
+    // Trier par delta croissant
+    .sort((a, b) => a.delta - b.delta)
+    .slice(0, 10);
+
+    return results;
+  }
+
+  /**
+   * Rapprocher une transaction avec une écriture
+   */
+  async reconcileEntry(dto: ReconcileEntryDto): Promise<BankReconciliation> {
+    const bankTx = await this.bankTransactionsRepo.findOne({
+      where: { id: dto.bankTransactionId, companyId: dto.companyId },
+    });
+    if (!bankTx) throw new NotFoundException('Transaction bancaire introuvable');
+
+    const je = await this.journalEntryRepo
+      .createQueryBuilder('je')
+      .leftJoinAndSelect('je.lines', 'jel')
+      .leftJoinAndSelect('jel.account', 'acc')
+      .where('je.id = :id AND je.companyId = :companyId', { id: dto.journalEntryId, companyId: dto.companyId })
+      .getOne();
+    if (!je) throw new NotFoundException("Écriture comptable introuvable");
+
+    const reconciledAmount = this.computeBankAmountFromEntry(je, bankTx.type);
+
+    const reconciliation = this.bankReconciliationRepo.create({
+      companyId: dto.companyId,
+      bankTransactionId: bankTx.id,
+      journalEntryId: je.id,
+      reconciledAmount: Number(reconciledAmount || 0),
+      confidence: 1,
+      matchType: 'manual',
+      status: 'validated',
+      notes: dto.notes,
+      reconciledAt: new Date(),
+    });
+    await this.bankReconciliationRepo.save(reconciliation);
+
+    bankTx.status = 'reconciled';
+    bankTx.reconciledAt = new Date();
+    await this.bankTransactionsRepo.save(bankTx);
+
+    return reconciliation;
+  }
+
+  /**
+   * Annuler un rapprochement entrée
+   */
+  async unreconcileEntry(reconciliationId: string): Promise<void> {
+    const rec = await this.bankReconciliationRepo.findOne({ where: { id: reconciliationId } });
+    if (!rec) throw new NotFoundException('Rapprochement introuvable');
+
+    const bankTx = await this.bankTransactionsRepo.findOne({ where: { id: rec.bankTransactionId } });
+    if (bankTx) {
+      bankTx.status = 'pending';
+      bankTx.reconciledAt = null;
+      await this.bankTransactionsRepo.save(bankTx);
+    }
+
+    await this.bankReconciliationRepo.remove(rec);
+  }
+
+  /**
+   * Helper: calculer le montant banque (compte 512*) depuis une écriture OHADA
+   */
+  private computeBankAmountFromEntry(entry: JournalEntry, txType?: 'debit' | 'credit'): number {
+    if (!entry?.lines?.length) return 0;
+    const isDebit = txType === 'debit';
+    const bankLines = entry.lines.filter((l: any) => l?.account?.accountNumber?.startsWith('512'));
+    if (!bankLines.length) return 0;
+    const sum = bankLines.reduce((acc: number, l: any) => acc + Number(isDebit ? (l.debit || 0) : (l.credit || 0)), 0);
+    return Number(sum);
   }
 
   /**
