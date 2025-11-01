@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -33,6 +33,9 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/bank", label: "Rapprochement Bancaire", icon: Building2 },
   { href: "/accountant/tax/vat", label: "Déclaration TVA", icon: Receipt },
   { href: "/accountant/close", label: "Clôture de Période", icon: Lock },
+];
+
+const REVENUE_ANALYSIS_NAV = [
   { href: "/accountant/revenue-recognition", label: "Reconnaissance CA", icon: TrendingUp },
   { href: "/accountant/multi-dimensional-analysis", label: "Analyse Multidimensionnelle", icon: BarChart3 },
   { href: "/accountant/ml-forecast", label: "Prévision CA ML", icon: Brain },
@@ -45,6 +48,7 @@ export function Sidebar() {
   const [userRole, setUserRole] = useState("Entrepreneur");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
+  const [revenueMenuOpen, setRevenueMenuOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -59,6 +63,16 @@ export function Sidebar() {
   const isAccountantRoute = pathname?.startsWith('/accountant');
   const NAV = isAccountantRoute ? ACCOUNTANT_NAV : ENTREPRENEUR_NAV;
   const displayRole = isAccountantRoute ? 'Comptable' : userRole;
+  
+  // Vérifier si une page d'analyse CA est active
+  const isRevenueAnalysisActive = REVENUE_ANALYSIS_NAV.some(item => pathname === item.href);
+  
+  useEffect(() => {
+    // Ouvrir automatiquement le menu CA si une page est active
+    if (isRevenueAnalysisActive) {
+      setRevenueMenuOpen(true);
+    }
+  }, [pathname, isRevenueAnalysisActive]);
   return (
     <aside 
       className={clsx(
@@ -112,6 +126,63 @@ export function Sidebar() {
             </Link>
           );
         })}
+        
+        {/* Section Chiffre d'Affaires - uniquement pour les comptables */}
+        {isAccountantRoute && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setRevenueMenuOpen(!revenueMenuOpen)}
+              className={clsx(
+                "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all w-full",
+                isRevenueAnalysisActive ? "bg-white/5 text-white" : "text-white/80 hover:bg-app-sidebarHover hover:text-white",
+                !(isExpanded || isLocked) && "justify-center"
+              )}
+              title={!(isExpanded || isLocked) ? "Chiffre d'Affaires" : undefined}
+            >
+              <span className={clsx("h-5 w-5 flex-shrink-0", isRevenueAnalysisActive ? "text-app-accent" : "text-white/70 group-hover:text-white")}>
+                <TrendingUp className="h-5 w-5" />
+              </span>
+              <span className={clsx(
+                "whitespace-nowrap transition-all duration-200 flex-1 text-left",
+                isExpanded || isLocked ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"
+              )}>
+                Chiffre d'Affaires
+              </span>
+              {isExpanded || isLocked ? (
+                <span className="text-white/70">
+                  {revenueMenuOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                </span>
+              ) : null}
+            </button>
+            
+            {/* Sous-menu des analyses CA */}
+            {(revenueMenuOpen || isRevenueAnalysisActive) && (isExpanded || isLocked) && (
+              <div className="ml-3 space-y-1">
+                {REVENUE_ANALYSIS_NAV.map((item) => {
+                  const active = pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={clsx(
+                        "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
+                        active ? "bg-white/5 text-white" : "text-white/60 hover:bg-app-sidebarHover hover:text-white/80"
+                      )}
+                    >
+                      <span className={clsx("h-4 w-4 flex-shrink-0", active ? "text-app-accent" : "text-white/50 group-hover:text-white/70")}>
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <span className="whitespace-nowrap text-xs">
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </nav>
       <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 p-3">
         <div className={clsx("flex items-center gap-3 text-sm", !(isExpanded || isLocked) && "justify-center")}>
