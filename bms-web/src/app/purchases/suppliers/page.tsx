@@ -16,13 +16,22 @@ export default function SuppliersPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleNewSupplier = () => {
+    // TODO: Implémenter la création de fournisseur
+    // Options: ouvrir un modal ou naviguer vers une page de création
+    console.log("Nouveau fournisseur - à implémenter");
+    alert("Fonctionnalité de création de fournisseur à implémenter");
+  };
+
   if (loading) return <div>Chargement...</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Fournisseurs</h1>
-        <Button><Plus className="w-4 h-4 mr-2" />Nouveau fournisseur</Button>
+        <Button onClick={handleNewSupplier}>
+          <Plus className="w-4 h-4 mr-2" />Nouveau fournisseur
+        </Button>
       </div>
       <Card>
         <CardHeader>
