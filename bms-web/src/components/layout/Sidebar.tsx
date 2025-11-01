@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -16,6 +16,7 @@ const ENTREPRENEUR_NAV = [
   { href: "/projects", label: "Projets", icon: FolderKanban },
   { href: "/budget", label: "Budget", icon: LineChart },
   { href: "/treasury", label: "Trésorerie", icon: Wallet },
+  { href: "/entrepreneur/direct-debits", label: "Prélèvements", icon: Repeat },
   { href: "/settings", label: "Paramètres", icon: Settings },
 ];
 
