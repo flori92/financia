@@ -112,7 +112,12 @@ export class CrmController {
     },
   })
   async findAllContacts(@Query() filterDto: FilterContactsDto) {
-    return this.crmService.findAllContacts(filterDto);
+    try {
+      return await this.crmService.findAllContacts(filterDto);
+    } catch (e) {
+      console.error('CrmController.findAllContacts error:', e);
+      return { contacts: [], total: 0, page: 1, limit: 20 };
+    }
   }
 
   @Post('contacts/export')

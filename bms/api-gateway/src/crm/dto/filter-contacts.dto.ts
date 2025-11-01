@@ -5,8 +5,9 @@ import { ContactStatus, ContactType } from '../entities/contact.entity';
 
 export class FilterContactsDto {
   @ApiPropertyOptional({ description: 'Identifiant société', example: 'uuid' })
+  @IsOptional()
   @IsString()
-  companyId: string;
+  companyId?: string;
 
   @ApiPropertyOptional({ description: 'Recherche texte (nom, email, société)' })
   @IsOptional()
