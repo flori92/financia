@@ -497,6 +497,14 @@ export class AccountingController {
     };
   }
 
+  @Get('chart-of-accounts')
+  @ApiOperation({ summary: 'Obtenir le plan comptable' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({ status: 200, description: 'Plan comptable' })
+  async getChartOfAccounts(@Query('companyId') companyId: string): Promise<any> {
+    return await this.accountingService.findAllAccounts(companyId);
+  }
+
   @Get('export/chart-of-accounts')
   @ApiOperation({ summary: 'Export CSV du plan comptable' })
   @ApiQuery({ name: 'companyId', required: true })

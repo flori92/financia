@@ -34,9 +34,10 @@ export default function JournalPage() {
 
   const loadData = async () => {
     try {
+      const companyId = '1805bc61-7cfd-44e9-8a63-17187bf05dc7'; // TODO: Get from session
       const [entriesRes, accountsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/v1/accounting/general-ledger').then(r => r.json()),
-        fetch('http://localhost:3001/api/v1/accounting/chart-of-accounts').then(r => r.json())
+        fetch(`http://localhost:3001/api/v1/accounting/general-ledger?companyId=${companyId}`).then(r => r.json()),
+        fetch(`http://localhost:3001/api/v1/accounting/chart-of-accounts?companyId=${companyId}`).then(r => r.json())
       ]);
       // L'API general-ledger retourne {movements: [], summary: {}}
       setEntries(Array.isArray(entriesRes) ? entriesRes : (entriesRes?.movements || []));
