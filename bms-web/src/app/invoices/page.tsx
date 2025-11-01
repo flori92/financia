@@ -18,13 +18,21 @@ export default function InvoicesPage() {
   const loadData = async () => {
     try {
       const [invoicesRes, clientsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/v1/invoices').then(r => r.json()),
-        fetch('http://localhost:3001/api/v1/crm/contacts').then(r => r.json())
+        fetch('http://localhost:3001/api/v1/invoices').then(r => {
+          if (!r.ok) return [];
+          return r.json();
+        }).catch(() => []),
+        fetch('http://localhost:3001/api/v1/crm/contacts').then(r => {
+          if (!r.ok) return [];
+          return r.json();
+        }).catch(() => [])
       ]);
-      setInvoices(invoicesRes);
-      setClients(clientsRes);
+      setInvoices(Array.isArray(invoicesRes) ? invoicesRes : []);
+      setClients(Array.isArray(clientsRes) ? clientsRes : []);
     } catch (err) {
       console.error(err);
+      setInvoices([]);
+      setClients([]);
     } finally {
       setLoading(false);
     }
