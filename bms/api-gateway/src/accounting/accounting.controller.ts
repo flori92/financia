@@ -35,8 +35,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
  */
 @ApiTags('Accounting (OHADA)')
 @Controller('accounting')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 export class AccountingController {
   constructor(
     private readonly accountingService: AccountingService,
