@@ -97,20 +97,25 @@ export class BankingService {
     endDate?: string,
     status?: string,
   ): Promise<BankTransaction[]> {
-    const where: any = { companyId };
+    try {
+      const where: any = { companyId };
 
-    if (startDate && endDate) {
-      where.transactionDate = Between(new Date(startDate), new Date(endDate));
+      if (startDate && endDate) {
+        where.transactionDate = Between(new Date(startDate), new Date(endDate));
+      }
+
+      if (status) {
+        where.status = status;
+      }
+
+      return this.bankTransactionsRepo.find({
+        where,
+        order: { transactionDate: 'DESC' },
+      });
+    } catch (e) {
+      console.error('BankingService.findAll error:', e);
+      return [];
     }
-
-    if (status) {
-      where.status = status;
-    }
-
-    return this.bankTransactionsRepo.find({
-      where,
-      order: { transactionDate: 'DESC' },
-    });
   }
 
   /**

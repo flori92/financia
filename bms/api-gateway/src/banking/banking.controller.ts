@@ -46,11 +46,8 @@ export class BankingController {
   }
 
   @Get('transactions')
-  @ApiOperation({ summary: 'Récupérer toutes les transactions bancaires' })
+  @ApiOperation({ summary: 'Lister les transactions bancaires' })
   @ApiQuery({ name: 'companyId', required: true })
-  @ApiQuery({ name: 'startDate', required: false })
-  @ApiQuery({ name: 'endDate', required: false })
-  @ApiQuery({ name: 'status', required: false, enum: ['pending', 'reconciled', 'ignored'] })
   @ApiResponse({
     status: 200,
     description: 'Liste des transactions bancaires',
@@ -62,7 +59,12 @@ export class BankingController {
     @Query('endDate') endDate?: string,
     @Query('status') status?: string,
   ): Promise<BankTransaction[]> {
-    return this.bankingService.findAll(companyId, startDate, endDate, status);
+    try {
+      return await this.bankingService.findAll(companyId, startDate, endDate, status);
+    } catch (e) {
+      console.error('BankingController.findAll error:', e);
+      return [];
+    }
   }
 
   @Get('transactions/:id/suggest')
