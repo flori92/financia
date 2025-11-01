@@ -9,6 +9,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { TaxService } from './tax.service';
+import { PdfGeneratorService } from './services/pdf-generator.service';
 import { VatReturnDto } from './dto/vat-return.dto';
 
 /**
@@ -19,7 +20,10 @@ import { VatReturnDto } from './dto/vat-return.dto';
 // @UseGuards(JwtAuthGuard) // À décommenter quand l'auth est configurée
 @ApiBearerAuth()
 export class TaxController {
-  constructor(private readonly taxService: TaxService) {}
+  constructor(
+    private readonly taxService: TaxService,
+    private readonly pdfGeneratorService: PdfGeneratorService,
+  ) {}
 
   @Get('vat/return')
   @ApiOperation({ summary: 'Calculer la déclaration de TVA pour une période' })
@@ -132,55 +136,40 @@ export class TaxController {
   @ApiOperation({ summary: 'Générer le PDF du formulaire CA3' })
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'period', required: false, description: 'Période YYYY-MM (défaut: mois courant)' })
+  @ApiQuery({ name: 'companyName', required: false, description: 'Nom de l\'entreprise' })
   async generateCA3Pdf(
     @Query('companyId') companyId: string,
     @Query('period') period?: string,
+    @Query('companyName') companyName?: string,
     @Res() res?: Response,
   ): Promise<any> {
-    // Pour l'instant, générer un PDF simple avec les données
-    // TODO: Utiliser une vraie bibliothèque PDF comme pdfkit ou puppeteer
     const currentPeriod = period || new Date().toISOString().substring(0, 7);
     const startDate = `${currentPeriod}-01`;
     const date = new Date(currentPeriod);
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
     const endDate = `${currentPeriod}-${lastDay.toString().padStart(2, '0')}`;
 
+    // Récupérer les données TVA
     const vatReturn = await this.taxService.getVatReturn(
       companyId,
       startDate,
       endDate,
     );
 
-    // Générer un PDF simple (mock pour l'instant)
-    const pdfContent = `DECLARATION DE TVA CA3
-    
-Période: ${currentPeriod}
-    
-CHIFFRE D'AFFAIRES
-Montant HT: ${vatReturn.revenueHT.toFixed(2)} FCFA
-TVA Collectée: ${vatReturn.vatCollected.toFixed(2)} FCFA
-    
-ACHATS ET CHARGES
-Montant HT: ${vatReturn.purchasesHT.toFixed(2)} FCFA
-TVA Déductible: ${vatReturn.vatDeductible.toFixed(2)} FCFA
-    
-TVA À PAYER: ${vatReturn.vatNet.toFixed(2)} FCFA
-
----
-Document généré automatiquement
-Pour une déclaration officielle, utilisez le portail DGI
-`;
+    // Générer le PDF avec PDFKit
+    const pdfBuffer = await this.pdfGeneratorService.generateCA3Pdf(
+      vatReturn,
+      companyName || 'Entreprise',
+    );
 
     if (res) {
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="CA3-${currentPeriod}.pdf"`,
       });
-      // Pour l'instant, retourner du texte
-      // TODO: Intégrer une vraie génération PDF
-      return res.send(Buffer.from(pdfContent));
+      return res.send(pdfBuffer);
     }
 
-    return pdfContent;
+    return pdfBuffer;
   }
 }

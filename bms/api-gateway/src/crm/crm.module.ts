@@ -16,12 +16,14 @@ import { CrmImportService } from './crm-import.service';
 import { LeadScoringService } from './lead-scoring.service';
 import { FormalizationService } from './formalization.service';
 import { EmailIntegrationService } from './email-integration.service';
+import { EmailService } from './services/email.service';
 
 /**
  * Module CRM complet pour BMS - Adapté au contexte béninois
  * - Contacts, Opportunités, Activités
  * - Scoring des leads
  * - Accompagnement à la formalisation (NIF, RCCM)
+ * - Envoi d'emails via SendGrid
  */
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { EmailIntegrationService } from './email-integration.service';
     LeadScoringService,
     FormalizationService,
     EmailIntegrationService,
+    EmailService,
   ],
   exports: [
     CrmService,
@@ -52,6 +55,7 @@ import { EmailIntegrationService } from './email-integration.service';
     LeadScoringService,
     FormalizationService,
     EmailIntegrationService,
+    EmailService,
   ],
 })
 export class CrmModule {}

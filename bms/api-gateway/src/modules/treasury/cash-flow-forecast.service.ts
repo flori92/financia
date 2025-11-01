@@ -4,6 +4,7 @@ import { Repository, Between, LessThanOrEqual } from 'typeorm';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 import { BankAccount } from '../../banking/entities/bank-account.entity';
 import { Budget } from '../../budget/entities/budget.entity';
+import { DirectDebitService } from '../../treasury/services/direct-debit.service';
 
 /**
  * Service de prévisionnel de trésorerie
@@ -17,6 +18,7 @@ export class CashFlowForecastService {
     private bankAccountRepository: Repository<BankAccount>,
     @InjectRepository(Budget)
     private budgetRepository: Repository<Budget>,
+    private directDebitService: DirectDebitService,
   ) {}
   
   /**
@@ -323,9 +325,8 @@ export class CashFlowForecastService {
    * Récupère les prélèvements automatiques programmés
    */
   private async getDirectDebits(companyId: string, date: Date): Promise<number> {
-    // Pour l'instant, retourner 0 car table direct_debits pas encore créée
-    // TODO: Créer entité DirectDebit et implémenter query
-    return 0;
+    const directDebits = await this.directDebitService.getDirectDebitsForDate(companyId, date);
+    return directDebits.reduce((sum, dd) => sum + Number(dd.amount || 0), 0);
   }
 
   private getStatus(balance: number): string {
