@@ -20,7 +20,7 @@ export class JournalEntry {
   id: string;
 
   @ApiProperty({ description: 'Numéro de l\'écriture (auto-généré)' })
-  @Column({ unique: true, length: 50 })
+  @Column({ unique: true, length: 50, nullable: true })
   entryNumber: string;
 
   @ApiProperty({ description: 'Date de l\'écriture comptable' })

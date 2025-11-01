@@ -14,6 +14,9 @@ export default function BankReconciliationPage() {
   const [note, setNote] = useState("");
   const [companyId, setCompanyId] = useState<string>("default-company");
   const { show } = useToast();
+  const [matching, setMatching] = useState(false);
+  const [threshold, setThreshold] = useState<number>(0.8);
+  const [limit, setLimit] = useState<number>(100);
 
   useEffect(() => {
     // Récupérer companyId depuis localStorage si présent
@@ -55,8 +58,53 @@ export default function BankReconciliationPage() {
   };
 
   const handleAutoMatch = async () => {
-    // Placeholder: on pourrait itérer et appeler suggest + reconcile pour les meilleurs scores
-    show({ title: 'Lettrage automatique', description: 'Fonction à venir', variant: 'info' });
+    if (matching) return;
+    setMatching(true);
+    try {
+      const res = await fetch('http://localhost:3001/api/v1/banking/auto-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId, threshold, limit }),
+      });
+      if (!res.ok) throw new Error('Erreur lettrage automatique');
+      const data = await res.json();
+      await loadTransactions();
+      const variant = data.matched > 0 ? 'success' : 'info';
+      show({
+        title: 'Lettrage automatique terminé',
+        description: `Tentatives: ${data.attempted} · Rapprochées: ${data.matched} · Erreurs: ${data.errors}`,
+        variant: variant as any,
+      });
+
+      // Export CSV des détails si disponibles
+      if (Array.isArray(data.details) && data.details.length > 0) {
+        const header = ['bankTransactionId','journalEntryId','confidence','status','reason'];
+        const rows = data.details.map((d: any) => [
+          d.bankTransactionId || '',
+          d.journalEntryId || '',
+          typeof d.confidence === 'number' ? d.confidence.toFixed(2) : '',
+          d.status || '',
+          (d.reason || '').toString().replace(/\n|\r|;/g,' '),
+        ]);
+        const csv = [header.join(';'), ...rows.map((r: any[]) => r.join(';'))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'');
+        a.href = url;
+        a.download = `auto-match_${ts}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        show({ title: 'Export CSV généré', variant: 'success' });
+      }
+    } catch (e) {
+      console.error(e);
+      show({ title: 'Échec du lettrage automatique', variant: 'error' });
+    } finally {
+      setMatching(false);
+    }
   };
 
   const openSuggestions = async (tx: any) => {
@@ -114,7 +162,30 @@ export default function BankReconciliationPage() {
           <h1 className="text-2xl font-semibold">Rapprochement bancaire</h1>
           <p className="text-gray-600">Lettrage automatique et rapprochement intelligent</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {/* Paramètres auto-match */}
+          <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-white border rounded-lg">
+            <label className="text-sm text-gray-600">Seuil</label>
+            <input
+              type="number"
+              min={0.5}
+              max={0.99}
+              step={0.05}
+              value={threshold}
+              onChange={(e) => setThreshold(Math.min(0.99, Math.max(0.5, Number(e.target.value) || 0)))}
+              className="w-20 border rounded px-2 py-1 text-sm"
+            />
+            <label className="text-sm text-gray-600">Limite</label>
+            <input
+              type="number"
+              min={1}
+              max={500}
+              step={1}
+              value={limit}
+              onChange={(e) => setLimit(Math.min(500, Math.max(1, Number(e.target.value) || 1)))}
+              className="w-20 border rounded px-2 py-1 text-sm"
+            />
+          </div>
           <button
             onClick={handleSync}
             disabled={syncing}
@@ -125,11 +196,11 @@ export default function BankReconciliationPage() {
           </button>
           <button
             onClick={handleAutoMatch}
-            disabled={pendingCount === 0}
+            disabled={pendingCount === 0 || matching}
             className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50"
           >
-            <CheckCircle className="w-4 h-4" />
-            Lettrage auto ({pendingCount})
+            <CheckCircle className={`w-4 h-4 ${matching ? 'animate-spin' : ''}`} />
+            {matching ? 'Lettrage...' : `Lettrage auto (${pendingCount})`}
           </button>
         </div>
       </div>

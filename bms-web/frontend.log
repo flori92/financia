@@ -186,3 +186,62 @@
  ○ Compiling /accountant/chart-of-accounts ...
  ✓ Compiled /accountant/chart-of-accounts in 971ms (444 modules)
  ✓ Compiled /accountant/journal in 222ms (451 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 1185ms (441 modules)
+ GET / 200 in 1628ms
+ ✓ Compiled /api/auth/[...nextauth] in 227ms (459 modules)
+ GET /api/auth/session 304 in 305ms
+ GET /api/auth/session 304 in 16ms
+ ✓ Compiled /accountant in 313ms (465 modules)
+ ✓ Compiled /accountant/chart-of-accounts in 154ms (458 modules)
+ ✓ Compiled /accountant/journal in 493ms (443 modules)
+ ✓ Compiled /accountant/general-ledger in 157ms (444 modules)
+ ✓ Compiled /accountant/trial-balance in 122ms (450 modules)
+ ✓ Compiled /accountant/bank in 162ms (433 modules)
+ ✓ Compiled /accountant/close in 154ms (439 modules)
+ ✓ Compiled /accountant/assets in 120ms (437 modules)
+ ✓ Compiled /treasury in 350ms (443 modules)
+ ✓ Compiled /treasury/forecast in 173ms (448 modules)
+ ✓ Compiled /treasury/operations in 111ms (448 modules)
+ ✓ Compiled /invoices/reminders in 340ms (455 modules)
+ ○ Compiling /sales/analytics ...
+ ✓ Compiled /sales/analytics in 1031ms (967 modules)
+ ✓ Compiled /purchases in 279ms (964 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 783ms (2179 modules)
+ GET /purchases/receipts 404 in 339ms
+ ✓ Compiled /api/auth/[...nextauth] in 485ms (977 modules)
+ GET /api/auth/session 304 in 549ms
+ GET /api/auth/session 304 in 12ms
+ GET /purchases 200 in 374ms
+ GET /api/auth/session 304 in 44ms
+ GET /api/auth/session 304 in 22ms
+ ✓ Compiled /inventory in 311ms (958 modules)
+ GET /inventory 200 in 170ms
+ GET /api/auth/session 304 in 37ms
+ GET /api/auth/session 304 in 13ms
+ ○ Compiling /accountant/chart-of-accounts ...
+ ✓ Compiled /accountant/chart-of-accounts in 567ms (954 modules)
+ ✓ Compiled /purchases/payments in 364ms (936 modules)
+ ✓ Compiled /purchases/suppliers in 197ms (943 modules)
+ ✓ Compiled /purchases/analytics in 363ms (948 modules)
+ ✓ Compiled /_not-found in 394ms (2161 modules)
+ GET /purchases/receipts 404 in 103ms
+ ✓ Compiled /api/auth/[...nextauth] in 303ms (959 modules)
+ GET /api/auth/session 304 in 337ms
+ GET /api/auth/session 304 in 12ms
+ GET /purchases 200 in 114ms
+ GET /api/auth/session 304 in 15ms
+ GET /api/auth/session 304 in 13ms
+ ✓ Compiled /purchases/rfq in 486ms (2180 modules)
+ ✓ Compiled /purchases/orders in 338ms (2186 modules)
+ GET /purchases/receipts 404 in 116ms
+ GET /api/auth/session 304 in 20ms
+ GET /api/auth/session 304 in 20ms
+ GET /purchases 200 in 79ms
+ GET /api/auth/session 304 in 14ms
+ GET /api/auth/session 304 in 13ms
+ ✓ Compiled /accountant/journal in 489ms (958 modules)
+ GET /accountant/journal 200 in 334ms
+ GET /api/auth/session 304 in 38ms
+ GET /api/auth/session 304 in 18ms

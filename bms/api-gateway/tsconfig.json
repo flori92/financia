@@ -17,5 +17,15 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/banking/bank-api/**",
+    "src/**/__tests__/**",
+    "src/ai/models/**",
+    "src/ai/processors/**",
+    "src/ai/services/anomaly-detection.service.ts",
+    "src/auth/**"
+  ]
 }

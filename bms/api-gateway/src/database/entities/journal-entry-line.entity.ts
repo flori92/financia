@@ -7,14 +7,14 @@ export class JournalEntryLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   entryId: string;
 
   @ManyToOne(() => JournalEntry, entry => entry.lines, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'entryId' })
   entry: JournalEntry;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   accountId: string;
 
   @ManyToOne(() => Account)

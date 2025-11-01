@@ -72,7 +72,7 @@ import { AppController } from './app.controller';
         password: config.get('DB_PASSWORD', 'bms_dev_password'),
         database: config.get('DB_NAME', 'bms'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: config.get('NODE_ENV') === 'development', // ATTENTION: false en production
+        synchronize: false, // Désactivé temporairement pour éviter erreurs de migration
         logging: config.get('NODE_ENV') === 'development',
       }),
     }),

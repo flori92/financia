@@ -40,6 +40,8 @@ export class BankingService {
       throw new BadRequestException('CSV vide ou invalide');
     }
 
+  
+
     // Parse header
     const header = lines[0].split(/[,;]/);
     const dateIdx = this.findColIndex(header, ['date', 'Date']);
@@ -380,6 +382,66 @@ export class BankingService {
 
     bankTx.status = 'ignored';
     return this.bankTransactionsRepo.save(bankTx);
+  }
+
+  /**
+   * Lettrage automatique OHADA
+   * Parcourt les transactions en attente et rapproche la meilleure écriture si confiance >= threshold
+   */
+  async autoMatch(
+    companyId: string,
+    threshold = 0.8,
+    limit = 100,
+  ): Promise<{
+    attempted: number;
+    matched: number;
+    errors: number;
+    details: Array<{
+      bankTransactionId: string;
+      journalEntryId?: string;
+      confidence?: number;
+      status: 'matched' | 'skipped' | 'error';
+      reason?: string;
+    }>;
+  }> {
+    const pending = await this.bankTransactionsRepo.find({
+      where: { companyId, status: 'pending' as any },
+      order: { transactionDate: 'ASC' },
+      take: limit,
+    });
+
+    const details: Array<{
+      bankTransactionId: string;
+      journalEntryId?: string;
+      confidence?: number;
+      status: 'matched' | 'skipped' | 'error';
+      reason?: string;
+    }> = [];
+    let matched = 0;
+    let errors = 0;
+
+    for (const tx of pending) {
+      try {
+        const suggestions = await this.suggestEntryReconciliation(companyId, tx.id);
+        const best = suggestions[0];
+        if (!best) {
+          details.push({ bankTransactionId: tx.id, status: 'skipped', reason: 'Aucune écriture correspondante' });
+          continue;
+        }
+        if (best.confidence >= threshold) {
+          await this.reconcileEntry({ companyId, bankTransactionId: tx.id, journalEntryId: best.journalEntryId });
+          matched++;
+          details.push({ bankTransactionId: tx.id, journalEntryId: best.journalEntryId, confidence: best.confidence, status: 'matched' });
+        } else {
+          details.push({ bankTransactionId: tx.id, journalEntryId: best.journalEntryId, confidence: best.confidence, status: 'skipped', reason: 'Confiance insuffisante' });
+        }
+      } catch (e: any) {
+        errors++;
+        details.push({ bankTransactionId: tx.id, status: 'error', reason: e?.message || 'Erreur inconnue' });
+      }
+    }
+
+    return { attempted: pending.length, matched, errors, details };
   }
 
   /**

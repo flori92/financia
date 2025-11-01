@@ -16,7 +16,7 @@ export class Account {
   @Column({ length: 20 })
   accountNumber: string;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, nullable: true })
   label: string;
 
   @Column({ length: 50, nullable: true })

@@ -33,7 +33,7 @@ export class JournalEntryLine {
   account: Account;
 
   @ApiProperty({ description: 'Numéro de ligne' })
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: true })
   lineNumber: number;
 
   @ApiProperty({ description: 'Libellé de la ligne' })

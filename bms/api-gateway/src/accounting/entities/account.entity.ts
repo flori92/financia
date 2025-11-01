@@ -36,7 +36,7 @@ export class Account {
   accountNumber: string;
 
   @ApiProperty({ description: 'Nom du compte' })
-  @Column({ length: 255 })
+  @Column({ length: 255, nullable: true })
   accountName: string;
 
   @ApiProperty({ description: 'Type de compte (asset, liability, equity, revenue, expense)', enum: ['asset', 'liability', 'equity', 'revenue', 'expense'] })

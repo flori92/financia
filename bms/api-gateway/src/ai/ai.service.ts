@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { OcrService } from './services/ocr.service';
-import { AnomalyDetectionService } from './services/anomaly-detection.service';
+// import { AnomalyDetectionService } from './services/anomaly-detection.service';
 
 @Injectable()
 export class AIService {
   constructor(
     private readonly ocrService: OcrService,
-    private readonly anomalyDetection: AnomalyDetectionService,
+    // private readonly anomalyDetection: AnomalyDetectionService,
   ) {}
 
   async processDocument(file: Express.Multer.File) {

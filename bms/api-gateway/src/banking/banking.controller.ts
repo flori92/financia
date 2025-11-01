@@ -21,6 +21,7 @@ import { CreateBankAccountDto, UpdateBankAccountDto } from './dto/bank-account.d
 import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAccount } from './entities/bank-account.entity';
 import { ReconcileEntryDto } from './dto/reconcile-entry.dto';
+import { AutoMatchDto } from './dto/auto-match.dto';
 import { BankReconciliation } from './entities/bank-reconciliation.entity';
 
 /**
@@ -105,6 +106,13 @@ export class BankingController {
   @ApiResponse({ status: 200, description: 'Rapprochement annulé' })
   async deleteReconciliation(@Param('id') id: string): Promise<void> {
     return this.bankingService.unreconcileEntry(id);
+  }
+
+  @Post('auto-match')
+  @ApiOperation({ summary: 'Lettrage automatique OHADA (par écritures comptables)' })
+  @ApiResponse({ status: 200, description: 'Résultat du lettrage auto' })
+  async autoMatch(@Body() dto: AutoMatchDto) {
+    return this.bankingService.autoMatch(dto.companyId, dto.threshold, dto.limit);
   }
 
   @Post('reconcile')
