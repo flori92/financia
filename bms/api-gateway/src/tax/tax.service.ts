@@ -76,15 +76,21 @@ export class TaxService {
     if (!entries || entries.length === 0) {
       return {
         period: `${startDate} au ${endDate}`,
+        taxableRevenue: 0,
         vatCollected: 0,
+        deductibleExpenses: 0,
         vatDeductible: 0,
         vatDue: 0,
         vatCredit: 0,
-        taxableRevenue: 0,
-        deductibleExpenses: 0,
         declarationId: `vat-${new Date().toISOString().slice(0, 7)}`,
         status: 'draft',
         dueDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        startDate,
+        endDate,
+        details: {
+          revenues: [],
+          purchases: [],
+        },
         revenueDetails: [],
         expenseDetails: [],
       };

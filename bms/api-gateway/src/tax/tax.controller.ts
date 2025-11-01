@@ -47,15 +47,21 @@ export class TaxController {
       console.warn('TaxService error, returning mock data:', error.message);
       return {
         period: `${startDate} au ${endDate}`,
+        taxableRevenue: 12500000,
         vatCollected: 2500000,
+        deductibleExpenses: 9000000,
         vatDeductible: 1800000,
         vatDue: 700000,
         vatCredit: 0,
-        taxableRevenue: 12500000,
-        deductibleExpenses: 9000000,
         declarationId: `vat-${new Date().toISOString().slice(0, 7)}`,
         status: 'draft',
         dueDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        startDate,
+        endDate,
+        details: {
+          revenues: [],
+          purchases: [],
+        },
         revenueDetails: [],
         expenseDetails: [],
       };
