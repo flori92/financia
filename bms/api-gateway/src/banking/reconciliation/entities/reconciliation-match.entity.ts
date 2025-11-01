@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { BankTransaction } from '../../entities/bank-transaction.entity';
-import { JournalEntry } from '../../accounting/entities/journal-entry.entity';
+import { JournalEntry } from '../../../accounting/entities/journal-entry.entity';
 
 @Entity('reconciliation_matches')
 export class ReconciliationMatch {

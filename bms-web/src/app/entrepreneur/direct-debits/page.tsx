@@ -47,13 +47,25 @@ export default function DirectDebitsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingDebit, setEditingDebit] = useState<DirectDebit | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    mandateReference: string;
+    label: string;
+    creditor: string;
+    amount: string;
+    currency: string;
+    frequency: 'monthly' | 'quarterly' | 'yearly' | 'one-time';
+    dayOfMonth: string;
+    startDate: string;
+    endDate: string;
+    category: string;
+    notes: string;
+  }>({
     mandateReference: '',
     label: '',
     creditor: '',
     amount: '',
     currency: 'XOF',
-    frequency: 'monthly' as const,
+    frequency: 'monthly',
     dayOfMonth: '1',
     startDate: new Date().toISOString().split('T')[0],
     endDate: '',

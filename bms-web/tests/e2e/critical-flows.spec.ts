@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { test, expect } from '@playwright/test';
 
 /**
@@ -208,7 +209,8 @@ test.describe('Direct Debits', () => {
     await page.click('button[type="submit"]');
     
     // Check validation messages
-    await expect(page.locator('text=Champ obligatoire')).toHaveCount({ min: 1 });
+    const validationMessages = page.locator('text=Champ obligatoire');
+    await expect(validationMessages.first()).toBeVisible();
   });
 });
 
@@ -234,7 +236,8 @@ test.describe('Accounting OHADA', () => {
     await page.click('button:has-text("Classe 7")');
     
     // Should only show class 7 accounts
-    await expect(page.locator('tbody tr')).toHaveCount({ min: 1 });
+    const rows = page.locator('tbody tr');
+    await expect(rows.first()).toBeVisible();
     const firstAccount = await page.locator('tbody tr:first-child td:first-child').textContent();
     expect(firstAccount).toMatch(/^7/);
   });

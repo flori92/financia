@@ -4,9 +4,9 @@ import { Repository } from 'typeorm';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import Fuse from 'fuse.js';
-import { BankTransaction } from '../../entities/bank-transaction.entity';
+import { BankTransaction } from '../entities/bank-transaction.entity';
 import { JournalEntry } from '../../accounting/entities/journal-entry.entity';
-import { ReconciliationMatch } from '../entities/reconciliation-match.entity';
+import { ReconciliationMatch } from './entities/reconciliation-match.entity';
 
 @Injectable()
 export class ReconciliationService {
@@ -20,8 +20,8 @@ export class ReconciliationService {
     constructor(
         @InjectRepository(BankTransaction)
         private bankTransactionRepo: Repository<BankTransaction>,
-        @InjectRepository(AccountingEntry)
-        private accountingEntryRepo: Repository<AccountingEntry>,
+        @InjectRepository(JournalEntry)
+        private accountingEntryRepo: Repository<JournalEntry>,
         @InjectRepository(ReconciliationMatch)
         private reconciliationMatchRepo: Repository<ReconciliationMatch>,
         @InjectQueue('reconciliation')
