@@ -22,6 +22,32 @@ export default function TrialBalancePage() {
     setTimeout(() => setToast(null), 2600);
   };
 
+  const handleExportExcel = async () => {
+    try {
+      const companyId = "default-company"; // TODO: récupérer depuis contexte
+      const response = await fetch(
+        `http://localhost:3001/api/v1/accounting/export/trial-balance?companyId=${companyId}`,
+        { method: 'GET' }
+      );
+      
+      if (!response.ok) throw new Error('Export failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `balance-verification-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      triggerToast("success", "Export CSV téléchargé avec succès !");
+    } catch (error) {
+      triggerToast("info", "Erreur lors de l'export. Vérifiez que le backend est démarré.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -38,11 +64,11 @@ export default function TrialBalancePage() {
             Imprimer
           </button>
           <button
-            onClick={() => triggerToast("success", "Export XLS généré (simulation).")}
+            onClick={handleExportExcel}
             className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
           >
             <Download className="w-4 h-4" />
-            Exporter
+            Export CSV
           </button>
         </div>
       </div>
