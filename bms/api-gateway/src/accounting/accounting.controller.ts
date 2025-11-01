@@ -519,6 +519,54 @@ export class AccountingController {
     };
   }
 
+  // ============================================
+  // ENDPOINTS CLOTURE ET TAXES
+  // ============================================
+
+  @Get('close/last')
+  @ApiOperation({ summary: 'Obtenir la dernière clôture de période' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({ status: 200, description: 'Dernière clôture de période' })
+  async getLastClosure(@Query('companyId') companyId: string): Promise<any> {
+    // Mock data - à implémenter avec la vraie logique
+    return {
+      id: 'closure-123',
+      period: '2025-09',
+      status: 'completed',
+      closedAt: '2025-10-01T00:00:00Z',
+      totalRevenue: 12500000,
+      totalExpenses: 8700000,
+      netIncome: 3800000,
+      closedBy: 'comptable@system.com'
+    };
+  }
+
+  @Get('tax/vat/return')
+  @ApiOperation({ summary: 'Générer une déclaration TVA' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'startDate', required: true })
+  @ApiQuery({ name: 'endDate', required: true })
+  @ApiResponse({ status: 200, description: 'Déclaration TVA générée' })
+  async generateVATReturn(
+    @Query('companyId') companyId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ): Promise<any> {
+    // Mock data - à implémenter avec la vraie logique
+    return {
+      period: `${startDate} au ${endDate}`,
+      vatCollected: 2500000,
+      vatDeductible: 1800000,
+      vatDue: 700000,
+      vatCredit: 0,
+      taxableRevenue: 12500000,
+      deductibleExpenses: 9000000,
+      declarationId: 'vat-2025-11',
+      status: 'draft',
+      dueDate: '2025-11-25'
+    };
+  }
+
   // Helper pour conversion CSV
   private convertToCSV(data: any[], columns: string[]): string {
     if (!data || data.length === 0) return '';
