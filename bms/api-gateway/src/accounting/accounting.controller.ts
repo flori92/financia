@@ -427,4 +427,120 @@ export class AccountingController {
   async getDashboardMetrics(@Query('companyId') companyId: string): Promise<any> {
     return this.dashboardService.getDashboardMetrics(companyId);
   }
+
+  // ============================================
+  // ENDPOINTS EXPORT DE DONNÉES
+  // ============================================
+
+  @Get('export/journal-entries')
+  @ApiOperation({ summary: 'Export CSV des écritures comptables' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  @ApiResponse({ status: 200, description: 'Fichier CSV des écritures' })
+  async exportJournalEntries(
+    @Query('companyId') companyId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ): Promise<any> {
+    const data = await this.accountingService.generateGeneralLedger(
+      companyId,
+      undefined,
+      startDate,
+      endDate,
+    );
+
+    const csv = this.convertToCSV(data.movements, [
+      'date',
+      'entryNumber',
+      'description',
+      'reference',
+      'debit',
+      'credit',
+      'balance',
+    ]);
+
+    return {
+      filename: `journal_${new Date().toISOString().slice(0, 10)}.csv`,
+      data: csv,
+      contentType: 'text/csv',
+    };
+  }
+
+  @Get('export/trial-balance')
+  @ApiOperation({ summary: 'Export CSV de la balance de vérification' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  @ApiResponse({ status: 200, description: 'Fichier CSV de la balance' })
+  async exportTrialBalance(
+    @Query('companyId') companyId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ): Promise<any> {
+    const result = await this.accountingService.getTrialBalance(
+      companyId,
+      startDate,
+      endDate,
+    );
+
+    const csv = this.convertToCSV(result.rows, [
+      'number',
+      'name',
+      'debit',
+      'credit',
+      'balance',
+    ]);
+
+    return {
+      filename: `balance_${new Date().toISOString().slice(0, 10)}.csv`,
+      data: csv,
+      contentType: 'text/csv',
+    };
+  }
+
+  @Get('export/chart-of-accounts')
+  @ApiOperation({ summary: 'Export CSV du plan comptable' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({ status: 200, description: 'Fichier CSV du plan comptable' })
+  async exportChartOfAccounts(@Query('companyId') companyId: string): Promise<any> {
+    const accounts = await this.accountingService.findAllAccounts(companyId);
+
+    const csv = this.convertToCSV(accounts, [
+      'accountNumber',
+      'accountName',
+      'type',
+      'category',
+      'isActive',
+    ]);
+
+    return {
+      filename: `plan_comptable_${new Date().toISOString().slice(0, 10)}.csv`,
+      data: csv,
+      contentType: 'text/csv',
+    };
+  }
+
+  // Helper pour conversion CSV
+  private convertToCSV(data: any[], columns: string[]): string {
+    if (!data || data.length === 0) return '';
+
+    const header = columns.join(';') + '\n';
+    const rows = data
+      .map((row) =>
+        columns
+          .map((col) => {
+            const value = row[col];
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'string' && value.includes(';')) {
+              return `"${value}"`;
+            }
+            return value;
+          })
+          .join(';'),
+      )
+      .join('\n');
+
+    return header + rows;
+  }
 }

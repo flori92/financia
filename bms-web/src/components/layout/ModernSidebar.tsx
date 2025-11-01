@@ -10,7 +10,7 @@ import {
   Users, Send, PieChart, Activity, LineChart, Layers, CheckCircle,
   ScanSearch, Sparkles, GitBranch, Receipt, FilePlus2, FileCheck,
   ShieldCheck, CalendarClock, FileBarChart, Gauge, Monitor, Database,
-  AlertTriangle, UserCog, Shield, LogOut, ListTree, ScrollText
+  AlertTriangle, UserCog, Shield, LogOut, ListTree, ScrollText, Scan
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -153,6 +153,16 @@ const menuItems: SidebarItem[] = [
       { label: "Dashboards personnalisés", href: "/dashboard", icon: Monitor },
       { label: "BI avancée", href: "/dashboard/bi", icon: Database, badge: "OLAP", badgeColor: "purple" },
       { label: "Alertes intelligentes", href: "/dashboard/alerts", icon: AlertTriangle }
+    ]
+  },
+  {
+    id: "ai",
+    label: "Intelligence Artificielle",
+    icon: Sparkles,
+    submenu: [
+      { label: "OCR Documents", href: "/ai/ocr", icon: Scan, badge: "NEW", badgeColor: "teal" },
+      { label: "Assistant virtuel", href: "/ai/chat", icon: Activity, badge: "Bêta", badgeColor: "purple" },
+      { label: "Prédictions", href: "/ai/predictions", icon: TrendingUp }
     ]
   },
   { id: "integrations", label: "Intégrations", icon: Plug, href: "/settings/integrations" },

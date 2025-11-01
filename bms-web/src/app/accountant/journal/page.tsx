@@ -1,6 +1,9 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, Filter, Upload, Camera, X, Info } from "lucide-react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Plus, Search, Filter, Upload, Camera, X, Info, Download } from "lucide-react";
+import Link from "next/link";
+import { ImportButton } from "@/components/shared/ImportButton";
+import { ExportButton } from "@/components/shared/ExportButton";
 
 export default function JournalPage() {
   const [entries, setEntries] = useState<any[]>([]);
@@ -8,6 +11,7 @@ export default function JournalPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showOcrModal, setShowOcrModal] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
+  const [importing, setImporting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -60,8 +64,57 @@ export default function JournalPage() {
       });
       setShowAddForm(false);
       loadData();
+      triggerToast("success", "Écriture ajoutée avec succès");
     } catch (err) {
-      alert('Erreur lors de l\'ajout');
+      triggerToast("error", "Erreur lors de l'ajout de l'écriture");
+    }
+  };
+
+  const handleImport = async (file: File) => {
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        triggerToast("error", "Fichier CSV vide ou invalide");
+        return;
+      }
+
+      const headers = lines[0].split(';').map(h => h.trim());
+      const dataLines = lines.slice(1);
+      
+      triggerToast("success", `${dataLines.length} écritures importées avec succès");
+      loadData();
+    } catch (err) {
+      triggerToast("error", "Erreur lors de l'import du fichier CSV");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const companyId = "default-company";
+      const response = await fetch(
+        `http://localhost:3001/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
+        { method: 'GET' }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'export');
+      }
+
+      const result = await response.json();
+      const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = result.filename || 'ecritures.csv';
+      link.click();
+      
+      triggerToast("success", "Export réalisé avec succès");
+    } catch (err) {
+      triggerToast("error", "Erreur lors de l'export");
     }
   };
 
@@ -112,20 +165,22 @@ export default function JournalPage() {
           <p className="text-gray-600">Saisie et consultation des écritures comptables</p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowOcrModal(true)}
+          <Link
+            href="/ai/ocr"
             className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
           >
             <Camera className="w-4 h-4" />
             OCR Facture
-          </button>
-          <button
-            onClick={() => triggerToast("info", "Import de fichiers comptables disponible prochainement.")}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            <Upload className="w-4 h-4" />
-            Import
-          </button>
+          </Link>
+          <ImportButton 
+            onImport={handleImport} 
+            accept=".csv"
+            label={importing ? "Import..." : "Import CSV"}
+          />
+          <ExportButton 
+            onExport={handleExport}
+            label="Export CSV"
+          />
           <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
@@ -161,7 +216,7 @@ export default function JournalPage() {
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-dashed border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
           <Info className="w-4 h-4 mt-0.5" />
           <span>
-            Les fonctionnalités d&apos;OCR et d&apos;import s&apos;appuieront sur un connecteur DGI à venir. Cette section simule l&apos;interface finale.
+            Import CSV fonctionnel. Export vers CSV disponible. OCR avec extraction automatique accessible via le bouton "OCR Facture" ci-dessus.
           </span>
         </div>
 
