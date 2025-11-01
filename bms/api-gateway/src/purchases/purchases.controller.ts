@@ -5,18 +5,42 @@ import { PurchasesService } from './purchases.service';
 @ApiTags('Purchases')
 @Controller('purchases')
 export class PurchasesController {
+  private suppliers: any[] = []; // Stockage temporaire en mémoire
+
   constructor(private service: PurchasesService) {}
 
   @Get('suppliers')
   @ApiOperation({ summary: 'Lister les fournisseurs' })
   async getSuppliers(@Query('companyId') companyId?: string) {
     try {
-      // Pour l'instant, retourner un tableau vide
-      // TODO: Implémenter la logique réelle avec une base de données
-      return [];
+      // Retourner les fournisseurs stockés en mémoire pour les tests
+      return this.suppliers;
     } catch (e) {
       console.error('PurchasesController.getSuppliers error:', e);
       return [];
+    }
+  }
+
+  @Post('suppliers')
+  @ApiOperation({ summary: 'Créer un nouveau fournisseur' })
+  async createSupplier(@Body() supplierData: any) {
+    try {
+      // TODO: Implémenter la création réelle avec validation et base de données
+      const newSupplier = {
+        id: Date.now().toString(),
+        ...supplierData,
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+      console.log('Supplier created (mock):', newSupplier);
+      
+      // Ajouter à la liste en mémoire pour les tests
+      this.suppliers.push(newSupplier);
+      
+      return newSupplier;
+    } catch (e) {
+      console.error('PurchasesController.createSupplier error:', e);
+      throw e;
     }
   }
 
