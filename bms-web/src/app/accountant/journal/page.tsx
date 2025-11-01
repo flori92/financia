@@ -286,7 +286,7 @@ export default function JournalPage() {
                 >
                   <option key="all-accounts" value="">Tous les comptes</option>
                   {accounts.map((account) => (
-                    <option key={account.code} value={account.code}>{account.code} - {account.name}</option>
+                    <option key={account.accountNumber} value={account.accountNumber}>{account.accountNumber} - {account.accountName}</option>
                   ))}
                 </select>
               </div>
@@ -473,7 +473,7 @@ export default function JournalPage() {
                   <select name="debitAccount" required className="w-full px-3 py-2 border rounded-lg">
                     <option key="select-debit" value="">Sélectionner</option>
                     {accounts.map(acc => (
-                      <option key={acc.code} value={acc.code}>{acc.code} - {acc.name}</option>
+                      <option key={acc.accountNumber} value={acc.accountNumber}>{acc.accountNumber} - {acc.accountName}</option>
                     ))}
                   </select>
                 </div>
@@ -488,7 +488,7 @@ export default function JournalPage() {
                   <select name="creditAccount" required className="w-full px-3 py-2 border rounded-lg">
                     <option key="select-credit" value="">Sélectionner</option>
                     {accounts.map(acc => (
-                      <option key={acc.code} value={acc.code}>{acc.code} - {acc.name}</option>
+                      <option key={acc.accountNumber} value={acc.accountNumber}>{acc.accountNumber} - {acc.accountName}</option>
                     ))}
                   </select>
                 </div>
