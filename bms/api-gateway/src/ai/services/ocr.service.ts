@@ -11,24 +11,30 @@ export class OcrService {
    * Extrait le texte brut puis parse les données de facture
    */
   async extractInvoiceData(fileBuffer: Buffer): Promise<any> {
+    this.logger.log(`🚀 Début extraction OCR - Taille fichier: ${fileBuffer.length} bytes`);
+    
     try {
       // Essayer OCR.space API (gratuit et fiable)
-      this.logger.log('Tentative extraction OCR avec OCR.space API...');
+      this.logger.log('📡 Tentative extraction OCR avec OCR.space API...');
       const ocrSpaceResult = await this.extractWithOCRSpace(fileBuffer);
       if (ocrSpaceResult) {
+        this.logger.log('✅ OCR.space a réussi - retourne résultats');
         return ocrSpaceResult;
       }
 
       // Si OCR.space échoue, essayer Tesseract.js
-      this.logger.log('Fallback sur Tesseract.js...');
+      this.logger.log('🔄 Fallback sur Tesseract.js...');
       const tesseractResult = await this.extractWithTesseract(fileBuffer);
+      this.logger.log('✅ Tesseract.js a réussi - retourne résultats');
       return tesseractResult;
 
     } catch (error) {
-      this.logger.warn('OCR réel indisponible, utilisation mode simulation:', error.message);
+      this.logger.warn('❌ OCR réel indisponible, utilisation mode simulation:', error.message);
       
       // Fallback final: Mode simulation avec données mockées
-      return this.getMockInvoiceData();
+      const simulationResult = this.getMockInvoiceData();
+      this.logger.log('🧪 Mode simulation utilisé - retourne données mockées');
+      return simulationResult;
     }
   }
 
@@ -37,28 +43,39 @@ export class OcrService {
    */
   private async extractWithOCRSpace(fileBuffer: Buffer): Promise<any> {
     try {
+      this.logger.log(`Tentative OCR.space avec fichier de ${fileBuffer.length} bytes`);
+      
       const formData = new FormData();
+      // Détecter le type de fichier et utiliser le bon MIME
+      const isPDF = fileBuffer.length > 4 && fileBuffer[0] === 0x25 && fileBuffer[1] === 0x50; // %PDF
+      const mimeType = isPDF ? 'application/pdf' : 'image/jpeg';
+      const fileName = isPDF ? 'invoice.pdf' : 'invoice.jpg';
+      
       // Utiliser le Buffer directement avec conversion explicite
-      const fileBlob = new Blob([fileBuffer as any], { type: 'image/jpeg' });
-      formData.append('file', fileBlob, 'invoice.jpg');
-      formData.append('language', 'fr');
+      const fileBlob = new Blob([fileBuffer as any], { type: mimeType });
+      formData.append('file', fileBlob, fileName);
+      formData.append('language', 'fre'); // OCR.space utilise 'fre' pour français
       formData.append('isOverlayRequired', 'false');
       formData.append('detectOrientation', 'true');
       formData.append('scale', 'true');
 
       const response = await axios.post('https://api.ocr.space/parse/image', formData, {
         headers: {
-          'apikey': 'helloworld', // Clé gratuite pour tests
+          'apikey': 'K89929149688957',
           'Content-Type': 'multipart/form-data',
         },
         timeout: 30000
       });
+
+      this.logger.log(`OCR.space response status: ${response.status}`);
+      this.logger.log(`OCR.space response data: ${JSON.stringify(response.data, null, 2)}`);
 
       if (response.data?.ParsedResults?.[0]?.ParsedText) {
         const text = response.data.ParsedResults[0].ParsedText;
         const confidence = response.data.ParsedResults[0].TextOverlay?.Lines?.[0]?.Words?.[0]?.Confidence || 95;
         
         this.logger.log(`OCR.space: Texte extrait avec confiance: ${confidence}%`);
+        this.logger.log(`OCR.space: Texte brut: ${text.substring(0, 200)}...`);
         
         const parsedData = this.parseInvoiceText(text);
         
@@ -69,11 +86,13 @@ export class OcrService {
           extractedAt: new Date().toISOString(),
           ocrEngine: 'ocr.space'
         };
+      } else {
+        this.logger.warn('OCR.space: Aucun texte extrait, réponse invalide');
+        return null;
       }
-      
-      return null;
     } catch (error) {
       this.logger.warn('OCR.space API indisponible:', error.message);
+      this.logger.warn('OCR.space error details:', error.response?.data || error.stack);
       return null;
     }
   }
