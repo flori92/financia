@@ -38,7 +38,9 @@ export class OcrService {
   private async extractWithOCRSpace(fileBuffer: Buffer): Promise<any> {
     try {
       const formData = new FormData();
-      formData.append('file', new Blob([fileBuffer]), 'invoice.jpg');
+      // Utiliser le Buffer directement avec conversion explicite
+      const fileBlob = new Blob([fileBuffer as any], { type: 'image/jpeg' });
+      formData.append('file', fileBlob, 'invoice.jpg');
       formData.append('language', 'fr');
       formData.append('isOverlayRequired', 'false');
       formData.append('detectOrientation', 'true');
@@ -47,7 +49,7 @@ export class OcrService {
       const response = await axios.post('https://api.ocr.space/parse/image', formData, {
         headers: {
           'apikey': 'helloworld', // Clé gratuite pour tests
-          ...formData.getHeaders()
+          'Content-Type': 'multipart/form-data',
         },
         timeout: 30000
       });
