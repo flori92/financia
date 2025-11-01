@@ -231,7 +231,8 @@ export class OllamaRAGService {
 
     let treasuryBalance = 0;
     for (const account of bankAccounts) {
-      treasuryBalance += account.balance || 0;
+      const balance = parseFloat(String(account.balance || '0'));
+      treasuryBalance += isNaN(balance) ? 0 : balance;
     }
 
     // Calculer évolution des 3 derniers mois
@@ -269,10 +270,11 @@ export class OllamaRAGService {
     let vatDeductible = 0;
 
     for (const account of vatAccounts) {
+      const balance = parseFloat(String(account.balance || '0'));
       if (account.accountNumber === '4457') {
-        vatCollected = account.balance || 0;
+        vatCollected = isNaN(balance) ? 0 : balance;
       } else if (account.accountNumber === '4456') {
-        vatDeductible = account.balance || 0;
+        vatDeductible = isNaN(balance) ? 0 : balance;
       }
     }
 
@@ -346,13 +348,15 @@ export class OllamaRAGService {
       where: { companyId, accountNumber: '401' },
     });
 
-    const receivables = clientAccount?.balance || 0;
-    const payables = supplierAccount?.balance || 0;
+    const receivables = parseFloat(String(clientAccount?.balance || '0'));
+    const payables = parseFloat(String(supplierAccount?.balance || '0'));
+    const finalReceivables = isNaN(receivables) ? 0 : receivables;
+    const finalPayables = isNaN(payables) ? 0 : payables;
 
     return `CRÉANCES ET DETTES:
-- Créances clients (411): ${receivables.toFixed(2)} FCFA
-- Dettes fournisseurs (401): ${payables.toFixed(2)} FCFA
-- Ratio créances/dettes: ${payables > 0 ? (receivables / payables).toFixed(2) : 'N/A'}`;
+- Créances clients (411): ${finalReceivables.toFixed(2)} FCFA
+- Dettes fournisseurs (401): ${finalPayables.toFixed(2)} FCFA
+- Ratio créances/dettes: ${finalPayables > 0 ? (finalReceivables / finalPayables).toFixed(2) : 'N/A'}`;
   }
 
   /**
@@ -412,9 +416,10 @@ export class OllamaRAGService {
 
     for (const account of salesAccounts.slice(0, 5)) {
       // Top 5
-      totalSales += account.balance || 0;
+      const balance = parseFloat(String(account.balance || '0'));
+      totalSales += isNaN(balance) ? 0 : balance;
       accountDetails.push(
-        `  • ${account.accountNumber} - ${account.accountName || 'N/A'}: ${(account.balance || 0).toFixed(2)} FCFA`,
+        `  • ${account.accountNumber} - ${account.accountName || 'N/A'}: ${balance.toFixed(2)} FCFA`,
       );
     }
 
@@ -458,9 +463,10 @@ ${accountDetails.length > 0 ? accountDetails.join('\n') : '  Aucun compte de pro
 
     for (const account of purchaseAccounts.slice(0, 5)) {
       // Top 5
-      totalPurchases += account.balance || 0;
+      const balance = parseFloat(String(account.balance || '0'));
+      totalPurchases += isNaN(balance) ? 0 : balance;
       accountDetails.push(
-        `  • ${account.accountNumber} - ${account.accountName || 'N/A'}: ${(account.balance || 0).toFixed(2)} FCFA`,
+        `  • ${account.accountNumber} - ${account.accountName || 'N/A'}: ${balance.toFixed(2)} FCFA`,
       );
     }
 
@@ -469,11 +475,12 @@ ${accountDetails.length > 0 ? accountDetails.join('\n') : '  Aucun compte de pro
       where: { companyId, accountNumber: '401' },
     });
 
-    const supplierBalance = supplierAccount?.balance || 0;
+    const supplierBalance = parseFloat(String(supplierAccount?.balance || '0'));
+    const finalSupplierBalance = isNaN(supplierBalance) ? 0 : supplierBalance;
 
     return `ACHATS ET DÉPENSES:
 - Total charges (classe 6): ${totalPurchases.toFixed(2)} FCFA
-- Dettes fournisseurs (401): ${supplierBalance.toFixed(2)} FCFA
+- Dettes fournisseurs (401): ${finalSupplierBalance.toFixed(2)} FCFA
 
 Principaux comptes de charges:
 ${accountDetails.length > 0 ? accountDetails.join('\n') : '  Aucun compte de charges trouvé'}`;
@@ -593,16 +600,18 @@ ${accountDetails.length > 0 ? accountDetails.join('\n') : '  Aucun compte de cha
     for (const account of accounts) {
       const accountClass = account.accountNumber?.charAt(0);
       const accountType = (account as any).type;
+      const balance = parseFloat(String(account.balance || '0'));
+      const finalBalance = isNaN(balance) ? 0 : balance;
       
       if (['3', '4', '5'].includes(accountClass) && accountType === 'asset') {
-        currentAssets += account.balance || 0;
+        currentAssets += finalBalance;
       } else if (
         ['4', '5'].includes(accountClass) &&
         accountType === 'liability'
       ) {
-        currentLiabilities += account.balance || 0;
+        currentLiabilities += finalBalance;
       } else if (accountClass === '1') {
-        equity += account.balance || 0;
+        equity += finalBalance;
       }
     }
 
@@ -633,7 +642,8 @@ RATIOS FINANCIERS:
       where: { companyId, accountNumber: '120' },
     });
 
-    const lastClosureResult = resultAccount?.balance || 0;
+    const resultBalance = parseFloat(String(resultAccount?.balance || '0'));
+    const lastClosureResult = isNaN(resultBalance) ? 0 : resultBalance;
 
     // Nombre d'écritures en brouillon
     const draftCount = await this.journalEntryRepo.count({
