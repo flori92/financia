@@ -84,7 +84,7 @@ export default function JournalPage() {
       const headers = lines[0].split(';').map(h => h.trim());
       const dataLines = lines.slice(1);
       
-      triggerToast("success", `${dataLines.length} écritures importées avec succès");
+      triggerToast("success", `${dataLines.length} écritures importées avec succès`);
       loadData();
     } catch (err) {
       triggerToast("error", "Erreur lors de l'import du fichier CSV");
