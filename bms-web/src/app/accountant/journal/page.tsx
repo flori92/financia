@@ -284,7 +284,7 @@ export default function JournalPage() {
                   onChange={(event) => setFilters(prev => ({ ...prev, account: event.target.value }))}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
                 >
-                  <option value="">Tous les comptes</option>
+                  <option key="all-accounts" value="">Tous les comptes</option>
                   {accounts.map((account) => (
                     <option key={account.code} value={account.code}>{account.code} - {account.name}</option>
                   ))}
@@ -322,10 +322,10 @@ export default function JournalPage() {
                   onChange={(event) => setFilters(prev => ({ ...prev, status: event.target.value }))}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20"
                 >
-                  <option value="">Tous les statuts</option>
-                  <option value="validated">Validé</option>
-                  <option value="draft">Brouillon</option>
-                  <option value="rejected">Rejeté</option>
+                  <option key="all-status" value="">Tous les statuts</option>
+                  <option key="status-validated" value="validated">Validé</option>
+                  <option key="status-draft" value="draft">Brouillon</option>
+                  <option key="status-rejected" value="rejected">Rejeté</option>
                 </select>
               </div>
             </form>
@@ -471,7 +471,7 @@ export default function JournalPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Compte débit</label>
                   <select name="debitAccount" required className="w-full px-3 py-2 border rounded-lg">
-                    <option value="">Sélectionner</option>
+                    <option key="select-debit" value="">Sélectionner</option>
                     {accounts.map(acc => (
                       <option key={acc.code} value={acc.code}>{acc.code} - {acc.name}</option>
                     ))}
@@ -486,7 +486,7 @@ export default function JournalPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Compte crédit</label>
                   <select name="creditAccount" required className="w-full px-3 py-2 border rounded-lg">
-                    <option value="">Sélectionner</option>
+                    <option key="select-credit" value="">Sélectionner</option>
                     {accounts.map(acc => (
                       <option key={acc.code} value={acc.code}>{acc.code} - {acc.name}</option>
                     ))}
