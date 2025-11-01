@@ -161,7 +161,7 @@ const menuItems: SidebarItem[] = [
     icon: Sparkles,
     submenu: [
       { label: "OCR Documents", href: "/ai/ocr", icon: Scan, badge: "LIVE", badgeColor: "emerald" },
-      // { label: "Assistant virtuel", href: "/ai/chat", icon: Activity, badge: "Bêta", badgeColor: "purple" },
+      { label: "Assistant virtuel", href: "/ai/chat", icon: Activity, badge: "LIVE", badgeColor: "purple" },
       // { label: "Prédictions", href: "/ai/predictions", icon: TrendingUp }
     ]
   },
