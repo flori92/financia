@@ -258,12 +258,12 @@ export default function OcrPage() {
         </p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
-        <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-        <div className="text-sm text-blue-900">
-          <p className="font-medium mb-1">Mode simulation activé</p>
-          <p className="text-blue-700">
-            L'extraction OCR utilise actuellement des données simulées. L'intégration avec Google Vision AI ou AWS Textract sera disponible prochainement.
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+        <div className="text-sm text-green-900">
+          <p className="font-medium mb-1">✅ OCR Réel avec Tesseract.js</p>
+          <p className="text-green-700">
+            L'extraction OCR fonctionne avec <strong>Tesseract.js</strong> - solution open-source gratuite et locale, sans API externe. Support français et anglais avec reconnaissance automatique du type de document.
           </p>
         </div>
       </div>
