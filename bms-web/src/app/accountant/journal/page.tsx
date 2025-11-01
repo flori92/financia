@@ -38,10 +38,13 @@ export default function JournalPage() {
         fetch('http://localhost:3001/api/v1/accounting/general-ledger').then(r => r.json()),
         fetch('http://localhost:3001/api/v1/accounting/chart-of-accounts').then(r => r.json())
       ]);
-      setEntries(entriesRes);
-      setAccounts(accountsRes);
+      // L'API general-ledger retourne {movements: [], summary: {}}
+      setEntries(Array.isArray(entriesRes) ? entriesRes : (entriesRes?.movements || []));
+      setAccounts(Array.isArray(accountsRes) ? accountsRes : []);
     } catch (err) {
       console.error(err);
+      setEntries([]);
+      setAccounts([]);
     } finally {
       setLoading(false);
     }
@@ -119,6 +122,7 @@ export default function JournalPage() {
   };
 
   const filteredEntries = useMemo(() => {
+    if (!Array.isArray(entries)) return [];
     return entries.filter(entry => {
       const entryDate = entry.date ? new Date(entry.date) : undefined;
       const debitAmount = entry.debit?.amount || 0;
