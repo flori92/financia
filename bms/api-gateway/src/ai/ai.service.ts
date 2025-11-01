@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OcrService } from './services/ocr.service';
+import { OllamaRAGService } from './services/ollama-rag.service';
 // import { AnomalyDetectionService } from './services/anomaly-detection.service';
 
 @Injectable()
 export class AIService {
+  private readonly logger = new Logger(AIService.name);
+
   constructor(
     private readonly ocrService: OcrService,
+    private readonly ollamaRAGService: OllamaRAGService,
     // private readonly anomalyDetection: AnomalyDetectionService,
   ) {}
 
@@ -24,7 +28,25 @@ export class AIService {
   }
 
   async chatResponse(content: string, context?: any) {
-    // Assistant virtuel intelligent basé sur le contexte comptable
+    this.logger.log(`💬 Chat request: "${content.substring(0, 50)}..."`);
+
+    // Essayer d'utiliser Ollama RAG pour une réponse intelligente
+    try {
+      const companyId = context?.companyId || '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
+      
+      this.logger.log(`🤖 Utilisation de Ollama RAG avec companyId: ${companyId}`);
+      
+      const intelligentResponse = await this.ollamaRAGService.generateIntelligentResponse(
+        content,
+        companyId,
+      );
+
+      return { response: intelligentResponse };
+    } catch (error) {
+      this.logger.warn(`⚠️ Ollama RAG indisponible, fallback sur réponses pré-configurées:`, error.message);
+    }
+
+    // Fallback: Assistant virtuel basé sur mots-clés
     const lowerContent = content.toLowerCase();
     
     // Réponses contextuelles basées sur les mots-clés
