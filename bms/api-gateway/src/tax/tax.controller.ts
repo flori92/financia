@@ -47,10 +47,13 @@ export class TaxController {
       console.warn('TaxService error, returning mock data:', error.message);
       return {
         period: `${startDate} au ${endDate}`,
+        revenueHT: 12500000,
         taxableRevenue: 12500000,
         vatCollected: 2500000,
+        purchasesHT: 9000000,
         deductibleExpenses: 9000000,
         vatDeductible: 1800000,
+        vatNet: 700000,
         vatDue: 700000,
         vatCredit: 0,
         declarationId: `vat-${new Date().toISOString().slice(0, 7)}`,

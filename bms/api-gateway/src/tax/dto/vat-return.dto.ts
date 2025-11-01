@@ -5,18 +5,27 @@ export class VatReturnDto {
   period: string;
 
   @ApiProperty({ description: 'Chiffre d\'affaires HT (base TVA collectée)' })
+  revenueHT: number;
+
+  @ApiProperty({ description: 'Chiffre d\'affaires HT (base TVA collectée) - alias' })
   taxableRevenue: number;
 
   @ApiProperty({ description: 'TVA collectée sur ventes' })
   vatCollected: number;
 
   @ApiProperty({ description: 'Achats HT (base TVA déductible)' })
+  purchasesHT: number;
+
+  @ApiProperty({ description: 'Achats HT (base TVA déductible) - alias' })
   deductibleExpenses: number;
 
   @ApiProperty({ description: 'TVA déductible sur achats' })
   vatDeductible: number;
 
   @ApiProperty({ description: 'TVA nette à payer (collectée - déductible)' })
+  vatNet: number;
+
+  @ApiProperty({ description: 'TVA nette à payer (collectée - déductible) - alias' })
   vatDue: number;
 
   @ApiProperty({ description: 'Crédit TVA à reporter' })
