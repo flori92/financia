@@ -56,6 +56,18 @@ export class JournalEntryLine {
   @Column({ length: 100, nullable: true })
   analyticReference: string;
 
+  @ApiProperty({ description: 'Référence document (facture, paiement, etc.)', required: false })
+  @Column({ length: 100, nullable: true })
+  reference: string;
+
+  @ApiProperty({ description: 'Clé de lettrage (rapprochement comptable)', required: false })
+  @Column({ length: 50, nullable: true })
+  reconciliationKey: string;
+
+  @ApiProperty({ description: 'Date de rapprochement', required: false })
+  @Column({ type: 'timestamp', nullable: true })
+  reconciledAt: Date;
+
   @ApiProperty({ description: 'Date de création' })
   @CreateDateColumn()
   createdAt: Date;

@@ -1,10 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, IsNull } from 'typeorm';
+import { JournalEntryLine } from '../../accounting/entities/journal-entry-line.entity';
+import { AuditLog } from '../../audit/entities/audit-log.entity';
 
 /**
  * Service de lettrage automatique intelligent
  */
 @Injectable()
 export class LettrageService {
+  constructor(
+    @InjectRepository(JournalEntryLine)
+    private journalEntryLineRepository: Repository<JournalEntryLine>,
+    @InjectRepository(AuditLog)
+    private auditLogRepository: Repository<AuditLog>,
+  ) {}
   
   /**
    * Lettrage automatique par référence facture
@@ -200,20 +210,85 @@ export class LettrageService {
     return results;
   }
 
-  // Méthodes helper (à implémenter avec DB)
+  // Méthodes helper (implémentation réelle avec TypeORM)
+  
+  /**
+   * Récupère les lignes non lettrées d'un compte
+   */
   private async getUnreconciledLines(accountId: string): Promise<any[]> {
-    return []; // Mock
+    const lines = await this.journalEntryLineRepository
+      .createQueryBuilder('line')
+      .leftJoinAndSelect('line.journalEntry', 'entry')
+      .leftJoinAndSelect('line.account', 'account')
+      .where('account.id = :accountId', { accountId })
+      .andWhere('entry.status = :status', { status: 'posted' })
+      .andWhere('line.reconciliationKey IS NULL')
+      .orderBy('entry.entryDate', 'ASC')
+      .getMany();
+
+    return lines.map(line => ({
+      id: line.id,
+      entryId: line.journalEntry?.id,
+      accountId: line.account?.id,
+      debit: Number(line.debit || 0),
+      credit: Number(line.credit || 0),
+      label: line.label,
+      reference: line.reference,
+      entryDate: line.journalEntry?.entryDate,
+      reconciliationKey: line.reconciliationKey,
+    }));
   }
 
+  /**
+   * Récupère les lignes par clé de lettrage
+   */
   private async getLinesByReconciliationKey(key: string): Promise<any[]> {
-    return []; // Mock
+    const lines = await this.journalEntryLineRepository.find({
+      where: { reconciliationKey: key },
+      relations: ['journalEntry', 'account'],
+    });
+
+    return lines.map(line => ({
+      id: line.id,
+      entryId: line.journalEntry?.id,
+      accountId: line.account?.id,
+      debit: Number(line.debit || 0),
+      credit: Number(line.credit || 0),
+      label: line.label,
+      reference: line.reference,
+      reconciliationKey: line.reconciliationKey,
+    }));
   }
 
+  /**
+   * Met à jour une ligne d'écriture
+   */
   private async updateLine(id: string, data: any): Promise<void> {
-    // Mock
+    await this.journalEntryLineRepository.update(id, {
+      reconciliationKey: data.reconciliationKey,
+      reconciledAt: data.reconciledAt,
+      // Note: unReconciledBy et unReconciledAt ne sont pas dans l'entité actuelle
+      // On les stocke dans les métadonnées ou on les ajoute à l'entité si nécessaire
+    });
   }
 
+  /**
+   * Enregistre une action d'audit
+   */
   private async logAudit(data: any): Promise<void> {
-    // Mock
+    const auditLog = this.auditLogRepository.create({
+      userId: data.userId || 'system',
+      action: data.action,
+      entityType: 'journal_entry_line',
+      entityId: data.reconciliationKey || 'unknown',
+      notes: JSON.stringify({
+        reconciliationKey: data.reconciliationKey,
+        linesCount: data.linesCount,
+        timestamp: new Date().toISOString(),
+        service: 'LettrageService',
+      }),
+    });
+
+    await this.auditLogRepository.save(auditLog);
   }
 }
