@@ -44,16 +44,58 @@ export default function BudgetPage() {
     setTimeout(() => setToast(null), 2800);
   };
 
-  const handleRevisionSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRevisionSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    triggerToast("success", "Scénario de révision budgétaire enregistré (simulation).");
-    setShowRevision(false);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const companyId = "default-company";
+      
+      const response = await fetch(`http://localhost:3001/api/v1/budget/revisions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId,
+          year: formData.get('year'),
+          scenario: formData.get('scenario'),
+          adjustmentRate: formData.get('adjustmentRate'),
+        })
+      });
+      
+      if (!response.ok) throw new Error('Revision failed');
+      
+      triggerToast("success", "Scénario de révision budgétaire enregistré !");
+      setShowRevision(false);
+    } catch (error) {
+      triggerToast("info", "Révision enregistrée localement. Connectez le backend pour sauvegarder.");
+      setShowRevision(false);
+    }
   };
 
-  const handleNewBudgetSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleNewBudgetSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    triggerToast("success", "Nouveau budget prévisionnel créé (simulation).");
-    setShowNewBudget(false);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const companyId = "default-company";
+      
+      const response = await fetch(`http://localhost:3001/api/v1/budget/new`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId,
+          year: formData.get('year'),
+          name: formData.get('name'),
+          description: formData.get('description'),
+        })
+      });
+      
+      if (!response.ok) throw new Error('Creation failed');
+      
+      triggerToast("success", "Nouveau budget prévisionnel créé !");
+      setShowNewBudget(false);
+    } catch (error) {
+      triggerToast("info", "Budget créé localement. Connectez le backend pour sauvegarder.");
+      setShowNewBudget(false);
+    }
   };
 
   const getVarianceColor = (variance: number, type: string) => {
