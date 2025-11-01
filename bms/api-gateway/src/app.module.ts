@@ -133,6 +133,7 @@ import { AppController } from './app.controller';
     AIModule,
     BudgetModule,
     InventoryModule,
+    PurchasesModule,
     // Modules temporairement désactivés pour erreurs de compilation
     // ReportingModule,
     // IntegrationsModule,
