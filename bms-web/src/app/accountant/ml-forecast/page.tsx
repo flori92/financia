@@ -19,10 +19,10 @@ import {
 
 interface ForecastData {
   period: string;
-  actual: number;
+  actual: number | null;
   predicted: number;
   confidence: number;
-  accuracy: number;
+  accuracy: number | null;
   model: string;
 }
 
@@ -213,7 +213,9 @@ export default function MLForecastPage() {
           </CardHeader>
           <CardContent>
             <div className="text-lg font-bold text-amber-600">
-              {(data?.forecasts.reduce((sum, f) => sum + f.confidence, 0) / (data?.forecasts.length || 1)).toFixed(1)}%
+              {data?.forecasts ? 
+                (data.forecasts.reduce((sum, f) => sum + f.confidence, 0) / data.forecasts.length).toFixed(1) 
+                : '0.0'}%
             </div>
             <p className="text-xs text-slate-600">Fiabilité des prévisions</p>
           </CardContent>
@@ -253,7 +255,7 @@ export default function MLForecastPage() {
                       <div 
                         className="w-full bg-blue-500 rounded-t"
                         style={{ height: `${actualHeight}%` }}
-                        title={`Réel: ${formatCurrency(forecast.actual)}`}
+                        title={`Réel: ${forecast.actual ? formatCurrency(forecast.actual) : 'N/A'}`}
                       ></div>
                     )}
                     <div 
