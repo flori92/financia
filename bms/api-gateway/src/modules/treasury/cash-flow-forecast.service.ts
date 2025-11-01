@@ -1,10 +1,23 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between, LessThanOrEqual } from 'typeorm';
+import { Invoice } from '../../invoices/entities/invoice.entity';
+import { BankAccount } from '../../banking/entities/bank-account.entity';
+import { Budget } from '../../budget/entities/budget.entity';
 
 /**
  * Service de prévisionnel de trésorerie
  */
 @Injectable()
 export class CashFlowForecastService {
+  constructor(
+    @InjectRepository(Invoice)
+    private invoiceRepository: Repository<Invoice>,
+    @InjectRepository(BankAccount)
+    private bankAccountRepository: Repository<BankAccount>,
+    @InjectRepository(Budget)
+    private budgetRepository: Repository<Budget>,
+  ) {}
   
   /**
    * Génère le prévisionnel sur N jours
@@ -162,29 +175,157 @@ export class CashFlowForecastService {
     return recommendations;
   }
 
-  // Méthodes helper (à implémenter avec vraies données)
+  // Méthodes helper (implémentation réelle avec TypeORM)
+  
+  /**
+   * Récupère le solde bancaire actuel réel
+   */
   private async getCurrentBalance(companyId: string): Promise<number> {
-    return 5000000; // Mock
+    const accounts = await this.bankAccountRepository.find({
+      where: { companyId, isActive: true },
+      select: ['id', 'openingBalance'],
+    });
+
+    if (accounts.length === 0) {
+      // Si aucun compte, retourner 0 plutôt qu'une erreur
+      return 0;
+    }
+
+    // Pour l'instant, utiliser openingBalance
+    // TODO: Calculer solde réel = openingBalance + sum(transactions)
+    return accounts.reduce((sum, account) => sum + Number(account.openingBalance || 0), 0);
   }
 
+  /**
+   * Récupère les factures clients à échéance à une date donnée
+   */
   private async getInvoicesDueOn(companyId: string, date: Date): Promise<any[]> {
-    return []; // Mock
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const invoices = await this.invoiceRepository.find({
+      where: {
+        companyId,
+        invoiceType: 'sales', // Factures de vente = encaissements
+        dueDate: Between(startOfDay, endOfDay),
+        paymentStatus: 'unpaid', // Ou 'partially_paid'
+      },
+      select: ['id', 'invoiceNumber', 'outstandingAmount', 'dueDate'],
+    });
+
+    return invoices.map(inv => ({
+      id: inv.id,
+      invoiceNumber: inv.invoiceNumber,
+      remainingAmount: Number(inv.outstandingAmount || 0),
+      dueDate: inv.dueDate,
+    }));
   }
 
+  /**
+   * Calcule les revenus récurrents (abonnements) prévus
+   */
   private async getRecurringRevenue(companyId: string, date: Date): Promise<number> {
-    return 0; // Mock
+    // Recherche dans budget les lignes de revenus (comptes classe 7)
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const budgetLines = await this.budgetRepository
+      .createQueryBuilder('budget')
+      .leftJoinAndSelect('budget.lines', 'line')
+      .where('budget.companyId = :companyId', { companyId })
+      .andWhere('budget.year = :year', { year })
+      .andWhere('line.month = :month', { month })
+      .andWhere('line.accountNumber LIKE :pattern', { pattern: '7%' }) // Comptes de produits
+      .getMany();
+
+    if (budgetLines.length === 0) return 0;
+
+    // Somme des montants planifiés pour ce mois
+    let total = 0;
+    for (const budget of budgetLines) {
+      for (const line of budget.lines || []) {
+        if (line.accountNumber && line.accountNumber.startsWith('7')) {
+          total += Number(line.plannedAmount || 0);
+        }
+      }
+    }
+
+    return total;
   }
 
+  /**
+   * Récupère les factures fournisseurs à échéance à une date donnée
+   */
   private async getBillsDueOn(companyId: string, date: Date): Promise<any[]> {
-    return []; // Mock
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const bills = await this.invoiceRepository.find({
+      where: {
+        companyId,
+        invoiceType: 'purchase', // Factures d'achat = décaissements
+        dueDate: Between(startOfDay, endOfDay),
+        paymentStatus: 'unpaid',
+      },
+      select: ['id', 'invoiceNumber', 'outstandingAmount', 'dueDate'],
+    });
+
+    return bills.map(bill => ({
+      id: bill.id,
+      invoiceNumber: bill.invoiceNumber,
+      remainingAmount: Number(bill.outstandingAmount || 0),
+      dueDate: bill.dueDate,
+    }));
   }
 
+  /**
+   * Calcule les charges fixes mensuelles (salaires, loyers, etc.)
+   */
   private async getFixedCosts(companyId: string, date: Date): Promise<number> {
-    return 0; // Mock
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    // Les charges fixes sont généralement payées en début de mois (jour 1-5)
+    if (day > 5) return 0;
+
+    const budgetLines = await this.budgetRepository
+      .createQueryBuilder('budget')
+      .leftJoinAndSelect('budget.lines', 'line')
+      .where('budget.companyId = :companyId', { companyId })
+      .andWhere('budget.year = :year', { year })
+      .andWhere('line.month = :month', { month })
+      .andWhere('line.accountNumber LIKE :pattern', { pattern: '6%' }) // Comptes de charges
+      .getMany();
+
+    if (budgetLines.length === 0) return 0;
+
+    // Somme des charges fixes planifiées pour ce mois
+    let total = 0;
+    for (const budget of budgetLines) {
+      for (const line of budget.lines || []) {
+        if (line.accountNumber && line.accountNumber.startsWith('6')) {
+          total += Number(line.plannedAmount || 0);
+        }
+      }
+    }
+
+    return total;
   }
 
+  /**
+   * Récupère les prélèvements automatiques programmés
+   */
   private async getDirectDebits(companyId: string, date: Date): Promise<number> {
-    return 0; // Mock
+    // Pour l'instant, retourner 0 car table direct_debits pas encore créée
+    // TODO: Créer entité DirectDebit et implémenter query
+    return 0;
   }
 
   private getStatus(balance: number): string {
