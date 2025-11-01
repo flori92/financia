@@ -72,6 +72,24 @@ export class TaxService {
       .andWhere('entry.status != :status', { status: 'cancelled' })
       .getMany();
 
+    // Si aucune écriture trouvée, retourner une déclaration vide
+    if (!entries || entries.length === 0) {
+      return {
+        period: `${startDate} au ${endDate}`,
+        vatCollected: 0,
+        vatDeductible: 0,
+        vatDue: 0,
+        vatCredit: 0,
+        taxableRevenue: 0,
+        deductibleExpenses: 0,
+        declarationId: `vat-${new Date().toISOString().slice(0, 7)}`,
+        status: 'draft',
+        dueDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        revenueDetails: [],
+        expenseDetails: [],
+      };
+    }
+
     // Calculer les totaux
     let revenueHT = 0;
     let purchasesHT = 0;
