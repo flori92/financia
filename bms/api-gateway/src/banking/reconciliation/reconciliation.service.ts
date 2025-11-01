@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import Fuse from 'fuse.js';
-import { BankTransaction } from '../entities/bank-transaction.entity';
-import { AccountingEntry } from '../../accounting/entities/accounting-entry.entity';
+import { BankTransaction } from '../../entities/bank-transaction.entity';
+import { JournalEntry } from '../../accounting/entities/journal-entry.entity';
 import { ReconciliationMatch } from '../entities/reconciliation-match.entity';
 
 @Injectable()

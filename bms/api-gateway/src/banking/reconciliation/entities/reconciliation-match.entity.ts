@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { BankTransaction } from '../bank-transaction.entity';
-import { AccountingEntry } from '../../accounting/entities/accounting-entry.entity';
+import { BankTransaction } from '../../entities/bank-transaction.entity';
+import { JournalEntry } from '../../accounting/entities/journal-entry.entity';
 
 @Entity('reconciliation_matches')
 export class ReconciliationMatch {
@@ -49,7 +49,7 @@ export class ReconciliationMatch {
     @JoinColumn({ name: 'bankTransactionId' })
     bankTransaction: BankTransaction;
 
-    @ManyToOne(() => AccountingEntry)
+    @ManyToOne(() => JournalEntry)
     @JoinColumn({ name: 'accountingEntryId' })
-    accountingEntry: AccountingEntry;
+    accountingEntry: JournalEntry;
 }
