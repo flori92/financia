@@ -90,7 +90,7 @@ export class AIController {
       service: 'OCR',
       version: '1.0.0',
       capabilities: ['invoice', 'receipt', 'bank_statement'],
-      message: 'Service OCR opérationnel (mode simulation)',
+      message: 'Service OCR opérationnel (OCR.space + Tesseract.js + Simulation)',
     };
   }
 }

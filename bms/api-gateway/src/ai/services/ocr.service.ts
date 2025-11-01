@@ -1,5 +1,6 @@
 import { Injectable, HttpException, Logger } from '@nestjs/common';
 import Tesseract from 'tesseract.js';
+import axios from 'axios';
 
 @Injectable()
 export class OcrService {
@@ -11,12 +12,80 @@ export class OcrService {
    */
   async extractInvoiceData(fileBuffer: Buffer): Promise<any> {
     try {
-      this.logger.log('Démarrage extraction OCR avec Tesseract.js...');
+      // Essayer OCR.space API (gratuit et fiable)
+      this.logger.log('Tentative extraction OCR avec OCR.space API...');
+      const ocrSpaceResult = await this.extractWithOCRSpace(fileBuffer);
+      if (ocrSpaceResult) {
+        return ocrSpaceResult;
+      }
 
-      // Extraction du texte avec Tesseract
+      // Si OCR.space échoue, essayer Tesseract.js
+      this.logger.log('Fallback sur Tesseract.js...');
+      const tesseractResult = await this.extractWithTesseract(fileBuffer);
+      return tesseractResult;
+
+    } catch (error) {
+      this.logger.warn('OCR réel indisponible, utilisation mode simulation:', error.message);
+      
+      // Fallback final: Mode simulation avec données mockées
+      return this.getMockInvoiceData();
+    }
+  }
+
+  /**
+   * Extraction avec OCR.space API (gratuit)
+   */
+  private async extractWithOCRSpace(fileBuffer: Buffer): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('file', new Blob([fileBuffer]), 'invoice.jpg');
+      formData.append('language', 'fr');
+      formData.append('isOverlayRequired', 'false');
+      formData.append('detectOrientation', 'true');
+      formData.append('scale', 'true');
+
+      const response = await axios.post('https://api.ocr.space/parse/image', formData, {
+        headers: {
+          'apikey': 'helloworld', // Clé gratuite pour tests
+          ...formData.getHeaders()
+        },
+        timeout: 30000
+      });
+
+      if (response.data?.ParsedResults?.[0]?.ParsedText) {
+        const text = response.data.ParsedResults[0].ParsedText;
+        const confidence = response.data.ParsedResults[0].TextOverlay?.Lines?.[0]?.Words?.[0]?.Confidence || 95;
+        
+        this.logger.log(`OCR.space: Texte extrait avec confiance: ${confidence}%`);
+        
+        const parsedData = this.parseInvoiceText(text);
+        
+        return {
+          ...parsedData,
+          confidence: confidence / 100,
+          rawText: text,
+          extractedAt: new Date().toISOString(),
+          ocrEngine: 'ocr.space'
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      this.logger.warn('OCR.space API indisponible:', error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Extraction avec Tesseract.js (fallback)
+   */
+  private async extractWithTesseract(fileBuffer: Buffer): Promise<any> {
+    try {
+      this.logger.log('Extraction OCR avec Tesseract.js...');
+
       const { data: { text, confidence } } = await Tesseract.recognize(
         fileBuffer,
-        'fra+eng', // Français + Anglais
+        'fra+eng',
         {
           logger: (m) => {
             if (m.status === 'recognizing text') {
@@ -26,9 +95,8 @@ export class OcrService {
         }
       );
 
-      this.logger.log(`Texte extrait avec confiance: ${confidence}%`);
+      this.logger.log(`Tesseract: Texte extrait avec confiance: ${confidence}%`);
 
-      // Parsing intelligent du texte extrait
       const parsedData = this.parseInvoiceText(text);
 
       return {
@@ -36,12 +104,11 @@ export class OcrService {
         confidence: confidence / 100,
         rawText: text,
         extractedAt: new Date().toISOString(),
+        ocrEngine: 'tesseract.js'
       };
     } catch (error) {
-      this.logger.warn('OCR Tesseract indisponible, utilisation mode simulation:', error.message);
-      
-      // Fallback: Mode simulation avec données mockées
-      return this.getMockInvoiceData();
+      this.logger.warn('Tesseract.js échoué:', error.message);
+      throw error;
     }
   }
 
@@ -83,6 +150,7 @@ export class OcrService {
       confidence: 0.95,
       rawText: 'Mode simulation - OCR temporairement indisponible',
       extractedAt: new Date().toISOString(),
+      ocrEngine: 'simulation',
       mode: 'simulation'
     };
   }
