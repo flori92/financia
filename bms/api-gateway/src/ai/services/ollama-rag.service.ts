@@ -393,7 +393,7 @@ export class OllamaRAGService {
     return `APERÇU GÉNÉRAL:
 - Total écritures comptables: ${totalEntries}
 - Total comptes dans le plan comptable: ${totalAccounts}
-- Système: ERP MERP avec plan comptable OHADA/SYSCOHADA`;
+- Système: ERP BMS avec plan comptable OHADA/SYSCOHADA`;
   }
 
   /**

@@ -33,7 +33,7 @@ export default function AIChatPage() {
     {
       id: '0',
       role: 'assistant',
-      content: "Bonjour ! Je suis votre assistant virtuel MERP. Je peux vous aider avec vos questions comptables, fiscales et de gestion. Comment puis-je vous assister aujourd'hui ?",
+      content: "Bonjour ! Je suis votre assistant virtuel BMS. Je peux vous aider avec vos questions comptables, fiscales et de gestion. Comment puis-je vous assister aujourd'hui ?",
       timestamp: new Date()
     }
   ]);
@@ -126,7 +126,7 @@ export default function AIChatPage() {
           <Bot className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Assistant Virtuel MERP</h1>
+          <h1 className="text-xl font-bold text-gray-900">Assistant Virtuel BMS</h1>
           <p className="text-sm text-gray-500">Propulsé par l'Intelligence Artificielle</p>
         </div>
         <div className="ml-auto">
