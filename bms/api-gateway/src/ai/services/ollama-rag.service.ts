@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between, MoreThan, LessThan } from 'typeorm';
 import { Ollama } from 'ollama';
 import { JournalEntry } from '../../accounting/entities/journal-entry.entity';
 import { JournalEntryLine } from '../../accounting/entities/journal-entry-line.entity';
 import { Account } from '../../accounting/entities/account.entity';
+import { Company } from '../../companies/entities/company.entity';
+import { User } from '../../auth/entities/user.entity';
 
 @Injectable()
 export class OllamaRAGService {
@@ -18,6 +20,10 @@ export class OllamaRAGService {
     private readonly journalLineRepo: Repository<JournalEntryLine>,
     @InjectRepository(Account)
     private readonly accountRepo: Repository<Account>,
+    @InjectRepository(Company)
+    private readonly companyRepo: Repository<Company>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {
     // Initialiser Ollama avec connexion locale
     this.ollama = new Ollama({ host: 'http://localhost:11434' });
@@ -122,7 +128,83 @@ export class OllamaRAGService {
       contextParts.push(recentEntries);
     }
 
-    // Si aucun contexte spécifique, donner un aperçu général
+    // Contexte: Ventes et revenus
+    if (
+      lowerQuestion.includes('vente') ||
+      lowerQuestion.includes('revenu') ||
+      lowerQuestion.includes('chiffre d\'affaires') ||
+      lowerQuestion.includes('ca ')
+    ) {
+      const salesData = await this.getSalesContext(companyId);
+      contextParts.push(salesData);
+    }
+
+    // Contexte: Achats et dépenses
+    if (
+      lowerQuestion.includes('achat') ||
+      lowerQuestion.includes('dépense') ||
+      lowerQuestion.includes('coût') ||
+      lowerQuestion.includes('charge')
+    ) {
+      const purchasesData = await this.getPurchasesContext(companyId);
+      contextParts.push(purchasesData);
+    }
+
+    // Contexte: Budget
+    if (
+      lowerQuestion.includes('budget') ||
+      lowerQuestion.includes('prévision') ||
+      lowerQuestion.includes('planif')
+    ) {
+      const budgetData = await this.getBudgetContext(companyId);
+      contextParts.push(budgetData);
+    }
+
+    // Contexte: Performance globale et KPIs
+    if (
+      lowerQuestion.includes('performance') ||
+      lowerQuestion.includes('kpi') ||
+      lowerQuestion.includes('indicateur') ||
+      lowerQuestion.includes('tableau de bord') ||
+      lowerQuestion.includes('dashboard')
+    ) {
+      const performanceData = await this.getPerformanceContext(companyId);
+      contextParts.push(performanceData);
+    }
+
+    // Contexte: Clôture et états comptables
+    if (
+      lowerQuestion.includes('clôture') ||
+      lowerQuestion.includes('balance') ||
+      lowerQuestion.includes('bilan')
+    ) {
+      const closureData = await this.getClosureContext(companyId);
+      contextParts.push(closureData);
+    }
+
+    // Contexte: Entreprise et profil
+    if (
+      lowerQuestion.includes('entreprise') ||
+      lowerQuestion.includes('société') ||
+      lowerQuestion.includes('company') ||
+      lowerQuestion.includes('profil')
+    ) {
+      const companyData = await this.getCompanyContext(companyId);
+      contextParts.push(companyData);
+    }
+
+    // Contexte: Utilisateurs et activité
+    if (
+      lowerQuestion.includes('utilisateur') ||
+      lowerQuestion.includes('équipe') ||
+      lowerQuestion.includes('activité') ||
+      lowerQuestion.includes('qui a')
+    ) {
+      const activityData = await this.getActivityContext(companyId);
+      contextParts.push(activityData);
+    }
+
+    // Si aucun contexte spécifique, donner un aperçu général complet
     if (contextParts.length === 0) {
       const overview = await this.getGeneralOverview(companyId);
       contextParts.push(overview);
@@ -312,6 +394,317 @@ export class OllamaRAGService {
 - Total écritures comptables: ${totalEntries}
 - Total comptes dans le plan comptable: ${totalAccounts}
 - Système: ERP MERP avec plan comptable OHADA/SYSCOHADA`;
+  }
+
+  /**
+   * Contexte Ventes et revenus
+   */
+  private async getSalesContext(companyId: string): Promise<string> {
+    // Analyser les ventes (compte 707, 706, classe 7)
+    const salesAccounts = await this.accountRepo
+      .createQueryBuilder('account')
+      .where('account.companyId = :companyId', { companyId })
+      .andWhere('account.accountNumber LIKE :pattern', { pattern: '7%' })
+      .getMany();
+
+    let totalSales = 0;
+    let accountDetails = [];
+
+    for (const account of salesAccounts.slice(0, 5)) {
+      // Top 5
+      totalSales += account.balance || 0;
+      accountDetails.push(
+        `  • ${account.accountNumber} - ${account.accountName || 'N/A'}: ${(account.balance || 0).toFixed(2)} FCFA`,
+      );
+    }
+
+    // Calculer CA des 3 derniers mois
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    const recentSalesCount = await this.journalLineRepo
+      .createQueryBuilder('line')
+      .leftJoin('line.entry', 'entry')
+      .leftJoin('line.account', 'account')
+      .where('entry.companyId = :companyId', { companyId })
+      .andWhere('entry.status = :status', { status: 'posted' })
+      .andWhere('account.accountNumber LIKE :pattern', { pattern: '7%' })
+      .andWhere('entry.entryDate >= :date', {
+        date: threeMonthsAgo.toISOString(),
+      })
+      .getCount();
+
+    return `VENTES ET CHIFFRE D'AFFAIRES:
+- Total produits (classe 7): ${totalSales.toFixed(2)} FCFA
+- Nombre de transactions 3 derniers mois: ${recentSalesCount}
+
+Principaux comptes de produits:
+${accountDetails.length > 0 ? accountDetails.join('\n') : '  Aucun compte de produits trouvé'}`;
+  }
+
+  /**
+   * Contexte Achats et dépenses
+   */
+  private async getPurchasesContext(companyId: string): Promise<string> {
+    // Analyser les achats (compte 607, 601-608, classe 6)
+    const purchaseAccounts = await this.accountRepo
+      .createQueryBuilder('account')
+      .where('account.companyId = :companyId', { companyId })
+      .andWhere('account.accountNumber LIKE :pattern', { pattern: '6%' })
+      .getMany();
+
+    let totalPurchases = 0;
+    let accountDetails = [];
+
+    for (const account of purchaseAccounts.slice(0, 5)) {
+      // Top 5
+      totalPurchases += account.balance || 0;
+      accountDetails.push(
+        `  • ${account.accountNumber} - ${account.accountName || 'N/A'}: ${(account.balance || 0).toFixed(2)} FCFA`,
+      );
+    }
+
+    // Compte fournisseurs (401)
+    const supplierAccount = await this.accountRepo.findOne({
+      where: { companyId, accountNumber: '401' },
+    });
+
+    const supplierBalance = supplierAccount?.balance || 0;
+
+    return `ACHATS ET DÉPENSES:
+- Total charges (classe 6): ${totalPurchases.toFixed(2)} FCFA
+- Dettes fournisseurs (401): ${supplierBalance.toFixed(2)} FCFA
+
+Principaux comptes de charges:
+${accountDetails.length > 0 ? accountDetails.join('\n') : '  Aucun compte de charges trouvé'}`;
+  }
+
+  /**
+   * Contexte Budget et prévisions
+   */
+  private async getBudgetContext(companyId: string): Promise<string> {
+    // Calculer budget basé sur moyenne 6 derniers mois
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const lines = await this.journalLineRepo
+      .createQueryBuilder('line')
+      .leftJoin('line.entry', 'entry')
+      .leftJoin('line.account', 'account')
+      .where('entry.companyId = :companyId', { companyId })
+      .andWhere('entry.status = :status', { status: 'posted' })
+      .andWhere('entry.entryDate >= :startDate', {
+        startDate: sixMonthsAgo.toISOString(),
+      })
+      .getMany();
+
+    let avgMonthlyRevenue = 0;
+    let avgMonthlyExpenses = 0;
+    const monthsData = new Map<string, { revenue: number; expenses: number }>();
+
+    for (const line of lines) {
+      if (!line.account) continue;
+
+      // La relation entry devrait être chargée par le leftJoin
+      const entryDate = (line as any).entry?.entryDate;
+      if (!entryDate) continue;
+
+      const monthKey = new Date(entryDate)
+        .toISOString()
+        .substring(0, 7);
+      if (!monthsData.has(monthKey)) {
+        monthsData.set(monthKey, { revenue: 0, expenses: 0 });
+      }
+
+      const accountClass = line.account.accountNumber?.charAt(0);
+      const monthData = monthsData.get(monthKey);
+
+      if (accountClass === '7') {
+        monthData.revenue += line.credit - line.debit;
+      } else if (accountClass === '6') {
+        monthData.expenses += line.debit - line.credit;
+      }
+    }
+
+    if (monthsData.size > 0) {
+      let totalRevenue = 0;
+      let totalExpenses = 0;
+      monthsData.forEach((data) => {
+        totalRevenue += data.revenue;
+        totalExpenses += data.expenses;
+      });
+      avgMonthlyRevenue = totalRevenue / monthsData.size;
+      avgMonthlyExpenses = totalExpenses / monthsData.size;
+    }
+
+    const projectedNextMonth = avgMonthlyRevenue - avgMonthlyExpenses;
+
+    return `BUDGET ET PRÉVISIONS (basé sur 6 derniers mois):
+- Chiffre d'affaires moyen mensuel: ${avgMonthlyRevenue.toFixed(2)} FCFA
+- Charges moyennes mensuelles: ${avgMonthlyExpenses.toFixed(2)} FCFA
+- Résultat net moyen mensuel: ${(avgMonthlyRevenue - avgMonthlyExpenses).toFixed(2)} FCFA
+- Projection mois prochain: ${projectedNextMonth.toFixed(2)} FCFA
+- Nombre de mois analysés: ${monthsData.size}`;
+  }
+
+  /**
+   * Contexte Performance et KPIs
+   */
+  private async getPerformanceContext(companyId: string): Promise<string> {
+    // Calculer les KPIs des 12 derniers mois
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+    const lines = await this.journalLineRepo
+      .createQueryBuilder('line')
+      .leftJoin('line.entry', 'entry')
+      .leftJoin('line.account', 'account')
+      .where('entry.companyId = :companyId', { companyId })
+      .andWhere('entry.status = :status', { status: 'posted' })
+      .andWhere('entry.entryDate >= :startDate', {
+        startDate: twelveMonthsAgo.toISOString(),
+      })
+      .getMany();
+
+    let totalRevenue = 0;
+    let totalExpenses = 0;
+
+    for (const line of lines) {
+      if (!line.account) continue;
+      const accountClass = line.account.accountNumber?.charAt(0);
+
+      if (accountClass === '7') {
+        totalRevenue += line.credit - line.debit;
+      } else if (accountClass === '6') {
+        totalExpenses += line.debit - line.credit;
+      }
+    }
+
+    const netIncome = totalRevenue - totalExpenses;
+    const margin = totalRevenue > 0 ? ((netIncome / totalRevenue) * 100).toFixed(1) : '0.0';
+
+    // Ratios financiers
+    const accounts = await this.accountRepo.find({ where: { companyId } });
+
+    let currentAssets = 0;
+    let currentLiabilities = 0;
+    let equity = 0;
+
+    for (const account of accounts) {
+      const accountClass = account.accountNumber?.charAt(0);
+      const accountType = (account as any).type;
+      
+      if (['3', '4', '5'].includes(accountClass) && accountType === 'asset') {
+        currentAssets += account.balance || 0;
+      } else if (
+        ['4', '5'].includes(accountClass) &&
+        accountType === 'liability'
+      ) {
+        currentLiabilities += account.balance || 0;
+      } else if (accountClass === '1') {
+        equity += account.balance || 0;
+      }
+    }
+
+    const liquidityRatio =
+      currentLiabilities > 0
+        ? (currentAssets / currentLiabilities).toFixed(2)
+        : 'N/A';
+
+    return `PERFORMANCE ET KPIs (12 derniers mois):
+- Chiffre d'affaires annuel: ${totalRevenue.toFixed(2)} FCFA
+- Charges annuelles: ${totalExpenses.toFixed(2)} FCFA
+- Résultat net annuel: ${netIncome.toFixed(2)} FCFA
+- Marge nette: ${margin}%
+
+RATIOS FINANCIERS:
+- Ratio de liquidité: ${liquidityRatio}
+- Actif circulant: ${currentAssets.toFixed(2)} FCFA
+- Passif circulant: ${currentLiabilities.toFixed(2)} FCFA
+- Capitaux propres: ${equity.toFixed(2)} FCFA`;
+  }
+
+  /**
+   * Contexte Clôture et états comptables
+   */
+  private async getClosureContext(companyId: string): Promise<string> {
+    // Compte 120 (Résultat)
+    const resultAccount = await this.accountRepo.findOne({
+      where: { companyId, accountNumber: '120' },
+    });
+
+    const lastClosureResult = resultAccount?.balance || 0;
+
+    // Nombre d'écritures en brouillon
+    const draftCount = await this.journalEntryRepo.count({
+      where: { companyId, status: 'draft' },
+    });
+
+    // Total des comptes
+    const totalAccounts = await this.accountRepo.count({ where: { companyId } });
+
+    return `CLÔTURE ET ÉTATS COMPTABLES:
+- Résultat dernière clôture (120): ${lastClosureResult.toFixed(2)} FCFA
+- Écritures en brouillon: ${draftCount}
+- Total comptes dans le plan comptable: ${totalAccounts}
+- Plan comptable: OHADA/SYSCOHADA
+- ${draftCount > 0 ? '⚠️ Attention: écritures en brouillon à valider avant clôture' : '✅ Toutes les écritures sont validées'}`;
+  }
+
+  /**
+   * Contexte Entreprise et profil
+   */
+  private async getCompanyContext(companyId: string): Promise<string> {
+    const company = await this.companyRepo.findOne({
+      where: { id: companyId },
+    });
+
+    if (!company) {
+      return 'ENTREPRISE: Informations non disponibles';
+    }
+
+    return `INFORMATIONS ENTREPRISE:
+- Nom: ${company.name || 'N/A'}
+- Forme juridique: ${(company as any).legalForm || 'N/A'}
+- RCCM: ${(company as any).rccm || 'N/A'}
+- IFU: ${(company as any).ifu || 'N/A'}
+- Taux TVA: ${company.vatRate || 18}%
+- Adresse: ${(company as any).address || 'N/A'}
+- Téléphone: ${company.phone || 'N/A'}
+- Email: ${company.email || 'N/A'}`;
+  }
+
+  /**
+   * Contexte Utilisateurs et activité
+   */
+  private async getActivityContext(companyId: string): Promise<string> {
+    // Nombre d'utilisateurs
+    const userCount = await this.userRepo.count();
+
+    // Dernières écritures avec créateur
+    const recentEntries = await this.journalEntryRepo
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.createdBy', 'user')
+      .where('entry.companyId = :companyId', { companyId })
+      .orderBy('entry.createdAt', 'DESC')
+      .take(5)
+      .getMany();
+
+    const activityStr = recentEntries
+      .map((e, idx) => {
+        const userName = (e.createdBy as any)?.name || (e.createdBy as any)?.email || 'Utilisateur inconnu';
+        const date = e.createdAt
+          ? new Date(e.createdAt).toLocaleDateString('fr-FR')
+          : 'N/A';
+        return `  ${idx + 1}. ${date} - ${e.description || 'Sans description'} par ${userName}`;
+      })
+      .join('\n');
+
+    return `UTILISATEURS ET ACTIVITÉ:
+- Nombre d'utilisateurs actifs: ${userCount}
+
+Dernières activités (5):
+${activityStr || '  Aucune activité récente'}`;
   }
 
   /**
