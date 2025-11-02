@@ -1,7 +1,7 @@
 // Service API intelligent avec fallback mode démo
 import { demoDashboardData, demoCompanies } from './demo-data';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bms-erp.up.railway.app';
 const FORCE_PRODUCTION_MODE = process.env.NODE_ENV === 'production'; // Forcer le backend en production
 
 // Vérifier si le backend est disponible
