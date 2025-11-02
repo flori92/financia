@@ -33,6 +33,38 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Auth endpoint - Login
+app.post('/api/v1/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  // Validation simple
+  if (!email || !password) {
+    return res.status(400).json({
+      error: 'Email et mot de passe requis'
+    });
+  }
+  
+  // Pour le mode démo, accepter tout login
+  // En production, vous devriez valider avec une vraie base de données
+  const demoUser = {
+    id: 'demo-user-id',
+    email: email,
+    name: 'Utilisateur Demo',
+    role: 'admin',
+    companyId: '1805bc61-7cfd-44e9-8a63-17187bf05dc7'
+  };
+  
+  // Token JWT simple (en production, utilisez un vrai système JWT)
+  const token = Buffer.from(JSON.stringify(demoUser)).toString('base64');
+  
+  res.json({
+    user: demoUser,
+    token: token,
+    expiresIn: 86400, // 24 heures
+    message: 'Connexion réussie'
+  });
+});
+
 // Companies endpoint
 app.get('/api/v1/companies', (req, res) => {
   res.json([
