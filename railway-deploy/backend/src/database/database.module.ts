@@ -196,7 +196,7 @@ const ALL_ENTITIES = [
         const isProduction = nodeEnv === 'production' || isRailway;
         
         // TEMPORAIRE: Activer synchronize pour création tables en production
-        const synchronize = true; // !isProduction && nodeEnv === 'development';
+        const synchronize = !isProduction && nodeEnv === 'development';
         const logging = !isProduction && nodeEnv === 'development';
         
         // DEBUG: Afficher toutes les variables DB disponibles
@@ -239,7 +239,7 @@ const ALL_ENTITIES = [
             type: 'postgres',
             url: databaseUrl,
             entities: ALL_ENTITIES,
-            synchronize, // TOUJOURS false en production
+            synchronize, // false en production
             logging,
             ssl: isProduction ? { rejectUnauthorized: false } : false,
           };
