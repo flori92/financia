@@ -17,6 +17,7 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { PaymentsModule } from './payments/payments.module';
 import { TaxModule } from './tax/tax.module';
 import { CrmModule } from './crm/crm.module';
+import { DatabaseModule } from './database/database.module';
 
 // AI & Analytics
 import { AIModule } from './ai/ai.module';
@@ -109,6 +110,7 @@ import { AppController } from './app.controller';
     MobileMoneyModule,
     AccountingModule,
     SyncModule,
+    DatabaseModule,
     
     // BMS Specific Modules
     NifModule,
