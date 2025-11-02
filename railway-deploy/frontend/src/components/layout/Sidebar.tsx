@@ -28,6 +28,20 @@ const DEFAULT_ACCOUNTANT_NAV = [
   { href: "/crm", label: "CRM", icon: Users },
   { href: "/crm/contacts", label: "Contacts CRM", icon: Users },
   { href: "/crm/opportunities", label: "Opportunités", icon: TrendingUp },
+  { href: "/hr", label: "Ressources Humaines", icon: Briefcase },
+  { href: "/hr/employees", label: "Employés", icon: Users },
+  { href: "/hr/payroll", label: "Paie", icon: DollarSign },
+  { href: "/hr/leaves", label: "Congés & Absences", icon: Calendar },
+  { href: "/hr/timesheets", label: "CRA & Temps", icon: Clock },
+  { href: "/hr/expenses", label: "Notes de Frais", icon: FileText },
+  { href: "/invoices", label: "Factures", icon: FileText },
+  { href: "/invoices/payments", label: "Encaissements", icon: CreditCard },
+  { href: "/purchases", label: "Achats", icon: ShoppingCart },
+  { href: "/purchases/suppliers", label: "Fournisseurs", icon: Users },
+  { href: "/treasury", label: "Trésorerie", icon: Wallet },
+  { href: "/inventory", label: "Stock", icon: Building2 },
+  { href: "/projects", label: "Projets", icon: FolderKanban },
+  { href: "/budget", label: "Budget", icon: LineChart },
   { href: "/accountant/chart-of-accounts", label: "Plan Comptable SYSCOHADA", icon: Landmark },
   { href: "/accountant/journal", label: "Journal des Écritures", icon: FileText },
   { href: "/accountant/general-ledger", label: "Grand Livre", icon: LayoutDashboard },
@@ -39,6 +53,7 @@ const DEFAULT_ACCOUNTANT_NAV = [
   { href: "/accountant/tax/vat", label: "Déclaration TVA", icon: Receipt },
   { href: "/accountant/close", label: "Clôture de Période", icon: Lock },
   { href: "/accountant/transactions", label: "Transactions", icon: ArrowUpDown },
+  { href: "/settings", label: "Paramètres", icon: Settings },
 ];
 
 const REVENUE_ANALYSIS_NAV = [
