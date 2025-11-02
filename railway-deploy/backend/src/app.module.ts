@@ -122,13 +122,11 @@ import { AppController } from './app.controller';
     BudgetModule,
     InventoryModule,
     PurchasesModule,
-    // Modules temporairement désactivés pour erreurs de compilation
-    // ReportingModule,
-    // IntegrationsModule,
-    // PurchasesModule,
-    // QuotesModule,
-    // RevenueModule,
-    // ControllingModule,
+    QuotesModule,
+    RevenueModule,
+    ControllingModule,
+    ReportingModule,
+    IntegrationsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
