@@ -2,8 +2,3 @@ export { Company } from './company.entity';
 export { Account } from './account.entity';
 export { JournalEntry } from './journal-entry.entity';
 export { JournalEntryLine } from './journal-entry-line.entity';
-export { User } from '../auth/entities/user.entity';
-export { Role } from '../rbac/entities/role.entity';
-export { Invoice } from '../invoices/entities/invoice.entity';
-export { Payment } from '../payments/entities/payment.entity';
-export { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';

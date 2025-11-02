@@ -4,6 +4,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as entities from './entities';
 import { SimpleTestSeedService } from './seeds/simple-test.seed';
 import { SeedController } from './seed.controller';
+import { User } from '../auth/entities/user.entity';
+import { Role } from '../rbac/entities/role.entity';
+import { Invoice } from '../invoices/entities/invoice.entity';
+import { Payment } from '../payments/entities/payment.entity';
+import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';
 
 @Module({
   imports: [
@@ -26,7 +31,14 @@ import { SeedController } from './seed.controller';
         return {
           type: 'postgres',
           url: databaseUrl,
-          entities: Object.values(entities),
+          entities: [
+            ...Object.values(entities),
+            User,
+            Role,
+            Invoice,
+            Payment,
+            MobileMoneyTransaction,
+          ],
           synchronize: configService.get('NODE_ENV') === 'development',
           logging: configService.get('NODE_ENV') === 'development',
         };
@@ -34,6 +46,11 @@ import { SeedController } from './seed.controller';
     }),
     TypeOrmModule.forFeature([
       ...Object.values(entities),
+      User,
+      Role,
+      Invoice,
+      Payment,
+      MobileMoneyTransaction,
     ]),
   ],
   controllers: [SeedController],
