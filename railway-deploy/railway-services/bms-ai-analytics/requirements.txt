@@ -1,60 +1,31 @@
-# BMS AI/ML Analytics Service Requirements
+# BMS AI/ML Analytics Service Requirements - Python 3.12 Compatible - v2 FINAL
 # Utilise uniquement des modèles open source gratuits
 
-# Core ML/AI Libraries (gratuits)
-prophet==1.1.4                    # Facebook Prophet for time series forecasting
-scikit-learn==1.3.0               # Machine learning algorithms
-pandas==2.1.1                      # Data manipulation
-numpy==1.24.3                      # Numerical computing
-matplotlib==3.7.2                  # Plotting
-seaborn==0.12.2                    # Statistical visualization
-
-# LLM Open Source (gratuits)
-transformers==4.35.2               # Hugging Face Transformers - pour Llama, Mistral, etc.
-torch==2.1.1                       # PyTorch pour modèles LLM
-accelerate==0.24.1                 # Accélération GPU/CPU pour transformers
-bitsandbytes==0.41.3               # Quantification 8-bit pour modèles légers
-sentence-transformers==2.2.2       # Embeddings et similarité sémantique
+# Core ML/AI Libraries (versions compatibles Python 3.12)
+prophet==1.1.5
+scikit-learn==1.4.0
+pandas==2.2.0
+numpy==1.26.0
+matplotlib==3.8.0
+seaborn==0.13.0
 
 # API and Web
-flask==2.3.3                       # Web framework
-flask-cors==4.0.0                  # CORS support
-requests==2.31.0                   # HTTP requests
-
-# Financial Data (gratuits)
-yfinance==0.2.18                    # Yahoo Finance API pour données marché
-pandas-datareader==0.10.0          # Financial data readers
-
-# Advanced Analytics
-statsmodels==0.14.0                 # Statistical models
-scipy==1.11.2                      # Scientific computing
-joblib==1.3.2                      # Model serialization
-
-# Text Analytics (open source)
-nltk==3.8.1                        # Natural language processing
-spacy==3.7.2                       # Advanced NLP avec modèles français
-textblob==0.17.1                   # Sentiment analysis
-
-# Image Processing (pour document OCR)
-pillow==10.0.1                     # Image processing
-opencv-python==4.8.1.78            # Computer vision
-pytesseract==0.3.10                # OCR engine
-
-# Database
-sqlalchemy==2.0.21                 # Database ORM
-psycopg2-binary==2.9.7              # PostgreSQL adapter
+flask==3.0.0
+flask-cors==4.0.0
+requests==2.31.0
 
 # Utilities
-python-dotenv==1.0.0                # Environment variables
-gunicorn==21.2.0                   # Production server
-redis==4.6.0                       # Caching
-celery==5.3.2                      # Task queue
+python-dotenv==1.0.0
+gunicorn==21.2.0
 
-# Modèles de langue français
-spacy[fr]==3.7.2                   # Modèles français pour spaCy
-nltk[fr]==3.8.1                    # Support français pour NLTK
+# Database
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+
+# Basic ML dependencies
+scipy==1.12.0
+statsmodels==0.14.1
+joblib==1.3.2
 
 # Development
-pytest==7.4.2                      # Testing
-black==23.9.1                      # Code formatting
-flake8==6.1.0                      # Linting
+pytest==8.0.0
