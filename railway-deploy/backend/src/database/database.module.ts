@@ -34,8 +34,6 @@ import { PaymentAllocation } from '../payments/entities/payment-allocation.entit
 import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';
 
 // Banking entities
-import { BankAccount } from '../banking/entities/bank-account.entity';
-import { BankTransaction } from '../banking/entities/bank-transaction.entity';
 import { BankReconciliation } from '../banking/entities/bank-reconciliation.entity';
 
 // CRM entities
@@ -86,6 +84,8 @@ import { Campaign } from '../crm/campaigns/campaign.entity';
 
 // Bank API entities
 import { BankConnection } from '../banking/bank-api/entities/bank-connection.entity';
+import { BankAccount } from '../banking/bank-api/entities/bank-account.entity';
+import { BankTransaction } from '../banking/bank-api/entities/bank-transaction.entity';
 import { BankAnomaly } from '../banking/bank-api/entities/bank-anomaly.entity';
 
 // Reconciliation entities
@@ -136,9 +136,12 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
             // Mobile Money entities
             MobileMoneyTransaction,
             // Banking entities
+            BankReconciliation,
+            // Bank API entities
+            BankConnection,
             BankAccount,
             BankTransaction,
-            BankReconciliation,
+            BankAnomaly,
             // CRM entities
             Contact,
             Tag,
@@ -172,9 +175,6 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
             Notification,
             // Campaign entities
             Campaign,
-            // Bank API entities
-            BankConnection,
-            BankAnomaly,
             // Reconciliation entities
             ReconciliationMatch,
           ],
@@ -207,9 +207,12 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
       // Mobile Money entities
       MobileMoneyTransaction,
       // Banking entities
+      BankReconciliation,
+      // Bank API entities
+      BankConnection,
       BankAccount,
       BankTransaction,
-      BankReconciliation,
+      BankAnomaly,
       // CRM entities
       Contact,
       Tag,
@@ -243,9 +246,6 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
       Notification,
       // Campaign entities
       Campaign,
-      // Bank API entities
-      BankConnection,
-      BankAnomaly,
       // Reconciliation entities
       ReconciliationMatch,
     ]),
