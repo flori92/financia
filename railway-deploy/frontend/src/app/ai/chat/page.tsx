@@ -1,5 +1,6 @@
-import { getBaseUrl } from "@/lib/api";
 'use client';
+
+import { getBaseUrl } from "@/lib/api";
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, Loader2, MessageCircle, FileText, TrendingUp, HelpCircle } from 'lucide-react';

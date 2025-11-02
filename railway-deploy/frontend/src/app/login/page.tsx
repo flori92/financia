@@ -1,5 +1,6 @@
-import { getBaseUrl } from "@/lib/api";
 "use client";
+
+import { getBaseUrl } from "@/lib/api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
