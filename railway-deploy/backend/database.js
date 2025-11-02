@@ -169,6 +169,53 @@ class Database {
         cost INTEGER DEFAULT 0,
         metadata TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // CRM Opportunities
+      `CREATE TABLE IF NOT EXISTS crm_opportunities (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        amount REAL NOT NULL,
+        probability INTEGER DEFAULT 0,
+        status TEXT NOT NULL,
+        stage_id TEXT NOT NULL,
+        contact_id TEXT,
+        close_date DATE,
+        description TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // CRM Pipeline Stages
+      `CREATE TABLE IF NOT EXISTS crm_pipeline_stages (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        order_index INTEGER NOT NULL,
+        probability INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Treasury Operations
+      `CREATE TABLE IF NOT EXISTS treasury_operations (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        reference TEXT NOT NULL,
+        beneficiary TEXT NOT NULL,
+        payment_date DATE NOT NULL,
+        amount REAL NOT NULL,
+        currency TEXT DEFAULT 'FCFA',
+        status TEXT NOT NULL,
+        payment_method TEXT NOT NULL,
+        type TEXT NOT NULL,
+        description TEXT,
+        iban TEXT,
+        submitted_at DATETIME,
+        processed_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`
     ];
 

@@ -141,6 +141,61 @@ async function seed() {
       `, [uuidv4(), compId, channel, recipient, subject, content, type, status, sentAt, cost]);
     }
 
+    // Pipeline stages CRM
+    const pipelineStages = [
+      ['lead', 'Lead', 'lead', 1, 10],
+      ['qualified', 'Qualifié', 'qualified', 2, 25],
+      ['proposal', 'Proposition', 'proposal', 3, 50],
+      ['negotiation', 'Négociation', 'negotiation', 4, 75],
+      ['closing', 'Clôture', 'closing', 5, 90],
+      ['won', 'Gagné', 'won', 6, 100],
+      ['lost', 'Perdu', 'lost', 7, 0]
+    ];
+
+    for (const [id, name, type, order, probability] of pipelineStages) {
+      await database.run(`
+        INSERT INTO crm_pipeline_stages (id, company_id, name, type, order_index, probability)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `, [uuidv4(), companyId, name, type, order, probability]);
+    }
+
+    // Opportunités CRM
+    const opportunities = [
+      ['Projet ERP pour Entreprise A', 2500000, 10, 'open', 'lead', '2025-12-15', 'Implémentation système ERP complet'],
+      ['Site E-commerce B2B', 800000, 10, 'open', 'lead', '2025-12-30', 'Plateforme e-commerce B2B avec paiement intégré'],
+      ['Application Mobile FinTech', 1500000, 25, 'open', 'qualified', '2026-01-15', 'App mobile banking et investissements'],
+      ['Système de Gestion Hospitalière', 3200000, 50, 'open', 'proposal', '2026-01-30', 'Solution gestion complète clinique'],
+      ['Platforme Logistique', 1800000, 75, 'open', 'negotiation', '2025-12-10', 'Logiciel tracking et optimisation livraisons'],
+      ['Solution Banking Digitale', 4500000, 90, 'open', 'closing', '2025-12-07', 'Plateforme banking digitale pour PME'],
+      ['CRM pour Cabinet d\'Avocats', 950000, 100, 'won', 'won', '2025-11-25', 'CRM spécialisé cabinet juridique'],
+      ['Site Web Restaurant', 350000, 0, 'lost', 'lost', '2025-10-20', 'Site web et système réservation']
+    ];
+
+    for (const [title, amount, probability, status, stageId, closeDate, description] of opportunities) {
+      await database.run(`
+        INSERT INTO crm_opportunities (id, company_id, title, amount, probability, status, stage_id, close_date, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [uuidv4(), companyId, title, amount, probability, status, stageId, closeDate, description]);
+    }
+
+    // Opérations de trésorerie
+    const treasuryOperations = [
+      ['VRT-2025-001', 'Fournisseur Matériel Pro', '2025-11-20', 1250000, 'processed', 'bank_transfer', 'supplier_payment', 'Paiement facture FMP-2025-001', 'BJ2365800100156789012345678'],
+      ['SEPA-2025-002', 'Société de location', '2025-11-25', 890000, 'submitted', 'bank_transfer', 'rent_payment', 'Loyer bureau Q1 2025', 'BJ2365800100156789012345679'],
+      ['SAL-2025-003', 'Consultant Finance', '2025-11-30', 450000, 'draft', 'bank_transfer', 'consulting_fee', 'Mission consulting janvier', 'BJ2365800100156789012345680'],
+      ['TAX-2025-004', 'Direction Générale des Impôts', '2025-12-10', 2300000, 'draft', 'bank_transfer', 'tax_payment', 'TVA et impôts Q4 2024', 'BJ2365800100156789012345681'],
+      ['VEN-2025-005', 'Vendeur Équipement', '2025-11-15', 670000, 'processed', 'bank_transfer', 'equipment_purchase', 'Achat matériel informatique', 'BJ2365800100156789012345682']
+    ];
+
+    for (const [reference, beneficiary, paymentDate, amount, status, paymentMethod, type, description, iban] of treasuryOperations) {
+      await database.run(`
+        INSERT INTO treasury_operations (id, company_id, reference, beneficiary, payment_date, amount, status, payment_method, type, description, iban, submitted_at, processed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [uuidv4(), companyId, reference, beneficiary, paymentDate, amount, status, paymentMethod, type, description, iban, 
+          status === 'submitted' ? moment().toISOString() : null,
+          status === 'processed' ? moment().toISOString() : null]);
+    }
+
     // Configuration système avancée
     await database.run(`
       INSERT OR REPLACE INTO settings (key, value, description) 
@@ -157,7 +212,9 @@ async function seed() {
         ('notification_email', 'admin@bms.bj', 'Email pour notifications système'),
         ('sms_enabled', 'true', 'Envoi SMS activé'),
         ('whatsapp_enabled', 'true', 'WhatsApp Business activé'),
-        ('email_smtp_enabled', 'true', 'SMTP Email activé')
+        ('email_smtp_enabled', 'true', 'SMTP Email activé'),
+        ('crm_pipeline_enabled', 'true', 'Pipeline CRM activé'),
+        ('treasury_operations_enabled', 'true', 'Opérations trésorerie activées')
     `);
 
     // Statistiques du seed
@@ -168,7 +225,10 @@ async function seed() {
       employees: employees.length,
       templates: templates.length,
       communicationLogs: logs.length,
-      settings: 13
+      pipelineStages: pipelineStages.length,
+      opportunities: opportunities.length,
+      treasuryOperations: treasuryOperations.length,
+      settings: 15
     };
 
     console.log('📊 Données de seed insérées:');

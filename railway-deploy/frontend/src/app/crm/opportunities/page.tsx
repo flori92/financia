@@ -318,11 +318,21 @@ export default function OpportunitiesPage() {
 
       {/* Actions rapides */}
       <div className="flex gap-4">
-        <Button variant="outline">
+        <Button 
+          variant="outline"
+          onClick={() => {
+            alert('Filtres avancés - En développement !\n\nCette fonctionnalité permettra :\n• Filtrer par statut (ouvert/gagné/perdu)\n• Filtrer par montant\n• Filtrer par date de clôture\n• Filtrer par contact\n• Sauvegarder les filtres personnalisés');
+          }}
+        >
           <Filter className="h-4 w-4 mr-2" />
           Filtres avancés
         </Button>
-        <Button variant="outline">
+        <Button 
+          variant="outline"
+          onClick={() => {
+            alert('Prévisions - En développement !\n\nCette fonctionnalité permettra :\n• Prévisions de revenus par mois\n• Analyse des taux de conversion\n• Projection des objectifs de vente\n• Rapports de performance\n• Export des prévisions en Excel/PDF');
+          }}
+        >
           <TrendingUp className="h-4 w-4 mr-2" />
           Prévisions
         </Button>
