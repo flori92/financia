@@ -22,7 +22,7 @@ async function checkBackendHealth(): Promise<boolean> {
     isBackendAvailable = response.ok;
     return isBackendAvailable;
   } catch (error) {
-    console.log('Backend indisponible, basculement en mode démo:', error.message);
+    console.log('Backend indisponible, basculement en mode démo:', error instanceof Error ? error.message : String(error));
     isBackendAvailable = false;
     return false;
   }
