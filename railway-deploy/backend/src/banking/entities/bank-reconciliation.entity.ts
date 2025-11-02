@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { BankTransaction } from './bank-transaction.entity';
+import { BankTransaction } from '../bank-api/entities/bank-transaction.entity';
 import { JournalEntry } from '../../accounting/entities/journal-entry.entity';
 
 /**
