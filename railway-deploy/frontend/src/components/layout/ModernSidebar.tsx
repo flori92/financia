@@ -104,7 +104,7 @@ const getMenuItems = (remindersCount: number): SidebarItem[] => [
       { label: "Facturation", href: "/invoices", icon: ScrollText, badge: "e-invoicing", badgeColor: "orange" },
       { label: "Catalogue produits", href: "/inventory", icon: Package },
       { label: "Encaissements", href: "/invoices/payments", icon: CreditCard },
-      { label: "Relances clients", href: "/invoices/reminders", icon: BellRing, badge: remindersCount.toString() || "0", badgeColor: remindersCount > 0 ? "red" : "gray" },
+      { label: "Relances clients", href: "/invoices/reminders", icon: BellRing, badge: remindersCount.toString() || "0", ...(remindersCount > 0 ? { badgeColor: "red" as const } : { badgeColor: "gray" as const }) },
       { label: "Analyse ventes", href: "/sales/analytics", icon: BarChart3 }
     ]
   },
