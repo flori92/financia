@@ -8,8 +8,8 @@ import { BankConnection } from '../entities/bank-connection.entity';
 import { BankAccount } from '../entities/bank-account.entity';
 import { BankTransaction } from '../entities/bank-transaction.entity';
 import { BankAnomaly } from '../entities/bank-anomaly.entity';
-import { NotificationsService } from '../../notifications/notifications.service';
-import { AIService } from '../../ai/ai.service';
+import { NotificationsService } from '../../../notifications/notifications.service';
+import { AIService } from '../../../ai/ai.service';
 import { 
     CreateBankConnectionDto,
     BankAccountDto,
@@ -136,7 +136,7 @@ export class BankApiService {
         } catch (error) {
             throw new BankApiException(
                 'Erreur lors de l\'initialisation de la connexion bancaire',
-                error
+                error as Error
             );
         }
     }
@@ -170,7 +170,7 @@ export class BankApiService {
         } catch (error) {
             throw new BankApiException(
                 'Erreur lors de la finalisation de l\'authentification',
-                error
+                error as Error
             );
         }
     }
@@ -231,7 +231,7 @@ export class BankApiService {
         } catch (error) {
             throw new BankApiException(
                 'Erreur lors de la synchronisation des comptes',
-                error
+                error as Error
             );
         }
     }
@@ -256,7 +256,7 @@ export class BankApiService {
                 connection.accessToken,
                 accountId,
                 options
-            );
+            ) as BankTransactionDto[];
 
             // Traiter les transactions par lots
             for (const batch of this.chunkArray(transactions, 100)) {
@@ -304,7 +304,7 @@ export class BankApiService {
         } catch (error) {
             throw new BankApiException(
                 'Erreur lors de la synchronisation des transactions',
-                error
+                error as Error
             );
         }
     }
