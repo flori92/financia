@@ -85,6 +85,21 @@ interface ExpertMetrics {
         company: string;
         status: string;
     }>;
+    clientsActifs: number;
+    clientsNeedingAttention: Array<{
+        id: string;
+        name: string;
+        issue: string;
+        severity: 'high' | 'medium' | 'low';
+    }>;
+    topActiveClients: Array<{
+        id: string;
+        name: string;
+        revenue: number;
+        completionRate: number;
+    }>;
+    declarationsEnAttente: number;
+    declarationsProches: number;
 }
 
 function ExpertDashboardContent() {
@@ -134,7 +149,17 @@ function ExpertDashboardContent() {
                     alerts: metrics.status === "fulfilled" ? metrics.value.alerts || [] : [],
                     recentActivity: metrics.status === "fulfilled" ? metrics.value.recentActivity?.entries || [] : [],
                     revenueByMonth: metrics.status === "fulfilled" ? metrics.value.evolutionChart?.map((item: any) => ({ month: item.month.split(' ')[0], revenue: item.revenue })) || [] : [],
-                    upcomingDeadlines: []
+                    upcomingDeadlines: [],
+                    clientsActifs: 1,
+                    clientsNeedingAttention: [],
+                    topActiveClients: [{
+                        id: selectedClient.id,
+                        name: selectedClient.name,
+                        revenue: metrics.status === "fulfilled" ? metrics.value.kpiMonth?.revenue || 0 : 0,
+                        completionRate: 85
+                    }],
+                    declarationsEnAttente: 0,
+                    declarationsProches: 0
                 };
 
                 setData(clientData);
@@ -143,7 +168,7 @@ function ExpertDashboardContent() {
                 const mockData: ExpertMetrics = {
                     cabinet: {
                         totalClients: clients.length,
-                        activeClients: clients.filter(c => c.status === 'active').length,
+                        activeClients: clients.filter((c: any) => c.status === 'active').length,
                         totalRevenue: 45000000,
                         pendingTasks: 5
                     },
@@ -219,7 +244,19 @@ function ExpertDashboardContent() {
                 upcomingDeadlines: [
                     { dueDate: '2025-01-20', type: 'TVA', company: 'SARL Tech Solutions', status: 'pending' },
                     { dueDate: '2025-01-25', type: 'Déclaration Sociale', company: 'EURL Commerce Plus', status: 'pending' }
-                ]
+                ],
+                clientsActifs: 8,
+                clientsNeedingAttention: [
+                    { id: '1', name: 'SA Industries Modernes', issue: 'Pertes mensuelles', severity: 'high' },
+                    { id: '2', name: 'EURL Commerce Plus', issue: 'Déclarations en retard', severity: 'medium' }
+                ],
+                topActiveClients: [
+                    { id: '1', name: 'SARL Tech Solutions', revenue: 8500000, completionRate: 95 },
+                    { id: '2', name: 'EURL Commerce Plus', revenue: 6200000, completionRate: 87 },
+                    { id: '3', name: 'SA Industries Modernes', revenue: 12300000, completionRate: 72 }
+                ],
+                declarationsEnAttente: 5,
+                declarationsProches: 8
             };
 
                 setData(mockData);
@@ -415,7 +452,7 @@ function ExpertDashboardContent() {
                         Clients Nécessitant Attention
                     </h2>
                     <div className="space-y-4">
-                        {data.clientsNeedingAttention.map(client => (
+                        {data.clientsNeedingAttention.map((client: any) => (
                             <div 
                                 key={client.id}
                                 className="flex items-center justify-between p-3 bg-slate-50 rounded"
@@ -477,7 +514,7 @@ function ExpertDashboardContent() {
                     Top Clients Actifs
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {data.topActiveClients.map(client => (
+                    {data.topActiveClients.map((client: any) => (
                         <div 
                             key={client.id}
                             className="p-4 bg-slate-50 rounded"

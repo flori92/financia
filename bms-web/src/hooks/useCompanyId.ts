@@ -24,7 +24,7 @@ export function useEffectiveCompanyId(): string | null {
  */
 export function useSelectedClientName(): string | null {
   return typeof window !== 'undefined' 
-    ? localStorage.getItem('expert_selected_client_name') 
+    ? localStorage.getItem('expert_selected_client_name') || null
     : null;
 }
 

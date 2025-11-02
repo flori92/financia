@@ -16,14 +16,42 @@ interface EntrepreneurData {
   };
   evolutionChart: Array<{ month: string; revenue: number; expenses: number }>;
   topClients: Array<{ name: string; amount: number }>;
-  alerts: Array<{ type: "danger" | "warning" | "info"; title: string; message: string }>;
+  alerts: Array<{
+    type: "danger" | "warning" | "info";
+    title: string;
+    message: string;
+  }>;
   recentActivity: {
-    entries: Array<{ date: string; description: string; amount: number; type: string }>;
+    entries: Array<{
+      date: string;
+      description: string;
+      amount: number;
+      type: string;
+    }>;
   };
   treasuryMetrics?: {
-    runway?: number;
-    net?: number;
+    runway: number;
+    net: number;
+    last90Net: number;
   };
+  nif?: string;
+  rccm?: string;
+  taxRegime?: string;
+  legalStatus?: string;
+  recentTransactions?: Array<{
+    id: string;
+    date: string;
+    description: string;
+    amount: number;
+    type: string;
+  }>;
+  notifications?: Array<{
+    id: string;
+    title: string;
+    message: string;
+    date: string;
+    read: boolean;
+  }>;
 }
 
 export default function EntrepreneurDashboard() {
@@ -47,7 +75,13 @@ export default function EntrepreneurDashboard() {
           apiGet("/api/v1/treasury/alerts", { companyId })
         ]);
 
-        const result: EntrepreneurData = {};
+        const result: EntrepreneurData = {
+      kpiMonth: { revenue: 0, expenses: 0, netIncome: 0, margin: 0 },
+      evolutionChart: [],
+      topClients: [],
+      alerts: [],
+      recentActivity: { entries: [] }
+    };
 
         if (metrics.status === "fulfilled") {
           result.kpiMonth = metrics.value.kpiMonth;
@@ -263,7 +297,7 @@ export default function EntrepreneurDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {data?.recentTransactions?.map((transaction) => (
+            {data?.recentTransactions?.map((transaction: any) => (
               <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -295,7 +329,7 @@ export default function EntrepreneurDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {data?.notifications?.map((notif) => (
+            {data?.notifications?.map((notif: any) => (
               <div key={notif.id} className={`p-3 rounded-lg border-l-4 ${
                 notif.type === 'warning' ? 'bg-orange-50 border-orange-500' :
                 notif.type === 'info' ? 'bg-blue-50 border-blue-500' :

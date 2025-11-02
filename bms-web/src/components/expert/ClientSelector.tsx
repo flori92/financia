@@ -115,7 +115,7 @@ export function ClientSelector() {
                       <span>Vue Cabinet (tous les clients)</span>
                     </div>
                   </Button>
-                  {clients.map((client) => (
+                  {clients.map((client: any) => (
                     <Button
                       key={client.id}
                       variant="ghost"
