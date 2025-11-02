@@ -95,9 +95,12 @@ export default function TreasuryPage() {
                 Nouveau compte
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px]" aria-describedby="create-account-description">
               <DialogHeader>
                 <DialogTitle>Nouveau compte bancaire</DialogTitle>
+                <p id="create-account-description" className="text-sm text-slate-600">
+                  Ajoutez un nouveau compte bancaire à votre trésorerie
+                </p>
               </DialogHeader>
               <form onSubmit={handleCreateAccount} className="space-y-4">
                 <div className="space-y-2">

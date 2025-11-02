@@ -93,9 +93,12 @@ export default function OrdersPage() {
           <DialogTrigger asChild>
             <Button><Plus className="w-4 h-4 mr-2" />Nouvelle commande</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px]" aria-describedby="create-order-description">
             <DialogHeader>
               <DialogTitle>Nouvelle commande fournisseur</DialogTitle>
+              <p id="create-order-description" className="text-sm text-slate-600">
+                Créez une nouvelle commande fournisseur
+              </p>
             </DialogHeader>
             <form onSubmit={handleCreateOrder} className="space-y-4">
               <div className="space-y-2">

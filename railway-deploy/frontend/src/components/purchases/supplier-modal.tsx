@@ -64,9 +64,12 @@ export default function SupplierModal({ onSupplierCreated, children }: SupplierM
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" aria-describedby="supplier-description">
         <DialogHeader>
           <DialogTitle>Nouveau Fournisseur</DialogTitle>
+          <p id="supplier-description" className="text-sm text-slate-600">
+            Ajoutez un nouveau fournisseur à votre base de données
+          </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
