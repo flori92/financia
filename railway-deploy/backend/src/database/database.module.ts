@@ -23,15 +23,15 @@ import { SeedController } from './seed.controller';
         const dbPassword = configService.get('DATABASE_PASSWORD', 'postgres');
         const dbName = configService.get('DATABASE_NAME', 'bms_erp');
         
+        // Forcer DSN complet pour éviter les problèmes de configuration
+        const databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
+        
         console.log('🔧 TypeORM config:', { dbHost, dbPort, dbUser, dbName });
+        console.log('🔗 Database URL:', databaseUrl);
         
         return {
           type: 'postgres',
-          host: dbHost,
-          port: dbPort,
-          username: dbUser,
-          password: dbPassword,
-          database: dbName,
+          url: databaseUrl,
           entities: Object.values(entities),
           synchronize: configService.get('NODE_ENV') === 'development',
           logging: configService.get('NODE_ENV') === 'development',
