@@ -1,9 +1,9 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm run build"
+buildCommand = "npm install && npm run build"
 
 [deploy]
-startCommand = "npm run start:prod"
+startCommand = "node dist/main-minimal"
 healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
