@@ -26,14 +26,12 @@ export class AIAnalyticsController {
 
       return {
         success: true,
-        data: {
-          ...forecast,
-          metadata: {
-            companyId: data.companyId,
-            generatedAt: new Date().toISOString(),
-            horizon: data.horizon,
-            frequency: data.frequency
-          }
+        data: forecast,
+        metadata: {
+          companyId: data.companyId,
+          generatedAt: new Date().toISOString(),
+          horizon: data.horizon,
+          frequency: data.frequency
         }
       };
     } catch (error) {
@@ -96,17 +94,21 @@ export class AIAnalyticsController {
     businessContext?: string;
   }) {
     try {
-      const forecast = await this.aiService.generateBudgetForecast(data.historicalData);
+      const forecastData = {
+        ...data.historicalData,
+        target_period: data.targetPeriod,
+        business_context: data.businessContext
+      };
+      
+      const forecast = await this.aiService.generateBudgetForecast(forecastData);
 
       return {
         success: true,
-        data: {
-          ...forecast,
-          metadata: {
-            companyId: data.companyId,
-            targetPeriod: data.targetPeriod,
-            generatedAt: new Date().toISOString()
-          }
+        data: forecast,
+        metadata: {
+          companyId: data.companyId,
+          targetPeriod: data.targetPeriod,
+          generatedAt: new Date().toISOString()
         }
       };
     } catch (error) {
