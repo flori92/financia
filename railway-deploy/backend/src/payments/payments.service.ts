@@ -460,18 +460,17 @@ export class PaymentsService {
     if (type === 'all' || type === 'bank') {
       const bankQuery = this.bankTransactionRepository
         .createQueryBuilder('transaction')
-        .leftJoinAndSelect('transaction.bankAccount', 'bankAccount')
-        .where('bankAccount.companyId = :companyId', { companyId });
+        .where('transaction.companyId = :companyId', { companyId });
 
       if (startDate) {
-        bankQuery.andWhere('transaction.transactionDate >= :startDate', { startDate });
+        bankQuery.andWhere('transaction.date >= :startDate', { startDate });
       }
       if (endDate) {
-        bankQuery.andWhere('transaction.transactionDate <= :endDate', { endDate });
+        bankQuery.andWhere('transaction.date <= :endDate', { endDate });
       }
 
       const [bankTransactions, bankCount] = await bankQuery
-        .orderBy('transaction.transactionDate', 'DESC')
+        .orderBy('transaction.date', 'DESC')
         .skip(skip)
         .take(limit)
         .getManyAndCount();
@@ -480,18 +479,19 @@ export class PaymentsService {
         transactions.push({
           id: transaction.id,
           type: 'bank',
-          reference: transaction.reference,
+          reference: transaction.reference || transaction.label,
           amount: transaction.amount,
-          currency: transaction.currency,
+          currency: 'XOF', // Valeur par défaut car pas dans l'entité
           status: transaction.status,
-          date: transaction.transactionDate,
-          description: transaction.description,
-          partyName: transaction.counterparty,
-          method: `Banque ${transaction.bankAccount?.bankName || 'Inconnue'}`,
+          date: transaction.date,
+          description: transaction.description || transaction.label,
+          partyName: 'Inconnu', // Pas dans l'entité BankTransaction
+          method: `Banque (${transaction.type})`,
           category: this.getTransactionCategory('bank', transaction.type),
           metadata: {
-            bankAccount: transaction.bankAccount?.accountNumber,
+            accountId: transaction.accountId,
             transactionType: transaction.type,
+            label: transaction.label,
           }
         });
       });
@@ -523,18 +523,19 @@ export class PaymentsService {
         transactions.push({
           id: transaction.id,
           type: 'mobile',
-          reference: transaction.transactionReference,
+          reference: transaction.txRef,
           amount: transaction.amount,
           currency: transaction.currency,
           status: transaction.status,
           date: transaction.createdAt,
-          description: transaction.description || `Paiement ${transaction.provider}`,
-          partyName: transaction.customerPhone || transaction.provider,
+          description: `Paiement ${transaction.provider}`,
+          partyName: transaction.customerName || transaction.phoneNumber,
           method: `Mobile Money ${transaction.provider.toUpperCase()}`,
           category: this.getTransactionCategory('mobile', transaction.provider),
           metadata: {
             provider: transaction.provider,
-            phoneNumber: transaction.customerPhone,
+            phoneNumber: transaction.phoneNumber,
+            customerName: transaction.customerName,
             invoiceId: transaction.invoiceId,
           }
         });
@@ -548,7 +549,7 @@ export class PaymentsService {
       const cashQuery = this.paymentsRepository
         .createQueryBuilder('payment')
         .where('payment.companyId = :companyId', { companyId })
-        .andWhere('payment.paymentMethod IN (:...methods)', { methods: ['cash', 'check', 'transfer'] });
+        .andWhere('payment.paymentMethod IN (:...methods)', { methods: ['cash', 'check', 'bank_transfer'] });
 
       if (startDate) {
         cashQuery.andWhere('payment.paymentDate >= :startDate', { startDate });
@@ -572,14 +573,15 @@ export class PaymentsService {
           currency: payment.currency,
           status: payment.status,
           date: payment.paymentDate,
-          description: payment.description,
-          partyName: payment.partyName,
+          description: payment.remarks || `Paiement ${payment.paymentMethod}`,
+          partyName: `Tiers ${payment.partyType}`, // Pas de partyName dans Payment
           method: this.getPaymentMethodLabel(payment.paymentMethod),
           category: this.getTransactionCategory('cash', payment.paymentMethod),
           metadata: {
             paymentMethod: payment.paymentMethod,
             partyType: payment.partyType,
-            invoiceId: payment.invoiceId,
+            partyId: payment.partyId,
+            reference: payment.reference,
           }
         });
       });
@@ -618,7 +620,7 @@ export class PaymentsService {
       cash: {
         cash: 'Espèces',
         check: 'Chèque',
-        transfer: 'Virement',
+        bank_transfer: 'Virement',
       },
     };
     
@@ -629,7 +631,8 @@ export class PaymentsService {
     const labels = {
       cash: 'Espèces',
       check: 'Chèque',
-      transfer: 'Virement bancaire',
+      bank_transfer: 'Virement bancaire',
+      mobile_money: 'Mobile Money',
       card: 'Carte bancaire',
     };
     
