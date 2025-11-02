@@ -1,0 +1,8 @@
+# Ignorer les services LLM et autres dossiers
+ai-service/
+railway-services/
+backend-netlify/
+frontend/
+deploy-backend-netlify.sh
+*.backup
+Dockerfile.nestjs.backup
