@@ -29,7 +29,12 @@ export default function AgedBalancePage() {
       setData(result);
       showSuccess('Balance âgée chargée');
     } catch (e: any) {
-      showError(String(e));
+      // Gérer l'erreur 404 "Compte introuvable" avec un message utile
+      if (e.includes('404') && e.includes('introuvable')) {
+        showError('Données démo non initialisées. Veuillez contacter l\'administrateur.');
+      } else {
+        showError(String(e));
+      }
     } finally {
       setLoading(false);
     }
