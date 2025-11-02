@@ -5,7 +5,8 @@ import * as entities from './entities';
 import { SimpleTestSeedService } from './seeds/simple-test.seed';
 import { SeedController } from './seed.controller';
 import { User } from '../auth/entities/user.entity';
-import { Role } from '../rbac/entities/role.entity';
+import { Role } from '../auth/entities/role.entity';
+import { Permission } from '../rbac/entities/permission.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Payment } from '../payments/entities/payment.entity';
 import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';
@@ -35,6 +36,7 @@ import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-tr
             ...Object.values(entities),
             User,
             Role,
+            Permission,
             Invoice,
             Payment,
             MobileMoneyTransaction,
@@ -48,6 +50,7 @@ import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-tr
       ...Object.values(entities),
       User,
       Role,
+      Permission,
       Invoice,
       Payment,
       MobileMoneyTransaction,
