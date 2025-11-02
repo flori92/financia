@@ -189,17 +189,34 @@ const ALL_ENTITIES = [
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const databaseUrl = configService.get<string>('DATABASE_URL');
+        const dbPassword = configService.get<string>('DB_PASSWORD');
+        
+        console.log('🔧 Database config check:', { 
+          hasDatabaseUrl: !!databaseUrl, 
+          hasDbPassword: !!dbPassword 
+        });
+        
+        // Si DATABASE_URL est définie, l'utiliser directement (Railway fournit DATABASE_URL)
+        if (databaseUrl) {
+          console.log('🔗 Using DATABASE_URL for connection');
+          return {
+            type: 'postgres',
+            url: databaseUrl,
+            entities: ALL_ENTITIES,
+            synchronize: configService.get('NODE_ENV') === 'development',
+            logging: configService.get('NODE_ENV') === 'development',
+          };
+        }
+        
+        // Sinon utiliser les paramètres individuels (dev local)
         const dbHost = configService.get<string>('DB_HOST') || 'postgres.railway.internal';
         const dbPort = configService.get<number>('DB_PORT') || 5432;
         const dbUser = configService.get<string>('DB_USER') || 'postgres';
-        const dbPassword = configService.get<string>('DB_PASSWORD');
         const dbName = configService.get<string>('DB_NAME') || 'railway';
         
-        console.log('🔧 TypeORM config:', { dbHost, dbPort, dbUser, dbName });
-        console.log('🔗 Database connection: postgres://****:****@', dbHost, ':', dbPort, '/', dbName);
+        console.log('🔗 Using individual params:', { dbHost, dbPort, dbUser, dbName });
         
-        // Utiliser les paramètres individuels au lieu de l'URL pour éviter les problèmes de parsing
-        const config: any = {
+        return {
           type: 'postgres',
           host: dbHost,
           port: dbPort,
@@ -209,23 +226,7 @@ const ALL_ENTITIES = [
           entities: ALL_ENTITIES,
           synchronize: configService.get('NODE_ENV') === 'development',
           logging: configService.get('NODE_ENV') === 'development',
-          // Force IPv4 pour éviter les problèmes avec ::1
-          extra: {
-            host: dbHost,
-          },
         };
-        
-        // Fallback sur DATABASE_URL si les variables individuelles ne sont pas définies
-        if (!dbPassword && databaseUrl) {
-          config.url = databaseUrl;
-          delete config.host;
-          delete config.port;
-          delete config.username;
-          delete config.password;
-          delete config.database;
-        }
-        
-        return config;
       },
     }),
     TypeOrmModule.forFeature(ALL_ENTITIES),
