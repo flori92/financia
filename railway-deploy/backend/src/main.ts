@@ -98,6 +98,19 @@ async function bootstrap() {
   // Prefix API
   app.setGlobalPrefix('api/v1');
 
+  // Endpoint health racine pour diagnostic Railway
+  app.getHttpServer().on('request', (req, res) => {
+    if (req.url === '/health' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        port: process.env.PORT || 3001
+      }));
+      return;
+    }
+  });
+
   // Swagger Documentation
   const config = new DocumentBuilder()
     .setTitle('BMS API')
