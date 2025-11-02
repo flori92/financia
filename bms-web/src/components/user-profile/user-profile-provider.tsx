@@ -1,5 +1,7 @@
 "use client";
 
+import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 // Type pour le profil utilisateur
 export interface UserProfile {
   id: string;
