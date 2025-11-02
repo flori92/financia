@@ -8,6 +8,10 @@ export class CreateBankConnectionDto {
     @IsString()
     @IsNotEmpty()
     bankCode: string;
+
+    @IsString()
+    @IsOptional()
+    userEmail?: string;
 }
 
 export class BankAccountDto {

@@ -8,6 +8,9 @@ export class BankConnection {
     @Column()
     userId: string;
 
+    @Column({ nullable: true })
+    userEmail: string;
+
     @Column()
     bankCode: string;
 
