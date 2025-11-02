@@ -4,19 +4,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 
-// Middleware CORS simple pour contourner les problèmes
-function simpleCors(req: any, res: any, next: any) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-API-Key');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-}
-
 // Polyfill pour le module crypto Node.js (nécessaire pour @nestjs/schedule sur Railway)
 import { webcrypto } from 'crypto';
 if (!globalThis.crypto) {
@@ -26,28 +13,10 @@ if (!globalThis.crypto) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Appliquer middleware CORS simple en premier
-  app.use(simpleCors);
-
-  // Security headers
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-      },
-    },
-    crossOriginEmbedderPolicy: false,
-  }));
-
-  // CORS - Configuration production robuste
+  // CORS - Configuration simplifiée et robuste
   const allowedOrigins = [
     'https://bms-frontend-production.up.railway.app',
-    'https://bms-frontend-production.up.railway.app/',
     'https://bms-production-d9e9.up.railway.app',
-    'https://bms-production-d9e9.up.railway.app/',
     'http://localhost:3000',
     'http://localhost:3001',
     'http://127.0.0.1:3000',
@@ -81,12 +50,24 @@ async function bootstrap() {
       'Authorization', 
       'Accept', 
       'X-Requested-With',
-      'X-API-Key',
-      'Access-Control-Allow-Origin'
+      'X-API-Key'
     ],
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
+
+  // Security headers (après CORS pour éviter les conflits)
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }));
 
   // Validation globale
   app.useGlobalPipes(
