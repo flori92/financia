@@ -31,14 +31,19 @@ export class BankSyncProcessor {
             });
 
             // Notifier le succès
-            await this.notificationsService.sendBankSyncNotification({
-                userId: 'user-id', // TODO: Récupérer l'ID utilisateur depuis le compte
-                type: 'bank_sync_completed',
-                data: {
-                    accountId,
-                    status: 'success'
-                }
+            const account = await this.bankApiService.repositories.bankAccountRepo.findOne({
+                where: { id: accountId },
+                relations: ['connection']
             });
+            if (account) {
+                await this.notificationsService.sendBankSyncNotification({
+                    userEmail: account.connection.userEmail || 'admin@bms.com',
+                    bankName: account.connection.bankCode,
+                    status: 'success',
+                    accountsCount: 1,
+                    transactionsCount: 0
+                });
+            }
 
             this.logger.debug(`Synchronisation des transactions terminée pour le compte ${accountId}`);
         } catch (error) {
@@ -48,14 +53,18 @@ export class BankSyncProcessor {
             );
 
             // Notifier l'échec
-            await this.notificationsService.sendBankSyncNotification({
-                userId: 'user-id',
-                type: 'bank_sync_failed',
-                data: {
-                    accountId,
-                    error: error.message
-                }
+            const account = await this.bankApiService.repositories.bankAccountRepo.findOne({
+                where: { id: accountId },
+                relations: ['connection']
             });
+            if (account) {
+                await this.notificationsService.sendBankSyncNotification({
+                    userEmail: account.connection.userEmail || 'admin@bms.com',
+                    bankName: account.connection.bankCode,
+                    status: 'error',
+                    message: (error as Error).message
+                });
+            }
 
             // Relancer l'erreur pour que Bull puisse gérer la tentative suivante
             throw error;
@@ -68,14 +77,14 @@ export class BankSyncProcessor {
 
         try {
             // Récupérer toutes les connexions actives
-            const activeConnections = await this.bankApiService.bankConnectionRepo.find({
+            const activeConnections = await this.bankApiService.repositories.bankConnectionRepo.find({
                 where: { status: 'active' }
             });
 
             // Pour chaque connexion
             for (const connection of activeConnections) {
                 // Récupérer les comptes qui n'ont pas été synchronisés récemment
-                const accounts = await this.bankApiService.bankAccountRepo.find({
+                const accounts = await this.bankApiService.repositories.bankAccountRepo.find({
                     where: {
                         connectionId: connection.id,
                         status: 'active'
@@ -91,7 +100,7 @@ export class BankSyncProcessor {
                         : 24;
 
                     if (hoursSinceLastSync >= 6) { // Re-synchroniser si > 6 heures
-                        await this.bankApiService.bankSyncQueue.add('sync-transactions', {
+                        await this.bankApiService.repositories.bankSyncQueue.add('sync-transactions', {
                             connectionId: connection.id,
                             accountId: account.id
                         });
@@ -115,7 +124,7 @@ export class BankSyncProcessor {
         this.logger.debug(`Démarrage du rafraîchissement des tokens pour la connexion ${connectionId}`);
 
         try {
-            const connection = await this.bankApiService.bankConnectionRepo.findOneOrFail({
+            const connection = await this.bankApiService.repositories.bankConnectionRepo.findOneOrFail({
                 where: { id: connectionId }
             });
 
@@ -129,7 +138,7 @@ export class BankSyncProcessor {
             connection.refreshToken = tokens.refreshToken;
             connection.tokenExpiresAt = new Date(Date.now() + tokens.expiresIn * 1000);
 
-            await this.bankApiService.bankConnectionRepo.save(connection);
+            await this.bankApiService.repositories.bankConnectionRepo.save(connection);
 
             this.logger.debug(`Rafraîchissement des tokens réussi pour la connexion ${connectionId}`);
         } catch (error) {
@@ -139,19 +148,23 @@ export class BankSyncProcessor {
             );
 
             // Si l'erreur indique que le refresh token est invalide, marquer la connexion comme révoquée
-            if (error.message.includes('invalid_grant') || error.message.includes('invalid_token')) {
-                await this.bankApiService.bankConnectionRepo.update(connectionId, {
-                    status: 'revoked'
+            const errorMsg = (error as Error).message;
+            if (errorMsg.includes('invalid_grant') || errorMsg.includes('invalid_token')) {
+                const conn = await this.bankApiService.repositories.bankConnectionRepo.findOne({
+                    where: { id: connectionId }
                 });
+                if (conn) {
+                    await this.bankApiService.repositories.bankConnectionRepo.update(connectionId, {
+                        status: 'revoked'
+                    });
 
-                await this.notificationsService.sendBankConnectionNotification({
-                    userId: 'user-id',
-                    type: 'bank_connection_revoked',
-                    data: {
-                        connectionId,
-                        reason: 'expired_token'
-                    }
-                });
+                    await this.notificationsService.sendBankConnectionNotification({
+                        userEmail: conn.userEmail || 'admin@bms.com',
+                        bankName: conn.bankCode,
+                        status: 'error',
+                        message: 'Token expiré, veuillez reconnecter votre banque'
+                    });
+                }
             }
 
             throw error;

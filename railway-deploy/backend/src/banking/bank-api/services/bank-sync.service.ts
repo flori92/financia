@@ -56,7 +56,8 @@ export class BankSyncService {
             const transaction = this.bankTransactionRepo.create({
               ...txData,
               accountId: account.id,
-              connectionId: account.connectionId
+              connectionId: account.connectionId,
+              type: txData.type as 'credit' | 'debit'
             });
             
             await this.bankTransactionRepo.save(transaction);

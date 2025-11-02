@@ -451,4 +451,40 @@ Veuillez vérifier cette transaction dans votre tableau de bord.
       `.trim(),
     });
   }
+
+  /**
+   * Envoyer une notification de synchronisation bancaire
+   */
+  async sendBankSyncNotification(params: {
+    userEmail: string;
+    bankName: string;
+    status: 'success' | 'error';
+    accountsCount?: number;
+    transactionsCount?: number;
+    message?: string;
+  }): Promise<void> {
+    const emoji = params.status === 'success' ? '✅' : '❌';
+    const statusText = params.status === 'success' ? 'réussie' : 'échouée';
+    
+    const details = params.status === 'success' 
+      ? `
+${params.accountsCount || 0} compte(s) synchronisé(s)
+${params.transactionsCount || 0} transaction(s) récupérée(s)
+`
+      : `
+${params.message || 'Une erreur est survenue lors de la synchronisation'}
+`;
+    
+    await this.sendEmail({
+      to: params.userEmail,
+      subject: `${emoji} Synchronisation bancaire ${statusText} - ${params.bankName}`,
+      message: `
+Votre synchronisation bancaire avec ${params.bankName} est ${statusText}.
+
+${details}
+
+Connectez-vous à votre tableau de bord pour plus de détails.
+      `.trim(),
+    });
+  }
 }

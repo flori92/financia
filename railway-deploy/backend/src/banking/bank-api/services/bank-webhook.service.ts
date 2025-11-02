@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BankWebhookEvent } from '../entities/bank-webhook-event.entity';
-import { NotificationsService } from '../../notifications/notifications.service';
+import { NotificationsService } from '../../../notifications/notifications.service';
 
 @Injectable()
 export class BankWebhookService {
@@ -39,7 +39,7 @@ export class BankWebhookService {
 
       return { received: true };
     } catch (error) {
-      this.logger.error(`Erreur traitement webhook Stripe: ${error.message}`);
+      this.logger.error(`Erreur traitement webhook Stripe: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -66,7 +66,7 @@ export class BankWebhookService {
 
       return { received: true };
     } catch (error) {
-      this.logger.error(`Erreur traitement webhook Plaid: ${error.message}`);
+      this.logger.error(`Erreur traitement webhook Plaid: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -92,7 +92,7 @@ export class BankWebhookService {
 
       return { received: true };
     } catch (error) {
-      this.logger.error(`Erreur traitement webhook Bridge: ${error.message}`);
+      this.logger.error(`Erreur traitement webhook Bridge: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -118,7 +118,7 @@ export class BankWebhookService {
 
       return { received: true };
     } catch (error) {
-      this.logger.error(`Erreur traitement webhook générique: ${error.message}`);
+      this.logger.error(`Erreur traitement événement générique: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -196,19 +196,23 @@ export class BankWebhookService {
   }
 
   private async handlePaymentSuccess(payment: any): Promise<void> {
-    await this.notificationsService.sendPaymentNotification({
-      userId: payment.metadata?.userId,
-      type: 'payment_success',
-      data: { amount: payment.amount, currency: payment.currency }
-    });
+    // TODO: Implémenter sendPaymentNotification dans NotificationsService
+    this.logger.log(`Paiement réussi: ${payment.amount}`);
+    // await this.notificationsService.sendPaymentNotification({
+    //   userId: payment.metadata?.userId,
+    //   type: 'payment_success',
+    //   data: { amount: payment.amount, currency: payment.currency }
+    // });
   }
 
   private async handlePaymentFailure(payment: any): Promise<void> {
-    await this.notificationsService.sendPaymentNotification({
-      userId: payment.metadata?.userId,
-      type: 'payment_failure',
-      data: { amount: payment.amount, error: payment.last_payment_error?.message }
-    });
+    // TODO: Implémenter sendPaymentNotification dans NotificationsService
+    this.logger.error(`Paiement échoué: ${payment.amount}`);
+    // await this.notificationsService.sendPaymentNotification({
+    //   userId: payment.metadata?.userId,
+    //   type: 'payment_failure',
+    //   data: { amount: payment.amount, error: payment.last_payment_error?.message }
+    // });
   }
 
   private async handleAccountUpdate(account: any): Promise<void> {

@@ -385,4 +385,72 @@ export class BankApiService {
         }
         return chunks;
     }
+
+    /**
+     * Récupère les comptes bancaires d'une connexion
+     */
+    async getBankAccounts(connectionId: string): Promise<BankAccount[]> {
+        const accounts = await this.bankAccountRepo.find({
+            where: { connectionId },
+            order: { createdAt: 'DESC' }
+        });
+        return accounts;
+    }
+
+    /**
+     * Synchronise les transactions d'un compte bancaire
+     */
+    async syncAccountTransactions(accountId: string, options?: BankSyncOptionsDto): Promise<void> {
+        const account = await this.bankAccountRepo.findOne({
+            where: { id: accountId },
+            relations: ['connection']
+        });
+
+        if (!account) {
+            throw new BankApiException('Compte bancaire non trouvé');
+        }
+
+        await this.syncTransactions(account.connectionId, accountId, options);
+    }
+
+    /**
+     * Récupère le statut d'une connexion bancaire
+     */
+    async getConnectionStatus(connectionId: string): Promise<{
+        status: string;
+        lastSync: Date | null;
+        accountsCount: number;
+        transactionsCount: number;
+    }> {
+        const connection = await this.bankConnectionRepo.findOne({
+            where: { id: connectionId }
+        });
+
+        if (!connection) {
+            throw new BankApiException('Connexion bancaire non trouvée');
+        }
+
+        const accounts = await this.bankAccountRepo.find({
+            where: { connectionId }
+        });
+
+        const transactionsCount = await this.bankTransactionRepo.count({
+            where: { accountId: accounts.length > 0 ? accounts[0].id : undefined }
+        });
+
+        const lastSyncDates = accounts
+            .map(acc => acc.lastSyncAt)
+            .filter(date => date != null);
+        
+        const lastSync = lastSyncDates.length > 0
+            ? new Date(Math.max(...lastSyncDates.map(d => d.getTime())))
+            : null;
+
+        return {
+            status: connection.status,
+            lastSync,
+            accountsCount: accounts.length,
+            transactionsCount
+        };
+    }
 }

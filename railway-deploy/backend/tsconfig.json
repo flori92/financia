@@ -22,7 +22,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/banking/bank-api/**",
     "src/**/__tests__/**",
     "src/ai/models/**",
     "src/ai/processors/**",

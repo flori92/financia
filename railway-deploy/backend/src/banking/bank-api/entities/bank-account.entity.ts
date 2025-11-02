@@ -37,6 +37,9 @@ export class BankAccount {
     @Column()
     status: 'active' | 'closed';
 
+    @Column({ type: 'json', nullable: true })
+    metadata: Record<string, any>;
+
     @Column({ nullable: true })
     lastSyncAt: Date;
 

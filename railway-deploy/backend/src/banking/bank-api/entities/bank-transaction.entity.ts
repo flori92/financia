@@ -9,6 +9,9 @@ export class BankTransaction {
     @Column()
     accountId: string;
 
+    @Column({ nullable: true })
+    connectionId: string;
+
     @ManyToOne(() => BankAccount)
     @JoinColumn({ name: 'accountId' })
     account: BankAccount;

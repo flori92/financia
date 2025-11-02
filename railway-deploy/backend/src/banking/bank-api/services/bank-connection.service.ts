@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BankConnection } from '../entities/bank-connection.entity';
 import { BankAccount } from '../entities/bank-account.entity';
-import { NotificationsService } from '../../notifications/notifications.service';
+import { NotificationsService } from '../../../notifications/notifications.service';
 
 @Injectable()
 export class BankConnectionService {
@@ -32,7 +32,7 @@ export class BankConnectionService {
       
       return connection.status === 'active';
     } catch (error) {
-      this.logger.error(`Erreur test connexion: ${error.message}`);
+      this.logger.error(`Erreur test connexion: ${(error as Error).message}`);
       return false;
     }
   }
@@ -74,9 +74,10 @@ export class BankConnectionService {
 
     // Notifier l'utilisateur
     await this.notificationsService.sendBankConnectionNotification({
-      userId,
-      type: 'bank_connection_revoked',
-      data: { bankCode: connection.bankCode }
+      userEmail: connection.userEmail || 'admin@bms.com',
+      bankName: connection.bankCode,
+      status: 'error',
+      message: 'Connexion bancaire révoquée'
     });
   }
 
