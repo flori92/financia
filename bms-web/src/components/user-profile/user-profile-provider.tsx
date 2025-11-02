@@ -1,5 +1,15 @@
 "use client";
 
+// Type pour le profil utilisateur
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: 'entrepreneur' | 'expert' | 'admin';
+  company?: string;
+  avatar?: string;
+}
+
 export function UserProfileProvider({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
