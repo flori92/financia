@@ -23,9 +23,22 @@ interface RFQData {
   requirements: string;
 }
 
+interface RFQ {
+  id: string;
+  title: string;
+  description: string;
+  deadline: string;
+  budget: string;
+  requirements: string;
+  status: "draft" | "published" | "closed";
+  referenceNumber: string;
+  createdAt: string;
+  responses?: any[];
+}
+
 interface CreateRFQModalProps {
   children: React.ReactNode;
-  onSubmit?: (data: RFQData) => void;
+  onSubmit?: (data: RFQ) => void;
 }
 
 export function CreateRFQModal({ children, onSubmit }: CreateRFQModalProps) {
