@@ -62,12 +62,9 @@ setup_env() {
         log_warning "Fichier .env non trouvé. Création à partir de .env.example..."
         
         cat > .env << EOF
-# Clés APIs (obligatoires pour les fonctionnalités IA)
-OPENAI_API_KEY=sk-your-openai-key-here
-HUGGINGFACE_API_KEY=hf-your-huggingface-key-here
-
-# Configuration service IA
+# Service IA Local (plus besoin de clés APIs payantes!)
 AI_SERVICE_URL=http://localhost:8000
+LLM_SERVICE_URL=http://localhost:8001
 AI_SERVICE_ENV=development
 
 # Base de données
@@ -88,11 +85,15 @@ PROMETHEUS_RETENTION=30d
 # Logs
 LOG_LEVEL=info
 LOG_FILE=logs/ai-service.log
+
+# Modèles LLM (open source gratuits)
+TRANSFORMERS_CACHE=./models
+TORCH_HOME=./torch
+PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
 EOF
         
-        log_warning "Veuillez éditer le fichier .env et ajouter vos clés APIs OpenAI et HuggingFace"
-        log_warning "Puis relancer le script: ./deploy-ai.sh $1"
-        exit 1
+        log_success "Fichier .env créé avec configuration open source ✓"
+        log_info "Plus besoin de clés APIs OpenAI/HuggingFace!"
     fi
     
     # Charger les variables d'environnement
@@ -112,8 +113,44 @@ deploy_dev() {
     log_info "Attente de la base de données..."
     sleep 10
     
-    # Lancer le service IA localement
-    log_info "Démarrage du service IA en mode développement..."
+    # Lancer le service LLM local
+    log_info "Démarrage du service LLM local (Llama/Mistral)..."
+    cd ai-service
+    
+    # Créer l'environnement virtuel si nécessaire
+    if [ ! -d "venv_llm" ]; then
+        python3 -m venv venv_llm
+    fi
+    
+    # Activer l'environnement virtuel
+    source venv_llm/bin/activate
+    
+    # Installer les dépendances LLM
+    pip install -r requirements.txt
+    
+    # Télécharger les modèles français
+    python -m spacy download fr_core_news_sm
+    
+    # Lancer le service LLM
+    python llm-service.py &
+    LLM_PID=$!
+    
+    # Attendre que le service LLM soit prêt
+    log_info "Attente du service LLM..."
+    sleep 30
+    
+    # Vérifier le service LLM
+    if curl -f http://localhost:8001/health &> /dev/null; then
+        log_success "Service LLM prêt ✓"
+    else
+        log_error "Service LLM non disponible. Vérifiez les logs:"
+        tail -20 logs/llm-service.log 2>/dev/null || echo "Logs non disponibles"
+    fi
+    
+    cd ..
+    
+    # Lancer le service IA principal
+    log_info "Démarrage du service IA principal..."
     cd ai-service
     
     # Créer l'environnement virtuel si nécessaire
@@ -138,12 +175,15 @@ deploy_dev() {
     docker-compose -f docker-compose.ai.yml up -d jupyter-ml
     
     log_success "Déploiement développement terminé ✓"
-    log_info "Service IA: http://localhost:8000"
-    log_info "Jupyter: http://localhost:8888"
-    log_info "Health Check: curl http://localhost:8000/health"
+    log_info "Services disponibles:"
+    log_info "- Service IA Principal: http://localhost:8000"
+    log_info "- Service LLM Local: http://localhost:8001"
+    log_info "- Jupyter: http://localhost:8888"
+    log_info "- Health Check LLM: curl http://localhost:8001/health"
     
-    # Sauvegarder le PID pour l'arrêt
+    # Sauvegarder les PIDs pour l'arrêt
     echo $AI_PID > .ai_dev.pid
+    echo $LLM_PID > .llm_dev.pid
 }
 
 # Déploiement production
@@ -197,7 +237,7 @@ update() {
 stop() {
     log_info "Arrêt des services..."
     
-    # Arrêter le service de développement si actif
+    # Arrêter le service IA développement si actif
     if [ -f .ai_dev.pid ]; then
         AI_PID=$(cat .ai_dev.pid)
         if kill -0 $AI_PID 2>/dev/null; then
@@ -205,6 +245,16 @@ stop() {
             log_info "Service IA développement arrêté"
         fi
         rm .ai_dev.pid
+    fi
+    
+    # Arrêter le service LLM développement si actif
+    if [ -f .llm_dev.pid ]; then
+        LLM_PID=$(cat .llm_dev.pid)
+        if kill -0 $LLM_PID 2>/dev/null; then
+            kill $LLM_PID
+            log_info "Service LLM développement arrêté"
+        fi
+        rm .llm_dev.pid
     fi
     
     # Arrêter les services Docker
@@ -230,6 +280,22 @@ status() {
         log_success "Service IA: OK ✓"
     else
         log_warning "Service IA: Non disponible ou erreur"
+    fi
+    
+    echo ""
+    log_info "Health Check Service LLM:"
+    if curl -s http://localhost:8001/health | jq . 2>/dev/null; then
+        log_success "Service LLM: OK ✓"
+    else
+        log_warning "Service LLM: Non disponible ou erreur"
+    fi
+    
+    echo ""
+    log_info "Modèles LLM chargés:"
+    if curl -s http://localhost:8001/api/llm/models 2>/dev/null | jq .models 2>/dev/null; then
+        log_success "Modèles disponibles ✓"
+    else
+        log_warning "Modèles: Non chargés"
     fi
 }
 

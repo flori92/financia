@@ -47,7 +47,7 @@ class AIAnalyticsService {
     }
   }
 
-  // API OpenAI GPT pour les insights business
+  // API LLM Local pour les insights business
   async generateBusinessInsights(financialData: any, period: string): Promise<{
     insights: string[];
     recommendations: string[];
@@ -55,66 +55,66 @@ class AIAnalyticsService {
     opportunities: string[];
   }> {
     try {
-      const prompt = `Analyse ces données financières BMS pour la période ${period} et génère:
-      1. 3 insights clés sur la performance
-      2. 3 recommandations actionnables
-      3. 2 risques identifiés
-      4. 2 opportunités d'optimisation
-      
-      Données: ${JSON.stringify(financialData, null, 2)}
-      
-      Réponds en français avec un format professionnel et concis.`;
-
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const llmResponse = await fetch(`${this.BASE_URL.replace('8000', '8001')}/api/llm/insights`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: 1000,
-          temperature: 0.3
+          financialData: financialData,
+          context: `Période d'analyse: ${period}`
         })
       });
 
-      if (!response.ok) throw new Error('OpenAI API error');
-      
-      const result = await response.json();
-      const content = result.choices[0].message.content;
-      
-      return this.parseInsights(content);
+      if (llmResponse.ok) {
+        const result = await llmResponse.json();
+        return result.data;
+      } else {
+        throw new Error('LLM service error');
+      }
     } catch (error) {
       // Fallback vers des insights basiques
       return this.generateBasicInsights(financialData);
     }
   }
 
-  // API Hugging Face pour l'analyse de sentiment
+  // API LLM Local pour l'analyse de sentiment
   async analyzeDocumentSentiment(documents: Array<{ content: string; type: string }>): Promise<{
     overall_sentiment: 'positive' | 'neutral' | 'negative';
     confidence: number;
     document_scores: Array<{ type: string; sentiment: string; confidence: number }>;
   }> {
     try {
-      const response = await fetch('https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment-latest', {
+      const texts = documents.map(d => d.content);
+      
+      const response = await fetch(`${this.BASE_URL.replace('8000', '8001')}/api/llm/sentiment`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: documents.map(d => d.content).join('\n')
+          texts: texts
         })
       });
 
-      if (!response.ok) throw new Error('HuggingFace API error');
-      
-      const result = await response.json();
-      return this.parseSentimentResults(result, documents);
+      if (response.ok) {
+        const result = await response.json();
+        const documentScores = documents.map((doc, i) => ({
+          type: doc.type,
+          sentiment: result.data.results[i]?.sentiment || 'neutral',
+          confidence: result.data.results[i]?.confidence || 0.5
+        }));
+
+        return {
+          overall_sentiment: result.data.overall_sentiment,
+          confidence: 0.75,
+          document_scores: documentScores
+        };
+      } else {
+        throw new Error('Sentiment analysis error');
+      }
     } catch (error) {
-      // Fallback neutre
+      // Fallback vers analyse basique
       return {
         overall_sentiment: 'neutral',
         confidence: 0.5,

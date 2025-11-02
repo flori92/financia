@@ -7,14 +7,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/bms_ai
     depends_on:
       - redis
       - postgres
+      - bms-llm-service
     volumes:
       - ./ai-service/logs:/app/logs
     restart: unless-stopped
@@ -22,6 +21,33 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
+      retries: 3
+
+  # Service LLM Local (Llama/Mistral)
+  bms-llm-service:
+    build: 
+      context: ./ai-service
+      dockerfile: Dockerfile.llm
+    ports:
+      - "8001:8001"
+    environment:
+      - TRANSFORMERS_CACHE=/app/models
+      - TORCH_HOME=/app/torch
+    volumes:
+      - llm_models:/app/models
+      - llm_torch:/app/torch
+    restart: unless-stopped
+    # Plus de ressources pour les modèles LLM
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 60s
+      timeout: 30s
       retries: 3
 
   # Redis pour le cache et les tâches async
@@ -98,6 +124,8 @@ volumes:
   redis_data:
   grafana_data:
   prometheus_data:
+  llm_models:
+  llm_torch:
 
 networks:
   default:
