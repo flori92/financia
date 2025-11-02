@@ -2,8 +2,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
+// import { InjectQueue } from '@nestjs/bull'; // Désactivé pour éviter erreurs Redis
+// import { Queue } from 'bull';
 import { BankConnection } from '../entities/bank-connection.entity';
 import { BankAccount } from '../entities/bank-account.entity';
 import { BankTransaction } from '../entities/bank-transaction.entity';
@@ -31,10 +31,10 @@ export class BankApiService {
         private readonly bankTransactionRepo: Repository<BankTransaction>,
         @InjectRepository(BankAnomaly)
         private readonly bankAnomalyRepo: Repository<BankAnomaly>,
-        @InjectQueue('bank-sync')
-        private readonly bankSyncQueue: Queue,
-        @Inject('BANK_API_PROVIDERS')
-        private readonly bankApiProviders: Record<string, () => Promise<any>>,
+        // @InjectQueue('bank-sync') // Désactivé pour éviter erreurs Redis
+        // private readonly bankSyncQueue: Queue,
+        // @Inject('BANK_API_PROVIDERS') // Désactivé - providers manquants
+        // private readonly bankApiProviders: Record<string, () => Promise<any>>,
         private readonly configService: ConfigService,
         private readonly notificationsService: NotificationsService,
         private readonly aiService: AIService
