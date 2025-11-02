@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Mail, Send, Inbox, Archive, Trash2, Star, Paperclip } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 interface Email {
   id: string;

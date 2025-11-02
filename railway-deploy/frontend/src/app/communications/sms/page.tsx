@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, MessageSquare, Send, Users, TrendingUp } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 interface SMSMessage {
   id: string;
@@ -18,8 +19,6 @@ interface SMSMessage {
 export default function SMSPage() {
   const [messages, setMessages] = useState<SMSMessage[]>([]);
   const [loading, setLoading] = useState(true);
-
-import { apiGet } from '@/lib/api';
 
   useEffect(() => {
     apiGet('/api/v1/communications/sms')

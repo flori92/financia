@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Mail, MessageSquare, MessageCircle, Edit, Trash2 } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 interface Template {
   id: string;

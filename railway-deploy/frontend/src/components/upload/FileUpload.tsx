@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Upload, X, FileText, Image as ImageIcon, CheckCircle } from "lucide-react";
+import { getBaseUrl } from "@/lib/api";
 
 interface FileUploadProps {
   label?: string;

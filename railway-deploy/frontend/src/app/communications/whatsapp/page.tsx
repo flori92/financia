@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, MessageCircle, Check, CheckCheck, Clock } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 interface WhatsAppMessage {
   id: string;
@@ -18,8 +19,6 @@ interface WhatsAppMessage {
 export default function WhatsAppPage() {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [loading, setLoading] = useState(true);
-
-import { apiGet } from '@/lib/api';
 
   useEffect(() => {
     apiGet('/api/v1/communications/whatsapp')
