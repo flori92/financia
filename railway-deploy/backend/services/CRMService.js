@@ -345,89 +345,87 @@ class CRMService {
 
     return forecast;
   }
-}
 
-// Get CRM Statistics
-async getCRMStats(companyId) {
-  try {
-    if (this.isDynamic) {
-      // Mode dynamique - calculer depuis la base de données
-      const stats = await this.calculateCRMStats(companyId);
-      return stats;
-    } else {
-      // Mode statique - retourner données mock
-      return {
-        totalContacts: 150,
-        activeCustomers: 80,
-        activeSuppliers: 45,
-        totalOpportunities: 25,
-        pipelineValue: 12500000,
-        conversionRate: 18.5,
-        monthlyGrowth: 12.3,
-        topPerformers: [
-          { name: 'Jean Dupont', opportunities: 8, value: 3200000 },
-          { name: 'Marie Koné', opportunities: 6, value: 2800000 },
-          { name: 'Ahmed Bello', opportunities: 5, value: 2100000 }
-        ],
-        recentActivity: [
-          { type: 'opportunity_won', value: 1500000, date: '2025-11-01' },
-          { type: 'contact_added', name: 'Nouveau Client', date: '2025-11-01' },
-          { type: 'opportunity_created', title: 'Projet ERP', value: 2500000, date: '2025-10-31' }
-        ]
-      };
+  // Get CRM Statistics
+  async getCRMStats(companyId) {
+    try {
+      if (this.isDynamic) {
+        // Mode dynamique - calculer depuis la base de données
+        const stats = await this.calculateCRMStats(companyId);
+        return stats;
+      } else {
+        // Mode statique - retourner données mock
+        return {
+          totalContacts: 150,
+          activeCustomers: 80,
+          activeSuppliers: 45,
+          totalOpportunities: 25,
+          pipelineValue: 12500000,
+          conversionRate: 18.5,
+          monthlyGrowth: 12.3,
+          topPerformers: [
+            { name: 'Jean Dupont', opportunities: 8, value: 3200000 },
+            { name: 'Marie Koné', opportunities: 6, value: 2800000 },
+            { name: 'Ahmed Bello', opportunities: 5, value: 2100000 }
+          ],
+          recentActivity: [
+            { type: 'opportunity_won', value: 1500000, date: '2025-11-01' },
+            { type: 'contact_added', name: 'Nouveau Client', date: '2025-11-01' },
+            { type: 'opportunity_created', title: 'Projet ERP', value: 2500000, date: '2025-10-31' }
+          ]
+        };
+      }
+    } catch (error) {
+      throw new Error(`Erreur lors de la récupération des statistiques CRM: ${error.message}`);
     }
-  } catch (error) {
-    throw new Error(`Erreur lors de la récupération des statistiques CRM: ${error.message}`);
   }
-}
 
-// Get Pipeline Stages
-async getPipelineStages(companyId) {
-  try {
-    if (this.isDynamic) {
-      // Mode dynamique - récupérer depuis la base de données
-      const stages = await this.getPipelineStagesFromDB(companyId);
-      return stages;
-    } else {
-      // Mode statique - retourner données mock
-      return [
-        { id: 'lead', name: 'Lead', type: 'lead', order: 1, probability: 10, color: '#94a3b8' },
-        { id: 'qualified', name: 'Qualifié', type: 'qualified', order: 2, probability: 25, color: '#3b82f6' },
-        { id: 'proposal', name: 'Proposition', type: 'proposal', order: 3, probability: 50, color: '#8b5cf6' },
-        { id: 'negotiation', name: 'Négociation', type: 'negotiation', order: 4, probability: 75, color: '#f59e0b' },
-        { id: 'closing', name: 'Clôture', type: 'closing', order: 5, probability: 90, color: '#ef4444' },
-        { id: 'won', name: 'Gagné', type: 'won', order: 6, probability: 100, color: '#10b981' },
-        { id: 'lost', name: 'Perdu', type: 'lost', order: 7, probability: 0, color: '#6b7280' }
-      ];
+  // Get Pipeline Stages
+  async getPipelineStages(companyId) {
+    try {
+      if (this.isDynamic) {
+        // Mode dynamique - récupérer depuis la base de données
+        const stages = await this.getPipelineStagesFromDB(companyId);
+        return stages;
+      } else {
+        // Mode statique - retourner données mock
+        return [
+          { id: 'lead', name: 'Lead', type: 'lead', order: 1, probability: 10, color: '#94a3b8' },
+          { id: 'qualified', name: 'Qualifié', type: 'qualified', order: 2, probability: 25, color: '#3b82f6' },
+          { id: 'proposal', name: 'Proposition', type: 'proposal', order: 3, probability: 50, color: '#8b5cf6' },
+          { id: 'negotiation', name: 'Négociation', type: 'negotiation', order: 4, probability: 75, color: '#f59e0b' },
+          { id: 'closing', name: 'Clôture', type: 'closing', order: 5, probability: 90, color: '#ef4444' },
+          { id: 'won', name: 'Gagné', type: 'won', order: 6, probability: 100, color: '#10b981' },
+          { id: 'lost', name: 'Perdu', type: 'lost', order: 7, probability: 0, color: '#6b7280' }
+        ];
+      }
+    } catch (error) {
+      throw new Error(`Erreur lors de la récupération des étapes du pipeline: ${error.message}`);
     }
-  } catch (error) {
-    throw new Error(`Erreur lors de la récupération des étapes du pipeline: ${error.message}`);
   }
-}
 
-// Helper methods for dynamic mode
-async calculateCRMStats(companyId) {
-  // Implémentation pour le calcul dynamique des stats
-  return {
-    totalContacts: 150,
-    activeCustomers: 80,
-    activeSuppliers: 45,
-    totalOpportunities: 25,
-    pipelineValue: 12500000,
-    conversionRate: 18.5,
-    monthlyGrowth: 12.3
-  };
-}
+  // Helper methods for dynamic mode
+  async calculateCRMStats(companyId) {
+    // Implémentation pour le calcul dynamique des stats
+    return {
+      totalContacts: 150,
+      activeCustomers: 80,
+      activeSuppliers: 45,
+      totalOpportunities: 25,
+      pipelineValue: 12500000,
+      conversionRate: 18.5,
+      monthlyGrowth: 12.3
+    };
+  }
 
-async getPipelineStagesFromDB(companyId) {
-  // Implémentation pour la récupération dynamique des stages
-  return [
-    { id: 'lead', name: 'Lead', type: 'lead', order: 1, probability: 10 },
-    { id: 'qualified', name: 'Qualifié', type: 'qualified', order: 2, probability: 25 },
-    { id: 'proposal', name: 'Proposition', type: 'proposal', order: 3, probability: 50 }
-  ];
-}
-
+  async getPipelineStagesFromDB(companyId) {
+    // Implémentation pour la récupération dynamique des stages
+    return [
+      { id: 'lead', name: 'Lead', type: 'lead', order: 1, probability: 10 },
+      { id: 'qualified', name: 'Qualifié', type: 'qualified', order: 2, probability: 25 },
+      { id: 'proposal', name: 'Proposition', type: 'proposal', order: 3, probability: 50 }
+    ];
+  }
 }
 
 module.exports = new CRMService();
