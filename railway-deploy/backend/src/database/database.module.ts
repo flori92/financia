@@ -37,12 +37,12 @@ import { PaymentAllocation } from '../payments/entities/payment-allocation.entit
 import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';
 
 // 7. Banking Entities (Legacy + API)
-// Legacy Banking
+// Legacy Banking (transactions CSV importées)
+import { BankTransaction } from '../banking/entities/bank-transaction.entity';
+import { BankAccount } from '../banking/entities/bank-account.entity';
 import { BankReconciliation } from '../banking/entities/bank-reconciliation.entity';
-// Bank API (prioritaire - plus complet)
+// Bank API (connexions externes)
 import { BankConnection } from '../banking/bank-api/entities/bank-connection.entity';
-import { BankAccount } from '../banking/bank-api/entities/bank-account.entity';
-import { BankTransaction } from '../banking/bank-api/entities/bank-transaction.entity';
 import { BankAnomaly } from '../banking/bank-api/entities/bank-anomaly.entity';
 
 // 8. CRM & Sales Entities
@@ -127,12 +127,13 @@ const ALL_ENTITIES = [
   // Mobile Money
   MobileMoneyTransaction,
   
-  // Banking (priorité Bank API)
-  BankConnection,
-  BankAccount,
+  // Banking (priorité aux entités locales pour CSV import)
   BankTransaction,
-  BankAnomaly,
+  BankAccount,
   BankReconciliation,
+  // Bank API (connexions externes)
+  BankConnection,
+  BankAnomaly,
   
   // CRM & Sales
   Contact,
