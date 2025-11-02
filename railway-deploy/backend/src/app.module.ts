@@ -128,22 +128,22 @@ import { AppController } from './app.controller';
 
     // Redis Cache (désactivé temporairement)
 
-    // Bull Queue (configuré pour Railway Redis)
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        redis: {
-          host: config.get('REDIS_HOST', 'localhost'),
-          port: parseInt(config.get('REDIS_PORT', '6379')),
-          password: config.get('REDIS_PASSWORD'),
-          db: parseInt(config.get('REDIS_DB', '0')),
-          connectTimeout: 10000,
-          lazyConnect: true,
-          maxRetriesPerRequest: 3,
-          retryDelayOnFailover: 100,
-        },
-      }),
-    }),
+    // Bull Queue (désactivé temporairement pour Railway)
+    // BullModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => ({
+    //     redis: {
+    //       host: config.get('REDIS_HOST', 'localhost'),
+    //       port: parseInt(config.get('REDIS_PORT', '6379')),
+    //       password: config.get('REDIS_PASSWORD'),
+    //       db: parseInt(config.get('REDIS_DB', '0')),
+    //       connectTimeout: 10000,
+    //       lazyConnect: true,
+    //       maxRetriesPerRequest: 3,
+    //       retryDelayOnFailover: 100,
+    //     },
+    //   }),
+    // }),
 
     // Health Check
     TerminusModule,
@@ -171,11 +171,11 @@ import { AppController } from './app.controller';
     ScoringModule,
     LoansModule,
 
-    // Frappe Integration
-    FrappeBridgeModule,
+    // Frappe Integration (désactivé temporairement)
+    // FrappeBridgeModule,
 
-    // Notifications
-    NotificationsModule,
+    // Notifications (désactivé temporairement)
+    // NotificationsModule,
     AuditModule,
     SyncModule,
 
