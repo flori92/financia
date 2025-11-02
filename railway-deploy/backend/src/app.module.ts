@@ -11,15 +11,12 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 
 // Entities
 import { Company } from './companies/entities/company.entity';
-import { User } from './users/entities/user.entity';
+import { User } from './auth/entities/user.entity';
 import { AuditLog } from './audit/entities/audit-log.entity';
-import { ChartOfAccounts } from './accounting/entities/chart-of-accounts.entity';
 import { JournalEntry } from './accounting/entities/journal-entry.entity';
 import { JournalEntryLine } from './accounting/entities/journal-entry-line.entity';
-import { FiscalYear } from './accounting/entities/fiscal-year.entity';
 import { BankAccount } from './banking/entities/bank-account.entity';
 import { BankTransaction } from './banking/entities/bank-transaction.entity';
-import { BankSync } from './banking/entities/bank-sync.entity';
 import { Invoice } from './invoices/entities/invoice.entity';
 import { InvoiceItem } from './invoices/entities/invoice-item.entity';
 import { NotificationConfig } from './notifications/entities/notification-config.entity';
@@ -33,7 +30,6 @@ import { PaymentsModule } from './payments/payments.module';
 import { TaxModule } from './tax/tax.module';
 import { CrmModule } from './crm/crm.module';
 import { DatabaseModule } from './database/database.module';
-import { UsersModule } from './users/users.module';
 import { AuditModule } from './audit/audit.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
@@ -52,8 +48,6 @@ import { LoansModule } from './loans/loans.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 import { FrappeBridgeModule } from './frappe-bridge/frappe-bridge.module';
 import { SyncModule } from './sync/sync.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { AuditModule } from './audit/audit.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { NifModule } from './nif/nif.module';
 
@@ -96,13 +90,10 @@ import { AppController } from './app.controller';
           Company,
           User,
           AuditLog,
-          ChartOfAccounts,
           JournalEntry,
           JournalEntryLine,
-          FiscalYear,
           BankAccount,
           BankTransaction,
-          BankSync,
           Invoice,
           InvoiceItem,
           NotificationConfig,

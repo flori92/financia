@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NotificationConfigService } from './notification-config.service';
 
 export interface NotificationPayload {
   to: string; // email, phone, whatsapp number
@@ -242,10 +243,10 @@ export class NotificationsService {
         provider = config.whatsappProvider || 'console';
         
         if (provider === 'twilio') {
-          return this.sendWhatsAppWithTwilio(payload, config);
+          return this.sendWhatsAppWithTwilio(payload);
         }
         if (provider === 'meta') {
-          return this.sendWhatsAppWithMeta(payload, config);
+          return this.sendWhatsAppWithMeta(payload);
         }
       } catch (error) {
         this.logger.warn('Could not load WhatsApp config from DB, falling back to env vars');
@@ -267,12 +268,12 @@ export class NotificationsService {
 
     // Implémentation avec Twilio WhatsApp
     if (provider === 'twilio') {
-      return this.sendWhatsAppWithTwilioEnv(payload);
+      return this.sendWhatsAppWithTwilio(payload);
     }
 
     // Implémentation avec Meta WhatsApp Business API
     if (provider === 'meta') {
-      return this.sendWhatsAppWithMetaEnv(payload);
+      return this.sendWhatsAppWithMeta(payload);
     }
 
     return true;
