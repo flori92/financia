@@ -74,8 +74,8 @@ export class AccountingClosureService {
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.lines', 'line')
       .leftJoinAndSelect('line.account', 'account')
-      .where('entry.company_id = :companyId', { companyId })
-      .andWhere('entry.entry_date BETWEEN :startDate AND :endDate', {
+      .where('entry.companyId = :companyId', { companyId })
+      .andWhere('entry.entryDate BETWEEN :startDate AND :endDate', {
         startDate,
         endDate,
       })
