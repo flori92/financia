@@ -44,6 +44,9 @@ function getToken() {
 }
 
 export function getCompanyId() {
+  // Pour le dashboard demo, utiliser un companyId fixe
+  const demoCompanyId = '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
+  
   if (typeof process !== 'undefined' && (process as any).env?.NEXT_PUBLIC_COMPANY_ID) {
     const cid = (process as any).env.NEXT_PUBLIC_COMPANY_ID as string;
     if (typeof window !== 'undefined') {
@@ -51,8 +54,16 @@ export function getCompanyId() {
     }
     return cid;
   }
-  if (typeof window !== 'undefined') return window.localStorage.getItem('companyId') || undefined;
-  return undefined;
+  if (typeof window !== 'undefined') {
+    try { 
+      const stored = window.localStorage.getItem('companyId');
+      if (stored) return stored;
+      // Stocker le companyId de demo par défaut
+      window.localStorage.setItem('companyId', demoCompanyId);
+      return demoCompanyId;
+    } catch {}
+  }
+  return demoCompanyId;
 }
 
 export async function apiGet(path: string, params?: Query, init?: RequestInit) {
