@@ -1,5 +1,5 @@
 "use client";
-import { Tabs } from "@/components/ui/Tabs";
+import { Tabs } from "@/components/ui/tabs";
 import { useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar } from "recharts";
 
