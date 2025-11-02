@@ -135,7 +135,7 @@ export default function RemindersPage() {
     const penalty = Math.round(item.total * 0.0004 * item.daysLate + 40);
     const totalDue = item.total + penalty;
 
-    const invoiceUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://bms-frontend-production.up.railway.app'}/invoices/${item.party}`;
+    const invoiceUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app'}/invoices/${item.party}`;
 
     let subject = '';
     let message = '';
