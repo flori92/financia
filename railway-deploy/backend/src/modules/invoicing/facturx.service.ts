@@ -12,11 +12,10 @@ export class FacturXService {
    * Génère le XML Factur-X (profil BASIC)
    */
   generateXML(invoice: any): string {
-    const root = create('rsm:CrossIndustryInvoice', {
-      'xmlns:rsm': 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100',
-      'xmlns:ram': 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100',
-      'xmlns:udt': 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100'
-    });
+    const root = create('rsm:CrossIndustryInvoice')
+      .att('xmlns:rsm', 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100')
+      .att('xmlns:ram', 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100')
+      .att('xmlns:udt', 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100');
     
     const exchangedDocumentContext = root.ele('rsm:ExchangedDocumentContext');
     const businessProcessSpecifiedDocumentContextParameter = exchangedDocumentContext.ele('ram:BusinessProcessSpecifiedDocumentContextParameter');
@@ -28,7 +27,7 @@ export class FacturXService {
     const exchangedDocument = root.ele('rsm:ExchangedDocument');
     exchangedDocument.ele('ram:ID').txt(invoice.invoiceNumber || `INV-${Date.now()}`);
     exchangedDocument.ele('ram:TypeCode').txt('380');
-    exchangedDocument.ele('ram:IssueDateTime').ele('udt:DateTimeString', { format: '102' }).txt(new Date().toISOString().split('T')[0]);
+    exchangedDocument.ele('ram:IssueDateTime').ele('udt:DateTimeString').att('format', '102').txt(new Date().toISOString().split('T')[0]);
     exchangedDocument.ele('ram:IncludedNote').ele('ram:Content').txt(invoice.note || 'Facture BMS');
     
     const supplyChainTradeTransaction = root.ele('rsm:SupplyChainTradeTransaction');

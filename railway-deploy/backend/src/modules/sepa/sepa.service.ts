@@ -15,10 +15,9 @@ export class SEPAService {
     const pmtInfId = `PMT-${Date.now()}`;
     const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
     
-    const root = create('Document', {
-      'xmlns': 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03',
-      'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance'
-    });
+    const root = create('Document')
+      .att('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03')
+      .att('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
     
     const cstmrCdtTrfInitn = root.ele('CstmrCdtTrfInitn');
     
@@ -70,7 +69,7 @@ export class SEPAService {
       pmtId.ele('EndToEndId').txt(payment.id || `E2E-${Date.now()}-${index}`);
       
       const amt = cdtTrfTxInf.ele('Amt');
-      const instdAmt = amt.ele('InstdAmt', { 'Ccy': payment.currency || 'EUR' });
+      const instdAmt = amt.ele('InstdAmt').att('Ccy', payment.currency || 'EUR');
       instdAmt.txt(payment.amount.toFixed(2));
       
       const cdtrAgt = cdtTrfTxInf.ele('CdtrAgt');
