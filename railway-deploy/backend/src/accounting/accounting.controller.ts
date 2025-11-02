@@ -21,6 +21,7 @@ import {
 import { AccountingService } from './accounting.service';
 import { AccountingAutomationService } from './accounting-automation.service';
 import { AccountingDashboardService } from './accounting-dashboard.service';
+import { CompaniesService } from '../companies/companies.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
@@ -40,6 +41,7 @@ export class AccountingController {
     private readonly accountingService: AccountingService,
     private readonly accountingAutomation: AccountingAutomationService,
     private readonly dashboardService: AccountingDashboardService,
+    private readonly companiesService: CompaniesService,
   ) {}
 
   // ============================================
@@ -414,6 +416,84 @@ export class AccountingController {
   // ============================================
   // DASHBOARD COMPTABLE
   // ============================================
+
+  @Post('init-demo-data')
+  @ApiOperation({ summary: 'Initialiser les données démo pour dashboard' })
+  @ApiResponse({
+    status: 201,
+    description: 'Données démo créées avec succès',
+  })
+  async initDemoData(): Promise<any> {
+    const company = await this.companiesService.create({
+      id: '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
+      name: 'BMS Demo SARL',
+      legalName: 'BMS Demo Société à Responsabilité Limitée',
+      registrationNumber: 'BJS123456789',
+      taxId: 'BJS987654321',
+      industry: 'Services Numériques',
+      size: 'small',
+      address: '123 Rue du Commerce, Cotonou, Bénin',
+      phone: '+229 12345678',
+      email: 'demo@bms.bj',
+      website: 'https://bms-demo.bj',
+      vatRate: 0.18,
+      fiscalYearStart: '01-01',
+      currency: 'XOF',
+    });
+
+    // Créer les comptes comptables essentiels
+    const essentialAccounts = [
+      { code: '101000', name: 'Capital social', type: 'Equity' },
+      { code: '401000', name: 'Fournisseurs', type: 'Liability' },
+      { code: '411000', name: 'Clients', type: 'Asset' },
+      { code: '445600', name: 'TVA déductible', type: 'Asset' },
+      { code: '445700', name: 'TVA collectée', type: 'Liability' },
+      { code: '512000', name: 'Banque', type: 'Asset' },
+      { code: '607000', name: 'Achats marchandises', type: 'Expense' },
+      { code: '701000', name: 'Ventes marchandises', type: 'Revenue' },
+    ];
+
+    for (const account of essentialAccounts) {
+      await this.accountingService.createAccount({
+        code: account.code,
+        name: account.name,
+        type: account.type,
+        companyId: company.id,
+        description: `Compte ${account.name}`,
+      });
+    }
+
+    // Créer quelques écritures de base
+    await this.accountingService.createJournalEntry({
+      companyId: company.id,
+      description: 'Capital initial',
+      entryDate: '2025-06-01',
+      status: 'posted',
+      lines: [
+        { accountId: '411000', debit: 10000000, credit: 0, label: 'Dépôt capital' },
+        { accountId: '101000', debit: 0, credit: 10000000, label: 'Capital social' },
+      ],
+    });
+
+    await this.accountingService.createJournalEntry({
+      companyId: company.id,
+      description: 'Ventes novembre 2025',
+      entryDate: '2025-11-01',
+      status: 'posted',
+      lines: [
+        { accountId: '411000', debit: 5000000, credit: 0, label: 'Client Alpha' },
+        { accountId: '701000', debit: 0, credit: 4237288, label: 'Ventes HT' },
+        { accountId: '445700', debit: 0, credit: 762712, label: 'TVA collectée' },
+      ],
+    });
+
+    return {
+      companyId: company.id,
+      message: 'Données démo créées - Dashboard prêt',
+      accounts: essentialAccounts.length,
+      entries: 2
+    };
+  }
 
   @Get('dashboard/metrics')
   @ApiOperation({ summary: 'Métriques du dashboard comptable (KPI, graphiques, alertes)' })
