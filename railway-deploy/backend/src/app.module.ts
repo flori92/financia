@@ -64,20 +64,6 @@ import { AppController } from './app.controller';
     }),
 
     // Database
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get('DB_HOST', 'localhost'),
-        port: config.get('DB_PORT', 5432),
-        username: config.get('DB_USER', 'bms'),
-        password: config.get('DB_PASSWORD', 'bms_dev_password'),
-        database: config.get('DB_NAME', 'bms'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false, // Désactivé temporairement pour éviter erreurs de migration
-        logging: config.get('NODE_ENV') === 'development',
-      }),
-    }),
 
     // Redis Cache (désactivé temporairement)
 
