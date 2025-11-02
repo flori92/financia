@@ -5,106 +5,194 @@ import * as entities from './entities';
 import { SimpleTestSeedService } from './seeds/simple-test.seed';
 import { SeedController } from './seed.controller';
 
-// Auth entities
-import { User } from '../auth/entities/user.entity';
+// ========================================
+// ANALYSE COMPLÈTE DE TOUTES LES ENTITÉS
+// ========================================
 
-// RBAC entities
+// 1. AUTH & RBAC Entities (Core)
+import { User } from '../auth/entities/user.entity';
 import { Role } from '../rbac/entities/role.entity';
 import { Permission } from '../rbac/entities/permission.entity';
 
-// Company entities
+// 2. Company Entities
 import { Company } from '../companies/entities/company.entity';
 
-// Accounting entities
+// 3. Accounting Entities (Core Financial)
 import { Account } from '../accounting/entities/account.entity';
 import { JournalEntry } from '../accounting/entities/journal-entry.entity';
 import { JournalEntryLine } from '../accounting/entities/journal-entry-line.entity';
 import { Asset } from '../accounting/entities/asset.entity';
 import { PeriodClosure } from '../accounting/entities/period-closure.entity';
+import { AccountingEntry } from '../accounting/entities/accounting-entry.entity';
 
-// Invoice entities
+// 4. Invoice & Billing Entities
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { InvoiceItem } from '../invoices/entities/invoice-item.entity';
 
-// Payment entities
+// 5. Payment & Transaction Entities
 import { Payment } from '../payments/entities/payment.entity';
 import { PaymentAllocation } from '../payments/entities/payment-allocation.entity';
 
-// Mobile Money entities
+// 6. Mobile Money Entities
 import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';
 
-// Banking entities
+// 7. Banking Entities (Legacy + API)
+// Legacy Banking
 import { BankReconciliation } from '../banking/entities/bank-reconciliation.entity';
+// Bank API (prioritaire - plus complet)
+import { BankConnection } from '../banking/bank-api/entities/bank-connection.entity';
+import { BankAccount } from '../banking/bank-api/entities/bank-account.entity';
+import { BankTransaction } from '../banking/bank-api/entities/bank-transaction.entity';
+import { BankAnomaly } from '../banking/bank-api/entities/bank-anomaly.entity';
 
-// CRM entities
+// 8. CRM & Sales Entities
 import { Contact } from '../crm/entities/contact.entity';
 import { Tag } from '../crm/entities/tag.entity';
 import { Activity } from '../crm/entities/activity.entity';
 import { Opportunity } from '../crm/entities/opportunity.entity';
 import { PipelineStage } from '../crm/entities/pipeline-stage.entity';
 import { ContactImport } from '../crm/entities/contact-import.entity';
+import { Campaign } from '../crm/campaigns/campaign.entity';
 
-// Budget entities
+// 9. Budget & Planning Entities
 import { Budget } from '../budget/entities/budget.entity';
 import { BudgetLine } from '../budget/entities/budget-line.entity';
 
-// Treasury entities
-import { DirectDebit } from '../modules/treasury/entities/direct-debit.entity';
+// 10. Treasury & Cash Management
+import { DirectDebit } from '../treasury/entities/direct-debit.entity';
 
-// NIF entities
+// 11. NIF & Compliance Entities
 import { NifRequest } from '../nif/entities/nif-request.entity';
 
-// Loans entities
+// 12. Loans & Credit Entities
 import { LoanApplication } from '../loans/entities/loan-application.entity';
 
-// Scoring entities
+// 13. Scoring & Risk Entities
 import { CreditScore } from '../scoring/entities/credit-score.entity';
 
-// AI entities
+// 14. AI & Analytics Entities
 import { TransactionAnomaly } from '../ai/entities/transaction-anomaly.entity';
 
-// Audit entities
+// 15. Audit & Logging Entities
 import { AuditLog } from '../audit/entities/audit-log.entity';
 
-// Upload entities
+// 16. File & Upload Management
 import { Upload } from '../uploads/entities/upload.entity';
 
-// Purchases entities
+// 17. Purchase Management
 import { PurchaseOrder } from '../purchases/entities/purchase-order.entity';
 import { PurchaseReceipt } from '../purchases/entities/purchase-receipt.entity';
 
-// Quotes entities
+// 18. Quote Management
 import { Quote } from '../quotes/entities/quote.entity';
 
-// Notification entities
+// 19. Notification System
 import { Notification } from '../notifications/entities/notification.entity';
 
-// Campaign entities
-import { Campaign } from '../crm/campaigns/campaign.entity';
-
-// Bank API entities
-import { BankConnection } from '../banking/bank-api/entities/bank-connection.entity';
-import { BankAccount } from '../banking/bank-api/entities/bank-account.entity';
-import { BankTransaction } from '../banking/bank-api/entities/bank-transaction.entity';
-import { BankAnomaly } from '../banking/bank-api/entities/bank-anomaly.entity';
-
-// Reconciliation entities
+// 20. Reconciliation Entities
 import { ReconciliationMatch } from '../banking/reconciliation/entities/reconciliation-match.entity';
+
+// ========================================
+// CONFIGURATION TYPEORM COMPLÈTE
+// ========================================
+
+const ALL_ENTITIES = [
+  // Database core entities
+  ...Object.values(entities),
+  
+  // Auth & RBAC
+  User,
+  Role,
+  Permission,
+  
+  // Company
+  Company,
+  
+  // Accounting
+  Account,
+  JournalEntry,
+  JournalEntryLine,
+  Asset,
+  PeriodClosure,
+  AccountingEntry,
+  
+  // Invoices & Billing
+  Invoice,
+  InvoiceItem,
+  
+  // Payments & Transactions
+  Payment,
+  PaymentAllocation,
+  
+  // Mobile Money
+  MobileMoneyTransaction,
+  
+  // Banking (priorité Bank API)
+  BankConnection,
+  BankAccount,
+  BankTransaction,
+  BankAnomaly,
+  BankReconciliation,
+  
+  // CRM & Sales
+  Contact,
+  Tag,
+  Activity,
+  Opportunity,
+  PipelineStage,
+  ContactImport,
+  Campaign,
+  
+  // Budget & Planning
+  Budget,
+  BudgetLine,
+  
+  // Treasury
+  DirectDebit,
+  
+  // Compliance
+  NifRequest,
+  
+  // Loans & Credit
+  LoanApplication,
+  
+  // Scoring & Risk
+  CreditScore,
+  
+  // AI & Analytics
+  TransactionAnomaly,
+  
+  // Audit & Logging
+  AuditLog,
+  
+  // File Management
+  Upload,
+  
+  // Purchase Management
+  PurchaseOrder,
+  PurchaseReceipt,
+  
+  // Quote Management
+  Quote,
+  
+  // Notifications
+  Notification,
+  
+  // Reconciliation
+  ReconciliationMatch,
+];
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const dbHost = configService.get('DATABASE_HOST', 'localhost');
-        const dbPort = parseInt(configService.get('DATABASE_PORT', '5432'), 10);
-        const dbUser = configService.get('DATABASE_USER', 'postgres');
-        const dbPassword = configService.get('DATABASE_PASSWORD', 'postgres');
-        const dbName = configService.get('DATABASE_NAME', 'bms_erp');
-        
-        // Forcer DSN complet pour éviter les problèmes de configuration
-        const databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
+      useFactory: async (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+        const dbHost = configService.get<string>('DB_HOST') || 'postgres.railway.internal';
+        const dbPort = configService.get<number>('DB_PORT') || 5432;
+        const dbUser = configService.get<string>('DB_USER') || 'postgres';
+        const dbName = configService.get<string>('DB_NAME') || 'railway';
         
         console.log('🔧 TypeORM config:', { dbHost, dbPort, dbUser, dbName });
         console.log('🔗 Database connection: postgres://****:****@', dbHost, ':', dbPort, '/', dbName);
@@ -112,143 +200,13 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
         return {
           type: 'postgres',
           url: databaseUrl,
-          entities: [
-            ...Object.values(entities),
-            // Auth entities
-            User,
-            // RBAC entities
-            Role,
-            Permission,
-            // Company entities
-            Company,
-            // Accounting entities
-            Account,
-            JournalEntry,
-            JournalEntryLine,
-            Asset,
-            PeriodClosure,
-            // Invoice entities
-            Invoice,
-            InvoiceItem,
-            // Payment entities
-            Payment,
-            PaymentAllocation,
-            // Mobile Money entities
-            MobileMoneyTransaction,
-            // Banking entities
-            BankReconciliation,
-            // Bank API entities
-            BankConnection,
-            BankAccount,
-            BankTransaction,
-            BankAnomaly,
-            // CRM entities
-            Contact,
-            Tag,
-            Activity,
-            Opportunity,
-            PipelineStage,
-            ContactImport,
-            // Budget entities
-            Budget,
-            BudgetLine,
-            // Treasury entities
-            DirectDebit,
-            // NIF entities
-            NifRequest,
-            // Loans entities
-            LoanApplication,
-            // Scoring entities
-            CreditScore,
-            // AI entities
-            TransactionAnomaly,
-            // Audit entities
-            AuditLog,
-            // Upload entities
-            Upload,
-            // Purchases entities
-            PurchaseOrder,
-            PurchaseReceipt,
-            // Quotes entities
-            Quote,
-            // Notification entities
-            Notification,
-            // Campaign entities
-            Campaign,
-            // Reconciliation entities
-            ReconciliationMatch,
-          ],
+          entities: ALL_ENTITIES,
           synchronize: configService.get('NODE_ENV') === 'development',
           logging: configService.get('NODE_ENV') === 'development',
         };
       },
     }),
-    TypeOrmModule.forFeature([
-      ...Object.values(entities),
-      // Auth entities
-      User,
-      // RBAC entities
-      Role,
-      Permission,
-      // Company entities
-      Company,
-      // Accounting entities
-      Account,
-      JournalEntry,
-      JournalEntryLine,
-      Asset,
-      PeriodClosure,
-      // Invoice entities
-      Invoice,
-      InvoiceItem,
-      // Payment entities
-      Payment,
-      PaymentAllocation,
-      // Mobile Money entities
-      MobileMoneyTransaction,
-      // Banking entities
-      BankReconciliation,
-      // Bank API entities
-      BankConnection,
-      BankAccount,
-      BankTransaction,
-      BankAnomaly,
-      // CRM entities
-      Contact,
-      Tag,
-      Activity,
-      Opportunity,
-      PipelineStage,
-      ContactImport,
-      // Budget entities
-      Budget,
-      BudgetLine,
-      // Treasury entities
-      DirectDebit,
-      // NIF entities
-      NifRequest,
-      // Loans entities
-      LoanApplication,
-      // Scoring entities
-      CreditScore,
-      // AI entities
-      TransactionAnomaly,
-      // Audit entities
-      AuditLog,
-      // Upload entities
-      Upload,
-      // Purchases entities
-      PurchaseOrder,
-      PurchaseReceipt,
-      // Quotes entities
-      Quote,
-      // Notification entities
-      Notification,
-      // Campaign entities
-      Campaign,
-      // Reconciliation entities
-      ReconciliationMatch,
-    ]),
+    TypeOrmModule.forFeature(ALL_ENTITIES),
   ],
   controllers: [SeedController],
   providers: [SimpleTestSeedService],
