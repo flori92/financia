@@ -13,6 +13,7 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { Company } from './companies/entities/company.entity';
 import { User } from './auth/entities/user.entity';
 import { AuditLog } from './audit/entities/audit-log.entity';
+import { Account } from './accounting/entities/account.entity';
 import { JournalEntry } from './accounting/entities/journal-entry.entity';
 import { JournalEntryLine } from './accounting/entities/journal-entry-line.entity';
 import { BankAccount } from './banking/entities/bank-account.entity';
@@ -92,6 +93,7 @@ import { AppController } from './app.controller';
           Company,
           User,
           AuditLog,
+          Account,
           JournalEntry,
           JournalEntryLine,
           BankAccount,
