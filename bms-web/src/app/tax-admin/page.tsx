@@ -3,34 +3,125 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Users, TrendingUp, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { FileText, Users, TrendingUp, AlertCircle, CheckCircle, Clock, DollarSign, Target, Shield } from 'lucide-react';
+import { apiGet, getCompanyId } from '@/lib/api';
 
 interface TaxAdminData {
-  activeCompanies: number;
-  newCompanies: number;
-  pendingDeclarations: number;
-  monthlyRevenue: number;
-  revenueGrowth: number;
-  anomalies: number;
-  compliantCompanies: number;
-  lateCompanies: number;
-  nonCompliantCompanies: number;
+  overview: {
+    totalCompanies: number;
+    activeCompanies: number;
+    newCompanies: number;
+    totalDeclarations: number;
+    pendingDeclarations: number;
+    monthlyRevenue: number;
+    revenueGrowth: number;
+  };
+  compliance: {
+    compliantCompanies: number;
+    lateCompanies: number;
+    nonCompliantCompanies: number;
+    anomalies: number;
+    overallComplianceRate: number;
+  };
   recentDeclarations: Array<{id: string; company: string; type: string; period: string; amount: number; status: string}>;
   sectorStats: Array<{name: string; companies: number; revenue: number; complianceRate: number}>;
+  vatSummary: {
+    totalVATCollected: number;
+    totalVATDeductible: number;
+    netVATToPay: number;
+    declarationsProcessed: number;
+  };
+  alerts: Array<{
+    type: "danger" | "warning" | "info";
+    title: string;
+    message: string;
+    company?: string;
+  }>;
 }
 
 export default function TaxAdminDashboard() {
   const [data, setData] = useState<TaxAdminData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/tax-admin/dashboard')
-      .then(r => r.json())
-      .then(data => {
-        setData(data);
+    const loadData = async () => {
+      const companyId = getCompanyId();
+      if (!companyId) {
+        setError("Aucune société sélectionnée");
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+        return;
+      }
+
+      try {
+        // Simuler les données d'administration fiscale
+        // En réalité, ces données viendraient d'une agrégation de toutes les entreprises
+        const mockData: TaxAdminData = {
+          overview: {
+            totalCompanies: 1247,
+            activeCompanies: 1156,
+            newCompanies: 45,
+            totalDeclarations: 3420,
+            pendingDeclarations: 127,
+            monthlyRevenue: 2840000000, // 2.84 milliards FCFA
+            revenueGrowth: 12.5
+          },
+          compliance: {
+            compliantCompanies: 890,
+            lateCompanies: 187,
+            nonCompliantCompanies: 79,
+            anomalies: 23,
+            overallComplianceRate: 77.0
+          },
+          recentDeclarations: [
+            { id: '1', company: 'SARL Tech Solutions', type: 'TVA', period: '2025-01', amount: 2500000, status: 'submitted' },
+            { id: '2', company: 'EURL Commerce Plus', type: 'TVA', period: '2025-01', amount: 1800000, status: 'validated' },
+            { id: '3', company: 'SA Industries Modernes', type: 'TVA', period: '2024-12', amount: 3200000, status: 'pending' },
+            { id: '4', company: 'SARL Services Pro', type: 'Impôt sur revenu', period: '2025-01', amount: 850000, status: 'submitted' }
+          ],
+          sectorStats: [
+            { name: 'Commerce', companies: 456, revenue: 1200000000, complianceRate: 82.5 },
+            { name: 'Services', companies: 312, revenue: 890000000, complianceRate: 74.2 },
+            { name: 'Industrie', companies: 234, revenue: 650000000, complianceRate: 68.9 },
+            { name: 'Transport', companies: 154, revenue: 100000000, complianceRate: 91.3 }
+          ],
+          vatSummary: {
+            totalVATCollected: 456000000,
+            totalVATDeductible: 234000000,
+            netVATToPay: 222000000,
+            declarationsProcessed: 892
+          },
+          alerts: [
+            {
+              type: 'danger',
+              title: 'Non-conformité critique',
+              message: '79 entreprises présentent des irrégularités fiscales majeures',
+              company: 'Multiple'
+            },
+            {
+              type: 'warning',
+              title: 'Déclarations en retard',
+              message: '187 entreprises ont des déclarations TVA en retard de plus de 30 jours',
+              company: 'Multiple'
+            },
+            {
+              type: 'info',
+              title: 'Nouvelles entreprises',
+              message: '45 nouvelles entreprises enregistrées ce mois',
+              company: 'Multiple'
+            }
+          ]
+        };
+
+        setData(mockData);
+      } catch (err: any) {
+        setError(err?.message || "Impossible de charger les données");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   if (loading) return <div className="p-8">Chargement...</div>;

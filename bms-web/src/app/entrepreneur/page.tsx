@@ -3,39 +3,77 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, FileText, Award, Bell } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, FileText, Award, Bell, AlertTriangle, Target, Activity } from 'lucide-react';
+import { apiGet, getCompanyId } from '@/lib/api';
 
 interface EntrepreneurData {
-  sales: number;
-  salesGrowth: number;
-  expenses: number;
-  expensesGrowth: number;
-  customers: number;
-  newCustomers: number;
-  creditScore: number;
-  nif: string;
-  rccm: string;
-  taxRegime: string;
-  legalStatus: string;
-  recentTransactions: Array<{id: string; type: string; description: string; amount: number; date: string}>;
-  notifications: Array<{id: string; type: string; title: string; message: string}>;
+  kpiMonth: {
+    revenue: number;
+    expenses: number;
+    netIncome: number;
+    margin: number;
+  };
+  evolutionChart: Array<{ month: string; revenue: number; expenses: number }>;
+  topClients: Array<{ name: string; amount: number }>;
+  alerts: Array<{ type: "danger" | "warning" | "info"; title: string; message: string }>;
+  recentActivity: {
+    entries: Array<{ date: string; description: string; amount: number; type: string }>;
+  };
+  treasuryMetrics?: {
+    runway?: number;
+    net?: number;
+  };
 }
 
 export default function EntrepreneurDashboard() {
   const [data, setData] = useState<EntrepreneurData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/entrepreneur/dashboard')
-      .then(r => r.json())
-      .then(data => {
-        setData(data);
+    const loadData = async () => {
+      const companyId = getCompanyId();
+      if (!companyId) {
+        setError("Aucune société sélectionnée");
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+        return;
+      }
+
+      try {
+        // Utiliser l'API accounting existante
+        const [metrics, treasuryAlerts] = await Promise.allSettled([
+          apiGet("/api/v1/accounting/dashboard/metrics", { companyId }),
+          apiGet("/api/v1/treasury/alerts", { companyId })
+        ]);
+
+        const result: EntrepreneurData = {};
+
+        if (metrics.status === "fulfilled") {
+          result.kpiMonth = metrics.value.kpiMonth;
+          result.evolutionChart = metrics.value.evolutionChart;
+          result.topClients = metrics.value.topClients;
+          result.alerts = metrics.value.alerts;
+          result.recentActivity = metrics.value.recentActivity;
+        }
+
+        if (treasuryAlerts.status === "fulfilled") {
+          result.treasuryMetrics = treasuryAlerts.value.metrics;
+        }
+
+        setData(result);
+      } catch (err: any) {
+        setError(err?.message || "Impossible de charger les données");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   if (loading) return <div className="p-8">Chargement...</div>;
+  if (error) return <div className="p-8 text-red-600">Erreur: {error}</div>;
+  if (!data) return <div className="p-8">Aucune donnée disponible</div>;
 
   return (
     <div className="p-8 space-y-6">
@@ -50,58 +88,123 @@ export default function EntrepreneurDashboard() {
         </Button>
       </div>
 
+      {/* Alertes */}
+      {data.alerts && data.alerts.length > 0 && (
+        <div className="space-y-2">
+          {data.alerts.map((alert, index) => (
+            <Card key={index} className={`border-l-4 ${
+              alert.type === 'danger' ? 'border-red-500 bg-red-50' :
+              alert.type === 'warning' ? 'border-yellow-500 bg-yellow-50' :
+              'border-blue-500 bg-blue-50'
+            }`}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className={`w-5 h-5 ${
+                    alert.type === 'danger' ? 'text-red-600' :
+                    alert.type === 'warning' ? 'text-yellow-600' :
+                    'text-blue-600'
+                  }`} />
+                  <div>
+                    <p className="font-semibold">{alert.title}</p>
+                    <p className="text-sm text-gray-600">{alert.message}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Ventes du Mois</CardTitle>
-            <DollarSign className="w-4 h-4 text-green-600" />
+            <CardTitle className="text-sm font-medium">Chiffre d'Affaires</CardTitle>
+            <TrendingUp className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.sales?.toLocaleString()} FCFA</div>
-            <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
-              <TrendingUp className="w-3 h-3" />
-              +{data?.salesGrowth}% vs mois dernier
-            </p>
+            <div className="text-2xl font-bold">{data.kpiMonth?.revenue?.toLocaleString() || 0} FCFA</div>
+            <p className="text-xs text-green-600">Ce mois</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Dépenses</CardTitle>
-            <ShoppingCart className="w-4 h-4 text-red-600" />
+            <TrendingDown className="w-4 h-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.expenses?.toLocaleString()} FCFA</div>
-            <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
-              <TrendingDown className="w-3 h-3" />
-              {data?.expensesGrowth}% vs mois dernier
+            <div className="text-2xl font-bold">{data.kpiMonth?.expenses?.toLocaleString() || 0} FCFA</div>
+            <p className="text-xs text-red-600">Ce mois</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Résultat Net</CardTitle>
+            <DollarSign className="w-4 h-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${data.kpiMonth?.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {Math.abs(data.kpiMonth?.netIncome || 0).toLocaleString()} FCFA
+            </div>
+            <p className="text-xs text-gray-600">
+              {data.kpiMonth?.netIncome >= 0 ? 'Bénéfice' : 'Perte'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Clients</CardTitle>
-            <Users className="w-4 h-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium">Marge</CardTitle>
+            <Target className="w-4 h-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.customers}</div>
-            <p className="text-xs text-gray-600 mt-1">+{data?.newCustomers} ce mois</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Score Crédit</CardTitle>
-            <Award className="w-4 h-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data?.creditScore}/100</div>
-            <p className="text-xs text-purple-600 mt-1">Excellent</p>
+            <div className="text-2xl font-bold">{data.kpiMonth?.margin?.toFixed(1) || 0}%</div>
+            <p className="text-xs text-purple-600">
+              {data.kpiMonth?.margin >= 20 ? 'Excellente' : 
+               data.kpiMonth?.margin >= 10 ? 'Bonne' : 'Faible'}
+            </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Métriques trésorerie */}
+      {data.treasuryMetrics && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Runway Trésorerie</CardTitle>
+              <Activity className="w-4 h-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${
+                data.treasuryMetrics.runway && data.treasuryMetrics.runway < 0 ? 'text-red-600' :
+                data.treasuryMetrics.runway && data.treasuryMetrics.runway < 15 ? 'text-yellow-600' :
+                'text-green-600'
+              }`}>
+                {data.treasuryMetrics.runway !== undefined ? `${data.treasuryMetrics.runway} jours` : 'N/A'}
+              </div>
+              <p className="text-xs text-gray-600">Jours de couverture</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Net Trésorerie (90j)</CardTitle>
+              <DollarSign className="w-4 h-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {Math.abs(data.treasuryMetrics.net || 0).toLocaleString()} FCFA
+              </div>
+              <p className="text-xs text-gray-600">
+                {data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'Déficit' : 'Excédent'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Statut Formalisation */}
       <Card>

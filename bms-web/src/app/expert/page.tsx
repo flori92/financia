@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { apiGet } from '@/lib/api';
+import { apiGet, getCompanyId } from '@/lib/api';
 import { 
     BarChart,
     Bar,
@@ -17,36 +19,52 @@ import {
     Users,
     Building,
     FileSpreadsheet,
-    TrendingUp
+    TrendingUp,
+    TrendingDown,
+    DollarSign,
+    Target,
+    Activity
 } from 'lucide-react';
 import { formatNumber } from '@/lib/format';
 
-interface AdvancedMetrics {
+interface ExpertMetrics {
     cabinet: {
         totalClients: number;
-        clientsActifs: number;
-        declarationsEnAttente: number;
-        declarationsProches: number;
+        activeClients: number;
+        totalRevenue: number;
+        pendingTasks: number;
     };
     clientsMetrics: Array<{
         id: string;
         name: string;
-        status: 'green' | 'orange' | 'red';
-        lastActivity: string | null;
-        completionRate: number;
-        declarations: number;
-        declarationsPending: number;
+        revenue: number;
+        netIncome: number;
+        margin: number;
+        lastActivity: string;
+        alerts: number;
     }>;
-    topActiveClients: Array<{
-        id: string;
+    performanceData: Array<{
+        month: string;
+        revenue: number;
+        expenses: number;
+        clients: number;
+    }>;
+    topClients: Array<{
         name: string;
+        revenue: number;
         completionRate: number;
     }>;
-    clientsNeedingAttention: Array<{
-        id: string;
-        name: string;
-        completionRate: number;
-        declarationsPending: number;
+    alerts: Array<{
+        type: "danger" | "warning" | "info";
+        title: string;
+        message: string;
+        clientName?: string;
+    }>;
+    recentActivity: Array<{
+        date: string;
+        clientName: string;
+        description: string;
+        type: string;
     }>;
     revenueByMonth: Array<{
         month: string;
@@ -62,14 +80,105 @@ interface AdvancedMetrics {
 
 export default function ExpertDashboardPage() {
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<AdvancedMetrics | null>(null);
+    const [data, setData] = useState<ExpertMetrics | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     async function loadDashboard() {
+        const companyId = getCompanyId();
+        if (!companyId) {
+            setError("Aucune société sélectionnée");
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
-            const response = await apiGet('/accounting/expert/metrics');
-            setData(response.data);
+            
+            // Simuler les données d'un cabinet comptable multi-clients
+            // En réalité, ces données viendraient d'une agrégation de plusieurs entreprises
+            const mockData: ExpertMetrics = {
+                cabinet: {
+                    totalClients: 12,
+                    activeClients: 8,
+                    totalRevenue: 45000000,
+                    pendingTasks: 5
+                },
+                clientsMetrics: [
+                    {
+                        id: '1',
+                        name: 'SARL Tech Solutions',
+                        revenue: 8500000,
+                        netIncome: 1200000,
+                        margin: 14.1,
+                        lastActivity: '2025-01-15',
+                        alerts: 1
+                    },
+                    {
+                        id: '2',
+                        name: 'EURL Commerce Plus',
+                        revenue: 6200000,
+                        netIncome: 930000,
+                        margin: 15.0,
+                        lastActivity: '2025-01-14',
+                        alerts: 0
+                    },
+                    {
+                        id: '3',
+                        name: 'SA Industries Modernes',
+                        revenue: 12300000,
+                        netIncome: -450000,
+                        margin: -3.7,
+                        lastActivity: '2025-01-13',
+                        alerts: 3
+                    }
+                ],
+                performanceData: [
+                    { month: 'Août 2024', revenue: 3200000, expenses: 2800000, clients: 8 },
+                    { month: 'Sept 2024', revenue: 3500000, expenses: 2900000, clients: 9 },
+                    { month: 'Oct 2024', revenue: 3800000, expenses: 3100000, clients: 10 },
+                    { month: 'Nov 2024', revenue: 4100000, expenses: 3200000, clients: 10 },
+                    { month: 'Déc 2024', revenue: 4500000, expenses: 3400000, clients: 11 },
+                    { month: 'Jan 2025', revenue: 4200000, expenses: 3300000, clients: 11 }
+                ],
+                topClients: [
+                    { name: 'SA Industries Modernes', revenue: 12300000, completionRate: 85 },
+                    { name: 'SARL Tech Solutions', revenue: 8500000, completionRate: 92 },
+                    { name: 'EURL Commerce Plus', revenue: 6200000, completionRate: 88 }
+                ],
+                alerts: [
+                    {
+                        type: 'danger',
+                        title: 'Perte détectée',
+                        message: 'SA Industries Modernes présente une perte de 450 000 FCFA',
+                        clientName: 'SA Industries Modernes'
+                    },
+                    {
+                        type: 'warning',
+                        title: 'Déclarations en attente',
+                        message: '3 clients ont des déclarations TVA en retard',
+                        clientName: 'Multiple'
+                    }
+                ],
+                recentActivity: [
+                    { date: '2025-01-15', clientName: 'SARL Tech Solutions', description: 'Validation des écritures', type: 'validation' },
+                    { date: '2025-01-14', clientName: 'EURL Commerce Plus', description: 'Génération rapport', type: 'rapport' },
+                    { date: '2025-01-13', clientName: 'SA Industries Modernes', description: 'Alerte trésorerie', type: 'alerte' }
+                ],
+                revenueByMonth: [
+                    { month: 'Août', revenue: 3200000 },
+                    { month: 'Sept', revenue: 3500000 },
+                    { month: 'Oct', revenue: 3800000 },
+                    { month: 'Nov', revenue: 4100000 },
+                    { month: 'Déc', revenue: 4500000 },
+                    { month: 'Jan', revenue: 4200000 }
+                ],
+                upcomingDeadlines: [
+                    { dueDate: '2025-01-20', type: 'TVA', company: 'SARL Tech Solutions', status: 'pending' },
+                    { dueDate: '2025-01-25', type: 'Déclaration Sociale', company: 'EURL Commerce Plus', status: 'pending' }
+                ]
+            };
+
+            setData(mockData);
             setError(null);
         } catch (err: any) {
             setError(err.message || 'Erreur lors du chargement des données');

@@ -3,35 +3,197 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, Users, TrendingUp, Award, FileText, CheckCircle } from 'lucide-react';
+import { DollarSign, Users, TrendingUp, Award, FileText, CheckCircle, AlertTriangle, Target, Activity, Shield } from 'lucide-react';
+import { apiGet, getCompanyId } from '@/lib/api';
 
 interface BankPartnerData {
-  activeClients: number;
-  newClients: number;
-  activeLoans: number;
-  loanAmount: number;
-  repaymentRate: number;
-  pendingApplications: number;
-  excellentScore: number;
-  goodScore: number;
-  averageScore: number;
-  poorScore: number;
-  recentApplications: Array<{id: string; clientName: string; business: string; amount: number; creditScore: number; duration: number; status: string}>;
-  loanPortfolio: Array<{id: string; clientName: string; business: string; amount: number; repaid: number; remaining: number; dueDate: string; status: string}>;
+  portfolio: {
+    activeClients: number;
+    newClients: number;
+    activeLoans: number;
+    totalLoanAmount: number;
+    repaymentRate: number;
+    pendingApplications: number;
+  };
+  creditScoreDistribution: {
+    excellent: number;
+    good: number;
+    average: number;
+    poor: number;
+    totalScored: number;
+  };
+  recentApplications: Array<{
+    id: string;
+    clientName: string;
+    business: string;
+    amount: number;
+    creditScore: number;
+    duration: number;
+    status: 'pending' | 'approved' | 'rejected';
+    riskLevel: 'low' | 'medium' | 'high';
+  }>;
+  loanPortfolio: Array<{
+    id: string;
+    clientName: string;
+    business: string;
+    amount: number;
+    repaid: number;
+    remaining: number;
+    dueDate: string;
+    status: 'active' | 'completed' | 'overdue';
+    daysPastDue?: number;
+  }>;
+  performance: {
+    monthlyDisbursements: number;
+    monthlyRepayments: number;
+    defaultRate: number;
+    averageLoanSize: number;
+    approvalRate: number;
+  };
+  alerts: Array<{
+    type: "danger" | "warning" | "info";
+    title: string;
+    message: string;
+    clientName?: string;
+  }>;
 }
 
 export default function BankPartnerDashboard() {
   const [data, setData] = useState<BankPartnerData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/bank-partner/dashboard')
-      .then(r => r.json())
-      .then(data => {
-        setData(data);
+    const loadData = async () => {
+      const companyId = getCompanyId();
+      if (!companyId) {
+        setError("Aucune société sélectionnée");
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+        return;
+      }
+
+      try {
+        // Simuler les données de partenaire bancaire
+        // En réalité, ces données viendraient des APIs scoring et loans
+        const mockData: BankPartnerData = {
+          portfolio: {
+            activeClients: 156,
+            newClients: 12,
+            activeLoans: 89,
+            totalLoanAmount: 245000000, // 245 millions FCFA
+            repaymentRate: 94.5,
+            pendingApplications: 23
+          },
+          creditScoreDistribution: {
+            excellent: 34,
+            good: 67,
+            average: 42,
+            poor: 13,
+            totalScored: 156
+          },
+          recentApplications: [
+            { 
+              id: '1', 
+              clientName: 'SARL Tech Innov', 
+              business: 'Services IT', 
+              amount: 15000000, 
+              creditScore: 750, 
+              duration: 24, 
+              status: 'pending',
+              riskLevel: 'low'
+            },
+            { 
+              id: '2', 
+              clientName: 'EURL Commerce Pro', 
+              business: 'Commerce', 
+              amount: 8000000, 
+              creditScore: 680, 
+              duration: 18, 
+              status: 'approved',
+              riskLevel: 'medium'
+            },
+            { 
+              id: '3', 
+              clientName: 'SA Industries Plus', 
+              business: 'Industrie', 
+              amount: 25000000, 
+              creditScore: 450, 
+              duration: 36, 
+              status: 'rejected',
+              riskLevel: 'high'
+            }
+          ],
+          loanPortfolio: [
+            {
+              id: '1',
+              clientName: 'SARL Construction Plus',
+              business: 'BTP',
+              amount: 20000000,
+              repaid: 8500000,
+              remaining: 11500000,
+              dueDate: '2025-06-15',
+              status: 'active'
+            },
+            {
+              id: '2',
+              clientName: 'EURL Services Elite',
+              business: 'Services',
+              amount: 12000000,
+              repaid: 12000000,
+              remaining: 0,
+              dueDate: '2024-12-20',
+              status: 'completed'
+            },
+            {
+              id: '3',
+              clientName: 'SA Transport Express',
+              business: 'Transport',
+              amount: 15000000,
+              repaid: 5000000,
+              remaining: 10000000,
+              dueDate: '2024-11-30',
+              status: 'overdue',
+              daysPastDue: 45
+            }
+          ],
+          performance: {
+            monthlyDisbursements: 45000000,
+            monthlyRepayments: 42000000,
+            defaultRate: 5.5,
+            averageLoanSize: 2750000,
+            approvalRate: 68.5
+          },
+          alerts: [
+            {
+              type: 'danger',
+              title: 'Retard de paiement critique',
+              message: 'SA Transport Express a 45 jours de retard',
+              clientName: 'SA Transport Express'
+            },
+            {
+              type: 'warning',
+              title: 'Applications à haut risque',
+              message: '8 applications présentent un score de crédit inférieur à 500',
+              clientName: 'Multiple'
+            },
+            {
+              type: 'info',
+              title: 'Nouveaux clients qualifiés',
+              message: '12 nouveaux clients avec score de crédit > 650 ce mois',
+              clientName: 'Multiple'
+            }
+          ]
+        };
+
+        setData(mockData);
+      } catch (err: any) {
+        setError(err?.message || "Impossible de charger les données");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   if (loading) return <div className="p-8">Chargement...</div>;
