@@ -1,5 +1,6 @@
-# BMS LLM Service Requirements - Python 3.12 Compatible
+# BMS LLM Service Requirements - Python 3.12 Compatible - v2
 # Service LML léger pour Railway
+# Updated: 2025-11-02 18:40
 
 # API and Web
 flask==3.0.0
