@@ -1,44 +1,36 @@
-// Simple serveur Express pour Railway (Production)
+// BMS API Gateway - Production Server
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
-// Middleware de logging
+// Logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
 
-// CORS configuré pour Railway
+// CORS
 app.use(cors({
-  origin: [
-    'https://bms-frontend-production.up.railway.app',
-    'https://bms-production-d9e9.up.railway.app',
-    'http://localhost:3000',
-    'http://localhost:3001'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  origin: true,
+  credentials: true
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Health endpoint
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    port: port,
-    service: 'bms-api-gateway-simple',
-    version: '1.0.0-express'
+    port: PORT,
+    service: 'bms-api-gateway',
+    version: '1.0.0-production'
   });
 });
 
-// API endpoints
+// Companies endpoint
 app.get('/api/v1/companies', (req, res) => {
   res.json([
     {
@@ -51,7 +43,6 @@ app.get('/api/v1/companies', (req, res) => {
       size: 'small',
       addressLine1: '123 Rue du Commerce, Cotonou, Bénin',
       city: 'Cotonou',
-      postalCode: '',
       country: 'BJ',
       phone: '+229 12345678',
       email: 'demo@bms.bj',
@@ -65,7 +56,9 @@ app.get('/api/v1/companies', (req, res) => {
   ]);
 });
 
+// Dashboard endpoint
 app.get('/api/v1/accounting/dashboard/metrics', (req, res) => {
+  const companyId = req.query.companyId;
   res.json({
     kpiMonth: {
       revenue: 15000000,
@@ -135,10 +128,11 @@ app.get('/api/v1/accounting/dashboard/metrics', (req, res) => {
   });
 });
 
+// Aged balance endpoint
 app.get('/api/v1/accounting/aged-balance', (req, res) => {
   const { type, asOfDate } = req.query;
   res.json({
-    type,
+    type: type || 'receivables',
     asOfDate: asOfDate || new Date().toISOString().split('T')[0],
     items: [
       {
@@ -161,37 +155,19 @@ app.get('/api/v1/accounting/aged-balance', (req, res) => {
   });
 });
 
-// Catch all
-app.get('*', (req, res) => {
+// 404 handler
+app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
     code: 404,
     message: 'Endpoint not found',
-    path: req.path
+    path: req.originalUrl
   });
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`
-╔═══════════════════════════════════════════════════════╗
-║                                                       ║
-║   BMS API Gateway (Express Production)           ║
-║   Status: ✅ RUNNING                                   ║
-║   Port: ${port}                                    ║
-║   Environment: ${process.env.NODE_ENV || 'unknown'}           ║
-║   PID: ${process.pid}                                    ║
-║                                                       ║
-║   Health: GET /health                                ║
-║   Companies: GET /api/v1/companies                  ║
-║   Dashboard: GET /api/v1/accounting/dashboard/metrics║
-║   Aged Balance: GET /api/v1/accounting/aged-balance  ║
-║                                                       ║
-║   Frontend URL: https://bms-frontend-production.up.railway.app ║
-║                                                       ║
-╚═══════════════════════════════════════════════════════╝
-  `);
-  
-  console.log(`🚀 BMS API Gateway started successfully on port ${port}`);
-  console.log(`📊 Health check available at: http://localhost:${port}/health`);
-  console.log(`🔗 CORS enabled for Railway frontend`);
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 BMS API Gateway started on port ${PORT}`);
+  console.log(`📊 Health: http://localhost:${PORT}/health`);
+  console.log(`🏢 Production Mode: ACTIVE`);
 });

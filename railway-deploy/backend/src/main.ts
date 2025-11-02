@@ -96,15 +96,8 @@ async function bootstrap() {
   );
 
   // Endpoint health racine pour diagnostic Railway (AVANT le prefix)
-  app.get('/health', (req, res) => {
-    console.log('Health check endpoint called');
-    res.json({ 
-      status: 'ok', 
-      timestamp: new Date().toISOString(),
-      port: process.env.PORT || 3001,
-      service: 'bms-api-gateway'
-    });
-  });
+  // Note: Les endpoints doivent être définis dans des contrôleurs NestJS
+  // Cet endpoint sera géré par le HealthController
 
   // Prefix API
   app.setGlobalPrefix('api/v1');
