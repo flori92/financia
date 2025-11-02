@@ -22,4 +22,11 @@ export class HealthController {
   check() {
     return this.health.check([() => this.db.pingCheck('database')]);
   }
+
+  @Get('ping')
+  @ApiOperation({ summary: 'Healthcheck simple sans vérification DB' })
+  @ApiResponse({ status: 200, description: 'API répond' })
+  ping() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  }
 }
