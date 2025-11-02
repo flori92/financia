@@ -16,7 +16,7 @@ export class BankWebhookController {
   async handleStripeWebhook(
     @Body() event: any,
     @Headers('stripe-signature') signature: string
-  ) {
+  ): Promise<{ received: boolean }> {
     return this.webhookService.handleStripeWebhook(event, signature);
   }
 
@@ -28,7 +28,7 @@ export class BankWebhookController {
   async handlePlaidWebhook(
     @Body() webhook: any,
     @Headers('plaid-verification') verification: string
-  ) {
+  ): Promise<{ received: boolean }> {
     return this.webhookService.handlePlaidWebhook(webhook, verification);
   }
 
@@ -36,7 +36,7 @@ export class BankWebhookController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Webhook Bridge API pour les mises à jour' })
   @ApiResponse({ status: 200, description: 'Webhook Bridge traité' })
-  async handleBridgeWebhook(@Body() event: any) {
+  async handleBridgeWebhook(@Body() event: any): Promise<{ received: boolean }> {
     return this.webhookService.handleBridgeWebhook(event);
   }
 
@@ -47,7 +47,7 @@ export class BankWebhookController {
   async handleGenericWebhook(
     @Body() event: BankWebhookEvent,
     @Headers() headers: Record<string, string>
-  ) {
+  ): Promise<{ received: boolean }> {
     return this.webhookService.handleGenericWebhook(event, headers);
   }
 }
