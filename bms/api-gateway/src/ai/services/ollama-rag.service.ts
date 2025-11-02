@@ -25,8 +25,10 @@ export class OllamaRAGService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
   ) {
-    // Initialiser Ollama avec connexion locale
-    this.ollama = new Ollama({ host: 'http://localhost:11434' });
+    // Initialiser Ollama avec connexion configurable (Railway ou local)
+    const ollamaHost = process.env.OLLAMA_HOST || 'http://localhost:11434';
+    this.logger.log(`🤖 Connexion à Ollama: ${ollamaHost}`);
+    this.ollama = new Ollama({ host: ollamaHost });
   }
 
   /**
