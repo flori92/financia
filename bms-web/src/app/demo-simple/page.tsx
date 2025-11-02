@@ -36,6 +36,16 @@ export default function DemoSimplePage() {
         title: "Objectif mensuel atteint",
         message: "CA du mois: 3.5M XOF (+12% vs objectif)",
       },
+      {
+        type: "warning" as const,
+        title: "Attention aux créances anciennes",
+        message: "3 créances ont plus de 90 jours, actions de recouvrement recommandées",
+      },
+      {
+        type: "danger" as const,
+        title: "Liquidité critique",
+        message: "Ratio de liquidité inférieur à 1, risque de trésorerie imminent",
+      },
     ],
     topClients: [
       { name: "SOCIETE GENERAL", amount: 1250000 },
