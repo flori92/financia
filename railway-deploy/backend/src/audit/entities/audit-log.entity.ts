@@ -8,13 +8,13 @@ export class AuditLog {
   @Column({ length: 50 })
   entityType: string; // 'invoice' | 'payment' | ...
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'text', nullable: true })
   entityId: string;
 
   @Column({ length: 50 })
   action: string; // 'validate' | 'certify' | ...
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'text', nullable: true })
   userId: string;
 
   @Column({ type: 'text', nullable: true })
