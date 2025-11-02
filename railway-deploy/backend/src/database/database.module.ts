@@ -190,31 +190,42 @@ const ALL_ENTITIES = [
       useFactory: async (configService: ConfigService) => {
         const databaseUrl = configService.get<string>('DATABASE_URL');
         const dbPassword = configService.get<string>('DB_PASSWORD');
+        const nodeEnv = configService.get<string>('NODE_ENV') || 'production';
         
-        console.log('🔧 Database config check:', { 
+        // SÉCURITÉ: En production, TOUJOURS désactiver synchronize
+        const isProduction = nodeEnv === 'production';
+        const synchronize = !isProduction && nodeEnv === 'development';
+        const logging = !isProduction && nodeEnv === 'development';
+        
+        console.log('🔧 Database config:', { 
+          nodeEnv,
+          isProduction,
+          synchronize,
+          logging,
           hasDatabaseUrl: !!databaseUrl, 
           hasDbPassword: !!dbPassword 
         });
         
         // Si DATABASE_URL est définie, l'utiliser directement (Railway fournit DATABASE_URL)
         if (databaseUrl) {
-          console.log('🔗 Using DATABASE_URL for connection');
+          console.log('🔗 Using DATABASE_URL for connection (Production mode)');
           return {
             type: 'postgres',
             url: databaseUrl,
             entities: ALL_ENTITIES,
-            synchronize: configService.get('NODE_ENV') === 'development',
-            logging: configService.get('NODE_ENV') === 'development',
+            synchronize, // TOUJOURS false en production
+            logging,
+            ssl: isProduction ? { rejectUnauthorized: false } : false,
           };
         }
         
         // Sinon utiliser les paramètres individuels (dev local)
-        const dbHost = configService.get<string>('DB_HOST') || 'postgres.railway.internal';
+        const dbHost = configService.get<string>('DB_HOST') || 'localhost';
         const dbPort = configService.get<number>('DB_PORT') || 5432;
         const dbUser = configService.get<string>('DB_USER') || 'postgres';
-        const dbName = configService.get<string>('DB_NAME') || 'railway';
+        const dbName = configService.get<string>('DB_NAME') || 'bms_dev';
         
-        console.log('🔗 Using individual params:', { dbHost, dbPort, dbUser, dbName });
+        console.log('🔗 Using individual params (Dev mode):', { dbHost, dbPort, dbUser, dbName });
         
         return {
           type: 'postgres',
@@ -224,8 +235,8 @@ const ALL_ENTITIES = [
           password: dbPassword,
           database: dbName,
           entities: ALL_ENTITIES,
-          synchronize: configService.get('NODE_ENV') === 'development',
-          logging: configService.get('NODE_ENV') === 'development',
+          synchronize, // false en production
+          logging,
         };
       },
     }),
