@@ -2,7 +2,7 @@
 
 Service d'intelligence artificielle et de machine learning pour BMS ERP utilisant **uniquement des modèles open source gratuits** qui tournent sur votre infrastructure Railway.
 
-## 🚀 Déploiement Railway
+##  Déploiement Railway
 
 ### Structure des Services
 ```
@@ -30,7 +30,7 @@ railway-services/
    TRANSFORMERS_CACHE=/tmp/models
    ```
 
-## 📡 API Endpoints
+##  API Endpoints
 
 ### Service IA Principal
 - `GET /health` - Health check
@@ -45,7 +45,7 @@ railway-services/
 - `POST /api/llm/embeddings` - Embeddings sémantiques
 - `GET /api/llm/models` - Modèles chargés
 
-## 🤖 Modèles Open Source
+##  Modèles Open Source
 
 - **Mistral 7B Instruct** : Insights business français
 - **DialoGPT Medium** : Conversationnel fallback
@@ -53,14 +53,14 @@ railway-services/
 - **Prophet** : Prévisions temporelles
 - **K-Means** : Segmentation clients
 
-## 💰 Coûts Railway
+##  Coûts Railway
 
 - **Service IA** : ~$5-10/mois (1GB RAM)
 - **Service LLM** : ~$10-20/mois (2GB RAM)
 - **Database + Cache** : ~$15/mois
 - **Total** : ~$25-45/mois
 
-## ✅ Avantages
+##  Avantages
 
 - **100% Open Source** : Plus de factures APIs externes
 - **Contrôle total** : Données hébergées sur votre infrastructure
@@ -69,6 +69,6 @@ railway-services/
 
 ---
 
-🚀 **Prêt pour la production Railway !**
+ **Prêt pour la production Railway !**
 
 Voir `railway-services/README.md` pour les instructions détaillées.

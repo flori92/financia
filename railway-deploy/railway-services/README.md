@@ -1,8 +1,8 @@
-# 🚀 BMS AI/ML Services - Railway
+#  BMS AI/ML Services - Railway
 
 Services optimisés pour le déploiement BMS AI/ML sur Railway.
 
-## 📁 Structure
+##  Structure
 
 ```
 bms-ai-analytics/     # Service IA principal (Prophet + ML)
@@ -17,7 +17,7 @@ bms-llm-service/      # Service LLM local (Mistral)
 └── requirements.txt
 ```
 
-## 🚀 Déploiement
+##  Déploiement
 
 ### 1. Connecter Repository
 Railway → New Project → Deploy from GitHub
@@ -43,17 +43,17 @@ TRANSFORMERS_CACHE=/tmp/models
 ### 4. Déployer
 Railway build automatiquement après git push.
 
-## 📊 URLs Production
+##  URLs Production
 
 ```
 Service IA : https://bms-ai-analytics-production.railway.app
 Service LLM : https://bms-llm-service-production.railway.app
 ```
 
-## 💰 Coûts
+##  Coûts
 
 ~$25-45/mois total (IA + LLM + Database + Cache)
 
 ---
 
-✅ **Déploiement Railway prêt !**
+ **Déploiement Railway prêt !**

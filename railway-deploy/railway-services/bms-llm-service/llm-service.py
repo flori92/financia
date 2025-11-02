@@ -36,7 +36,7 @@ class SimplifiedLLMService:
                 "Vos marges sont dans la moyenne du secteur. Considérez la diversification."
             ]
         }
-        print("🚀 Service LLM Simplifié initialisé")
+        print(" Service LLM Simplifié initialisé")
         
     def generate_response(self, prompt, context="business"):
         """Génère une réponse basique sans modèle ML"""
@@ -164,5 +164,5 @@ def home():
     })
 
 if __name__ == '__main__':
-    print(f"🚀 Démarrage service LLM simplifié sur port {PORT}")
+    print(f" Démarrage service LLM simplifié sur port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=False)

@@ -359,19 +359,19 @@ export default function MultiDimensionalAnalysisPage() {
           <CardContent>
             <div className="space-y-3">
               <div className="p-3 border rounded">
-                <div className="font-medium mb-1">🎯 Renforcer les services consulting</div>
+                <div className="font-medium mb-1"> Renforcer les services consulting</div>
                 <div className="text-sm text-slate-600">
                   Forte croissance (+{data?.revenueBySegment[0]?.trendValue}%) et bonne rentabilité
                 </div>
               </div>
               <div className="p-3 border rounded">
-                <div className="font-medium mb-1">📈 Développer les produits ERP</div>
+                <div className="font-medium mb-1"> Développer les produits ERP</div>
                 <div className="text-sm text-slate-600">
                   Potentiel d'expansion avec croissance de {data?.revenueByProduct[0]?.trendValue}%
                 </div>
               </div>
               <div className="p-3 border rounded">
-                <div className="font-medium mb-1">🌍 Expansion régionale</div>
+                <div className="font-medium mb-1"> Expansion régionale</div>
                 <div className="text-sm text-slate-600">
                   Focus sur Bouaké et Yamoussoukro pour diversification
                 </div>

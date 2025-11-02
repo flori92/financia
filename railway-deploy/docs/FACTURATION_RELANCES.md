@@ -1,21 +1,21 @@
-# 📧 Facturation et Relances Clients - Guide de Configuration
+#  Facturation et Relances Clients - Guide de Configuration
 
 Ce guide explique comment configurer et utiliser les fonctionnalités d'envoi de factures et de relances automatiques dans BMS ERP.
 
-## 🚀 Fonctionnalités disponibles
+##  Fonctionnalités disponibles
 
-### ✅ Envoi de factures
+###  Envoi de factures
 - **Email** : Envoi direct avec pièce jointe et lien de paiement
 - **WhatsApp** : Notification avec résumé et lien vers la facture
 - **SMS** : Message court avec montant et lien de paiement
 
-### ✅ Relances automatiques
+###  Relances automatiques
 - **4 niveaux d'urgence** selon le retard de paiement
 - **Messages personnalisés** pour chaque niveau
 - **Envoi multi-canaux** automatique
 - **Calcul des pénalités de retard** (taux légal Bénin)
 
-## 📋 Niveaux de relances
+##  Niveaux de relances
 
 | Niveau | Retard | Canaux utilisés | Type de message |
 |--------|--------|----------------|-----------------|
@@ -24,7 +24,7 @@ Ce guide explique comment configurer et utiliser les fonctionnalités d'envoi de
 | **Formal** | 30-45 jours | Email + WhatsApp + SMS | Demande formelle |
 | **Legal** | +45 jours | Email + WhatsApp + SMS | Mise en demeure légale |
 
-## ⚙️ Configuration
+##  Configuration
 
 ### 1. Variables d'environnement
 
@@ -94,14 +94,14 @@ TWILIO_AUTH_TOKEN=votre-token
 TWILIO_PHONE_NUMBER=+1234567890
 ```
 
-## 🎯 Utilisation
+##  Utilisation
 
 ### Envoi de factures
 
 1. **Depuis la page Factures** (`/invoices`) :
-   - Cliquez sur l'icône 📧 (Email) pour envoyer par email
-   - Cliquez sur l'icône 💬 (WhatsApp) pour envoyer par WhatsApp
-   - Cliquez sur l'icône 💬 (SMS) pour envoyer par SMS
+   - Cliquez sur l'icône  (Email) pour envoyer par email
+   - Cliquez sur l'icône  (WhatsApp) pour envoyer par WhatsApp
+   - Cliquez sur l'icône  (SMS) pour envoyer par SMS
 
 2. **Automatiquement après création** :
    - Les factures peuvent être envoyées automatiquement lors de leur création
@@ -121,7 +121,7 @@ TWILIO_PHONE_NUMBER=+1234567890
    - Configurez un cron job pour exécuter les relances automatiquement
    - Exemple : tous les jours à 9h00
 
-## 📊 Templates de messages
+##  Templates de messages
 
 ### Rappel amical (Email)
 ```
@@ -129,9 +129,9 @@ Bonjour [Nom du client],
 
 Ceci est un rappel amical concernant votre facture :
 
-📄 Facture : [Numéro]
-💰 Montant : [Montant] FCFA
-📅 Échéance : [Date]
+ Facture : [Numéro]
+ Montant : [Montant] FCFA
+ Échéance : [Date]
 ⏰ En retard de : [Jours] jour(s)
 
 Vous pouvez consulter et payer votre facture ici : [Lien]
@@ -144,17 +144,17 @@ L'équipe [Votre Entreprise]
 
 ### Rappel ferme (WhatsApp)
 ```
-🔔 Rappel - Facture [Numéro] en retard
+ Rappel - Facture [Numéro] en retard
 
 Bonjour [Nom du client],
 Votre facture est en retard de paiement :
-💰 Montant : [Montant] FCFA
+ Montant : [Montant] FCFA
 ⏰ Retard : [Jours] jour(s)
 
 Merci de régulariser rapidement : [Lien]
 ```
 
-## 🔧 Personnalisation
+##  Personnalisation
 
 ### Modifier les templates
 Les messages sont configurés dans :
@@ -166,7 +166,7 @@ Les messages sont configurés dans :
 2. Ajoutez les variables d'environnement nécessaires
 3. Mettez à jour les méthodes d'envoi
 
-## 🚨 Dépannage
+##  Dépannage
 
 ### Emails non reçus
 1. Vérifiez la configuration SMTP dans `.env`
@@ -183,7 +183,7 @@ Les messages sont configurés dans :
 2. Testez avec `EMAIL_PROVIDER=console` pour isoler le problème
 3. Consultez les logs de l'application
 
-## 📈 Monitoring
+##  Monitoring
 
 ### Logs des envois
 Les notifications sont loggées avec le niveau `INFO` :
@@ -198,7 +198,7 @@ WhatsApp message sent via Twilio: SID123
 - Export CSV possible depuis la page Factures
 - Logs détaillés dans la console de l'application
 
-## 🆘 Support
+##  Support
 
 Pour toute question ou problème :
 1. Consultez les logs de l'application

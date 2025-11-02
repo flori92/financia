@@ -264,7 +264,7 @@ export default function MLForecastPage() {
             <div className="space-y-3">
               {data?.recommendations.map((rec, index) => (
                 <div key={index} className="p-3 border rounded">
-                  <div className="font-medium text-sm mb-1">🎯 Recommandation {index + 1}</div>
+                  <div className="font-medium text-sm mb-1"> Recommandation {index + 1}</div>
                   <div className="text-sm text-slate-600">{rec}</div>
                 </div>
               ))}

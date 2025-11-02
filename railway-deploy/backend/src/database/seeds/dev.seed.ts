@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
  * Run with: npm run seed
  */
 export async function runDevSeed(dataSource: DataSource) {
-  console.log('🌱 Starting development seed...');
+  console.log(' Starting development seed...');
 
   const queryRunner = dataSource.createQueryRunner();
   await queryRunner.connect();
@@ -25,7 +25,7 @@ export async function runDevSeed(dataSource: DataSource) {
       ON CONFLICT (email) DO UPDATE SET role = 'admin'
       RETURNING id;
     `, [hashedPassword]);
-    console.log('✅ Admin created:', admin.id);
+    console.log(' Admin created:', admin.id);
 
     // Tax Admin
     const [taxAdmin] = await queryRunner.query(`
@@ -34,7 +34,7 @@ export async function runDevSeed(dataSource: DataSource) {
       ON CONFLICT (email) DO UPDATE SET role = 'tax_admin'
       RETURNING id;
     `, [hashedPassword]);
-    console.log('✅ Tax Admin created:', taxAdmin.id);
+    console.log(' Tax Admin created:', taxAdmin.id);
 
     // Accountant
     const [accountant] = await queryRunner.query(`
@@ -43,7 +43,7 @@ export async function runDevSeed(dataSource: DataSource) {
       ON CONFLICT (email) DO UPDATE SET role = 'accountant'
       RETURNING id;
     `, [hashedPassword]);
-    console.log('✅ Accountant created:', accountant.id);
+    console.log(' Accountant created:', accountant.id);
 
     // Entrepreneur
     const [entrepreneur] = await queryRunner.query(`
@@ -52,7 +52,7 @@ export async function runDevSeed(dataSource: DataSource) {
       ON CONFLICT (email) DO UPDATE SET role = 'user'
       RETURNING id;
     `, [hashedPassword]);
-    console.log('✅ Entrepreneur created:', entrepreneur.id);
+    console.log(' Entrepreneur created:', entrepreneur.id);
 
     // 2. Créer des entreprises
     console.log('Creating test companies...');
@@ -72,7 +72,7 @@ export async function runDevSeed(dataSource: DataSource) {
     `);
     const company1Id = company1?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Restaurant Le Béninois']))?.[0]?.id;
     if (company1Id) {
-      console.log('✅ Company 1 created:', company1Id);
+      console.log(' Company 1 created:', company1Id);
 
       // 3. Créer des factures
       console.log('Creating test invoices...');
@@ -96,7 +96,7 @@ export async function runDevSeed(dataSource: DataSource) {
       const invoice1Id = invoice1?.id || (await queryRunner.query(`SELECT id FROM invoices WHERE invoice_number = $1 LIMIT 1;`, ['FINV-202410-0001']))?.[0]?.id;
       
       if (invoice1Id) {
-        console.log('✅ Invoice 1 created:', invoice1Id);
+        console.log(' Invoice 1 created:', invoice1Id);
 
         // Ajouter des items à la facture (idempotent)
         await queryRunner.query(`
@@ -106,7 +106,7 @@ export async function runDevSeed(dataSource: DataSource) {
             SELECT 1 FROM invoice_items WHERE invoice_id = $1 AND item_name = 'Menu Buffet x20 personnes'
           );
         `, [invoice1Id]);
-        console.log('✅ Invoice items created');
+        console.log(' Invoice items created');
       }
 
       const [invoice2] = await queryRunner.query(`
@@ -127,7 +127,7 @@ export async function runDevSeed(dataSource: DataSource) {
       `, [company1Id]);
       const invoice2Id = invoice2?.id || (await queryRunner.query(`SELECT id FROM invoices WHERE invoice_number = $1 LIMIT 1;`, ['FINV-202410-0002']))?.[0]?.id;
       if (invoice2Id) {
-        console.log('✅ Invoice 2 (paid) created:', invoice2Id);
+        console.log(' Invoice 2 (paid) created:', invoice2Id);
       }
     }
 
@@ -149,7 +149,7 @@ export async function runDevSeed(dataSource: DataSource) {
     `);
     const company2Id = company2?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Tech Afrique']))?.[0]?.id;
     if (company2Id) {
-      console.log('✅ Company 2 created:', company2Id);
+      console.log(' Company 2 created:', company2Id);
       const [inv2_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
@@ -222,7 +222,7 @@ export async function runDevSeed(dataSource: DataSource) {
     `);
     const company3Id = company3?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Global Services SARL']))?.[0]?.id;
     if (company3Id) {
-      console.log('✅ Company 3 created:', company3Id);
+      console.log(' Company 3 created:', company3Id);
       const [inv3_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
@@ -356,9 +356,9 @@ export async function runDevSeed(dataSource: DataSource) {
           ON CONFLICT ("accountNumber") DO NOTHING;
         `, [account.code, account.name, account.syscohadaClass, account.accountType, accountCompanyId]);
       }
-      console.log('✅ OHADA accounts created');
+      console.log(' OHADA accounts created');
     } else {
-      console.log('⚠️ Skipped OHADA accounts creation: no company available');
+      console.log(' Skipped OHADA accounts creation: no company available');
     }
 
     // 5. Créer une demande NIF de test
@@ -379,13 +379,13 @@ export async function runDevSeed(dataSource: DataSource) {
         )
         ON CONFLICT DO NOTHING;
       `, [entrepreneur.id, company1Id]);
-      console.log('✅ NIF request created');
+      console.log(' NIF request created');
     }
 
     await queryRunner.commitTransaction();
-    console.log('✅ Development seed completed successfully!');
+    console.log(' Development seed completed successfully!');
     
-    console.log('\n📝 Test Credentials:');
+    console.log('\n Test Credentials:');
     console.log('Admin: admin@bms.bj / password123');
     console.log('Tax Admin: taxadmin@dgi.bj / password123');
     console.log('Accountant: comptable@cabinet.bj / password123');
@@ -393,7 +393,7 @@ export async function runDevSeed(dataSource: DataSource) {
     
   } catch (error) {
     await queryRunner.rollbackTransaction();
-    console.error('❌ Seed failed:', error.message);
+    console.error(' Seed failed:', error.message);
     throw error;
   } finally {
     await queryRunner.release();

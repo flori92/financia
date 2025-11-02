@@ -81,9 +81,9 @@ Bonjour ${customerInfo.name},
 
 Ceci est un rappel amical concernant votre facture :
 
-📄 Facture : ${invoice.invoiceNumber}
-💰 Montant : ${Number(invoice.totalAmount).toLocaleString()} FCFA
-📅 Échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
+ Facture : ${invoice.invoiceNumber}
+ Montant : ${Number(invoice.totalAmount).toLocaleString()} FCFA
+ Échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
 ⏰ En retard de : ${daysOverdue} jour(s)
 
 Vous pouvez consulter et payer votre facture ici : ${invoiceUrl}
@@ -96,15 +96,15 @@ L'équipe BMS
         break;
 
       case 'firm':
-        subject = `🔔 Rappel - Facture ${invoice.invoiceNumber} en retard`;
+        subject = ` Rappel - Facture ${invoice.invoiceNumber} en retard`;
         message = `
 Bonjour ${customerInfo.name},
 
 Votre facture est en retard de paiement :
 
-📄 Facture : ${invoice.invoiceNumber}
-💰 Montant : ${Number(invoice.totalAmount).toLocaleString()} FCFA
-📅 Échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
+ Facture : ${invoice.invoiceNumber}
+ Montant : ${Number(invoice.totalAmount).toLocaleString()} FCFA
+ Échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
 ⏰ En retard de : ${daysOverdue} jour(s)
 
 Merci de régulariser votre situation rapidement.
@@ -117,17 +117,17 @@ Service comptabilité BMS
         break;
 
       case 'formal':
-        subject = `🚨 DEMANDE DE PAIEMENT - Facture ${invoice.invoiceNumber}`;
+        subject = ` DEMANDE DE PAIEMENT - Facture ${invoice.invoiceNumber}`;
         message = `
 Madame, Monsieur ${customerInfo.name},
 
 Nous vous informons que votre facture présente un retard important :
 
-📄 Facture : ${invoice.invoiceNumber}
-💰 Montant dû : ${Number(invoice.totalAmount).toLocaleString()} FCFA
-📅 Date d'échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
+ Facture : ${invoice.invoiceNumber}
+ Montant dû : ${Number(invoice.totalAmount).toLocaleString()} FCFA
+ Date d'échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
 ⏰ Retard : ${daysOverdue} jour(s)
-💸 Pénalités de retard : ${penalty.toLocaleString()} FCFA
+ Pénalités de retard : ${penalty.toLocaleString()} FCFA
 
 Nous vous demandons de procéder au règlement dans les plus brefs délais pour éviter toute procédure de recouvrement supplémentaire.
 
@@ -138,7 +138,7 @@ Service recouvrement BMS
         break;
 
       case 'legal':
-        subject = `⚖️ MISE EN DEMEURE - Facture ${invoice.invoiceNumber}`;
+        subject = `⚖ MISE EN DEMEURE - Facture ${invoice.invoiceNumber}`;
         message = `
 Madame, Monsieur ${customerInfo.name},
 
@@ -146,11 +146,11 @@ MALGRÉ NOS RELANCES
 
 Nous vous mettons en demeure de régler votre dette :
 
-📄 Facture : ${invoice.invoiceNumber}
-💰 Montant principal : ${Number(invoice.totalAmount).toLocaleString()} FCFA
-💸 Pénalités de retard : ${penalty.toLocaleString()} FCFA
-💰 TOTAL DÛ : ${(Number(invoice.totalAmount) + penalty).toLocaleString()} FCFA
-📅 Échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
+ Facture : ${invoice.invoiceNumber}
+ Montant principal : ${Number(invoice.totalAmount).toLocaleString()} FCFA
+ Pénalités de retard : ${penalty.toLocaleString()} FCFA
+ TOTAL DÛ : ${(Number(invoice.totalAmount) + penalty).toLocaleString()} FCFA
+ Échéance : ${invoice.dueDate.toLocaleDateString('fr-FR')}
 ⏰ Retard : ${daysOverdue} jour(s)
 
 À défaut de paiement sous 8 jours, nous saisirons les tribunaux compétents.
@@ -173,7 +173,7 @@ Service contentieux BMS
 
     // Envoyer par WhatsApp pour les niveaux firm et supérieurs
     if (level !== 'gentle' && customerInfo.whatsapp) {
-      const shortMessage = `${subject}\n\n${message.split('\n').slice(0, 8).join('\n')}\n\n📱 ${invoiceUrl}`;
+      const shortMessage = `${subject}\n\n${message.split('\n').slice(0, 8).join('\n')}\n\n ${invoiceUrl}`;
       await this.notificationsService.sendWhatsApp({
         to: customerInfo.whatsapp,
         message: shortMessage,

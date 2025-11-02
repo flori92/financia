@@ -43,7 +43,7 @@ export class FrappeSyncService {
       return;
     }
 
-    this.logger.log('🔄 Starting automatic synchronization...');
+    this.logger.log(' Starting automatic synchronization...');
     await this.fullSync();
   }
 
@@ -74,7 +74,7 @@ export class FrappeSyncService {
 
       const duration = Date.now() - startTime;
       this.logger.log(
-        `✅ Sync completed in ${duration}ms - ${JSON.stringify(results)}`,
+        ` Sync completed in ${duration}ms - ${JSON.stringify(results)}`,
       );
 
       return results;

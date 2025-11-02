@@ -519,7 +519,7 @@ export default function DemoSimplePage() {
               : 'border-transparent text-gray-600 hover:text-gray-900'
           }`}
         >
-          📊 Dashboard Comptable
+           Dashboard Comptable
         </button>
         <button
           onClick={() => setActiveTab('mobile-money')}

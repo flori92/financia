@@ -190,7 +190,7 @@ def models_status():
     })
 
 if __name__ == '__main__':
-    print("🚀 Démarrage du service BMS AI Analytics sur Railway...")
+    print("Demarrage du service BMS AI Analytics sur Railway...")
     print(f"Port: {PORT}")
     print(f"LLM Service: {LLM_SERVICE_URL}")
     print("Endpoints disponibles:")

@@ -17,7 +17,7 @@ export function ChatbotWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "👋 Bonjour ! Je suis votre assistant BMS. Je peux vous aider avec la comptabilité, la facturation, la trésorerie et bien plus encore. Comment puis-je vous aider aujourd'hui ?",
+      text: " Bonjour ! Je suis votre assistant BMS. Je peux vous aider avec la comptabilité, la facturation, la trésorerie et bien plus encore. Comment puis-je vous aider aujourd'hui ?",
       sender: "bot",
       timestamp: new Date(),
     },
@@ -75,7 +75,7 @@ export function ChatbotWidget() {
     
     // Aide générale
     if (lowerMessage.includes("aide") || lowerMessage.includes("help") || lowerMessage.includes("comment")) {
-      return "Je suis là pour vous aider ! 🤖 Vous pouvez me poser des questions sur :\n• Comptabilité et écritures\n• Facturation et relances\n• Trésorerie et banques\n• RH et paie\n• CRM et clients\n• TVA et déclarations\n\nDites-moi simplement ce dont vous avez besoin !";
+      return "Je suis là pour vous aider !  Vous pouvez me poser des questions sur :\n• Comptabilité et écritures\n• Facturation et relances\n• Trésorerie et banques\n• RH et paie\n• CRM et clients\n• TVA et déclarations\n\nDites-moi simplement ce dont vous avez besoin !";
     }
     
     // Dashboard
@@ -235,7 +235,7 @@ export function ChatbotWidget() {
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-2 text-center">
-              💡 Essayez : "comment faire une facture ?", "aide comptabilité", "où trouver le bilan ?"
+               Essayez : "comment faire une facture ?", "aide comptabilité", "où trouver le bilan ?"
             </p>
           </div>
         </>

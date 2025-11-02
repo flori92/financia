@@ -27,13 +27,13 @@ class LocalLLMService:
     def __init__(self):
         self.models = {}
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"🚀 Initialisation service LLM sur device: {self.device}")
+        print(f" Initialisation service LLM sur device: {self.device}")
         
     def load_llama_model(self):
         """Charge le modèle Llama (version légère pour Railway)"""
         try:
             model_name = "microsoft/DialoGPT-medium"  # Alternative légère à Llama
-            print(f"📥 Chargement modèle {model_name}...")
+            print(f" Chargement modèle {model_name}...")
             
             self.models['llama'] = pipeline(
                 "text-generation",
@@ -44,11 +44,11 @@ class LocalLLMService:
                 do_sample=True
             )
             
-            print("✅ Modèle Llama chargé avec succès")
+            print(" Modèle Llama chargé avec succès")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur chargement Llama: {e}")
+            print(f" Erreur chargement Llama: {e}")
             # Fallback vers modèle encore plus léger
             return self.load_lightweight_model()
     
@@ -56,7 +56,7 @@ class LocalLLMService:
         """Charge le modèle Mistral (open source gratuit)"""
         try:
             model_name = "mistralai/Mistral-7B-Instruct-v0.1"
-            print(f"📥 Chargement modèle {model_name}...")
+            print(f" Chargement modèle {model_name}...")
             
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             model = AutoModelForCausalLM.from_pretrained(
@@ -71,18 +71,18 @@ class LocalLLMService:
                 'model': model
             }
             
-            print("✅ Modèle Mistral chargé avec succès")
+            print(" Modèle Mistral chargé avec succès")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur chargement Mistral: {e}")
+            print(f" Erreur chargement Mistral: {e}")
             return False
     
     def load_lightweight_model(self):
         """Charge un modèle ultra-léger pour fallback"""
         try:
             model_name = "distilbert-base-uncased"
-            print(f"📥 Chargement modèle léger {model_name}...")
+            print(f" Chargement modèle léger {model_name}...")
             
             self.models['lightweight'] = pipeline(
                 "text-generation",
@@ -91,11 +91,11 @@ class LocalLLMService:
                 max_new_tokens=256
             )
             
-            print("✅ Modèle léger chargé")
+            print(" Modèle léger chargé")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur modèle léger: {e}")
+            print(f" Erreur modèle léger: {e}")
             return False
     
     def load_sentiment_model(self):
@@ -103,7 +103,7 @@ class LocalLLMService:
         try:
             # Modèle français pour sentiment analysis
             model_name = "tblard/tf-allocine"
-            print(f"📥 Chargement modèle sentiment {model_name}...")
+            print(f" Chargement modèle sentiment {model_name}...")
             
             self.models['sentiment'] = pipeline(
                 "sentiment-analysis",
@@ -111,11 +111,11 @@ class LocalLLMService:
                 device=0 if self.device == "cuda" else -1
             )
             
-            print("✅ Modèle sentiment chargé")
+            print(" Modèle sentiment chargé")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur modèle sentiment: {e}")
+            print(f" Erreur modèle sentiment: {e}")
             # Fallback vers TextBlob
             return self.load_fallback_sentiment()
     
@@ -126,42 +126,42 @@ class LocalLLMService:
             nltk.download('punkt', quiet=True)
             nltk.download('vader_lexicon', quiet=True)
             
-            print("✅ Sentiment analysis fallback (TextBlob) prêt")
+            print(" Sentiment analysis fallback (TextBlob) prêt")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur fallback sentiment: {e}")
+            print(f" Erreur fallback sentiment: {e}")
             return False
     
     def load_embedding_model(self):
         """Charge modèle d'embeddings pour similarité"""
         try:
             model_name = "sentence-transformers/all-MiniLM-L6-v2"
-            print(f"📥 Chargement modèle embeddings {model_name}...")
+            print(f" Chargement modèle embeddings {model_name}...")
             
             self.models['embeddings'] = SentenceTransformer(model_name)
             
-            print("✅ Modèle embeddings chargé")
+            print(" Modèle embeddings chargé")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur modèle embeddings: {e}")
+            print(f" Erreur modèle embeddings: {e}")
             return False
     
     def load_french_nlp(self):
         """Charge le modèle NLP français spaCy"""
         try:
-            print("📥 Chargement modèle français spaCy...")
+            print(" Chargement modèle français spaCy...")
             
             # Télécharger et charger le modèle français
             os.system("python -m spacy download fr_core_news_sm > /dev/null 2>&1")
             self.models['french_nlp'] = spacy.load("fr_core_news_sm")
             
-            print("✅ Modèle français spaCy chargé")
+            print(" Modèle français spaCy chargé")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur modèle français: {e}")
+            print(f" Erreur modèle français: {e}")
             return False
     
     def generate_business_insights(self, financial_data, context=""):
@@ -176,7 +176,7 @@ class LocalLLMService:
                 return self._generate_basic_insights(financial_data)
                 
         except Exception as e:
-            print(f"❌ Erreur génération insights: {e}")
+            print(f" Erreur génération insights: {e}")
             return self._generate_basic_insights(financial_data)
     
     def _generate_with_mistral(self, financial_data, context):
@@ -278,7 +278,7 @@ RECOMMANDATIONS:
                 return self._analyze_with_textblob(texts)
                 
         except Exception as e:
-            print(f"❌ Erreur analyse sentiment: {e}")
+            print(f" Erreur analyse sentiment: {e}")
             return self._fallback_sentiment_analysis(texts)
     
     def _analyze_with_transformer(self, texts):
@@ -356,7 +356,7 @@ RECOMMANDATIONS:
             }
             
         except Exception as e:
-            print(f"❌ Erreur embeddings: {e}")
+            print(f" Erreur embeddings: {e}")
             return self._fallback_embeddings(texts)
     
     def _fallback_embeddings(self, texts):
@@ -418,7 +418,7 @@ RECOMMANDATIONS:
             }
             
         except Exception as e:
-            print(f"❌ Erreur parsing response: {e}")
+            print(f" Erreur parsing response: {e}")
             return self._generate_basic_insights({})
     
     def _calculate_overall_sentiment(self, results):
@@ -470,7 +470,7 @@ llm_service = LocalLLMService()
 @app.before_first_request
 def load_models():
     """Charge les modèles LLM au démarrage"""
-    print("🚀 Chargement des modèles LLM...")
+    print(" Chargement des modèles LLM...")
     
     # Charger dans l'ordre de préférence
     llm_service.load_mistral_model()
@@ -479,7 +479,7 @@ def load_models():
     llm_service.load_embedding_model()
     llm_service.load_french_nlp()
     
-    print("✅ Service LLM prêt!")
+    print(" Service LLM prêt!")
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -575,7 +575,7 @@ def list_models():
     })
 
 if __name__ == '__main__':
-    print("🤖 Démarrage du service LLM Local BMS...")
+    print(" Démarrage du service LLM Local BMS...")
     print("Modèles disponibles:")
     print("- Mistral 7B (instruct)")
     print("- Llama (DialoGPT fallback)")

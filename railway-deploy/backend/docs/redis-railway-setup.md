@@ -1,6 +1,6 @@
-# 🚀 Configuration Redis sur Railway
+#  Configuration Redis sur Railway
 
-## 📋 PRÉREQUIS
+##  PRÉREQUIS
 
 Pour activer Redis sur Railway, vous devez ajouter un service Redis à votre projet :
 
@@ -25,7 +25,7 @@ REDIS_PASSWORD=your-redis-password
 
 ---
 
-## ⚙️ CONFIGURATION BMS
+##  CONFIGURATION BMS
 
 ### 1. Variables d'environnement requises
 Dans Railway > Settings > Variables, assurez-vous d'avoir :
@@ -76,7 +76,7 @@ BullModule.forRootAsync({
 
 ---
 
-## 🔄 QUEUES BULL ACTIVES
+##  QUEUES BULL ACTIVES
 
 ### 1. Queue Bank Sync
 ```typescript
@@ -104,7 +104,7 @@ BullModule.forRootAsync({
 
 ---
 
-## 🧪 TEST DE FONCTIONNEMENT
+##  TEST DE FONCTIONNEMENT
 
 ### 1. Vérifier connexion Redis
 ```bash
@@ -135,7 +135,7 @@ curl -X POST https://bms-production-d9e9.up.railway.app/api/v1/bank-api/accounts
 
 ---
 
-## 🔧 DÉBOGAGE REDIS
+##  DÉBOGAGE REDIS
 
 ### 1. Logs Railway
 ```bash
@@ -159,7 +159,7 @@ railway run redis-cli --host $REDIS_HOST --port $REDIS_PORT
 
 ---
 
-## 📊 MONITORING
+##  MONITORING
 
 ### 1. Métriques Redis
 - **Memory Usage** : < 100MB recommandé
@@ -191,7 +191,7 @@ GET /api/v1/admin/queues/status
 
 ---
 
-## 🚨 ERREURS COMMUNES
+##  ERREURS COMMUNES
 
 ### 1. Redis Connection Timeout
 ```bash
@@ -216,14 +216,14 @@ maxmemory-policy allkeys-lru
 
 ---
 
-## 🎯 BÉNÉFICES AVEC REDIS
+##  BÉNÉFICES AVEC REDIS
 
-✅ **Performance** : Queue async pour sync bancaire  
-✅ **Scalabilité** : Background jobs sans bloquer API  
-✅ **Fiabilité** : Retry automatique et monitoring  
-✅ **Analytics** : Traitement webhooks en temps réel  
-✅ **Production** : Architecture enterprise-ready  
+ **Performance** : Queue async pour sync bancaire  
+ **Scalabilité** : Background jobs sans bloquer API  
+ **Fiabilité** : Retry automatique et monitoring  
+ **Analytics** : Traitement webhooks en temps réel  
+ **Production** : Architecture enterprise-ready  
 
 ---
 
-**🚀 Une fois Redis configuré sur Railway, BMS sera 100% fonctionnel avec toutes les queues Bull actives !**
+** Une fois Redis configuré sur Railway, BMS sera 100% fonctionnel avec toutes les queues Bull actives !**

@@ -106,8 +106,8 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
         // Forcer DSN complet pour éviter les problèmes de configuration
         const databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
         
-        console.log('🔧 TypeORM config:', { dbHost, dbPort, dbUser, dbName });
-        console.log('🔗 Database connection: postgres://****:****@', dbHost, ':', dbPort, '/', dbName);
+        console.log(' TypeORM config:', { dbHost, dbPort, dbUser, dbName });
+        console.log(' Database connection: postgres://****:****@', dbHost, ':', dbPort, '/', dbName);
         
         return {
           type: 'postgres',

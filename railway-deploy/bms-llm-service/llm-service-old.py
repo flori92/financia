@@ -36,7 +36,7 @@ class SimplifiedLLMService:
                 "Vos marges sont dans la moyenne du secteur. Considérez la diversification."
             ]
         }
-        print("🚀 Service LLM Simplifié initialisé")
+        print(" Service LLM Simplifié initialisé")
         
     def generate_response(self, prompt, context="business"):
         """Génère une réponse basique sans modèle ML"""
@@ -69,18 +69,18 @@ class SimplifiedLLMService:
                 "error": str(e)
             }
             
-            print("✅ Modèle Mistral chargé avec succès")
+            print(" Modèle Mistral chargé avec succès")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur chargement Mistral: {e}")
+            print(f" Erreur chargement Mistral: {e}")
             return False
     
     def load_sentiment_model(self):
         """Charge modèle de sentiment analysis français"""
         try:
             model_name = "tblard/tf-allocine"
-            print(f"📥 Chargement modèle sentiment {model_name}...")
+            print(f" Chargement modèle sentiment {model_name}...")
             
             self.models['sentiment'] = pipeline(
                 "sentiment-analysis",
@@ -88,11 +88,11 @@ class SimplifiedLLMService:
                 device=0 if self.device == "cuda" else -1
             )
             
-            print("✅ Modèle sentiment chargé")
+            print(" Modèle sentiment chargé")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur modèle sentiment: {e}")
+            print(f" Erreur modèle sentiment: {e}")
             return self.load_fallback_sentiment()
     
     def load_fallback_sentiment(self):
@@ -100,23 +100,23 @@ class SimplifiedLLMService:
         try:
             nltk.download('punkt', quiet=True)
             nltk.download('vader_lexicon', quiet=True)
-            print("✅ Sentiment analysis fallback (TextBlob) prêt")
+            print(" Sentiment analysis fallback (TextBlob) prêt")
             return True
         except Exception as e:
-            print(f"❌ Erreur fallback sentiment: {e}")
+            print(f" Erreur fallback sentiment: {e}")
             return False
     
     def load_embedding_model(self):
         """Charge modèle d'embeddings pour similarité"""
         try:
             model_name = "sentence-transformers/all-MiniLM-L6-v2"
-            print(f"📥 Chargement modèle embeddings {model_name}...")
+            print(f" Chargement modèle embeddings {model_name}...")
             
             self.models['embeddings'] = SentenceTransformer(model_name)
-            print("✅ Modèle embeddings chargé")
+            print(" Modèle embeddings chargé")
             return True
         except Exception as e:
-            print(f"❌ Erreur modèle embeddings: {e}")
+            print(f" Erreur modèle embeddings: {e}")
             return False
     
     def generate_business_insights(self, financial_data, context=""):
@@ -127,7 +127,7 @@ class SimplifiedLLMService:
             else:
                 return self._generate_basic_insights(financial_data)
         except Exception as e:
-            print(f"❌ Erreur génération insights: {e}")
+            print(f" Erreur génération insights: {e}")
             return self._generate_basic_insights(financial_data)
     
     def _generate_with_mistral(self, financial_data, context):
@@ -202,7 +202,7 @@ class SimplifiedLLMService:
             else:
                 return self._analyze_with_textblob(texts)
         except Exception as e:
-            print(f"❌ Erreur analyse sentiment: {e}")
+            print(f" Erreur analyse sentiment: {e}")
             return self._fallback_sentiment_analysis(texts)
     
     def _analyze_with_transformer(self, texts):
@@ -285,13 +285,13 @@ llm_service = LocalLLMService()
 # Charger les modèles au démarrage
 def load_models():
     """Charge les modèles LLM au démarrage"""
-    print("🚀 Chargement des modèles LLM...")
+    print(" Chargement des modèles LLM...")
     
     llm_service.load_mistral_model()
     llm_service.load_sentiment_model()
     llm_service.load_embedding_model()
     
-    print("✅ Service LLM prêt!")
+    print(" Service LLM prêt!")
 
 # Charger les modèles
 load_models()
@@ -367,7 +367,7 @@ def list_models():
     })
 
 if __name__ == '__main__':
-    print("🤖 Démarrage du service LLM Local BMS sur Railway...")
+    print(" Démarrage du service LLM Local BMS sur Railway...")
     print(f"Port: {PORT}")
     print("Modèles disponibles:")
     print("- Mistral (DialoGPT fallback)")

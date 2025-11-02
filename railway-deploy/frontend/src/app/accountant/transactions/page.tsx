@@ -93,13 +93,13 @@ export default function TransactionsPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'bank':
-        return '🏦';
+        return '';
       case 'mobile':
-        return '📱';
+        return '';
       case 'cash':
-        return '💵';
+        return '';
       default:
-        return '💳';
+        return '';
     }
   };
 
@@ -256,7 +256,7 @@ export default function TransactionsPage() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
-                🏦
+                
               </div>
               <div>
                 <div className="text-sm text-gray-600">Bancaires</div>
@@ -272,7 +272,7 @@ export default function TransactionsPage() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-2xl">
-                📱
+                
               </div>
               <div>
                 <div className="text-sm text-gray-600">Mobile Money</div>
@@ -288,7 +288,7 @@ export default function TransactionsPage() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center text-2xl">
-                💵
+                
               </div>
               <div>
                 <div className="text-sm text-gray-600">Espèces</div>
@@ -304,7 +304,7 @@ export default function TransactionsPage() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl">
-                📊
+                
               </div>
               <div>
                 <div className="text-sm text-gray-600">Total transactions</div>

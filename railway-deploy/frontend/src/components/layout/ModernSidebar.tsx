@@ -68,7 +68,7 @@ const getMenuItems = (remindersCount: number): SidebarItem[] => [
       { label: "Plan comptable", href: "/accountant/chart-of-accounts", icon: ListTree },
       { label: "Journal comptable", href: "/accountant/journal", icon: FileText },
       { label: "Grand livre", href: "/accountant/general-ledger", icon: Calculator },
-      { label: "Balance âgée", href: "/accountant/aged-balance", icon: AlertTriangle, badge: "⚠️", badgeColor: "amber" },
+      { label: "Balance âgée", href: "/accountant/aged-balance", icon: AlertTriangle, badge: "", badgeColor: "amber" },
       { label: "Balance de vérification", href: "/accountant/trial-balance", icon: FileCheck },
       { label: "Compte de résultat", href: "/accountant/profit-loss", icon: TrendingUp },
       { label: "Bilan", href: "/accountant/balance-sheet", icon: PieChart },
@@ -173,7 +173,7 @@ const getMenuItems = (remindersCount: number): SidebarItem[] => [
       { label: "Emails", href: "/communications/emails", icon: Send, badge: "SMTP", badgeColor: "blue" },
       { label: "SMS", href: "/communications/sms", icon: Smartphone, badge: "SMS", badgeColor: "emerald" },
       { label: "WhatsApp", href: "/communications/whatsapp", icon: Smartphone, badge: "API", badgeColor: "green" },
-      { label: "Templates", href: "/communications/templates", icon: FileText, badge: "📝", badgeColor: "orange" }
+      { label: "Templates", href: "/communications/templates", icon: FileText, badge: "", badgeColor: "orange" }
     ]
   },
   {

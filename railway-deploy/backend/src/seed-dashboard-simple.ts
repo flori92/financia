@@ -10,7 +10,7 @@ async function seedDashboardData() {
   const accountingService = app.get(AccountingService);
 
   try {
-    console.log('🚀 Création des données dashboard...');
+    console.log(' Création des données dashboard...');
 
     // 1. Créer une entreprise directement en base
     const company = await companiesService['companyRepository'].save({
@@ -29,7 +29,7 @@ async function seedDashboardData() {
       currency: 'XOF',
     });
 
-    console.log(`✅ Entreprise créée: ${company.id}`);
+    console.log(` Entreprise créée: ${company.id}`);
 
     // 2. Créer le plan comptable OHADA simplifié
     const accounts = [
@@ -60,7 +60,7 @@ async function seedDashboardData() {
       });
     }
 
-    console.log('✅ Plan comptable créé');
+    console.log(' Plan comptable créé');
 
     // 3. Créer 6 mois d'écritures comptables
     const months = [
@@ -133,12 +133,12 @@ async function seedDashboardData() {
         ],
       });
 
-      console.log(`✅ Écritures ${month.name} créées`);
+      console.log(` Écritures ${month.name} créées`);
     }
 
-    console.log('🎉 Données dashboard créées avec succès !');
-    console.log(`📊 Company ID: ${company.id}`);
-    console.log('📈 Dashboard prêt avec 6 mois d\'activité');
+    console.log(' Données dashboard créées avec succès !');
+    console.log(` Company ID: ${company.id}`);
+    console.log(' Dashboard prêt avec 6 mois d\'activité');
     
     return {
       companyId: company.id,
@@ -146,7 +146,7 @@ async function seedDashboardData() {
     };
 
   } catch (error) {
-    console.error('❌ Erreur lors du seeding:', error);
+    console.error(' Erreur lors du seeding:', error);
     throw error;
   } finally {
     await app.close();
@@ -156,10 +156,10 @@ async function seedDashboardData() {
 // Exécuter le seeding
 seedDashboardData()
   .then(result => {
-    console.log('✅ Seeding terminé:', result);
+    console.log(' Seeding terminé:', result);
     process.exit(0);
   })
   .catch(error => {
-    console.error('❌ Erreur seeding:', error);
+    console.error(' Erreur seeding:', error);
     process.exit(1);
   });

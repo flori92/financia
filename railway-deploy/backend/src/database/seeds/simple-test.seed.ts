@@ -17,12 +17,12 @@ export class SimpleTestSeedService {
   ) {}
 
   async seedSimpleData(companyId: string) {
-    console.log('🌱 Création données comptables simples...');
+    console.log(' Création données comptables simples...');
 
     // Récupérer les comptes
     const accounts = await this.accountRepo.find({ where: { companyId } });
     if (accounts.length === 0) {
-      console.log('❌ Aucun compte trouvé. Exécutez d\'abord le seed SYSCOHADA.');
+      console.log(' Aucun compte trouvé. Exécutez d\'abord le seed SYSCOHADA.');
       return;
     }
 
@@ -52,7 +52,7 @@ export class SimpleTestSeedService {
       }
     }
 
-    console.log('✅ Données comptables créées !');
+    console.log(' Données comptables créées !');
   }
 
   private async createSimpleSale(date: Date, companyId: string, accountMap: Record<string, string>) {

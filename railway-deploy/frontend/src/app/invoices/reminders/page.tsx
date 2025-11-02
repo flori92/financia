@@ -147,9 +147,9 @@ export default function RemindersPage() {
 
 Ceci est un rappel amical concernant votre facture :
 
-📄 Facture : Multiple factures
-💰 Montant : ${item.total.toLocaleString()} FCFA
-📅 Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
+ Facture : Multiple factures
+ Montant : ${item.total.toLocaleString()} FCFA
+ Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ En retard de : ${item.daysLate} jour(s)
 
 Vous pouvez consulter et payer vos factures ici : ${invoiceUrl}
@@ -161,14 +161,14 @@ L'équipe BMS`;
         break;
 
       case 'firm':
-        subject = `🔔 Rappel - Factures en retard de paiement`;
+        subject = ` Rappel - Factures en retard de paiement`;
         message = `Bonjour ${item.party},
 
 Vos factures sont en retard de paiement :
 
-📄 Factures : Multiple factures
-💰 Montant : ${item.total.toLocaleString()} FCFA
-📅 Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
+ Factures : Multiple factures
+ Montant : ${item.total.toLocaleString()} FCFA
+ Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ En retard de : ${item.daysLate} jour(s)
 
 Merci de régulariser votre situation rapidement.
@@ -180,16 +180,16 @@ Service comptabilité BMS`;
         break;
 
       case 'formal':
-        subject = `🚨 DEMANDE DE PAIEMENT - Factures en retard`;
+        subject = ` DEMANDE DE PAIEMENT - Factures en retard`;
         message = `Madame, Monsieur ${item.party},
 
 Nous vous informons que vos factures présentent un retard important :
 
-📄 Factures : Multiple factures
-💰 Montant dû : ${item.total.toLocaleString()} FCFA
-📅 Date d'échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
+ Factures : Multiple factures
+ Montant dû : ${item.total.toLocaleString()} FCFA
+ Date d'échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ Retard : ${item.daysLate} jour(s)
-💸 Pénalités de retard : ${penalty.toLocaleString()} FCFA
+ Pénalités de retard : ${penalty.toLocaleString()} FCFA
 
 Nous vous demandons de procéder au règlement dans les plus brefs délais pour éviter toute procédure de recouvrement supplémentaire.
 
@@ -199,18 +199,18 @@ Service recouvrement BMS`;
         break;
 
       case 'legal':
-        subject = `⚖️ MISE EN DEMEURE - Factures impayées`;
+        subject = `⚖ MISE EN DEMEURE - Factures impayées`;
         message = `Madame, Monsieur ${item.party},
 
 MALGRÉ NOS RELANCES
 
 Nous vous mettons en demeure de régler votre dette :
 
-📄 Factures : Multiple factures
-💰 Montant principal : ${item.total.toLocaleString()} FCFA
-💸 Pénalités de retard : ${penalty.toLocaleString()} FCFA
-💰 TOTAL DÛ : ${totalDue.toLocaleString()} FCFA
-📅 Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
+ Factures : Multiple factures
+ Montant principal : ${item.total.toLocaleString()} FCFA
+ Pénalités de retard : ${penalty.toLocaleString()} FCFA
+ TOTAL DÛ : ${totalDue.toLocaleString()} FCFA
+ Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ Retard : ${item.daysLate} jour(s)
 
 À défaut de paiement sous 8 jours, nous saisirons les tribunaux compétents.
@@ -222,7 +222,7 @@ Service contentieux BMS`;
     }
 
     const smsMessage = `${subject} - Montant : ${item.total.toLocaleString()} FCFA - Retard : ${item.daysLate}j - ${invoiceUrl}`;
-    const whatsappMessage = `${subject}\n\n${message.split('\n').slice(0, 8).join('\n')}\n\n📱 ${invoiceUrl}`;
+    const whatsappMessage = `${subject}\n\n${message.split('\n').slice(0, 8).join('\n')}\n\n ${invoiceUrl}`;
 
     return {
       invoice: "Multiple factures",

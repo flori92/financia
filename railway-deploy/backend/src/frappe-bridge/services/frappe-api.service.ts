@@ -57,11 +57,11 @@ export class FrappeApiService {
     try {
       await this.axiosInstance.get('/api/method/ping');
       this.isAvailable = true;
-      this.logger.log('✅ Frappe is available');
+      this.logger.log(' Frappe is available');
       return true;
     } catch (error) {
       this.isAvailable = false;
-      this.logger.warn('⚠️ Frappe is not available - BMS will work in standalone mode');
+      this.logger.warn(' Frappe is not available - BMS will work in standalone mode');
       return false;
     }
   }

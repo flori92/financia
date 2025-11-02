@@ -88,7 +88,7 @@ export default function CRMDashboard() {
               + Nouvelle opportunité
             </Link>
             <Link href="/crm/contacts" className="block p-3 border rounded hover:bg-gray-50 transition">
-              📋 Voir tous les contacts
+               Voir tous les contacts
             </Link>
           </div>
         </Card>

@@ -200,7 +200,7 @@ const ALL_ENTITIES = [
         const logging = !isProduction && nodeEnv === 'development';
         
         // DEBUG: Afficher toutes les variables DB disponibles
-        console.log('🔍 All DB Environment Variables:', {
+        console.log(' All DB Environment Variables:', {
           DATABASE_URL: !!databaseUrl,
           DB_PASSWORD: !!dbPassword,
           DATABASE_PASSWORD: !!configService.get<string>('DATABASE_PASSWORD'),
@@ -222,7 +222,7 @@ const ALL_ENTITIES = [
           RAILWAY_SERVICE_NAME: !!configService.get<string>('RAILWAY_SERVICE_NAME')
         });
         
-        console.log('🔧 Database config:', { 
+        console.log(' Database config:', { 
           nodeEnv,
           isRailway,
           isProduction,
@@ -234,7 +234,7 @@ const ALL_ENTITIES = [
         
         // Si DATABASE_URL est définie, l'utiliser directement
         if (databaseUrl) {
-          console.log('🔗 Using DATABASE_URL for connection');
+          console.log(' Using DATABASE_URL for connection');
           return {
             type: 'postgres',
             url: databaseUrl,
@@ -265,7 +265,7 @@ const ALL_ENTITIES = [
                               configService.get<string>('RAILWAY_POSTGRES_PASSWORD') ||
                               configService.get<string>('POSTGRES_PASSWORD');
         
-        console.log(`🔗 Using individual params (${isRailway ? 'Railway' : 'Dev'} mode):`, { 
+        console.log(` Using individual params (${isRailway ? 'Railway' : 'Dev'} mode):`, { 
           dbHost, 
           dbPort, 
           dbUser, 
@@ -280,8 +280,8 @@ const ALL_ENTITIES = [
         
         // ERREUR: Si aucun mot de passe n'est disponible sur Railway
         if (isRailway && !finalPassword) {
-          console.error('❌ ERREUR CRITIQUE: Aucun mot de passe PostgreSQL trouvé sur Railway !');
-          console.error('❌ Variables requises: DATABASE_PASSWORD ou DB_PASSWORD ou PGPASSWORD ou RAILWAY_POSTGRES_PASSWORD');
+          console.error(' ERREUR CRITIQUE: Aucun mot de passe PostgreSQL trouvé sur Railway !');
+          console.error(' Variables requises: DATABASE_PASSWORD ou DB_PASSWORD ou PGPASSWORD ou RAILWAY_POSTGRES_PASSWORD');
           throw new Error('Configuration PostgreSQL incomplète sur Railway: mot de passe manquant');
         }
         

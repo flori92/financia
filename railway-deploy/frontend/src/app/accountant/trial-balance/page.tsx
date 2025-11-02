@@ -124,7 +124,7 @@ export default function TrialBalancePage() {
                   {totalDebit === totalCredit ? (
                     <span className="text-green-600">✓ Équilibrée</span>
                   ) : (
-                    <span className="text-red-600">⚠ Déséquilibrée</span>
+                    <span className="text-red-600"> Déséquilibrée</span>
                   )}
                 </td>
               </tr>

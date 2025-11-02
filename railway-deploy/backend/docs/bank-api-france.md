@@ -1,10 +1,10 @@
-# 🏦 API Banque Française - Documentation
+#  API Banque Française - Documentation
 
-## 🌍 Support Géographique Étendu
+##  Support Géographique Étendu
 
 L'API Bank BMS supporte maintenant **14 institutions financières** réparties sur **2 continents** :
 
-### 📊 Répartition des banques
+###  Répartition des banques
 
 | Région | Type | Nombre | Exemples |
 |--------|------|--------|----------|
@@ -15,9 +15,9 @@ L'API Bank BMS supporte maintenant **14 institutions financières** réparties s
 
 ---
 
-## 🇫🇷 **BANQUES FRANÇAISES DISPONIBLES**
+##  **BANQUES FRANÇAISES DISPONIBLES**
 
-### 🏛️ **Banques Traditionnelles**
+###  **Banques Traditionnelles**
 
 #### **BNP Paribas**
 - **Identifiant**: `BNP_PARIBAS`
@@ -54,7 +54,7 @@ L'API Bank BMS supporte maintenant **14 institutions financières** réparties s
 - **BIC**: CEPAFRPP
 - **Fonctionnalités**: Épargne, Crédit Immobilier
 
-### 🌐 **Banques en Ligne**
+###  **Banques en Ligne**
 
 #### **Boursorama**
 - **Identifiant**: `BOURSORAMA`
@@ -72,7 +72,7 @@ L'API Bank BMS supporte maintenant **14 institutions financières** réparties s
 
 ---
 
-## 🔧 **ENDPOINTS API**
+##  **ENDPOINTS API**
 
 ### **Authentification OAuth2**
 ```typescript
@@ -124,52 +124,52 @@ GET /api/v1/bank-api/accounts/{accountId}/transactions?limit=50
 
 ---
 
-## 💡 **CAS D'USAGE SPÉCIFIQUES FRANCE**
+##  **CAS D'USAGE SPÉCIFIQUES FRANCE**
 
-### 🏠 **Gestion Immobilière**
+###  **Gestion Immobilière**
 - **Prêts immobiliers**: Suivi des remboursements (Crédit Agricole)
 - **Assurances**: Monitoring assurances vie (Caisse d'Épargne)
 - **PEA/PEL**: Gestion plans épargne logement
 
-### 💼 **Professionnels & Entreprises**
+###  **Professionnels & Entreprises**
 - **Comptes pro**: LCL pour gestion B2B
 - **Freelance**: Société Générale avec comptes joints
 - **Export**: BNP Paribas pour transactions internationales
 
-### 📈 **Investissement & Bourse**
+###  **Investissement & Bourse**
 - **Actions**: Boursorama pour trading sans frais
 - **ETF**: Support complet investissements
 - **Dividendes**: Tracking automatique revenus
 
-### 💰 **Épargne & Optimisation**
+###  **Épargne & Optimisation**
 - **Livrets**: Livret A, Livret Jeune, PEL
 - **Fiscalité**: Optimisation fiscale France
 - **Retraite**: Plans épargne retraite
 
 ---
 
-## 🛡️ **SÉCURITÉ & CONFORMITÉ**
+##  **SÉCURITÉ & CONFORMITÉ**
 
 ### **Réglementation Française**
-- ✅ **DSP2** (Directive Services de Paiement)
-- ✅ **PSD2** compliance pour Open Banking
-- ✅ **RGPD** (GDPR) protection données
-- ✅ **ACPR** (Autorité de Contrôle Prudentiel)
+-  **DSP2** (Directive Services de Paiement)
+-  **PSD2** compliance pour Open Banking
+-  **RGPD** (GDPR) protection données
+-  **ACPR** (Autorité de Contrôle Prudentiel)
 
 ### **Standards Techniques**
-- ✅ **OAuth2** avec refresh tokens
-- ✅ **TLS 1.3** pour toutes les communications
-- ✅ **Signature webhooks** avec HMAC-SHA256
-- ✅ **Rate limiting** anti-DDoS
+-  **OAuth2** avec refresh tokens
+-  **TLS 1.3** pour toutes les communications
+-  **Signature webhooks** avec HMAC-SHA256
+-  **Rate limiting** anti-DDoS
 
 ### **Certifications**
-- 🔒 **ISO 27001** sécurité information
-- 🔒 **PCI-DSS** paiement compliance
-- 🔒 **eIDAS** signature électronique
+-  **ISO 27001** sécurité information
+-  **PCI-DSS** paiement compliance
+-  **eIDAS** signature électronique
 
 ---
 
-## 🚀 **DÉPLOIEMENT FRANCE**
+##  **DÉPLOIEMENT FRANCE**
 
 ### **Infrastructure**
 - **Data centers**: Paris, Marseille, Lyon
@@ -178,14 +178,14 @@ GET /api/v1/bank-api/accounts/{accountId}/transactions?limit=50
 - **Backup**: Multi-zone réplication
 
 ### **Support Local**
-- **🇫🇷 Support français** 24/7
+- ** Support français** 24/7
 - **Documentation française** complète
 - **API docs** en français/anglais
 - **Webinars** techniques mensuels
 
 ---
 
-## 📞 **ASSISTANCE TECHNIQUE**
+##  **ASSISTANCE TECHNIQUE**
 
 ### **Contact France**
 - **Email**: france@bms-api.com
@@ -201,4 +201,4 @@ GET /api/v1/bank-api/accounts/{accountId}/transactions?limit=50
 
 ---
 
-**🎯 L'API Bank BMS est maintenant la solution la plus complète pour connecter vos applications financières à la fois aux marchés africains et européens !**
+** L'API Bank BMS est maintenant la solution la plus complète pour connecter vos applications financières à la fois aux marchés africains et européens !**

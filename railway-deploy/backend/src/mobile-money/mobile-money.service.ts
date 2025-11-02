@@ -287,7 +287,7 @@ export class MobileMoneyService {
    * Gérer un paiement réussi
    */
   private async handleSuccessfulPayment(data: any) {
-    this.logger.log('💰 Paiement réussi:', data.id);
+    this.logger.log(' Paiement réussi:', data.id);
 
     try {
       // Récupérer la transaction locale via l'ID FedaPay
@@ -361,7 +361,7 @@ export class MobileMoneyService {
    * Gérer un paiement échoué
    */
   private async handleFailedPayment(data: any) {
-    this.logger.warn('❌ Paiement échoué:', data.id);
+    this.logger.warn(' Paiement échoué:', data.id);
 
     try {
       const transaction = await this.transactionRepository.findOne({
@@ -400,7 +400,7 @@ export class MobileMoneyService {
    * Gérer un paiement annulé
    */
   private async handleCanceledPayment(data: any) {
-    this.logger.log('⚠️ Paiement annulé:', data.id);
+    this.logger.log(' Paiement annulé:', data.id);
 
     try {
       const transaction = await this.transactionRepository.findOne({

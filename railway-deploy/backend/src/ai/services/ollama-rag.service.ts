@@ -27,7 +27,7 @@ export class OllamaRAGService {
   ) {
     // Initialiser Ollama avec connexion configurable (Railway ou local)
     const ollamaHost = process.env.OLLAMA_HOST || 'http://localhost:11434';
-    this.logger.log(`🤖 Connexion à Ollama: ${ollamaHost}`);
+    this.logger.log(` Connexion à Ollama: ${ollamaHost}`);
     this.ollama = new Ollama({ host: ollamaHost });
   }
 
@@ -39,12 +39,12 @@ export class OllamaRAGService {
     companyId: string,
   ): Promise<string> {
     try {
-      this.logger.log(`🤖 Question reçue: "${question.substring(0, 100)}..."`);
+      this.logger.log(` Question reçue: "${question.substring(0, 100)}..."`);
 
       // Étape 1: Analyser la question et déterminer le contexte nécessaire
       const context = await this.getRelevantContext(question, companyId);
 
-      this.logger.log(`📊 Contexte récupéré: ${context.substring(0, 200)}...`);
+      this.logger.log(` Contexte récupéré: ${context.substring(0, 200)}...`);
 
       // Étape 2: Construire le prompt avec contexte
       const prompt = this.buildPrompt(question, context);
@@ -61,11 +61,11 @@ export class OllamaRAGService {
         },
       });
 
-      this.logger.log(`✅ Réponse IA générée (${response.response.length} caractères)`);
+      this.logger.log(` Réponse IA générée (${response.response.length} caractères)`);
 
       return response.response;
     } catch (error) {
-      this.logger.error(`❌ Erreur Ollama RAG:`, error);
+      this.logger.error(` Erreur Ollama RAG:`, error);
       
       // Fallback sur réponses basiques si Ollama indisponible
       return this.getFallbackResponse(question);
@@ -660,7 +660,7 @@ RATIOS FINANCIERS:
 - Écritures en brouillon: ${draftCount}
 - Total comptes dans le plan comptable: ${totalAccounts}
 - Plan comptable: OHADA/SYSCOHADA
-- ${draftCount > 0 ? '⚠️ Attention: écritures en brouillon à valider avant clôture' : '✅ Toutes les écritures sont validées'}`;
+- ${draftCount > 0 ? ' Attention: écritures en brouillon à valider avant clôture' : ' Toutes les écritures sont validées'}`;
   }
 
   /**
@@ -738,7 +738,7 @@ INSTRUCTIONS:
 4. Si l'information n'est pas dans le contexte, dis-le clairement
 5. Donne des recommandations concrètes et actionnables
 6. Structure ta réponse avec des puces ou numéros si pertinent
-7. Utilise des emojis (📊 💰 ⚠️) pour rendre la réponse plus lisible
+7. Utilise des emojis (  ) pour rendre la réponse plus lisible
 
 RÉPONSE:`;
   }
@@ -749,7 +749,7 @@ RÉPONSE:`;
   private getFallbackResponse(question: string): string {
     return `Je traite votre question : "${question}"
 
-⚠️ Service d'IA temporairement limité. Je peux cependant vous aider avec :
+ Service d'IA temporairement limité. Je peux cependant vous aider avec :
 
 • Accéder à vos données comptables réelles dans le dashboard
 • Générer vos déclarations de TVA

@@ -11,29 +11,29 @@ export class OcrService {
    * Extrait le texte brut puis parse les données de facture
    */
   async extractInvoiceData(fileBuffer: Buffer): Promise<any> {
-    this.logger.log(`🚀 Début extraction OCR - Taille fichier: ${fileBuffer.length} bytes`);
+    this.logger.log(` Début extraction OCR - Taille fichier: ${fileBuffer.length} bytes`);
     
     try {
       // Essayer OCR.space API (gratuit et fiable)
-      this.logger.log('📡 Tentative extraction OCR avec OCR.space API...');
+      this.logger.log(' Tentative extraction OCR avec OCR.space API...');
       const ocrSpaceResult = await this.extractWithOCRSpace(fileBuffer);
       if (ocrSpaceResult) {
-        this.logger.log('✅ OCR.space a réussi - retourne résultats');
+        this.logger.log(' OCR.space a réussi - retourne résultats');
         return ocrSpaceResult;
       }
 
       // Si OCR.space échoue, essayer Tesseract.js
-      this.logger.log('🔄 Fallback sur Tesseract.js...');
+      this.logger.log(' Fallback sur Tesseract.js...');
       const tesseractResult = await this.extractWithTesseract(fileBuffer);
-      this.logger.log('✅ Tesseract.js a réussi - retourne résultats');
+      this.logger.log(' Tesseract.js a réussi - retourne résultats');
       return tesseractResult;
 
     } catch (error) {
-      this.logger.warn('❌ OCR réel indisponible, utilisation mode simulation:', error.message);
+      this.logger.warn(' OCR réel indisponible, utilisation mode simulation:', error.message);
       
       // Fallback final: Mode simulation avec données mockées
       const simulationResult = this.getMockInvoiceData();
-      this.logger.log('🧪 Mode simulation utilisé - retourne données mockées');
+      this.logger.log(' Mode simulation utilisé - retourne données mockées');
       return simulationResult;
     }
   }

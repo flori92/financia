@@ -17,19 +17,19 @@ const AppDataSource = new DataSource({
 });
 
 async function main() {
-  console.log('🚀 Connecting to database...');
+  console.log(' Connecting to database...');
   
   await AppDataSource.initialize();
-  console.log('✅ Database connected');
+  console.log(' Database connected');
 
   try {
     await runDevSeed(AppDataSource);
   } catch (error) {
-    console.error('❌ Seed failed:', error);
+    console.error(' Seed failed:', error);
     process.exit(1);
   } finally {
     await AppDataSource.destroy();
-    console.log('👋 Database connection closed');
+    console.log(' Database connection closed');
   }
 }
 

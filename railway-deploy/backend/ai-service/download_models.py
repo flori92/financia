@@ -8,7 +8,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import os
 
-print('📥 Pré-chargement des modèles LLM...')
+print(' Pré-chargement des modèles LLM...')
 
 # Download lightweight models for faster startup
 models_to_download = [
@@ -22,8 +22,8 @@ for model_name in models_to_download:
         print(f'Téléchargement de {model_name}...')
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name)
-        print(f'✅ {model_name} téléchargé')
+        print(f' {model_name} téléchargé')
     except Exception as e:
-        print(f'❌ Erreur {model_name}: {e}')
+        print(f' Erreur {model_name}: {e}')
 
-print('✅ Pré-chargement terminé')
+print(' Pré-chargement terminé')

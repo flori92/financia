@@ -9,7 +9,7 @@ export async function seedPermissions(dataSource: DataSource) {
   const permissionRepo = dataSource.getRepository(Permission);
   const roleRepo = dataSource.getRepository(Role);
 
-  console.log('🌱 Seeding permissions...');
+  console.log(' Seeding permissions...');
 
   // Définir toutes les permissions
   const permissionsData = [
@@ -118,13 +118,13 @@ export async function seedPermissions(dataSource: DataSource) {
         ...permData,
       });
       permission = await permissionRepo.save(permission);
-      console.log(`  ✅ Created permission: ${permission.name}`);
+      console.log(`   Created permission: ${permission.name}`);
     }
 
     permissions.push(permission);
   }
 
-  console.log(`✅ ${permissions.length} permissions seeded`);
+  console.log(` ${permissions.length} permissions seeded`);
 
   // Créer les rôles par défaut avec leurs permissions
   const roleDefinitions = [
@@ -190,7 +190,7 @@ export async function seedPermissions(dataSource: DataSource) {
     },
   ];
 
-  console.log('\n🌱 Seeding default roles...');
+  console.log('\n Seeding default roles...');
 
   for (const roleDef of roleDefinitions) {
     let role = await roleRepo.findOne({
@@ -205,9 +205,9 @@ export async function seedPermissions(dataSource: DataSource) {
         permissions: roleDef.permissions,
       });
       role = await roleRepo.save(role);
-      console.log(`  ✅ Created role: ${role.name} with ${roleDef.permissions.length} permissions`);
+      console.log(`   Created role: ${role.name} with ${roleDef.permissions.length} permissions`);
     }
   }
 
-  console.log('✅ Permissions and roles seeded successfully!\n');
+  console.log(' Permissions and roles seeded successfully!\n');
 }
