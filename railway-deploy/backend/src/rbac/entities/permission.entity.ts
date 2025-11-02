@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   ManyToMany,
 } from 'typeorm';
-import { Role } from '../../auth/entities/role.entity';
+import { Role } from './role.entity';
 
 /**
  * Permissions granulaires pour RBAC
