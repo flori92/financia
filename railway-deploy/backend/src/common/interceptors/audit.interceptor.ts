@@ -19,6 +19,11 @@ export class AuditInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const { method, url, user, body, params } = request;
 
+    // Skip OPTIONS requests (CORS preflight)
+    if (method === 'OPTIONS') {
+      return next.handle();
+    }
+
     // Déterminer l'action basée sur la méthode HTTP
     const actionMap = {
       POST: 'create',

@@ -10,6 +10,13 @@ export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+
+    // Always allow OPTIONS requests for CORS preflight
+    if (request.method === 'OPTIONS') {
+      return true;
+    }
+
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
       PERMISSIONS_KEY,
       [context.getHandler(), context.getClass()],
@@ -19,7 +26,6 @@ export class PermissionsGuard implements CanActivate {
       return true; // Pas de permissions requises
     }
 
-    const request = context.switchToHttp().getRequest();
     const user = request.user;
 
     if (!user) {

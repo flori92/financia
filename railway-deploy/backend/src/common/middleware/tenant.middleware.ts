@@ -8,6 +8,11 @@ import { Request, Response, NextFunction } from 'express';
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
+    // Always allow OPTIONS requests for CORS preflight
+    if (req.method === 'OPTIONS') {
+      return next();
+    }
+
     const user = (req as any).user;
 
     if (!user) {

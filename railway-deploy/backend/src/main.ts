@@ -23,37 +23,54 @@ async function bootstrap() {
     'http://127.0.0.1:3001',
   ];
 
+  console.log(`🔐 CORS Configuration:`);
+  console.log(`   - NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`   - Allowed Origins: ${allowedOrigins.join(', ')}`);
+
   app.enableCors({
     origin: (origin, callback) => {
+      console.log(`📡 CORS Request from origin: ${origin || 'no origin (direct/mobile)'}`);
+
       // Autoriser les requêtes sans origin (mobile apps, Postman, etc.)
-      if (!origin) return callback(null, true);
-      
-      // En développement, autoriser tout
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`CORS: Allowing origin ${origin} (development mode)`);
+      if (!origin) {
+        console.log(`✅ CORS: Allowing request without origin`);
         return callback(null, true);
       }
-      
+
+      // En développement, autoriser tout
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`✅ CORS: Allowing origin ${origin} (development mode)`);
+        return callback(null, true);
+      }
+
       // En production, vérifier les origines autorisées
       if (allowedOrigins.includes(origin)) {
-        console.log(`CORS: Allowing origin ${origin} (production mode)`);
-        callback(null, true);
+        console.log(`✅ CORS: Allowing origin ${origin} (production mode - whitelisted)`);
+        return callback(null, true);
       } else {
-        console.log(`CORS: Blocked origin ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
-        callback(new Error('Not allowed by CORS'));
+        console.error(`❌ CORS: BLOCKED origin ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+        // Ne pas throw d'erreur, juste bloquer silencieusement
+        return callback(null, false);
       }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     allowedHeaders: [
-      'Content-Type', 
-      'Authorization', 
-      'Accept', 
+      'Content-Type',
+      'Authorization',
+      'Accept',
       'X-Requested-With',
-      'X-API-Key'
+      'X-API-Key',
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
     ],
+    exposedHeaders: ['Content-Range', 'X-Content-Range', 'Authorization'],
     preflightContinue: false,
     optionsSuccessStatus: 204,
+    maxAge: 86400, // 24 hours cache for preflight requests
   });
 
   // Security headers (après CORS pour éviter les conflits)
