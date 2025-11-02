@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, In } from 'typeorm';
 import { Account } from './entities/account.entity';
 import { JournalEntry } from './entities/journal-entry.entity';
 import { JournalEntryLine } from './entities/journal-entry-line.entity';
@@ -1027,6 +1027,123 @@ export class AccountingService {
         over90: totalOver90,
       },
     };
+  }
+
+  async getAgedBalance(companyId: string, type: 'receivables' | 'payables', asOfDate: string): Promise<any> {
+    try {
+      // Définir les comptes à analyser selon le type
+      const accountNumbers = type === 'receivables' 
+        ? ['411'] // Clients
+        : ['401']; // Fournisseurs
+
+      // Récupérer les comptes concernés
+      const accounts = await this.accountRepository.find({
+        where: {
+          companyId,
+          number: In(accountNumbers)
+        }
+      });
+
+      if (accounts.length === 0) {
+        return {
+          asOfDate,
+          type,
+          items: [],
+          totals: {
+            total: 0,
+            current: 0,
+            days30_60: 0,
+            days60_90: 0,
+            over90: 0,
+          },
+        };
+      }
+
+      const accountIds = accounts.map(acc => acc.id);
+      
+      // Calculer la date limite pour chaque tranche
+      const asOf = new Date(asOfDate);
+      const currentLimit = new Date(asOf);
+      currentLimit.setDate(currentLimit.getDate() - 30);
+      
+      const days30_60Limit = new Date(asOf);
+      days30_60Limit.setDate(days30_60Limit.getDate() - 60);
+      
+      const days60_90Limit = new Date(asOf);
+      days60_90Limit.setDate(days60_90Limit.getDate() - 90);
+
+      // Récupérer toutes les lignes d'écritures pour ces comptes
+      const lines = await this.journalLineRepository.find({
+        where: {
+          accountId: In(accountIds),
+          entry: {
+            companyId,
+            status: 'posted'
+          }
+        },
+        relations: ['entry', 'account']
+      });
+
+      // Grouper par tiers (client/fournisseur)
+      const partyMap = new Map<string, any>();
+
+      lines.forEach(line => {
+        const partyName = line.label || 'Inconnu';
+        const entryDate = new Date(line.entry.date);
+        const daysDiff = Math.floor((asOf.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        // Calculer le solde pour cette ligne
+        const balance = this.computeSignedBalance(line.account.type, line.debit, line.credit);
+        
+        if (!partyMap.has(partyName)) {
+          partyMap.set(partyName, {
+            partyName,
+            accountNumber: line.account.number,
+            accountLabel: line.account.label,
+            total: 0,
+            current: 0,
+            days30_60: 0,
+            days60_90: 0,
+            over90: 0,
+          });
+        }
+
+        const party = partyMap.get(partyName);
+        party.total += Math.abs(balance);
+
+        // Ventiler par tranche d'ancienneté
+        if (daysDiff <= 30) {
+          party.current += Math.abs(balance);
+        } else if (daysDiff <= 60) {
+          party.days30_60 += Math.abs(balance);
+        } else if (daysDiff <= 90) {
+          party.days60_90 += Math.abs(balance);
+        } else {
+          party.over90 += Math.abs(balance);
+        }
+      });
+
+      // Convertir en tableau et calculer les totaux
+      const items = Array.from(partyMap.values()).filter(item => item.total > 0);
+      
+      const totals = items.reduce((acc, item) => ({
+        total: acc.total + item.total,
+        current: acc.current + item.current,
+        days30_60: acc.days30_60 + item.days30_60,
+        days60_90: acc.days60_90 + item.days60_90,
+        over90: acc.over90 + item.over90,
+      }), { total: 0, current: 0, days30_60: 0, days60_90: 0, over90: 0 });
+
+      return {
+        asOfDate,
+        type,
+        items: items.sort((a, b) => b.total - a.total), // Trier par montant décroissant
+        totals,
+      };
+    } catch (error) {
+      console.error('Error calculating aged balance:', error);
+      throw new InternalServerErrorException('Erreur lors du calcul de la balance âgée');
+    }
   }
 
   private computeSignedBalance(accountType: string, debit: number, credit: number): number {
