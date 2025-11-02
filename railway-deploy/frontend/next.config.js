@@ -5,7 +5,7 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@tensorflow/tfjs-node'],
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://bms-api-netlify.netlify.app',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://bms-api-gateway-production.up.railway.app',
     FORCE_REDEPLOY: new Date().toISOString(), // Force redéploiement
   },
   images: {
