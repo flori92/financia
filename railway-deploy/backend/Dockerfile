@@ -11,8 +11,8 @@ RUN apk add --no-cache python3 make g++
 # Copie des fichiers de dépendances
 COPY package*.json ./
 
-# Installation des dépendances
-RUN npm ci
+# Installation des dépendances avec résolution des conflits peer
+RUN npm ci --legacy-peer-deps
 
 # Copie du code source
 COPY . .
@@ -38,7 +38,7 @@ ENV NODE_ENV=production \
     TZ=UTC
 
 # Exposition du port de l'application
-EXPOSE 3000
+EXPOSE 3001
 
 # Commande de démarrage
 CMD ["npm", "run", "start:prod"]
