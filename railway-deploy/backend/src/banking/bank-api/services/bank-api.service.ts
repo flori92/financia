@@ -124,12 +124,10 @@ export class BankApiService {
 
             // Notifier l'utilisateur
             await this.notificationsService.sendBankConnectionNotification({
-                userId: dto.userId,
-                type: 'bank_connection_initialized',
-                data: {
-                    bankCode: dto.bankCode,
-                    authUrl: authData.authorizationUrl
-                }
+                userEmail: dto.userEmail || 'admin@bms.com',
+                bankName: dto.bankCode,
+                status: 'success',
+                message: `Initialisation de connexion pour ${dto.bankCode}. URL: ${authData.authorizationUrl}`
             });
 
             return connection;
@@ -286,9 +284,15 @@ export class BankApiService {
                             await this.bankTransactionRepo.save(transaction);
 
                             // Analyse IA pour détection d'anomalies
-                            const anomalyScore = await this.aiService.analyzeBankTransaction(transaction);
-                            if (anomalyScore > 0.8) {
-                                await this.createAnomaly(transaction, anomalyScore);
+                            const analysis = await this.aiService.analyzeBankTransaction({
+                                amount: transactionData.amount,
+                                description: transactionData.description,
+                                date: transactionData.date,
+                                accountId: accountId
+                            });
+                            
+                            if (analysis.isAnomalous) {
+                                await this.createAnomaly(transaction, analysis.riskScore);
                             }
                         }
                     })
@@ -338,13 +342,11 @@ export class BankApiService {
 
         if (account) {
             await this.notificationsService.sendBankAnomalyNotification({
-                userId: account.connection.userId,
-                type: 'bank_anomaly_detected',
-                data: {
-                    transactionAmount: transaction.amount,
-                    transactionDate: transaction.date,
-                    anomalyScore: score
-                }
+                userEmail: account.connection.userEmail || 'admin@bms.com',
+                bankName: account.connection.bankCode,
+                anomalyType: 'Transaction suspecte',
+                amount: transaction.amount,
+                description: `Anomalie détectée: ${transaction.description} (score: ${score})`
             });
         }
     }
