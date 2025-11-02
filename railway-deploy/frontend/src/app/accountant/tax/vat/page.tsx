@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 "use client";
 import { useState } from "react";
 import { Download, Upload, Send, Calculator, FileText, X, Info } from "lucide-react";
@@ -29,7 +30,7 @@ export default function VATPage() {
     try {
       const companyId = "default-company"; // TODO: récupérer depuis contexte
       const response = await fetch(
-        `http://localhost:3001/api/v1/tax/vat/recalculate`,
+        `${getBaseUrl()}/api/v1/tax/vat/recalculate`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -54,7 +55,7 @@ export default function VATPage() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `http://localhost:3001/api/v1/tax/export/fec?companyId=${companyId}`,
+        `${getBaseUrl()}/api/v1/tax/export/fec?companyId=${companyId}`,
         { method: 'GET' }
       );
       
@@ -80,7 +81,7 @@ export default function VATPage() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `http://localhost:3001/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`,
+        `${getBaseUrl()}/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`,
         { method: 'GET' }
       );
       

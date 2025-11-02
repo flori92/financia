@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 "use client";
 import { useState } from "react";
 import { Download, Printer, Calendar } from "lucide-react";
@@ -26,7 +27,7 @@ export default function TrialBalancePage() {
     try {
       const companyId = "default-company"; // TODO: récupérer depuis contexte
       const response = await fetch(
-        `http://localhost:3001/api/v1/accounting/export/trial-balance?companyId=${companyId}`,
+        `${getBaseUrl()}/api/v1/accounting/export/trial-balance?companyId=${companyId}`,
         { method: 'GET' }
       );
       

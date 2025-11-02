@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 "use client";
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react";
@@ -18,11 +19,11 @@ export default function InvoicesPage() {
   const loadData = async () => {
     try {
       const [invoicesRes, clientsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/v1/invoices').then(r => {
+        fetch('${getBaseUrl()}/api/v1/invoices').then(r => {
           if (!r.ok) return [];
           return r.json();
         }).catch(() => []),
-        fetch('http://localhost:3001/api/v1/crm/contacts').then(r => {
+        fetch('${getBaseUrl()}/api/v1/crm/contacts').then(r => {
           if (!r.ok) return [];
           return r.json();
         }).catch(() => [])
@@ -49,7 +50,7 @@ export default function InvoicesPage() {
     };
     
     try {
-      await fetch('http://localhost:3001/api/v1/invoices', {
+      await fetch('${getBaseUrl()}/api/v1/invoices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(invoice)
@@ -64,7 +65,7 @@ export default function InvoicesPage() {
   const handleSendInvoice = async () => {
     if (!selectedInvoice) return;
     try {
-      await fetch(`http://localhost:3001/api/v1/invoices/${selectedInvoice.id}/send`, { method: 'POST' });
+      await fetch(`${getBaseUrl()}/api/v1/invoices/${selectedInvoice.id}/send`, { method: 'POST' });
       alert(`Facture ${selectedInvoice.number} envoyée par email`);
     } catch (err) {
       alert("Erreur lors de l'envoi");

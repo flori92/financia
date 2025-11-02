@@ -20,7 +20,7 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/communications/templates')
+    apiGet('/api/v1/communications/templates')
       .then(r => r.json())
       .then(data => {
         setTemplates(data);

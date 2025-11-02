@@ -19,8 +19,10 @@ export default function WhatsAppPage() {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
+import { apiGet } from '@/lib/api';
+
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/communications/whatsapp')
+    apiGet('/api/v1/communications/whatsapp')
       .then(r => r.json())
       .then(data => {
         setMessages(data);

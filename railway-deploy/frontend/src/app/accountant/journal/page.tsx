@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 "use client";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -80,7 +81,7 @@ export default function JournalPage() {
     };
     
     try {
-      await fetch('http://localhost:3001/api/v1/accounting/journal-entries', {
+      await fetch('${getBaseUrl()}/api/v1/accounting/journal-entries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry)
@@ -120,7 +121,7 @@ export default function JournalPage() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `http://localhost:3001/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
+        `${getBaseUrl()}/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
         { method: 'GET' }
       );
       

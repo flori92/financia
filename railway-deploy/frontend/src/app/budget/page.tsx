@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 "use client";
 import Link from "next/link";
 import { useState } from "react";
@@ -50,7 +51,7 @@ export default function BudgetPage() {
       const formData = new FormData(e.currentTarget);
       const companyId = "default-company";
       
-      const response = await fetch(`http://localhost:3001/api/v1/budget/revisions`, {
+      const response = await fetch(`${getBaseUrl()}/api/v1/budget/revisions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -77,7 +78,7 @@ export default function BudgetPage() {
       const formData = new FormData(e.currentTarget);
       const companyId = "default-company";
       
-      const response = await fetch(`http://localhost:3001/api/v1/budget/new`, {
+      const response = await fetch(`${getBaseUrl()}/api/v1/budget/new`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

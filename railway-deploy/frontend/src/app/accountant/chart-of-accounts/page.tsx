@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 "use client";
 import { useState } from "react";
 import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
@@ -29,7 +30,7 @@ export default function ChartOfAccountsPage() {
     try {
       const companyId = "default-company"; // TODO: récupérer depuis contexte
       const response = await fetch(
-        `http://localhost:3001/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
+        `${getBaseUrl()}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
         { method: 'GET' }
       );
       

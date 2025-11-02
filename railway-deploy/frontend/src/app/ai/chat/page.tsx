@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -67,7 +68,7 @@ export default function AIChatPage() {
 
     try {
       // Appel API backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/ai/chat`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '${getBaseUrl()}'}/api/v1/ai/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

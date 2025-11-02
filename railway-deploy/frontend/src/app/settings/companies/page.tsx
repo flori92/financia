@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -25,7 +26,7 @@ export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/companies')
+    fetch('${getBaseUrl()}/api/v1/companies')
       .then(res => res.json())
       .then(setCompanies);
   }, []);
@@ -35,7 +36,7 @@ export default function CompaniesPage() {
     const formData = new FormData(e.currentTarget);
     const newCompany = Object.fromEntries(formData);
     
-    fetch('http://localhost:3001/api/v1/companies', {
+    fetch('${getBaseUrl()}/api/v1/companies', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newCompany)

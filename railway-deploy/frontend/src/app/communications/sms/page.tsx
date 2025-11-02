@@ -19,8 +19,10 @@ export default function SMSPage() {
   const [messages, setMessages] = useState<SMSMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
+import { apiGet } from '@/lib/api';
+
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/communications/sms')
+    apiGet('/api/v1/communications/sms')
       .then(r => r.json())
       .then(data => {
         setMessages(data);

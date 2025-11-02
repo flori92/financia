@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/api";
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +11,7 @@ export default function CampaignsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/marketing/campaigns')
+    fetch('${getBaseUrl()}/api/v1/marketing/campaigns')
       .then(res => res.json())
       .then(data => {
         setCampaigns(data);

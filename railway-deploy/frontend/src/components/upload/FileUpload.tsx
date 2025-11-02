@@ -72,7 +72,7 @@ export function FileUpload({
       const formData = new FormData();
       formData.append('file', fileToUpload);
 
-      let url = `http://localhost:3001/api/v1/uploads?`;
+      let url = `${getBaseUrl()}/api/v1/uploads?`;
       if (entityType) url += `entityType=${entityType}&`;
       if (entityId) url += `entityId=${entityId}&`;
       if (companyId) url += `companyId=${companyId}&`;
