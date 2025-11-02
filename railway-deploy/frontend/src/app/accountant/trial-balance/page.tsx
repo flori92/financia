@@ -1,5 +1,5 @@
-import { getBaseUrl } from "@/lib/api";
 "use client";
+import { getBaseUrl } from "@/lib/api";
 import { useState } from "react";
 import { Download, Printer, Calendar } from "lucide-react";
 
