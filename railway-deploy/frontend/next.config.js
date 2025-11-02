@@ -7,8 +7,9 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app',
     FORCE_REDEPLOY: new Date().toISOString(), // Force redéploiement
-    API_VERSION: 'v2.2', // Force mise à jour
+    API_VERSION: 'v2.3', // Force mise à jour
     BUILD_TIMESTAMP: Date.now(), // Force reconstruction
+    API_URL_FIXED: 'true', // Indicateur de correction
   },
   images: {
     domains: ['localhost'],
