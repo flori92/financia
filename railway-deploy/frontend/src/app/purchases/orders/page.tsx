@@ -9,8 +9,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 
+interface PurchaseOrder {
+  id: string;
+  orderNumber: string;
+  supplierName: string;
+  supplierId: string;
+  totalAmount: number;
+  status: 'draft' | 'submitted' | 'approved' | 'received' | 'cancelled';
+  orderDate: string;
+  expectedDeliveryDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function OrdersPage() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [creatingOrder, setCreatingOrder] = useState(false);
@@ -27,7 +40,7 @@ export default function OrdersPage() {
 
   const loadOrders = async () => {
     try {
-      const data = await apiGet("/api/v1/purchases/orders");
+      const data = await apiGet("/api/v1/purchases/orders") as PurchaseOrder[];
       setOrders(data || []);
     } catch (error) {
       console.error("Erreur chargement commandes:", error);
@@ -53,7 +66,7 @@ export default function OrdersPage() {
         supplierId: "temp-supplier-id"
       };
 
-      const createdOrder = await apiPost("/api/v1/purchases/orders", orderData);
+      const createdOrder = await apiPost("/api/v1/purchases/orders", orderData) as PurchaseOrder;
       setOrders([createdOrder, ...orders]);
       setIsCreateModalOpen(false);
       setNewOrder({
@@ -144,14 +157,14 @@ export default function OrdersPage() {
                 Aucune commande trouvée. Cliquez sur "Nouvelle commande" pour en créer une.
               </div>
             ) : (
-              orders.map((o: any) => (
+              orders.map((o: PurchaseOrder) => (
                 <div key={o.id} className="flex justify-between p-3 border rounded">
                   <div>
                     <div className="font-medium">{o.orderNumber}</div>
                     <div className="text-sm text-slate-600">{o.supplierName}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">{Number(o.totalAmount || o.amount || 0).toLocaleString()} FCFA</div>
+                    <div className="font-medium">{Number(o.totalAmount || 0).toLocaleString()} FCFA</div>
                     <div className="text-xs text-amber-600">{o.status || 'draft'}</div>
                   </div>
                 </div>
