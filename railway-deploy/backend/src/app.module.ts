@@ -16,6 +16,7 @@ import { AuditLog } from './audit/entities/audit-log.entity';
 import { Account } from './accounting/entities/account.entity';
 import { JournalEntry } from './accounting/entities/journal-entry.entity';
 import { JournalEntryLine } from './accounting/entities/journal-entry-line.entity';
+import { PeriodClosure } from './accounting/entities/period-closure.entity';
 import { BankAccount } from './banking/entities/bank-account.entity';
 import { BankTransaction } from './banking/entities/bank-transaction.entity';
 import { Invoice } from './invoices/entities/invoice.entity';
@@ -100,6 +101,7 @@ import { AppController } from './app.controller';
           Account,
           JournalEntry,
           JournalEntryLine,
+          PeriodClosure,
           BankAccount,
           BankTransaction,
           Invoice,
