@@ -1,5 +1,5 @@
 "use client";
-import { Users, DollarSign, Calendar, FileText } from "lucide-react";
+import { Users, DollarSign, Calendar, FileText, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default function HRPage() {
@@ -21,6 +21,11 @@ export default function HRPage() {
           <Calendar className="w-8 h-8 text-amber-600 mb-2" />
           <h3 className="font-semibold mb-2">Congés & Absences</h3>
           <p className="text-sm text-slate-600">Gestion des demandes de congés</p>
+        </Link>
+        <Link href="/hr/timesheets" className="card p-6 hover:shadow-lg transition-shadow">
+          <Clock className="w-8 h-8 text-indigo-600 mb-2" />
+          <h3 className="font-semibold mb-2">CRA & Temps</h3>
+          <p className="text-sm text-slate-600">Comptes rendus et feuilles de temps</p>
         </Link>
         <Link href="/hr/expenses" className="card p-6 hover:shadow-lg transition-shadow">
           <FileText className="w-8 h-8 text-purple-600 mb-2" />
