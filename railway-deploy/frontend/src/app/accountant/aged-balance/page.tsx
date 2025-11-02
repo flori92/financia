@@ -28,12 +28,26 @@ export default function AgedBalancePage() {
       });
       setData(result);
       showSuccess('Balance âgée chargée');
-    } catch (e: any) {
-      // Gérer l'erreur 404 "Compte introuvable" avec un message utile
-      if (e.includes('404') && e.includes('introuvable')) {
-        showError('Données démo non initialisées. Veuillez contacter l\'administrateur.');
+    } catch (error: any) {
+      console.error('Error loading aged balance:', error);
+      // Gérer spécifiquement l'erreur 404 (endpoint non disponible)
+      if (error?.message?.includes('404') || error?.status === 404) {
+        showError('Endpoint balance âgée en cours de déploiement. Veuillez réessayer dans quelques minutes.');
+        // Afficher des données mock pour ne pas bloquer l'interface
+        setData({
+          asOfDate,
+          type: activeTab,
+          items: [],
+          totals: {
+            total: 0,
+            current: 0,
+            days30_60: 0,
+            days60_90: 0,
+            over90: 0,
+          },
+        });
       } else {
-        showError(String(e));
+        showError('Erreur lors du chargement de la balance âgée');
       }
     } finally {
       setLoading(false);
