@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotificationConfig } from '../entities/notification-config.entity';
-import { CreateNotificationConfigDto } from '../dto/create-notification-config.dto';
-import { UpdateNotificationConfigDto } from '../dto/update-notification-config.dto';
+import { NotificationConfig } from './entities/notification-config.entity';
+import { CreateNotificationConfigDto } from './dto/create-notification-config.dto';
+import { UpdateNotificationConfigDto } from './dto/update-notification-config.dto';
 
 @Injectable()
 export class NotificationConfigService {
