@@ -4,6 +4,8 @@ import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { Payment } from './entities/payment.entity';
 import { PaymentAllocation } from './entities/payment-allocation.entity';
+import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';
+import { BankTransaction } from '../banking/entities/bank-transaction.entity';
 import { AuditModule } from '../audit/audit.module';
 import { AccountingModule } from '../accounting/accounting.module';
 
@@ -19,7 +21,16 @@ import { PayPalService } from './providers/paypal.service';
  * - Intégrations: Stripe, PayPal, SEPA
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, PaymentAllocation]), AuditModule, AccountingModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      Payment, 
+      PaymentAllocation, 
+      MobileMoneyTransaction, 
+      BankTransaction
+    ]), 
+    AuditModule, 
+    AccountingModule
+  ],
   controllers: [PaymentsController],
   providers: [
     PaymentsService,
