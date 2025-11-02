@@ -762,12 +762,12 @@ export default function MLForecastPage() {
     }
   };
 
-  if (loading) return <div>Chargement...</div>;
-
   const bestModel = getBestModel();
   const totalPredictedRevenue = data?.forecasts
     .filter(f => f.actual === null)
     .reduce((sum, f) => sum + f.predicted, 0) || 0;
+
+  if (loading) return <div>Chargement...</div>;
 
   return (
     <div className="space-y-6">
