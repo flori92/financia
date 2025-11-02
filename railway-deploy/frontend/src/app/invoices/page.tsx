@@ -59,6 +59,12 @@ export default function InvoicesPage() {
     }
   };
 
+  const handleEmailDialogSend = async (data: { to: string; subject: string; message: string }) => {
+    if (selectedInvoice) {
+      await handleSendInvoice(selectedInvoice.id, 'email');
+    }
+  };
+
   const handleAddInvoice = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -311,7 +317,7 @@ export default function InvoicesPage() {
       <EmailDialog
         isOpen={showEmailDialog}
         onClose={() => setShowEmailDialog(false)}
-        onSend={handleSendInvoice}
+        onSend={handleEmailDialogSend}
         defaultTo={selectedInvoice ? getClientName(selectedInvoice.clientId) : ""}
         defaultSubject={selectedInvoice ? `Facture ${selectedInvoice.number}` : ""}
       />
