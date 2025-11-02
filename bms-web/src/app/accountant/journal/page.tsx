@@ -1,11 +1,14 @@
 "use client";
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, Search, Filter, Upload, Camera, X, Info, Download } from "lucide-react";
 import Link from "next/link";
 import { ImportButton } from "@/components/shared/ImportButton";
 import { ExportButton } from "@/components/shared/ExportButton";
+import { apiGet, getCompanyId } from "@/lib/api";
 
 export default function JournalPage() {
+  const searchParams = useSearchParams();
   const [entries, setEntries] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -14,13 +17,15 @@ export default function JournalPage() {
   const [importing, setImporting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Pré-remplir le filtre depuis les paramètres URL
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
     account: "",
     minAmount: "",
     maxAmount: "",
-    status: ""
+    status: searchParams?.get('status') || ""
   });
 
   const triggerToast = (type: "success" | "info" | "error", message: string) => {
@@ -30,15 +35,29 @@ export default function JournalPage() {
 
   useEffect(() => {
     loadData();
+    
+    // Écouter les changements de société
+    const handleCompanyChange = () => loadData();
+    window.addEventListener('bms-company-changed', handleCompanyChange);
+    return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
   }, []);
 
   const loadData = async () => {
     try {
-      const companyId = '1805bc61-7cfd-44e9-8a63-17187bf05dc7'; // TODO: Get from session
+      const companyId = getCompanyId();
+      if (!companyId) {
+        console.error("Aucune société sélectionnée");
+        setEntries([]);
+        setAccounts([]);
+        setLoading(false);
+        return;
+      }
+      
       const [entriesRes, accountsRes] = await Promise.all([
-        fetch(`http://localhost:3001/api/v1/accounting/general-ledger?companyId=${companyId}`).then(r => r.json()),
-        fetch(`http://localhost:3001/api/v1/accounting/chart-of-accounts?companyId=${companyId}`).then(r => r.json())
+        apiGet("/api/v1/accounting/general-ledger", { companyId }),
+        apiGet("/api/v1/accounting/chart-of-accounts", { companyId })
       ]);
+      
       // L'API general-ledger retourne {movements: [], summary: {}}
       setEntries(Array.isArray(entriesRes) ? entriesRes : (entriesRes?.movements || []));
       setAccounts(Array.isArray(accountsRes) ? accountsRes : []);
@@ -164,6 +183,23 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-6">
+      {/* Message d'information si filtre pré-rempli */}
+      {filters.status === 'draft' && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+          <Info className="w-5 h-5 text-blue-600" />
+          <div>
+            <p className="text-blue-900 font-medium">Affichage des écritures en attente</p>
+            <p className="text-blue-700 text-sm">Vous voyez ici les écritures comptables en statut "Brouillon" qui nécessitent votre validation.</p>
+          </div>
+          <button
+            onClick={() => setFilters(prev => ({ ...prev, status: '' }))}
+            className="ml-auto text-blue-600 hover:text-blue-800"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+      
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Journal comptable</h1>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, BellRing, SlidersHorizontal, AlertCircle, Info } from "lucide-react";
+import { AlertTriangle, BellRing, SlidersHorizontal, AlertCircle, Info, FileText } from "lucide-react";
 import { apiGet, getCompanyId } from "@/lib/api";
 
 type AlertData = {
@@ -35,8 +35,30 @@ export default function AlertsPage() {
       }
 
       try {
-        const data = await apiGet("/api/v1/treasury/alerts", { companyId });
-        setAlertData(data);
+        // Charger les alertes comptables (écritures en attente, etc.)
+        const accountingData = await apiGet("/api/v1/accounting/dashboard/metrics", { companyId });
+        
+        // Charger aussi les alertes trésorerie si disponibles
+        let treasuryData = null;
+        try {
+          treasuryData = await apiGet("/api/v1/treasury/alerts", { companyId });
+        } catch (e) {
+          // Ignorer si l'API trésorerie n'est pas disponible
+        }
+        
+        // Combiner les alertes
+        const combinedAlerts = [
+          ...(accountingData?.alerts || []),
+          ...(treasuryData?.alerts || [])
+        ];
+        
+        setAlertData({
+          alerts: combinedAlerts,
+          metrics: {
+            ...treasuryData,
+            ...accountingData
+          }
+        });
       } catch (err: any) {
         setError(err?.message || "Impossible de charger les alertes");
       } finally {
@@ -170,6 +192,13 @@ export default function AlertsPage() {
 
       {/* Actions */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <Link
+          href="/accountant/journal?status=draft"
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-500 transition-colors"
+        >
+          <FileText className="h-4 w-4" />
+          Voir les écritures en attente
+        </Link>
         <Link
           href="/settings"
           className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 transition-colors"
