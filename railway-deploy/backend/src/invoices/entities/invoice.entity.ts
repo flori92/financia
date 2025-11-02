@@ -47,6 +47,9 @@ export class Invoice {
   @Column({ name: 'party_email', nullable: true })
   partyEmail: string;
 
+  @Column({ name: 'party_whatsapp', nullable: true })
+  partyWhatsApp: string;
+
   @Column({ default: 'XOF' })
   currency: string;
 
@@ -97,6 +100,9 @@ export class Invoice {
 
   @Column({ name: 'synced_at', nullable: true })
   syncedAt: Date;
+
+  @Column({ name: 'url', nullable: true })
+  url: string;
 
   @OneToMany(() => InvoiceItem, (item) => item.invoice, { cascade: true })
   items: InvoiceItem[];

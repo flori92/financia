@@ -168,7 +168,7 @@ Service contentieux BMS
         to: customerInfo.email,
         subject,
         message,
-      }, invoice.companyId);
+      });
     }
 
     // Envoyer par WhatsApp pour les niveaux firm et supérieurs
@@ -177,7 +177,7 @@ Service contentieux BMS
       await this.notificationsService.sendWhatsApp({
         to: customerInfo.whatsapp,
         message: shortMessage,
-      }, invoice.companyId);
+      });
     }
 
     // Envoyer SMS pour les niveaux formal et legal
@@ -186,7 +186,7 @@ Service contentieux BMS
       await this.notificationsService.sendSMS({
         to: customerInfo.phone,
         message: smsMessage,
-      }, invoice.companyId);
+      });
     }
   }
 

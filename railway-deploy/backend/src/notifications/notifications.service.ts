@@ -13,12 +13,15 @@ export interface NotificationPayload {
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private configDbService: NotificationConfigService,
+  ) {}
 
   /**
    * Envoyer une notification par email
    */
-  async sendEmail(payload: NotificationPayload): Promise<boolean> {
+  async sendEmail(payload: NotificationPayload, companyId?: string): Promise<boolean> {
     const provider = this.configService.get<string>('EMAIL_PROVIDER', 'console');
 
     this.logger.log(`Sending email to ${payload.to}: ${payload.subject}`);
@@ -35,21 +38,21 @@ export class NotificationsService {
 
     // Implémentation avec Nodemailer (SMTP)
     if (provider === 'smtp') {
-      return this.sendWithSMTP(payload);
+      return this.sendWithSMTPEnv(payload);
     }
 
     // Implémentation avec SendGrid
     if (provider === 'sendgrid') {
-      return this.sendWithSendGrid(payload);
+      return this.sendWithSendGridEnv(payload);
     }
 
     return true;
   }
 
   /**
-   * Envoyer une notification par SMTP (Nodemailer)
+   * Envoyer une notification par SMTP (environnement)
    */
-  private async sendWithSMTP(payload: NotificationPayload): Promise<boolean> {
+  private async sendWithSMTPEnv(payload: NotificationPayload): Promise<boolean> {
     try {
       const nodemailer = require('nodemailer');
       
@@ -433,7 +436,7 @@ Veuillez réessayer ou nous contacter.
     dueDate: Date;
     invoiceUrl: string;
     method: 'email' | 'sms' | 'whatsapp';
-  }, companyId?: string): Promise<void> {
+  }): Promise<void> {
     const message = `
 📄 Nouvelle facture
 
@@ -451,7 +454,7 @@ Voir la facture: ${params.invoiceUrl}
             to: params.customerEmail,
             subject: `Facture ${params.invoiceNumber}`,
             message,
-          }, companyId);
+          });
         }
         break;
 
@@ -460,7 +463,7 @@ Voir la facture: ${params.invoiceUrl}
           await this.sendSMS({
             to: params.customerPhone,
             message: `📄 Facture ${params.invoiceNumber}: ${params.amount} FCFA. ${params.invoiceUrl}`,
-          }, companyId);
+          });
         }
         break;
 
@@ -469,7 +472,7 @@ Voir la facture: ${params.invoiceUrl}
           await this.sendWhatsApp({
             to: params.customerWhatsApp,
             message,
-          }, companyId);
+          });
         }
         break;
     }
@@ -521,7 +524,7 @@ Consultez votre tableau de bord pour plus de détails.
     amount: number;
     daysOverdue: number;
     invoiceUrl: string;
-  }, companyId?: string): Promise<void> {
+  }): Promise<void> {
     const urgency = params.daysOverdue > 30 ? '🚨 URGENT' : '⏰ Rappel';
     
     const message = `
@@ -541,13 +544,13 @@ Voir la facture: ${params.invoiceUrl}
       to: params.customerEmail,
       subject: `${urgency} - Facture ${params.invoiceNumber} impayée`,
       message,
-    }, companyId);
+    });
 
     // SMS
     await this.sendSMS({
       to: params.customerPhone,
       message: `${urgency}: Facture ${params.invoiceNumber} de ${params.amount} FCFA en retard de ${params.daysOverdue} jours. ${params.invoiceUrl}`,
-    }, companyId);
+    });
   }
 
   /**
