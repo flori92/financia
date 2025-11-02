@@ -29,7 +29,7 @@ export class NotificationsService {
 
     if (provider === 'console') {
       // Mode développement: afficher dans la console
-      console.log('\n📧 ===== EMAIL =====');
+      console.log('\n ===== EMAIL =====');
       console.log(`To: ${payload.to}`);
       console.log(`Subject: ${payload.subject}`);
       console.log(`Message: ${payload.message}`);
@@ -190,7 +190,7 @@ export class NotificationsService {
 
     if (provider === 'console') {
       // Mode développement: afficher dans la console
-      console.log('\n📱 ===== SMS =====');
+      console.log('\n ===== SMS =====');
       console.log(`To: ${payload.to}`);
       console.log(`Message: ${payload.message}`);
       console.log('================\n');
@@ -259,7 +259,7 @@ export class NotificationsService {
 
     if (provider === 'console') {
       // Mode développement: afficher dans la console
-      console.log('\n💬 ===== WHATSAPP =====');
+      console.log('\n ===== WHATSAPP =====');
       console.log(`To: ${payload.to}`);
       console.log(`Message: ${payload.message}`);
       console.log('=======================\n');
@@ -360,7 +360,7 @@ export class NotificationsService {
     transactionId: string;
   }): Promise<void> {
     const message = `
-✅ Paiement reçu!
+Paiement recu!
 
 Montant: ${params.amount.toLocaleString()} FCFA
 Facture: ${params.invoiceNumber}
@@ -382,7 +382,7 @@ Merci pour votre paiement!
     if (params.customerPhone) {
       await this.sendSMS({
         to: params.customerPhone,
-        message: `✅ Paiement de ${params.amount} FCFA reçu pour facture ${params.invoiceNumber}. Merci!`,
+        message: `Paiement de ${params.amount} FCFA recu pour facture ${params.invoiceNumber}. Merci!`,
       });
     }
   }
@@ -398,7 +398,7 @@ Merci pour votre paiement!
     reason?: string;
   }): Promise<void> {
     const message = `
-❌ Échec de paiement
+Echec de paiement
 
 Montant: ${params.amount.toLocaleString()} FCFA
 Facture: ${params.invoiceNumber}
@@ -420,7 +420,7 @@ Veuillez réessayer ou nous contacter.
     if (params.customerPhone) {
       await this.sendSMS({
         to: params.customerPhone,
-        message: `❌ Échec paiement ${params.amount} FCFA pour facture ${params.invoiceNumber}. Veuillez réessayer.`,
+        message: `Echec paiement ${params.amount} FCFA pour facture ${params.invoiceNumber}. Veuillez reessayer.`,
       });
     }
   }
@@ -439,7 +439,7 @@ Veuillez réessayer ou nous contacter.
     method: 'email' | 'sms' | 'whatsapp';
   }): Promise<void> {
     const message = `
-📄 Nouvelle facture
+Nouvelle facture
 
 Facture: ${params.invoiceNumber}
 Montant: ${params.amount.toLocaleString()} FCFA
@@ -463,7 +463,7 @@ Voir la facture: ${params.invoiceUrl}
         if (params.customerPhone) {
           await this.sendSMS({
             to: params.customerPhone,
-            message: `📄 Facture ${params.invoiceNumber}: ${params.amount} FCFA. ${params.invoiceUrl}`,
+            message: `Facture ${params.invoiceNumber}: ${params.amount} FCFA. ${params.invoiceUrl}`,
           });
         }
         break;
@@ -491,7 +491,7 @@ Voir la facture: ${params.invoiceUrl}
     paymentMethod: string;
   }): Promise<void> {
     const message = `
-💰 Nouveau paiement reçu!
+Nouveau paiement recu!
 
 Client: ${params.customerName}
 Montant: ${params.amount.toLocaleString()} FCFA
@@ -504,14 +504,14 @@ Consultez votre tableau de bord pour plus de détails.
     // Email entrepreneur
     await this.sendEmail({
       to: params.entrepreneurEmail,
-      subject: `💰 Paiement reçu - ${params.amount.toLocaleString()} FCFA`,
+      subject: `Paiement recu - ${params.amount.toLocaleString()} FCFA`,
       message,
     });
 
     // SMS entrepreneur
     await this.sendSMS({
       to: params.entrepreneurPhone,
-      message: `💰 ${params.customerName} a payé ${params.amount} FCFA (${params.invoiceNumber})`,
+      message: `${params.customerName} a paye ${params.amount} FCFA (${params.invoiceNumber})`,
     });
   }
 
@@ -526,7 +526,7 @@ Consultez votre tableau de bord pour plus de détails.
     daysOverdue: number;
     invoiceUrl: string;
   }): Promise<void> {
-    const urgency = params.daysOverdue > 30 ? '🚨 URGENT' : '⏰ Rappel';
+    const urgency = params.daysOverdue > 30 ? 'URGENT' : 'Rappel';
     
     const message = `
 ${urgency}
@@ -564,7 +564,7 @@ Voir la facture: ${params.invoiceUrl}
     nifNumber: string;
   }): Promise<void> {
     const message = `
-✅ NIF Approuvé!
+NIF Approuve!
 
 Entreprise: ${params.companyName}
 Numéro NIF: ${params.nifNumber}
@@ -575,13 +575,13 @@ Vous pouvez maintenant utiliser ce numéro sur vos factures.
 
     await this.sendEmail({
       to: params.userEmail,
-      subject: '✅ Votre NIF a été approuvé',
+      subject: 'Votre NIF a ete approuve',
       message,
     });
 
     await this.sendSMS({
       to: params.userPhone,
-      message: `✅ NIF approuvé! ${params.companyName}: ${params.nifNumber}`,
+      message: `NIF approuve! ${params.companyName}: ${params.nifNumber}`,
     });
   }
 
@@ -595,7 +595,7 @@ Vous pouvez maintenant utiliser ce numéro sur vos factures.
     reason: string;
   }): Promise<void> {
     const message = `
-❌ Demande NIF rejetée
+Demande NIF rejetee
 
 Entreprise: ${params.companyName}
 Raison: ${params.reason}
@@ -605,13 +605,13 @@ Veuillez corriger les informations et soumettre une nouvelle demande.
 
     await this.sendEmail({
       to: params.userEmail,
-      subject: '❌ Demande NIF rejetée',
+      subject: 'Demande NIF rejetee',
       message,
     });
 
     await this.sendSMS({
       to: params.userPhone,
-      message: `❌ Demande NIF rejetée pour ${params.companyName}. Raison: ${params.reason}`,
+      message: `Demande NIF rejetee pour ${params.companyName}. Raison: ${params.reason}`,
     });
   }
 
@@ -626,7 +626,7 @@ Veuillez corriger les informations et soumettre une nouvelle demande.
     currentBalance: number;
     level: 'critical' | 'warning';
   }): Promise<void> {
-    const emoji = params.level === 'critical' ? '🔴' : '🟡';
+    const emoji = params.level === 'critical' ? 'CRITIQUE' : 'ATTENTION';
     const urgency = params.level === 'critical' ? 'ALERTE CRITIQUE' : 'ATTENTION';
     
     const message = `
@@ -637,8 +637,8 @@ Solde actuel: ${params.currentBalance.toLocaleString()} FCFA
 Jours de trésorerie: ${params.runway} jour(s)
 
 ${params.level === 'critical' 
-  ? '⚠️ Votre trésorerie est critique ! Accélérez vos relances clients et surveillez vos dépenses.' 
-  : '⚠️ Votre trésorerie nécessite une attention. Surveillez vos encaissements à venir.'}
+  ? 'Votre tresorerie est critique! Acceler vos relances clients et surveillez vos depenses.' 
+  : 'Votre tresorerie necessite une attention. Surveillez vos encaissements a venir.'}
 
 Connectez-vous à votre tableau de bord pour plus de détails.
     `.trim();
@@ -666,7 +666,7 @@ Connectez-vous à votre tableau de bord pour plus de détails.
     status: 'success' | 'error';
     message?: string;
   }): Promise<void> {
-    const emoji = params.status === 'success' ? '✅' : '❌';
+    const emoji = params.status === 'success' ? 'SUCCES' : 'ERREUR';
     const status = params.status === 'success' ? 'réussie' : 'échouée';
     
     await this.sendEmail({
@@ -696,7 +696,7 @@ Connectez-vous à votre tableau de bord pour gérer vos connexions.
     
     await this.sendEmail({
       to: params.userEmail,
-      subject: `🚨 Anomalie bancaire détectée - ${params.bankName}`,
+      subject: `Anomalie bancaire detectee - ${params.bankName}`,
       message: `
 Une anomalie bancaire a été détectée :
 
@@ -721,7 +721,7 @@ Veuillez vérifier cette transaction dans votre tableau de bord.
     transactionsCount?: number;
     message?: string;
   }): Promise<void> {
-    const emoji = params.status === 'success' ? '✅' : '❌';
+    const emoji = params.status === 'success' ? 'SUCCES' : 'ERREUR';
     const statusText = params.status === 'success' ? 'réussie' : 'échouée';
     
     const details = params.status === 'success' 

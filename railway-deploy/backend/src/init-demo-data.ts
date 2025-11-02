@@ -10,7 +10,7 @@ async function initializeDemoData() {
   const accountingService = app.get(AccountingService);
 
   try {
-    console.log('🚀 Initialisation données démo BMS...');
+    console.log('Initialisation donnees demo BMS...');
 
     // 1. Créer l'entreprise démo
     const company = await companiesService.create({
@@ -33,7 +33,7 @@ async function initializeDemoData() {
       defaultCurrency: 'XOF',
     });
 
-    console.log(`✅ Entreprise créée: ${company.id}`);
+    console.log(`Entreprise cree: ${company.id}`);
 
     // 2. Créer les comptes comptables essentiels
     const essentialAccounts = [
@@ -58,7 +58,7 @@ async function initializeDemoData() {
       });
     }
 
-    console.log('✅ Comptes comptables créés');
+    console.log('Comptes comptables crees');
 
     // 3. Créer quelques écritures de base
     await accountingService.createJournalEntry({
@@ -86,16 +86,16 @@ async function initializeDemoData() {
       ],
     });
 
-    console.log('✅ Écritures comptables créées');
+    console.log('Ecritures comptables creees');
 
-    console.log('🎉 Données démo initialisées avec succès !');
+    console.log('Donnees demo initialisees avec succes !');
     return {
       companyId: company.id,
       message: 'Données démo créées - Dashboard prêt'
     };
 
   } catch (error) {
-    console.error('❌ Erreur lors de l\'initialisation:', error);
+    console.error('Erreur lors de l\'initialisation:', error);
     throw error;
   } finally {
     await app.close();
@@ -105,10 +105,10 @@ async function initializeDemoData() {
 // Exécuter l'initialisation
 initializeDemoData()
   .then(result => {
-    console.log('✅ Initialisation terminée:', result);
+    console.log('Initialisation terminee:', result);
     process.exit(0);
   })
   .catch(error => {
-    console.error('❌ Erreur initialisation:', error);
+    console.error('Erreur initialisation:', error);
     process.exit(1);
   });

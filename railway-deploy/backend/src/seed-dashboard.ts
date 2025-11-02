@@ -12,7 +12,7 @@ async function seedDashboardData() {
   const bankingService = app.get(BankingService);
 
   try {
-    console.log('🚀 Création des données dashboard...');
+    console.log('Creation des donnees dashboard...');
 
     // 1. Créer une entreprise
     const company = await companiesService.create({
@@ -34,7 +34,7 @@ async function seedDashboardData() {
       defaultCurrency: 'XOF',
     });
 
-    console.log(`✅ Entreprise créée: ${company.id}`);
+    console.log(`Entreprise cree: ${company.id}`);
 
     // 2. Créer le plan comptable OHADA simplifié
     const accounts = [
@@ -68,7 +68,7 @@ async function seedDashboardData() {
       });
     }
 
-    console.log('✅ Plan comptable créé');
+    console.log('Plan comptable cree');
 
     // 3. Créer 6 mois d'écritures comptables (juin - novembre 2025)
     const months = [
@@ -143,7 +143,7 @@ async function seedDashboardData() {
         ],
       });
 
-      console.log(`✅ Écritures ${month.name} créées`);
+      console.log(`Ecritures ${month.name} creees`);
     }
 
     // 4. Créer des transactions bancaires
@@ -171,14 +171,14 @@ async function seedDashboardData() {
       });
     }
 
-    console.log('✅ Transactions bancaires créées');
+    console.log('Transactions bancaires creees');
 
     // 5. Mettre à jour l'utilisateur admin avec cette entreprise
     // (Ceci nécessiterait un UserService, mais pour l'instant on retourne le companyId)
 
-    console.log('🎉 Données dashboard créées avec succès !');
-    console.log(`📊 Company ID: ${company.id}`);
-    console.log('📈 Dashboard prêt avec 6 mois d\'activité');
+    console.log('Donnees dashboard creees avec succes !');
+    console.log(`Company ID: ${company.id}`);
+    console.log('Dashboard pret avec 6 mois d\'activite');
     
     return {
       companyId: company.id,
@@ -186,7 +186,7 @@ async function seedDashboardData() {
     };
 
   } catch (error) {
-    console.error('❌ Erreur lors du seeding:', error);
+    console.error('Erreur lors du seeding:', error);
     throw error;
   } finally {
     await app.close();
@@ -196,10 +196,10 @@ async function seedDashboardData() {
 // Exécuter le seeding
 seedDashboardData()
   .then(result => {
-    console.log('✅ Seeding terminé:', result);
+    console.log('Seeding termine:', result);
     process.exit(0);
   })
   .catch(error => {
-    console.error('❌ Erreur seeding:', error);
+    console.error('Erreur seeding:', error);
     process.exit(1);
   });

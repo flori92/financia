@@ -535,7 +535,7 @@ export default function DemoPage() {
         <div className="flex items-center gap-2">
           {isDemo && (
             <div className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
-              🎭 Mode Démo
+              Mode Demo
             </div>
           )}
           <button
@@ -558,7 +558,7 @@ export default function DemoPage() {
               : 'border-transparent text-gray-600 hover:text-gray-900'
           }`}
         >
-          📊 Dashboard Comptable
+          Dashboard Comptable
         </button>
         <button
           onClick={() => setActiveTab('mobile-money')}

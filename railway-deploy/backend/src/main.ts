@@ -23,32 +23,32 @@ async function bootstrap() {
     'http://127.0.0.1:3001',
   ];
 
-  console.log(`🔐 CORS Configuration:`);
+  console.log(`CORS Configuration:`);
   console.log(`   - NODE_ENV: ${process.env.NODE_ENV}`);
   console.log(`   - Allowed Origins: ${allowedOrigins.join(', ')}`);
 
   app.enableCors({
     origin: (origin, callback) => {
-      console.log(`📡 CORS Request from origin: ${origin || 'no origin (direct/mobile)'}`);
+      console.log(`CORS Request from origin: ${origin || 'no origin (direct/mobile)'}`);
 
       // Autoriser les requêtes sans origin (mobile apps, Postman, etc.)
       if (!origin) {
-        console.log(`✅ CORS: Allowing request without origin`);
+        console.log(`CORS: Allowing request without origin`);
         return callback(null, true);
       }
 
       // En développement, autoriser tout
       if (process.env.NODE_ENV !== 'production') {
-        console.log(`✅ CORS: Allowing origin ${origin} (development mode)`);
+        console.log(`CORS: Allowing origin ${origin} (development mode)`);
         return callback(null, true);
       }
 
       // En production, vérifier les origines autorisées
       if (allowedOrigins.includes(origin)) {
-        console.log(`✅ CORS: Allowing origin ${origin} (production mode - whitelisted)`);
+        console.log(`CORS: Allowing origin ${origin} (production mode - whitelisted)`);
         return callback(null, true);
       } else {
-        console.error(`❌ CORS: BLOCKED origin ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+        console.error(`CORS: BLOCKED origin ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
         // Ne pas throw d'erreur, juste bloquer silencieusement
         return callback(null, false);
       }
@@ -129,18 +129,18 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const port = process.env.PORT || 3001; // Utiliser le port Railway ou 3001 par défaut
-  console.log(`🔍 PORT env var: ${process.env.PORT}`);
-  console.log(`🔍 Using port: ${port}`);
+  console.log(`PORT env var: ${process.env.PORT}`);
+  console.log(`Using port: ${port}`);
   await app.listen(port, '0.0.0.0');
 
   console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║                                                       ║
-║   💼 BMS - API Gateway                               ║
+║   BMS - API Gateway                               ║
 ║                                                       ║
-║   🚀 Server running on: http://localhost:${port}      ║
-║   📚 API Docs: http://localhost:${port}/api/docs      ║
-║   🌍 Environment: ${process.env.NODE_ENV || 'development'}              ║
+║   Server running on: http://localhost:${port}      ║
+║   API Docs: http://localhost:${port}/api/docs      ║
+║   Environment: ${process.env.NODE_ENV || 'development'}              ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
   `);
