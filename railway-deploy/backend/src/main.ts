@@ -27,24 +27,9 @@ async function bootstrap() {
   }));
 
   // CORS - Autorise mobile et web
-  const allowedOrigins = [
-    'http://localhost:3000', // Web admin local
-    'http://localhost:19006', // Expo local
-    'capacitor://localhost', // Capacitor mobile
-    'ionic://localhost',
-    'https://bms-frontend-production.up.railway.app', // Frontend Railway
-    'https://bms-production-d9e9.up.railway.app', // Backend Railway (auto-communication)
-    /^https:\/\/.*\.bms\.com$/, // Production custom domain
-    /^https:\/\/.*\.up\.railway\.app$/, // Railway domains
-  ];
-
-  // Support pour FRONTEND_URL depuis env
-  if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
-  }
-
+  // Temporairement autoriser toutes les origines pour le débogage CORS
   app.enableCors({
-    origin: allowedOrigins,
+    origin: '*', // Temporaire pour débogage
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
