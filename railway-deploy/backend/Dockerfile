@@ -14,14 +14,14 @@ COPY . .
 
 # Configuration des variables d'environnement
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=8080
 
 # Exposition du port
-EXPOSE 3001
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+  CMD node -e "require('http').get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
 # Commande de démarrage
-CMD ["node", "index.js"]
+CMD ["node", "server.js"]
