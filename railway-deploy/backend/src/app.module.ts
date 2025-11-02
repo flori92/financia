@@ -20,6 +20,8 @@ import { BankTransaction } from './banking/entities/bank-transaction.entity';
 import { Invoice } from './invoices/entities/invoice.entity';
 import { InvoiceItem } from './invoices/entities/invoice-item.entity';
 import { NotificationConfig } from './notifications/entities/notification-config.entity';
+import { Role } from './rbac/entities/role.entity';
+import { Permission } from './rbac/entities/permission.entity';
 
 // Core Modules
 import { AuthModule } from './auth/auth.module';
@@ -97,6 +99,8 @@ import { AppController } from './app.controller';
           Invoice,
           InvoiceItem,
           NotificationConfig,
+          Role,
+          Permission,
         ],
         synchronize: process.env.NODE_ENV === 'development',
         logging: process.env.NODE_ENV === 'development',
