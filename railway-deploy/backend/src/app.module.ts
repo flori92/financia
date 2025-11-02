@@ -45,11 +45,12 @@ import { GdprModule } from './gdpr/gdpr.module';
 import { AutomationModule } from './automation/automation.module';
 import { RbacModule } from './rbac/rbac.module';
 import { BudgetModule } from './budget/budget.module';
-import { PurchasesModule } from './purchases/purchases.module';
+import { HRModule } from './hr/hr.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { RevenueModule } from './revenue/revenue.module';
 import { ControllingModule } from './controlling/controlling.module';
-import { InventoryModule } from './modules/inventory/inventory.module';
+import { PurchasesModule } from './purchases/purchases.module';
 
 // Controllers
 import { HealthController } from './health/health.controller';
@@ -120,6 +121,7 @@ import { AppController } from './app.controller';
     RbacModule,
     AIModule,
     BudgetModule,
+    HRModule,
     InventoryModule,
     PurchasesModule,
     QuotesModule,
