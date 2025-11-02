@@ -12,6 +12,8 @@ ENV OLLAMA_ORIGINS=*
 # Créer le répertoire pour les modèles
 RUN mkdir -p /root/.ollama
 
-# Script de démarrage inline (pas de fichier externe)
+# Remplacer l'ENTRYPOINT par défaut pour utiliser bash
+ENTRYPOINT ["/bin/bash", "-c"]
+
 # Démarrer Ollama en arrière-plan et télécharger le modèle
-CMD /bin/bash -c "ollama serve & sleep 10 && ollama pull llama2:7b && wait"
+CMD "ollama serve & sleep 10 && ollama pull llama2:7b && wait"
