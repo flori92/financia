@@ -16,7 +16,8 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "strictPropertyInitialization": false
   },
   "exclude": [
     "node_modules",
@@ -25,7 +26,6 @@
     "src/**/__tests__/**",
     "src/ai/models/**",
     "src/ai/processors/**",
-    "src/ai/services/anomaly-detection.service.ts",
-    "src/auth/**"
+    "src/ai/services/anomaly-detection.service.ts"
   ]
 }
