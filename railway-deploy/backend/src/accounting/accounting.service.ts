@@ -1037,7 +1037,7 @@ export class AccountingService {
         : ['401']; // Fournisseurs
 
       // Récupérer les comptes concernés
-      const accounts = await this.accountRepository.find({
+      const accounts = await this.accountsRepository.find({
         where: {
           companyId,
           number: In(accountNumbers)
@@ -1073,7 +1073,7 @@ export class AccountingService {
       days60_90Limit.setDate(days60_90Limit.getDate() - 90);
 
       // Récupérer toutes les lignes d'écritures pour ces comptes
-      const lines = await this.journalLineRepository.find({
+      const lines = await this.journalEntryLinesRepository.find({
         where: {
           accountId: In(accountIds),
           entry: {
