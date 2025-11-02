@@ -21,7 +21,7 @@ import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAnomaly } from './entities/bank-anomaly.entity';
 import { BankWebhookEvent } from './entities/bank-webhook-event.entity';
 
-// Providers
+// Providers Afrique
 import { EcobankProvider } from './providers/ecobank.provider';
 import { BOAProvider } from './providers/boa.provider';
 import { OrabankProvider } from './providers/orabank.provider';
@@ -29,6 +29,15 @@ import { BceaoProvider } from './providers/bceao.provider';
 import { MtnProvider } from './providers/mtn.provider';
 import { OrangeProvider } from './providers/orange.provider';
 import { MoovProvider } from './providers/moov.provider';
+
+// Providers France
+import { BnpParibasProvider } from './providers/bnp-paribas.provider';
+import { SocieteGeneraleProvider } from './providers/societe-generale.provider';
+import { CreditAgricoleProvider } from './providers/credit-agricole.provider';
+import { LclProvider } from './providers/lcl.provider';
+import { CaisseEpargneProvider } from './providers/caisse-epargne.provider';
+import { BoursoramaProvider } from './providers/boursorama.provider';
+import { HelloBankProvider } from './providers/hello-bank.provider';
 
 // Modules
 import { NotificationsModule } from '../../notifications/notifications.module';
@@ -72,10 +81,19 @@ import { AIModule } from '../../ai/ai.module';
         'BOA': new BOAProvider(),
         'ORABANK': new OrabankProvider(),
         'BCEAO': new BceaoProvider(),
-        // Mobile Money
+        // Mobile Money Afrique
         'MTN': new MtnProvider(),
         'ORANGE': new OrangeProvider(),
         'MOOV': new MoovProvider(),
+        // France - Banques traditionnelles
+        'BNP_PARIBAS': new BnpParibasProvider(),
+        'SOCIETE_GENERALE': new SocieteGeneraleProvider(),
+        'CREDIT_AGRICOLE': new CreditAgricoleProvider(),
+        'LCL': new LclProvider(),
+        'CAISSE_EPARGNE': new CaisseEpargneProvider(),
+        // France - Banques en ligne
+        'BOURSORAMA': new BoursoramaProvider(),
+        'HELLO_BANK': new HelloBankProvider(),
       }
     }
   ],
