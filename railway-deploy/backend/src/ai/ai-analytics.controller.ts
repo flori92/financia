@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Query, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
-import { AIAnalyticsService } from './ai-analytics.service';
+import { AIAnalyticsService, ForecastResult, PredictionData } from './ai-analytics.service';
 
 @ApiTags('AI Analytics & ML')
 @Controller('api/v1/ai')
@@ -13,10 +13,10 @@ export class AIAnalyticsController {
   @ApiResponse({ status: 200, description: 'Prévisions générées avec succès' })
   async generateRevenueForecast(@Body() data: {
     companyId: string;
-    historicalData: Array<{ date: string; revenue: number; category?: string }>;
+    historicalData: Array<{ date: string; value: number; category?: string }>;
     horizon: number;
     frequency: 'daily' | 'weekly' | 'monthly';
-  }) {
+  }): Promise<{ success: boolean; data?: ForecastResult; error?: string; fallback?: ForecastResult }> {
     try {
       const forecast = await this.aiService.generateTimeSeriesForecast({
         historical: data.historicalData,
@@ -40,7 +40,11 @@ export class AIAnalyticsController {
       return {
         success: false,
         error: error.message,
-        fallback: this.aiService.generateSimpleForecast(data.historicalData, data.horizon)
+        fallback: this.aiService.generateSimpleForecast({
+          historical: data.historicalData,
+          horizon: data.horizon,
+          frequency: data.frequency
+        })
       };
     }
   }
@@ -92,7 +96,7 @@ export class AIAnalyticsController {
     businessContext?: string;
   }) {
     try {
-      const forecast = await this.aiService.generateBudgetForecast(data.historicalData, data.targetPeriod, data.businessContext);
+      const forecast = await this.aiService.generateBudgetForecast(data.historicalData);
 
       return {
         success: true,

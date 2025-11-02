@@ -3,13 +3,13 @@
 
 import fetch from 'node-fetch';
 
-interface PredictionData {
+export interface PredictionData {
   historical: Array<{ date: string; value: number; category?: string }>;
   horizon: number; // nombre de périodes à prédire
   frequency: 'daily' | 'weekly' | 'monthly';
 }
 
-interface ForecastResult {
+export interface ForecastResult {
   predictions: Array<{
     date: string;
     value: number;
@@ -241,7 +241,7 @@ export class AIAnalyticsService {
   }
 
   // Méthodes privées pour les fallbacks
-  private generateSimpleForecast(data: PredictionData): ForecastResult {
+  public generateSimpleForecast(data: PredictionData): ForecastResult {
     const values = data.historical.map(d => d.value);
     const trend = this.calculateTrend(values);
     const seasonal = this.calculateSeasonality(values, data.frequency);
@@ -270,7 +270,7 @@ export class AIAnalyticsService {
     };
   }
 
-  private generateBasicInsights(data: any): any {
+  public generateBasicInsights(data: any): any {
     const insights = [
       'Analyse basée sur les données disponibles',
       'Recommande une analyse plus approfondie'
@@ -360,7 +360,7 @@ export class AIAnalyticsService {
     };
   }
 
-  private generateSimpleCashFlow(data: any): any {
+  public generateSimpleCashFlow(data: any): any {
     // Implémentation simplifiée
     return {
       daily_forecast: [],
@@ -369,7 +369,7 @@ export class AIAnalyticsService {
     };
   }
 
-  private performRFMSegmentation(customers: any[]): any {
+  public performRFMSegmentation(customers: any[]): any {
     // Segmentation RFM basique
     return {
       segments: [],
@@ -382,7 +382,7 @@ export class AIAnalyticsService {
     return [];
   }
 
-  private generateBasicBudgetForecast(data: any): any {
+  public generateBasicBudgetForecast(data: any): any {
     // Prévision budgétaire basique
     return {
       revenue_forecast: [],
