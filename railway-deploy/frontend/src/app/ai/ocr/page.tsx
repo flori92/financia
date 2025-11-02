@@ -85,7 +85,7 @@ export default function OcrPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '${getBaseUrl()}'}/api/v1/ai/ocr/${selectedType}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || getBaseUrl()}/api/v1/ai/ocr/${selectedType}`, {
         method: "POST",
         body: formData,
       });

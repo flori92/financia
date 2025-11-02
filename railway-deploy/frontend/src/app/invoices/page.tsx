@@ -19,11 +19,11 @@ export default function InvoicesPage() {
   const loadData = async () => {
     try {
       const [invoicesRes, clientsRes] = await Promise.all([
-        fetch('${getBaseUrl()}/api/v1/invoices').then(r => {
+        fetch(`${getBaseUrl()}/api/v1/invoices`).then(r => {
           if (!r.ok) return [];
           return r.json();
         }).catch(() => []),
-        fetch('${getBaseUrl()}/api/v1/crm/contacts').then(r => {
+        fetch(`${getBaseUrl()}/api/v1/crm/contacts`).then(r => {
           if (!r.ok) return [];
           return r.json();
         }).catch(() => [])
@@ -50,7 +50,7 @@ export default function InvoicesPage() {
     };
     
     try {
-      await fetch('${getBaseUrl()}/api/v1/invoices', {
+      await fetch(`${getBaseUrl()}/api/v1/invoices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(invoice)

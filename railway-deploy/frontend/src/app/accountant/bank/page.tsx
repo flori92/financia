@@ -62,7 +62,7 @@ export default function BankReconciliationPage() {
     if (matching) return;
     setMatching(true);
     try {
-      const res = await fetch('${getBaseUrl()}/api/v1/banking/auto-match', {
+      const res = await fetch(`${getBaseUrl()}/api/v1/banking/auto-match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ companyId, threshold, limit }),
@@ -129,7 +129,7 @@ export default function BankReconciliationPage() {
   const reconcileWithEntry = async (journalEntryId: string) => {
     if (!selectedTx) return;
     try {
-      const res = await fetch('${getBaseUrl()}/api/v1/banking/reconcile-entry', {
+      const res = await fetch(`${getBaseUrl()}/api/v1/banking/reconcile-entry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

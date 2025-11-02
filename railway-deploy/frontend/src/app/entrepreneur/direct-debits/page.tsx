@@ -111,7 +111,7 @@ export default function DirectDebitsPage() {
     try {
       const url = editingDebit
         ? `${getBaseUrl()}/api/v1/treasury/direct-debits/${editingDebit.id}`
-        : '${getBaseUrl()}/api/v1/treasury/direct-debits';
+        : `${getBaseUrl()}/api/v1/treasury/direct-debits`;
       
       const response = await fetch(url, {
         method: editingDebit ? 'PUT' : 'POST',

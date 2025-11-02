@@ -11,7 +11,7 @@ export default function CampaignsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('${getBaseUrl()}/api/v1/marketing/campaigns')
+    fetch(`${getBaseUrl()}/api/v1/marketing/campaigns`)
       .then(res => res.json())
       .then(data => {
         setCampaigns(data);

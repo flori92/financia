@@ -81,7 +81,7 @@ export default function JournalPage() {
     };
     
     try {
-      await fetch('${getBaseUrl()}/api/v1/accounting/journal-entries', {
+      await fetch(`${getBaseUrl()}/api/v1/accounting/journal-entries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry)
