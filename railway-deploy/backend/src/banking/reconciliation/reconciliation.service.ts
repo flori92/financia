@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
+// import { Queue } from 'bull'; // Désactivé pour éviter erreurs Redis
+// import { InjectQueue } from '@nestjs/bull';
 import { BankTransaction } from '../entities/bank-transaction.entity';
 import { JournalEntry } from '../../accounting/entities/journal-entry.entity';
 import { ReconciliationMatch } from './entities/reconciliation-match.entity';
@@ -28,8 +28,8 @@ export class ReconciliationService {
         private accountingEntryRepo: Repository<JournalEntry>,
         @InjectRepository(ReconciliationMatch)
         private reconciliationMatchRepo: Repository<ReconciliationMatch>,
-        @InjectQueue('reconciliation')
-        private reconciliationQueue: Queue
+        // @InjectQueue('reconciliation') // Désactivé pour éviter erreurs Redis
+        // private reconciliationQueue: Queue
     ) {}
 
     /**

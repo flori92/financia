@@ -33,7 +33,7 @@ import { LoansModule } from './loans/loans.module';
 // Integration & Support
 import { IntegrationsModule } from './integrations/integrations.module';
 import { FrappeBridgeModule } from './frappe-bridge/frappe-bridge.module';
-import { SyncModule } from './sync/sync.module';
+// import { SyncModule } from './sync/sync.module'; // Désactivé (utilise Bull)
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
 import { UploadsModule } from './uploads/uploads.module';
@@ -69,16 +69,16 @@ import { AppController } from './app.controller';
 
     // Redis Cache (désactivé temporairement)
 
-    // Bull Queue (pour sync async)
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        redis: {
-          host: config.get('REDIS_HOST', 'localhost'),
-          port: config.get('REDIS_PORT', 6379),
-        },
-      }),
-    }),
+    // Bull Queue (désactivé temporairement pour éviter erreurs Redis sur Railway)
+    // BullModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => ({
+    //     redis: {
+    //       host: config.get('REDIS_HOST', 'localhost'),
+    //       port: config.get('REDIS_PORT', 6379),
+    //     },
+    //   }),
+    // }),
 
     // Health Check
     TerminusModule,
@@ -97,7 +97,7 @@ import { AppController } from './app.controller';
     TaxModule,
     MobileMoneyModule,
     AccountingModule,
-    SyncModule,
+    // SyncModule, // Désactivé (utilise Bull)
     DatabaseModule,
     
     // BMS Specific Modules
@@ -111,7 +111,7 @@ import { AppController } from './app.controller';
     // Notifications
     NotificationsModule,
     AuditModule,
-    SyncModule,
+    // SyncModule, // Désactivé (utilise Bull)
 
     // Uploads
     UploadsModule,

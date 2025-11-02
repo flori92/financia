@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { BullModule } from '@nestjs/bull';
+// import { BullModule } from '@nestjs/bull'; // Désactivé pour éviter erreurs Redis
 
 // Services
 import { BankApiService } from './services/bank-api.service';
@@ -52,12 +52,12 @@ import { AIModule } from '../../ai/ai.module';
       BankAnomaly,
       BankWebhookEvent
     ]),
-    BullModule.registerQueue({
-      name: 'bank-sync',
-    }),
-    BullModule.registerQueue({
-      name: 'bank-webhooks',
-    }),
+    // BullModule.registerQueue({ // Désactivé pour éviter erreurs Redis
+    //   name: 'bank-sync',
+    // }),
+    // BullModule.registerQueue({
+    //   name: 'bank-webhooks',
+    // }),
     ConfigModule,
     NotificationsModule,
     AIModule
