@@ -191,14 +191,16 @@ const ALL_ENTITIES = [
         const databaseUrl = configService.get<string>('DATABASE_URL');
         const dbPassword = configService.get<string>('DB_PASSWORD');
         const nodeEnv = configService.get<string>('NODE_ENV') || 'production';
+        const isRailway = !!configService.get<string>('RAILWAY_ENVIRONMENT');
+        const isProduction = nodeEnv === 'production' || isRailway;
         
         // SÉCURITÉ: En production, TOUJOURS désactiver synchronize
-        const isProduction = nodeEnv === 'production';
         const synchronize = !isProduction && nodeEnv === 'development';
         const logging = !isProduction && nodeEnv === 'development';
         
         console.log('🔧 Database config:', { 
           nodeEnv,
+          isRailway,
           isProduction,
           synchronize,
           logging,
@@ -206,9 +208,9 @@ const ALL_ENTITIES = [
           hasDbPassword: !!dbPassword 
         });
         
-        // Si DATABASE_URL est définie, l'utiliser directement (Railway fournit DATABASE_URL)
+        // Si DATABASE_URL est définie, l'utiliser directement
         if (databaseUrl) {
-          console.log('🔗 Using DATABASE_URL for connection (Production mode)');
+          console.log('🔗 Using DATABASE_URL for connection');
           return {
             type: 'postgres',
             url: databaseUrl,
@@ -219,13 +221,18 @@ const ALL_ENTITIES = [
           };
         }
         
-        // Sinon utiliser les paramètres individuels (dev local)
-        const dbHost = configService.get<string>('DB_HOST') || 'localhost';
+        // Sinon utiliser les paramètres individuels (Railway ou dev local)
+        // Railway utilise des variables individuelles, pas DATABASE_URL
+        const dbHost = isRailway 
+          ? configService.get<string>('DB_HOST') || 'postgres.railway.internal'
+          : configService.get<string>('DB_HOST') || 'localhost';
         const dbPort = configService.get<number>('DB_PORT') || 5432;
         const dbUser = configService.get<string>('DB_USER') || 'postgres';
-        const dbName = configService.get<string>('DB_NAME') || 'bms_dev';
+        const dbName = isRailway
+          ? configService.get<string>('DB_NAME') || 'railway'
+          : configService.get<string>('DB_NAME') || 'bms_dev';
         
-        console.log('🔗 Using individual params (Dev mode):', { dbHost, dbPort, dbUser, dbName });
+        console.log(`🔗 Using individual params (${isRailway ? 'Railway' : 'Dev'} mode):`, { dbHost, dbPort, dbUser, dbName });
         
         return {
           type: 'postgres',
