@@ -10,17 +10,25 @@ import { SeedController } from './seed.controller';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST', 'localhost'),
-        port: configService.get('DATABASE_PORT', 5432),
-        username: configService.get('DATABASE_USER', 'postgres'),
-        password: configService.get('DATABASE_PASSWORD', 'postgres'),
-        database: configService.get('DATABASE_NAME', 'bms_erp'),
-        entities: Object.values(entities),
-        synchronize: configService.get('NODE_ENV') === 'development',
-        logging: configService.get('NODE_ENV') === 'development',
-      }),
+      useFactory: (configService: ConfigService) => {
+        // Debug: Afficher les variables DB
+        console.log('🔍 DATABASE_HOST:', configService.get('DATABASE_HOST'));
+        console.log('🔍 DATABASE_PORT:', configService.get('DATABASE_PORT'));
+        console.log('🔍 DATABASE_USER:', configService.get('DATABASE_USER'));
+        console.log('🔍 DATABASE_NAME:', configService.get('DATABASE_NAME'));
+        
+        return {
+          type: 'postgres',
+          host: configService.get('DATABASE_HOST', 'localhost'),
+          port: parseInt(configService.get('DATABASE_PORT', '5432'), 10),
+          username: configService.get('DATABASE_USER', 'postgres'),
+          password: configService.get('DATABASE_PASSWORD', 'postgres'),
+          database: configService.get('DATABASE_NAME', 'bms_erp'),
+          entities: Object.values(entities),
+          synchronize: configService.get('NODE_ENV') === 'development',
+          logging: configService.get('NODE_ENV') === 'development',
+        };
+      },
     }),
     TypeOrmModule.forFeature([
       ...Object.values(entities),
