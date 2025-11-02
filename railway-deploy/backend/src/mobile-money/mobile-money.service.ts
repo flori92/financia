@@ -504,9 +504,9 @@ export class MobileMoneyService {
     
     const queryBuilder = this.transactionRepository
       .createQueryBuilder('transaction')
-      .leftJoinAndSelect('transaction.invoice', 'invoice')
-      .leftJoinAndSelect('transaction.payment', 'payment')
-      .where('invoice.companyId = :companyId', { companyId });
+      .leftJoin('transaction.invoice', 'invoice')
+      .leftJoin('transaction.payment', 'payment')
+      .where('invoice.companyId = :companyId OR invoice.companyId IS NULL', { companyId });
 
     // Filtres
     if (status) {
