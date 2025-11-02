@@ -432,13 +432,16 @@ export class AccountingController {
       taxId: 'BJS987654321',
       industry: 'Services Numériques',
       size: 'small',
-      address: '123 Rue du Commerce, Cotonou, Bénin',
+      addressLine1: '123 Rue du Commerce, Cotonou, Bénin',
+      city: 'Cotonou',
+      postalCode: '',
+      country: 'BJ',
       phone: '+229 12345678',
       email: 'demo@bms.bj',
       website: 'https://bms-demo.bj',
       vatRate: 0.18,
-      fiscalYearStart: '01-01',
-      currency: 'XOF',
+      fiscalYearStart: new Date('2025-01-01'),
+      defaultCurrency: 'XOF',
     });
 
     // Créer les comptes comptables essentiels
@@ -455,11 +458,12 @@ export class AccountingController {
 
     for (const account of essentialAccounts) {
       await this.accountingService.createAccount({
-        code: account.code,
-        name: account.name,
-        type: account.type,
+        accountNumber: account.code,
+        accountName: account.name,
+        accountType: account.type.toLowerCase(),
         companyId: company.id,
         description: `Compte ${account.name}`,
+        syscohadaClass: parseInt(account.code.substring(0, 1)),
       });
     }
 
@@ -468,7 +472,8 @@ export class AccountingController {
       companyId: company.id,
       description: 'Capital initial',
       entryDate: '2025-06-01',
-      status: 'posted',
+      journalType: 'general',
+      createdBy: 'system',
       lines: [
         { accountId: '411000', debit: 10000000, credit: 0, label: 'Dépôt capital' },
         { accountId: '101000', debit: 0, credit: 10000000, label: 'Capital social' },
@@ -479,7 +484,8 @@ export class AccountingController {
       companyId: company.id,
       description: 'Ventes novembre 2025',
       entryDate: '2025-11-01',
-      status: 'posted',
+      journalType: 'sales',
+      createdBy: 'system',
       lines: [
         { accountId: '411000', debit: 5000000, credit: 0, label: 'Client Alpha' },
         { accountId: '701000', debit: 0, credit: 4237288, label: 'Ventes HT' },

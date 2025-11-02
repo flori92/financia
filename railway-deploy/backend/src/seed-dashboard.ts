@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { CompaniesService } from './companies/companies.service';
 import { AccountingService } from './accounting/accounting.service';
-import { JournalEntryService } from './accounting/journal-entry.service';
 import { BankingService } from './banking/banking.service';
 
 async function seedDashboardData() {
@@ -10,7 +9,6 @@ async function seedDashboardData() {
   
   const companiesService = app.get(CompaniesService);
   const accountingService = app.get(AccountingService);
-  const journalService = app.get(JournalEntryService);
   const bankingService = app.get(BankingService);
 
   try {
@@ -24,13 +22,16 @@ async function seedDashboardData() {
       taxId: 'BJS987654321',
       industry: 'Services Numériques',
       size: 'small',
-      address: '123 Rue du Commerce, Cotonou, Bénin',
+      addressLine1: '123 Rue du Commerce, Cotonou, Bénin',
+      city: 'Cotonou',
+      postalCode: '',
+      country: 'BJ',
       phone: '+229 12345678',
       email: 'demo@bms.bj',
       website: 'https://bms-demo.bj',
       vatRate: 0.18,
-      fiscalYearStart: '01-01',
-      currency: 'XOF',
+      fiscalYearStart: new Date('2025-01-01'),
+      defaultCurrency: 'XOF',
     });
 
     console.log(`✅ Entreprise créée: ${company.id}`);
@@ -58,10 +59,12 @@ async function seedDashboardData() {
 
     for (const account of accounts) {
       await accountingService.createAccount({
-        ...account,
+        accountNumber: account.code,
+        accountName: account.name,
+        accountType: account.type.toLowerCase(),
         companyId: company.id,
         description: `Compte ${account.name}`,
-        parentCode: account.code.substring(0, 3) + '000',
+        syscohadaClass: parseInt(account.code.substring(0, 1)),
       });
     }
 
@@ -83,11 +86,12 @@ async function seedDashboardData() {
       const monthStart = new Date(2025, months.indexOf(month), 1);
       
       // Écritures mensuelles récurrentes
-      await journalService.create({
+      await accountingService.createJournalEntry({
         companyId: company.id,
         description: `Salaires ${month.name} 2025`,
-        entryDate: monthStart,
-        status: 'posted',
+        entryDate: monthStart.toISOString().split('T')[0],
+        journalType: 'general',
+        createdBy: 'system',
         lines: [
           { accountId: '641000', debit: 2500000, credit: 0, label: 'Salaires nets' },
           { accountId: '512000', debit: 0, credit: 2500000, label: 'Paiement salaires' },
@@ -96,11 +100,12 @@ async function seedDashboardData() {
 
       // Ventes mensuelles (croissantes)
       const monthlyRevenue = 8000000 + (months.indexOf(month) * 500000);
-      await journalService.create({
+      await accountingService.createJournalEntry({
         companyId: company.id,
         description: `Ventes ${month.name} 2025`,
-        entryDate: new Date(monthStart.getTime() + 5 * 24 * 60 * 60 * 1000),
-        status: 'posted',
+        entryDate: new Date(monthStart.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        journalType: 'sales',
+        createdBy: 'system',
         lines: [
           { accountId: '411000', debit: monthlyRevenue, credit: 0, label: 'Clients divers' },
           { accountId: '701000', debit: 0, credit: monthlyRevenue * 0.7, label: 'Ventes marchandises HT' },
@@ -111,11 +116,12 @@ async function seedDashboardData() {
 
       // Achats mensuels
       const monthlyPurchases = 4500000 + (months.indexOf(month) * 200000);
-      await journalService.create({
+      await accountingService.createJournalEntry({
         companyId: company.id,
         description: `Achats ${month.name} 2025`,
-        entryDate: new Date(monthStart.getTime() + 10 * 24 * 60 * 60 * 1000),
-        status: 'posted',
+        entryDate: new Date(monthStart.getTime() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        journalType: 'purchase',
+        createdBy: 'system',
         lines: [
           { accountId: '607000', debit: monthlyPurchases * 0.8, credit: 0, label: 'Achats marchandises HT' },
           { accountId: '445600', debit: monthlyPurchases * 0.13, credit: 0, label: 'TVA déductible' },
@@ -124,11 +130,12 @@ async function seedDashboardData() {
       });
 
       // Frais généraux
-      await journalService.create({
+      await accountingService.createJournalEntry({
         companyId: company.id,
         description: `Frais généraux ${month.name} 2025`,
-        entryDate: new Date(monthStart.getTime() + 20 * 24 * 60 * 60 * 1000),
-        status: 'posted',
+        entryDate: new Date(monthStart.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        journalType: 'general',
+        createdBy: 'system',
         lines: [
           { accountId: '613000', debit: 800000, credit: 0, label: 'Loyer bureau' },
           { accountId: '622000', debit: 600000, credit: 0, label: 'Honoraires comptables' },
@@ -156,15 +163,11 @@ async function seedDashboardData() {
     ];
 
     for (const transaction of bankTransactions) {
+      const csvContent = `Date,Montant,Libellé,Référence\n${transaction.date},${transaction.amount},${transaction.label},${transaction.reference}`;
       await bankingService.importFromCsv({
+        csvContent,
         companyId: company.id,
-        transactions: [{
-          transactionDate: transaction.date,
-          amount: transaction.amount,
-          label: transaction.label,
-          reference: transaction.reference,
-          category: transaction.amount > 0 ? 'Revenue' : 'Expense',
-        }],
+        format: 'standard'
       });
     }
 
