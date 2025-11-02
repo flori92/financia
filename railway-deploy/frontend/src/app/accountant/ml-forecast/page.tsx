@@ -749,6 +749,28 @@ export default function MLForecastPage() {
     ) || data?.models[0];
   };
 
+  const loadMLForecastData = async () => {
+    const companyId = getCompanyId();
+    if (!companyId) return;
+
+    setLoading(true);
+    try {
+      // Simuler le chargement des données ML
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Données de démonstration
+      setData({
+        forecasts: [],
+        models: [],
+        insights: ['Simulation de données ML'],
+        recommendations: ['Recommandation de test']
+      });
+    } catch (error) {
+      console.error('Error loading ML forecast data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRetrainModels = async () => {
     setIsTraining(true);
     try {
