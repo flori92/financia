@@ -27,7 +27,7 @@ interface ForecastResult {
   recommendations: string[];
 }
 
-class AIAnalyticsService {
+export class AIAnalyticsService {
   private readonly BASE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
   
   // API Prophet (Facebook) pour les prévisions temporelles
@@ -226,7 +226,7 @@ class AIAnalyticsService {
       const [revenueForecast, expenseForecast, insights] = await Promise.all([
         this.generateCategoryForecast(historicalData.revenues, 'revenue'),
         this.generateCategoryForecast(historicalData.expenses, 'expense'),
-        this.generateBusinessInsights(historicalData, period)
+        this.generateBusinessInsights(historicalData, historicalData.target_period)
       ]);
 
       return {

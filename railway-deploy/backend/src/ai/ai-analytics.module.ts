@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AIAnalyticsController } from './ai-analytics.controller';
 import { AIAnalyticsService } from './ai-analytics.service';
-import { HttpModule } from '@nestjs/axios';
+import { HttpModule } from '@nestjs/http';
 
 @Module({
   imports: [
