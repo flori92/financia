@@ -33,6 +33,7 @@ async function bootstrap() {
     'capacitor://localhost', // Capacitor mobile
     'ionic://localhost',
     'https://bms-frontend-production.up.railway.app', // Frontend Railway
+    'https://bms-production-d9e9.up.railway.app', // Backend Railway (auto-communication)
     /^https:\/\/.*\.bms\.com$/, // Production custom domain
     /^https:\/\/.*\.up\.railway\.app$/, // Railway domains
   ];
