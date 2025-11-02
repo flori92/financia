@@ -15,7 +15,9 @@ echo ""
 case $MODE in
   "demo")
     echo "🎭 Mode Démo Frontend"
-    echo "✅ Page de démonstration prête: http://localhost:3000/demo"
+    echo "✅ Pages de démonstration prêtes:"
+    echo "   • Complète: http://localhost:3000/demo"
+    echo "   • Simplifiée: http://localhost:3000/demo-simple (recommandé)"
     echo ""
     echo "📋 Fonctionnalités disponibles:"
     echo "   • Dashboard comptable avec KPI et graphiques"
@@ -24,9 +26,10 @@ case $MODE in
     echo "   • Données exemples réalistes"
     echo ""
     echo "🌐 Accès direct:"
-    echo "   • Dashboard: http://localhost:3000/demo (onglet Dashboard)"
-    echo "   • Mobile Money: http://localhost:3000/demo (onglet Mobile Money)"
-    echo "   • Balance Âgée: http://localhost:3000/demo (onglet Balance Âgée)"
+    echo "   • Version simplifiée: http://localhost:3000/demo-simple"
+    echo "   • Version complète: http://localhost:3000/demo (si build OK)"
+    echo ""
+    echo "💡 Utilisez demo-simple si la version complète a des erreurs de build"
     ;;
     
   "api")
