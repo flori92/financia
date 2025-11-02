@@ -11,12 +11,6 @@ import { SeedController } from './seed.controller';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        // Debug: Afficher les variables DB
-        console.log('🔍 DATABASE_HOST:', configService.get('DATABASE_HOST'));
-        console.log('🔍 DATABASE_PORT:', configService.get('DATABASE_PORT'));
-        console.log('🔍 DATABASE_USER:', configService.get('DATABASE_USER'));
-        console.log('🔍 DATABASE_NAME:', configService.get('DATABASE_NAME'));
-        
         const dbHost = configService.get('DATABASE_HOST', 'localhost');
         const dbPort = parseInt(configService.get('DATABASE_PORT', '5432'), 10);
         const dbUser = configService.get('DATABASE_USER', 'postgres');
@@ -27,7 +21,7 @@ import { SeedController } from './seed.controller';
         const databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
         
         console.log('🔧 TypeORM config:', { dbHost, dbPort, dbUser, dbName });
-        console.log('🔗 Database URL:', databaseUrl);
+        console.log('🔗 Database connection: postgres://****:****@', dbHost, ':', dbPort, '/', dbName);
         
         return {
           type: 'postgres',
