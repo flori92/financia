@@ -26,18 +26,41 @@ async function bootstrap() {
     crossOriginEmbedderPolicy: false,
   }));
 
-  // CORS - Configuration production
+  // CORS - Configuration production robuste
+  const allowedOrigins = [
+    'https://bms-frontend-production.up.railway.app',
+    'https://bms-frontend-production.up.railway.app/',
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ];
+
   app.enableCors({
-    origin: [
-      'https://bms-frontend-production.up.railway.app',
-      'https://bms-frontend-production.up.railway.app/',
-      'http://localhost:3000',
-      'http://localhost:3001',
-      '*' // Fallback pour développement
-    ],
+    origin: (origin, callback) => {
+      // Autoriser les requêtes sans origin (mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+      
+      // En développement, autoriser tout
+      if (process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      
+      // En production, vérifier les origines autorisées
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'Accept', 
+      'X-Requested-With',
+      'X-API-Key',
+      'Access-Control-Allow-Origin'
+    ],
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });

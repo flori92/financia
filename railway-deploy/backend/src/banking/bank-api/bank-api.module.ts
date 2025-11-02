@@ -12,7 +12,7 @@ import { BankAccount } from './entities/bank-account.entity';
 import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAnomaly } from './entities/bank-anomaly.entity';
 import { BankWebhookEvent } from './entities/bank-webhook-event.entity';
-import { BullModule } from '@nestjs/bull';
+// import { BullModule } from '@nestjs/bull'; // Désactivé pour éviter erreurs Redis
 import { NotificationsModule } from '../../notifications/notifications.module';
 import { AIModule } from '../../ai/ai.module';
 
@@ -25,9 +25,9 @@ import { AIModule } from '../../ai/ai.module';
       BankAnomaly,
       BankWebhookEvent
     ]),
-    BullModule.registerQueue({
-      name: 'bank-sync',
-    }),
+    // BullModule.registerQueue({ // Désactivé pour éviter erreurs Redis
+    //   name: 'bank-sync',
+    // }),
     ConfigModule,
     NotificationsModule,
     AIModule
