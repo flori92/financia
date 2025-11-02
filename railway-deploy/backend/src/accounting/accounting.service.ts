@@ -1040,7 +1040,7 @@ export class AccountingService {
       const accounts = await this.accountsRepository.find({
         where: {
           companyId,
-          number: In(accountNumbers)
+          accountNumber: In(accountNumbers)
         }
       });
 
@@ -1075,13 +1075,15 @@ export class AccountingService {
       // Récupérer toutes les lignes d'écritures pour ces comptes
       const lines = await this.journalEntryLinesRepository.find({
         where: {
-          accountId: In(accountIds),
-          entry: {
+          account: {
+            id: In(accountIds)
+          },
+          journalEntry: {
             companyId,
             status: 'posted'
           }
         },
-        relations: ['entry', 'account']
+        relations: ['journalEntry', 'account']
       });
 
       // Grouper par tiers (client/fournisseur)
@@ -1089,17 +1091,17 @@ export class AccountingService {
 
       lines.forEach(line => {
         const partyName = line.label || 'Inconnu';
-        const entryDate = new Date(line.entry.date);
+        const entryDate = new Date(line.journalEntry.date);
         const daysDiff = Math.floor((asOf.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24));
         
         // Calculer le solde pour cette ligne
-        const balance = this.computeSignedBalance(line.account.type, line.debit, line.credit);
+        const balance = this.computeSignedBalance(line.account.accountType, line.debit, line.credit);
         
         if (!partyMap.has(partyName)) {
           partyMap.set(partyName, {
             partyName,
-            accountNumber: line.account.number,
-            accountLabel: line.account.label,
+            accountNumber: line.account.accountNumber,
+            accountLabel: line.account.accountName,
             total: 0,
             current: 0,
             days30_60: 0,
