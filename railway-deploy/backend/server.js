@@ -953,6 +953,17 @@ app.post('/api/v1/communications/whatsapp', async (req, res) => {
   }
 });
 
+// Communications Logs Endpoint
+app.get('/api/v1/communications/logs', async (req, res) => {
+  try {
+    const { companyId, limit = 50, offset = 0 } = req.query;
+    const logs = await CommunicationService.getCommunicationLogs(companyId, { limit: parseInt(limit), offset: parseInt(offset) });
+    res.json(logs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/v1/communications/stats', async (req, res) => {
   try {
     const stats = await CommunicationService.getCommunicationStats();

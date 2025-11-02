@@ -397,6 +397,94 @@ class CommunicationService {
       }
     };
   }
+
+  // Récupérer les logs de communications
+  async getCommunicationLogs(companyId, options = {}) {
+    const { limit = 50, offset = 0 } = options;
+    
+    try {
+      // Logs de communications mock
+      const mockLogs = [
+        {
+          id: '1',
+          companyId: companyId || '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
+          channel: 'email',
+          type: 'notification',
+          recipient: 'client@example.com',
+          subject: 'Facture #F001 envoyée',
+          content: 'Votre facture F001 d\'un montant de 500,000 FCFA...',
+          status: 'sent',
+          sentAt: moment().subtract(2, 'hours').toISOString(),
+          templateId: '1',
+          metadata: { invoiceId: 'F001', amount: 500000 }
+        },
+        {
+          id: '2',
+          companyId: companyId || '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
+          channel: 'sms',
+          type: 'reminder',
+          recipient: '+22912345678',
+          content: 'Votre facture F002 est en attente de paiement...',
+          status: 'delivered',
+          sentAt: moment().subtract(5, 'hours').toISOString(),
+          templateId: '2',
+          metadata: { invoiceId: 'F002', daysOverdue: 5 }
+        },
+        {
+          id: '3',
+          companyId: companyId || '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
+          channel: 'whatsapp',
+          type: 'notification',
+          recipient: '+22998765432',
+          content: '✅ Commande confirmée ! Numéro : CMD-2025-001...',
+          status: 'read',
+          sentAt: moment().subtract(1, 'day').toISOString(),
+          templateId: '3',
+          metadata: { orderId: 'CMD-2025-001', amount: 1500000 }
+        },
+        {
+          id: '4',
+          companyId: companyId || '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
+          channel: 'email',
+          type: 'onboarding',
+          recipient: 'newclient@company.com',
+          subject: 'Bienvenue chez BMS',
+          content: 'Merci pour votre confiance ! Votre compte est maintenant actif...',
+          status: 'sent',
+          sentAt: moment().subtract(2, 'days').toISOString(),
+          templateId: '4',
+          metadata: { clientId: 'C001' }
+        },
+        {
+          id: '5',
+          companyId: companyId || '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
+          channel: 'sms',
+          type: 'marketing',
+          recipient: '+22956789012',
+          content: '🎉 OFFRE SPÉCIALE ! Profitez de -20% sur tous nos services...',
+          status: 'delivered',
+          sentAt: moment().subtract(3, 'days').toISOString(),
+          templateId: '5',
+          metadata: { promoCode: 'SPECIAL20', endDate: '2025-12-31' }
+        }
+      ];
+
+      // Pagination
+      const paginatedLogs = mockLogs.slice(offset, offset + limit);
+
+      return {
+        logs: paginatedLogs,
+        pagination: {
+          total: mockLogs.length,
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          hasMore: offset + limit < mockLogs.length
+        }
+      };
+    } catch (error) {
+      throw new Error(`Erreur lors de la récupération des logs: ${error.message}`);
+    }
+  }
 }
 
 module.exports = new CommunicationService();
