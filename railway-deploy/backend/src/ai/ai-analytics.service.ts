@@ -27,7 +27,7 @@ export interface ForecastResult {
   recommendations: string[];
 }
 
-export interface ApiResponse<T = any> {
+export interface AIApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
