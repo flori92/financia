@@ -44,6 +44,17 @@ export class PurchasesController {
     }
   }
 
+  @Get('orders')
+  @ApiOperation({ summary: 'Lister les commandes d\'achat' })
+  async getOrders(@Query('companyId') companyId?: string) {
+    try {
+      return this.service.getOrders(companyId);
+    } catch (e) {
+      console.error('PurchasesController.getOrders error:', e);
+      return [];
+    }
+  }
+
   @Post('orders')
   createOrder(@Body() data: any) {
     return this.service.createOrder(data);

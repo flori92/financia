@@ -19,6 +19,16 @@ export class PurchasesService {
     return this.poRepo.save(order);
   }
 
+  async getOrders(companyId?: string) {
+    if (companyId) {
+      return this.poRepo.find({ 
+        where: { companyId },
+        order: { createdAt: 'DESC' }
+      });
+    }
+    return this.poRepo.find({ order: { createdAt: 'DESC' } });
+  }
+
   async createReceipt(data: any) {
     const receiptNumber = await this.generateReceiptNumber(data.companyId);
     const receipt = this.receiptRepo.create({ ...data, receiptNumber });

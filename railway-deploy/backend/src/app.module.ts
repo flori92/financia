@@ -22,6 +22,8 @@ import { Invoice } from './invoices/entities/invoice.entity';
 import { InvoiceItem } from './invoices/entities/invoice-item.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { PaymentAllocation } from './payments/entities/payment-allocation.entity';
+import { PurchaseOrder } from './purchases/entities/purchase-order.entity';
+import { PurchaseReceipt } from './purchases/entities/purchase-receipt.entity';
 import { NotificationConfig } from './notifications/entities/notification-config.entity';
 import { Role } from './rbac/entities/role.entity';
 import { Permission } from './rbac/entities/permission.entity';
@@ -104,6 +106,8 @@ import { AppController } from './app.controller';
           InvoiceItem,
           Payment,
           PaymentAllocation,
+          PurchaseOrder,
+          PurchaseReceipt,
           NotificationConfig,
           Role,
           Permission,
