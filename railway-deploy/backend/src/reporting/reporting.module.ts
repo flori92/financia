@@ -4,6 +4,9 @@ import { ReportingService } from './reporting.service';
 import { DashboardService } from './services/dashboard.service';
 import { FinancialReportService } from './services/financial-report.service';
 import { AnalyticsService } from './services/analytics.service';
+import { SigService } from './services/sig.service';
+import { CafService } from './services/caf.service';
+import { RatiosService } from './services/ratios.service';
 
 @Module({
   imports: [],
@@ -13,6 +16,9 @@ import { AnalyticsService } from './services/analytics.service';
     DashboardService,
     FinancialReportService,
     AnalyticsService,
+    SigService,
+    CafService,
+    RatiosService,
   ],
   exports: [ReportingService],
 })
