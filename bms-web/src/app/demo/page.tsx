@@ -30,12 +30,14 @@ export default function DemoPage() {
     setIsDemo(true);
   }, []);
 
-  const getStatusBadge = (type: string) => {
+  const getStatusBadge = (type: 'success' | 'warning' | 'danger' | 'info' | 'pending' | 'failed') => {
     const badges = {
       success: "bg-emerald-100 text-emerald-800",
       warning: "bg-amber-100 text-amber-800",
       danger: "bg-rose-100 text-rose-800",
       info: "bg-blue-100 text-blue-800",
+      pending: "bg-amber-100 text-amber-800",
+      failed: "bg-rose-100 text-rose-800",
     };
 
     const colors = {
@@ -43,6 +45,8 @@ export default function DemoPage() {
       warning: "text-amber-600",
       danger: "text-rose-600",
       info: "text-blue-600",
+      pending: "text-amber-600",
+      failed: "text-rose-600",
     };
 
     return (
