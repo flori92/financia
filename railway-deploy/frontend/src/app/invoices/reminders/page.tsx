@@ -74,7 +74,19 @@ export default function RemindersPage() {
       if (Array.isArray(aged?.items) && aged.items.length) {
         const rawItems = aged.items;
         const mapped: ReminderItem[] = rawItems
-          .map((item: any) => ({
+          .map((item: {
+            party?: string;
+            customerName?: string;
+            total?: number;
+            over90?: number;
+            daysOverdue?: number;
+            daysLate?: number;
+            oldestDate?: string;
+            firstDueDate?: string;
+            customerEmail?: string;
+            customerPhone?: string;
+            customerWhatsApp?: string;
+          }) => ({
             party: item.party || item.customerName || "Client",
             total: Number(item.total || 0),
             over90: Number(item.over90 || 0),
@@ -84,7 +96,7 @@ export default function RemindersPage() {
             customerPhone: item.customerPhone || "+22900000000",
             customerWhatsApp: item.customerWhatsApp || item.customerPhone || "+22900000000",
           }))
-          .filter((entry) => entry.total > 0);
+          .filter((entry: ReminderItem) => entry.total > 0);
         setReminders(mapped);
       } else {
         setReminders([]);
