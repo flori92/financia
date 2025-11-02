@@ -58,9 +58,42 @@ export class AccountingDashboardService {
       }>;
     };
   }> {
-    if (!companyId) throw new BadRequestException('companyId requis');
-
     try {
+      // Vérifier si l'entreprise a des données comptables réelles
+      const totalEntries = await this.journalEntriesRepo.count({
+        where: { companyId },
+      });
+
+      const postedEntries = await this.journalEntriesRepo.count({
+        where: { companyId, status: 'posted' },
+      });
+
+      // Si aucune écriture ou seulement des drafts (données de test), retourner dashboard vide
+      if (totalEntries === 0 || postedEntries === 0) {
+        return {
+          kpiMonth: { revenue: 0, expenses: 0, netIncome: 0, margin: 0 },
+          evolutionChart: Array.from({ length: 12 }).map((_, i) => ({
+            month: new Date(new Date().getFullYear(), new Date().getMonth() - (11 - i), 1).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
+            revenue: 0,
+            expenses: 0,
+          })),
+          topClients: [],
+          topSuppliers: [],
+          financialRatios: {
+            currentAssets: 0,
+            currentLiabilities: 0,
+            equity: 0,
+            totalLiabilities: 0,
+            liquidityRatio: 0,
+            solvencyRatio: 0,
+          },
+          alerts: [{ type: 'info', title: 'Aucune donnée', message: 'Aucune écriture comptable disponible pour le moment' }],
+          recentActivity: { entries: [] },
+        };
+      }
+
+      if (!companyId) throw new BadRequestException('companyId requis');
+
       // Calculer KPI du mois en cours
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -350,6 +383,21 @@ export class AccountingDashboardService {
     const draftCount = await this.journalEntriesRepo.count({
       where: { companyId, status: 'draft' },
     });
+
+    // Vérifier s'il y a des données réelles (non-test)
+    const totalEntries = await this.journalEntriesRepo.count({
+      where: { companyId },
+    });
+
+    const postedEntries = await this.journalEntriesRepo.count({
+      where: { companyId, status: 'posted' },
+    });
+
+    // S'il n'y a que des drafts et aucune donnée réelle, ignorer l'alerte
+    if (draftCount > 0 && totalEntries === draftCount && postedEntries === 0) {
+      // Ignorer les drafts si ce sont les seules données (probablement des données de test)
+      return [{ type: 'info', title: 'Aucune donnée', message: 'Aucune écriture comptable active pour le moment' }];
+    }
 
     if (draftCount > 0) {
       alerts.push({
