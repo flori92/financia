@@ -13,6 +13,7 @@ import { JournalEntry } from './entities/journal-entry.entity';
 import { JournalEntryLine } from './entities/journal-entry-line.entity';
 import { PeriodClosure } from './entities/period-closure.entity';
 import { Asset } from './entities/asset.entity';
+import { CompaniesModule } from '../companies/companies.module';
 
 /**
  * Module de comptabilité OHADA (SYSCOHADA)
@@ -25,6 +26,7 @@ import { Asset } from './entities/asset.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Account, JournalEntry, JournalEntryLine, PeriodClosure, Asset]),
+    CompaniesModule,
   ],
   controllers: [AccountingController, AccountingClosureController, AssetsController],
   providers: [AccountingService, AccountingAutomationService, AccountingClosureService, AccountingDashboardService, AssetsService],
