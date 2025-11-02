@@ -26,10 +26,15 @@ async function bootstrap() {
     crossOriginEmbedderPolicy: false,
   }));
 
-  // CORS - Autorise mobile et web
-  // Temporairement autoriser toutes les origines pour le débogage CORS
+  // CORS - Configuration production
   app.enableCors({
-    origin: '*', // Temporaire pour débogage
+    origin: [
+      'https://bms-frontend-production.up.railway.app',
+      'https://bms-frontend-production.up.railway.app/',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      '*' // Fallback pour développement
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
