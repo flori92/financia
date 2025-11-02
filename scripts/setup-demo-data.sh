@@ -16,8 +16,9 @@ case $MODE in
   "demo")
     echo "🎭 Mode Démo Frontend"
     echo "✅ Pages de démonstration prêtes:"
+    echo "   • Statique: http://localhost:3000/demo.html (garantie fonctionnelle)"
+    echo "   • Simplifiée: http://localhost:3000/demo-simple"
     echo "   • Complète: http://localhost:3000/demo"
-    echo "   • Simplifiée: http://localhost:3000/demo-simple (recommandé)"
     echo ""
     echo "📋 Fonctionnalités disponibles:"
     echo "   • Dashboard comptable avec KPI et graphiques"
@@ -25,11 +26,12 @@ case $MODE in
     echo "   • Balance Âgée (créances/dettes)"
     echo "   • Données exemples réalistes"
     echo ""
-    echo "🌐 Accès direct:"
-    echo "   • Version simplifiée: http://localhost:3000/demo-simple"
-    echo "   • Version complète: http://localhost:3000/demo (si build OK)"
+    echo "🌐 Accès direct (par ordre de fiabilité):"
+    echo "   1️⃣ Statique: http://localhost:3000/demo.html (HTML pur - 100% fonctionnel)"
+    echo "   2️⃣ Simplifiée: http://localhost:3000/demo-simple (React - moins de dépendances)"
+    echo "   3️⃣ Complète: http://localhost:3000/demo (React - toutes fonctionnalités)"
     echo ""
-    echo "💡 Utilisez demo-simple si la version complète a des erreurs de build"
+    echo "💡 Commencez par la version statique si les autres ont des erreurs"
     ;;
     
   "api")
