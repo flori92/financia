@@ -1,5 +1,5 @@
-import { getBaseUrl } from "@/lib/api";
 'use client';
+import { getBaseUrl } from "@/lib/api";
 
 import React, { useState, useEffect } from 'react';
 import {

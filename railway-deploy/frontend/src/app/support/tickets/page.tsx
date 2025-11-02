@@ -1,5 +1,5 @@
-import { getBaseUrl } from "@/lib/api";
 'use client';
+import { getBaseUrl } from "@/lib/api";
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
