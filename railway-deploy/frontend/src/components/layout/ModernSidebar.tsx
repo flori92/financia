@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -25,7 +25,8 @@ type BadgeColor =
   | "indigo"
   | "pink"
   | "sky"
-  | "amber";
+  | "amber"
+  | "gray";
 
 type SidebarSubItem = {
   label: string;
@@ -53,10 +54,11 @@ const badgeColorClasses: Record<BadgeColor, string> = {
   indigo: "bg-indigo-500/20 text-indigo-100 border border-indigo-500/40",
   pink: "bg-pink-500/20 text-pink-100 border border-pink-500/40",
   sky: "bg-sky-500/20 text-sky-100 border border-sky-500/40",
-  amber: "bg-amber-400/20 text-amber-900 border border-amber-400/40"
+  amber: "bg-amber-400/20 text-amber-900 border border-amber-400/40",
+  gray: "bg-gray-500/20 text-gray-300 border border-gray-500/40"
 };
 
-const menuItems: SidebarItem[] = [
+const getMenuItems = (remindersCount: number): SidebarItem[] => [
   { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
   {
     id: "compta",
@@ -64,18 +66,25 @@ const menuItems: SidebarItem[] = [
     icon: BookOpen,
     submenu: [
       { label: "Plan comptable", href: "/accountant/chart-of-accounts", icon: ListTree },
-      { label: "Saisie comptable", href: "/accountant/journal", icon: PenTool, badge: "OCR+IA", badgeColor: "teal" },
-      { label: "Journal comptable", href: "/accountant/journal", icon: BookOpen },
-      { label: "Grand livre", href: "/accountant/general-ledger", icon: FileText },
-      { label: "Balance générale", href: "/accountant/trial-balance", icon: Calculator },
-      { label: "Lettrage & Pointage", href: "/accountant/bank", icon: Link2, badge: "Auto", badgeColor: "blue" },
-      { label: "Clôtures", href: "/accountant/close", icon: Lock },
-      { label: "Immobilisations", href: "/accountant/assets", icon: Building2 }
+      { label: "Journal comptable", href: "/accountant/journal", icon: FileText },
+      { label: "Grand livre", href: "/accountant/general-ledger", icon: Calculator },
+      { label: "Balance âgée", href: "/accountant/aged-balance", icon: AlertTriangle, badge: "⚠️", badgeColor: "amber" },
+      { label: "Balance de vérification", href: "/accountant/trial-balance", icon: FileCheck },
+      { label: "Compte de résultat", href: "/accountant/profit-loss", icon: TrendingUp },
+      { label: "Bilan", href: "/accountant/balance-sheet", icon: PieChart },
+      { label: "Clôture période", href: "/accountant/close", icon: Lock },
+      { label: "Déclaration TVA", href: "/accountant/tax/vat", icon: Receipt, badge: "DGI", badgeColor: "orange" },
+      { label: "Analyse multidim.", href: "/accountant/multi-dimensional-analysis", icon: Database, badge: "ML", badgeColor: "purple" },
+      { label: "Prévision CA ML", href: "/accountant/ml-forecast", icon: Sparkles, badge: "AI", badgeColor: "indigo" },
+      { label: "Reconnaissance CA", href: "/accountant/revenue-recognition", icon: CheckCircle },
+      { label: "Cohérence CA/Tréso", href: "/accountant/cash-flow-coherence", icon: ArrowRightLeft },
+      { label: "Centre de validation", href: "/accountant/validation", icon: ShieldCheck },
+      { label: "Transactions", href: "/accountant/transactions", icon: Layers }
     ]
   },
   {
     id: "tresorerie",
-    label: "Trésorerie",
+    label: "Trésorerie & Banque",
     icon: Wallet,
     submenu: [
       { label: "Multi-banques", href: "/treasury", icon: Landmark },
@@ -95,7 +104,7 @@ const menuItems: SidebarItem[] = [
       { label: "Facturation", href: "/invoices", icon: ScrollText, badge: "e-invoicing", badgeColor: "orange" },
       { label: "Catalogue produits", href: "/inventory", icon: Package },
       { label: "Encaissements", href: "/invoices/payments", icon: CreditCard },
-      { label: "Relances clients", href: "/invoices/reminders", icon: BellRing, badge: "4", badgeColor: "red" },
+      { label: "Relances clients", href: "/invoices/reminders", icon: BellRing, badge: remindersCount.toString() || "0", badgeColor: remindersCount > 0 ? "red" : "gray" },
       { label: "Analyse ventes", href: "/sales/analytics", icon: BarChart3 }
     ]
   },
@@ -127,50 +136,59 @@ const menuItems: SidebarItem[] = [
     icon: TrendingUp,
     submenu: [
       { label: "Reconnaissance CA", href: "/accountant/profit-loss", icon: CheckCircle },
-      { label: "Analyse multidimensionnelle", href: "/accountant/profit-loss", icon: ScanSearch },
-      { label: "Prévisions CA", href: "/accountant/profit-loss", icon: Sparkles, badge: "ML", badgeColor: "pink" },
-      { label: "Cohérence CA-Trésorerie", href: "/accountant/profit-loss", icon: GitBranch }
+      { label: "Analyse ventes", href: "/sales/analytics", icon: BarChart3 },
+      { label: "Prévisions", href: "/accountant/ml-forecast", icon: Sparkles, badge: "ML", badgeColor: "purple" }
     ]
   },
   {
-    id: "fiscalite",
-    label: "Fiscalité",
-    icon: Percent,
+    id: "operations",
+    label: "Opérations",
+    icon: Gauge,
     submenu: [
-      { label: "TVA", href: "/accountant/tax/vat", icon: Percent, badge: "CA3", badgeColor: "amber" },
-      { label: "IS / IR", href: "/tax", icon: Receipt },
-      { label: "Taxes annexes", href: "/tax/other", icon: FilePlus2 },
-      { label: "Déclarations", href: "/tax/declarations", icon: FileCheck, badge: "Télé", badgeColor: "sky" },
-      { label: "Conformité & FEC", href: "/accountant/validation", icon: ShieldCheck },
-      { label: "Calendrier fiscal", href: "/tax/calendar", icon: CalendarClock }
+      { label: "Production", href: "/manufacturing", icon: Monitor },
+      { label: "Ordres de production", href: "/manufacturing/production-orders", icon: FileBarChart },
+      { label: "Nomenclatures", href: "/manufacturing/bom", icon: Database },
+      { label: "MRP", href: "/manufacturing/mrp", icon: GitBranch },
+      { label: "Projets", href: "/projects", icon: Layers },
+      { label: "RH", href: "/hr", icon: Users },
+      { label: "Stock", href: "/inventory", icon: Package }
     ]
   },
   {
     id: "reporting",
-    label: "Reporting & BI",
+    label: "Reporting & Analytics",
     icon: BarChart3,
     submenu: [
-      { label: "États financiers", href: "/accountant/balance-sheet", icon: FileBarChart },
-      { label: "Ratios financiers", href: "/accountant", icon: Gauge },
-      { label: "Dashboards personnalisés", href: "/dashboard", icon: Monitor },
-      { label: "BI avancée", href: "/dashboard/bi", icon: Database, badge: "OLAP", badgeColor: "purple" },
-      { label: "Alertes intelligentes", href: "/dashboard/alerts", icon: AlertTriangle }
+      { label: "BI & Tableaux de bord", href: "/dashboard/bi", icon: BarChart3, badge: "PowerBI", badgeColor: "purple" },
+      { label: "Analyse financière", href: "/financial-analysis", icon: TrendingUp },
+      { label: "Audit & conformité", href: "/settings/audit", icon: Shield },
+      { label: "Export & Éditions", href: "/accountant", icon: FileText, badge: "PDF/Excel", badgeColor: "blue" }
     ]
   },
   {
-    id: "ai",
-    label: "Intelligence Artificielle",
-    icon: Sparkles,
+    id: "communication",
+    label: "Communication",
+    icon: Send,
     submenu: [
-      { label: "OCR Documents", href: "/ai/ocr", icon: Scan, badge: "LIVE", badgeColor: "emerald" },
-      { label: "Assistant virtuel", href: "/ai/chat", icon: Activity, badge: "LIVE", badgeColor: "purple" },
-      // { label: "Prédictions", href: "/ai/predictions", icon: TrendingUp }
+      { label: "Emails", href: "/communications/emails", icon: Send, badge: "SMTP", badgeColor: "blue" },
+      { label: "SMS", href: "/communications/sms", icon: Smartphone, badge: "SMS", badgeColor: "emerald" },
+      { label: "WhatsApp", href: "/communications/whatsapp", icon: Smartphone, badge: "API", badgeColor: "green" },
+      { label: "Templates", href: "/communications/templates", icon: FileText, badge: "📝", badgeColor: "orange" }
     ]
   },
-  { id: "integrations", label: "Intégrations", icon: Plug, href: "/settings/integrations" },
   {
-    id: "systeme",
-    label: "Système",
+    id: "crm",
+    label: "CRM & Ventes",
+    icon: Users,
+    submenu: [
+      { label: "Contacts", href: "/crm/contacts", icon: Users },
+      { label: "Opportunités", href: "/crm/opportunities", icon: Target },
+      { label: "Dashboard CRM", href: "/crm", icon: BarChart3 }
+    ]
+  },
+  {
+    id: "administration",
+    label: "Administration",
     icon: Settings,
     submenu: [
       { label: "Paramètres", href: "/settings", icon: Settings },
@@ -183,7 +201,35 @@ const menuItems: SidebarItem[] = [
 export function ModernSidebar() {
   const [isLocked, setIsLocked] = useState(false);
   const [openMenus, setOpenMenus] = useState<string[]>(["compta"]);
+  const [remindersCount, setRemindersCount] = useState(0);
   const pathname = usePathname();
+
+  useEffect(() => {
+    // Récupérer le nombre de relances depuis l'API
+    const fetchRemindersCount = async () => {
+      try {
+        const companyId = localStorage.getItem('company_id') || '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
+        const response = await fetch(`/api/v1/accounting/aged-balance?companyId=${companyId}&type=receivables`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.items) {
+            // Compter les relances (montants > 0)
+            const count = data.items.filter((item: any) => 
+              (item.total || 0) > 0 || (item.over90 || 0) > 0
+            ).length;
+            setRemindersCount(count);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du nombre de relances:', error);
+      }
+    };
+
+    fetchRemindersCount();
+    // Rafraîchir toutes les 5 minutes
+    const interval = setInterval(fetchRemindersCount, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleMenu = (menuId: string) => {
     setOpenMenus(prev =>
@@ -217,7 +263,7 @@ export function ModernSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
-        {menuItems.map((item) => (
+        {getMenuItems(remindersCount).map((item) => (
           <div key={item.id}>
             {item.submenu ? (
               <>
