@@ -17,13 +17,21 @@ import { SeedController } from './seed.controller';
         console.log('🔍 DATABASE_USER:', configService.get('DATABASE_USER'));
         console.log('🔍 DATABASE_NAME:', configService.get('DATABASE_NAME'));
         
+        const dbHost = configService.get('DATABASE_HOST', 'localhost');
+        const dbPort = parseInt(configService.get('DATABASE_PORT', '5432'), 10);
+        const dbUser = configService.get('DATABASE_USER', 'postgres');
+        const dbPassword = configService.get('DATABASE_PASSWORD', 'postgres');
+        const dbName = configService.get('DATABASE_NAME', 'bms_erp');
+        
+        console.log('🔧 TypeORM config:', { dbHost, dbPort, dbUser, dbName });
+        
         return {
           type: 'postgres',
-          host: configService.get('DATABASE_HOST', 'localhost'),
-          port: parseInt(configService.get('DATABASE_PORT', '5432'), 10),
-          username: configService.get('DATABASE_USER', 'postgres'),
-          password: configService.get('DATABASE_PASSWORD', 'postgres'),
-          database: configService.get('DATABASE_NAME', 'bms_erp'),
+          host: dbHost,
+          port: dbPort,
+          username: dbUser,
+          password: dbPassword,
+          database: dbName,
           entities: Object.values(entities),
           synchronize: configService.get('NODE_ENV') === 'development',
           logging: configService.get('NODE_ENV') === 'development',
