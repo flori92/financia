@@ -7,9 +7,9 @@ import { SeedController } from './seed.controller';
 
 // Auth entities
 import { User } from '../auth/entities/user.entity';
+import { Role } from '../auth/entities/role.entity';
 
 // RBAC entities
-import { Role } from '../rbac/entities/role.entity';
 import { Permission } from '../rbac/entities/permission.entity';
 
 // Company entities
@@ -116,8 +116,8 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
             ...Object.values(entities),
             // Auth entities
             User,
-            // RBAC entities
             Role,
+            // RBAC entities
             Permission,
             // Company entities
             Company,
@@ -187,8 +187,8 @@ import { ReconciliationMatch } from '../banking/reconciliation/entities/reconcil
       ...Object.values(entities),
       // Auth entities
       User,
-      // RBAC entities
       Role,
+      // RBAC entities
       Permission,
       // Company entities
       Company,
