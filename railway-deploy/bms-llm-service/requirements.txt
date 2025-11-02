@@ -1,22 +1,13 @@
-# BMS LLM Service Requirements - Python 3.12 Compatible - v2
-# Service LML léger pour Railway
-# Updated: 2025-11-02 18:40
+# BMS LLM Service - Ultra Minimal pour Railway
+# Python 3.12 Compatible - v3
 
-# API and Web
+# API Web uniquement
 flask==3.0.0
 flask-cors==4.0.0
+
+# Utilitaires de base
 requests==2.31.0
-
-# Utilities
 python-dotenv==1.0.0
+
+# Serveur production
 gunicorn==21.2.0
-
-# Simple ML (fallback si transformers échoue)
-scikit-learn==1.4.0
-numpy==1.26.0
-
-# Text processing simple
-textblob==0.17.1
-
-# Development
-pytest==8.0.0
