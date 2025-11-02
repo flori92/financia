@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

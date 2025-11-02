@@ -16,7 +16,7 @@ export function useEffectiveCompanyId(): string | null {
   }
   
   // Sinon utiliser l'ID de l'entreprise connectée
-  return getCompanyId();
+  return getCompanyId() || null;
 }
 
 /**

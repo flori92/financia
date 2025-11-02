@@ -29,7 +29,7 @@ export default function TemplatesPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const getIcon = (channel) => {
+  const getIcon = (channel: string) => {
     switch(channel) {
       case 'email': return Mail;
       case 'sms': return MessageSquare;

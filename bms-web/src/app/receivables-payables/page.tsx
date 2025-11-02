@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/Tabs";
 import { SimpleTable } from "@/components/table/SimpleTable";
 
 const clientCols = [

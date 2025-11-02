@@ -371,7 +371,7 @@ function ExpertDashboardContent() {
                             <div className="text-sm text-slate-600">Clients Totaux</div>
                             <div className="text-2xl font-semibold">{data.cabinet.totalClients}</div>
                             <div className="text-sm text-slate-500">
-                                {data.cabinet.clientsActifs} actifs
+                                {data.cabinet.activeClients} actifs
                             </div>
                         </div>
                     </div>
@@ -383,10 +383,12 @@ function ExpertDashboardContent() {
                         <div>
                             <div className="text-sm text-slate-600">Taux Moyen Complétion</div>
                             <div className="text-2xl font-semibold">
-                                {Math.round(
-                                    data.clientsMetrics.reduce((acc, c) => acc + c.completionRate, 0) / 
-                                    data.clientsMetrics.length
-                                )}%
+                                {data.topActiveClients.length
+                                  ? Math.round(
+                                      data.topActiveClients.reduce((acc, c) => acc + c.completionRate, 0) /
+                                      data.topActiveClients.length
+                                    )
+                                  : 0}%
                             </div>
                         </div>
                     </div>
@@ -397,9 +399,9 @@ function ExpertDashboardContent() {
                         <FileSpreadsheet className="w-8 h-8 text-app-primary" />
                         <div>
                             <div className="text-sm text-slate-600">Déclarations en Attente</div>
-                            <div className="text-2xl font-semibold">{data.cabinet.declarationsEnAttente}</div>
+                            <div className="text-2xl font-semibold">{data.declarationsEnAttente}</div>
                             <div className="text-sm text-rose-500">
-                                {data.cabinet.declarationsProches} urgentes
+                                {data.declarationsProches} urgentes
                             </div>
                         </div>
                     </div>
@@ -460,15 +462,15 @@ function ExpertDashboardContent() {
                                 <div>
                                     <div className="font-medium">{client.name}</div>
                                     <div className="text-sm text-slate-500">
-                                        Complétion: {client.completionRate}%
+                                        Problème: {client.issue}
                                     </div>
                                 </div>
-                                <div className="text-sm">
-                                    {client.declarationsPending > 0 && (
-                                        <span className="text-rose-600">
-                                            {client.declarationsPending} déclaration(s) en attente
-                                        </span>
-                                    )}
+                                <div className={`text-xs font-medium ${
+                                    client.severity === 'high' ? 'text-rose-600' :
+                                    client.severity === 'medium' ? 'text-amber-600' :
+                                    'text-slate-600'
+                                }`}>
+                                    Sévérité: {client.severity}
                                 </div>
                             </div>
                         ))}

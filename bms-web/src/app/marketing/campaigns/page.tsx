@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Mail, Users, TrendingUp, Eye } from 'lucide-react';
 
 export default function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

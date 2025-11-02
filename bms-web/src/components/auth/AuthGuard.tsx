@@ -11,7 +11,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     // Pages publiques qui ne nécessitent pas d'auth
     const publicPaths = ["/login"];
     
-    if (publicPaths.includes(pathname)) {
+    if (pathname && publicPaths.includes(pathname)) {
       setIsChecking(false);
       return;
     }

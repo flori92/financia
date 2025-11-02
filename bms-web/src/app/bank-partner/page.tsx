@@ -212,8 +212,8 @@ export default function BankPartnerDashboard() {
             <Users className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.activeClients?.toLocaleString()}</div>
-            <p className="text-xs text-gray-600 mt-1">+{data?.newClients} ce mois</p>
+            <div className="text-2xl font-bold">{data?.portfolio.activeClients?.toLocaleString()}</div>
+            <p className="text-xs text-gray-600 mt-1">+{data?.portfolio.newClients} ce mois</p>
           </CardContent>
         </Card>
 
@@ -223,8 +223,8 @@ export default function BankPartnerDashboard() {
             <DollarSign className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.activeLoans}</div>
-            <p className="text-xs text-green-600 mt-1">{data?.loanAmount?.toLocaleString()} FCFA</p>
+            <div className="text-2xl font-bold">{data?.portfolio.activeLoans}</div>
+            <p className="text-xs text-green-600 mt-1">{data?.portfolio.totalLoanAmount?.toLocaleString()} FCFA</p>
           </CardContent>
         </Card>
 
@@ -234,7 +234,7 @@ export default function BankPartnerDashboard() {
             <TrendingUp className="w-4 h-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.repaymentRate}%</div>
+            <div className="text-2xl font-bold">{data?.portfolio.repaymentRate}%</div>
             <p className="text-xs text-purple-600 mt-1">Excellent</p>
           </CardContent>
         </Card>
@@ -245,7 +245,7 @@ export default function BankPartnerDashboard() {
             <FileText className="w-4 h-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.pendingApplications}</div>
+            <div className="text-2xl font-bold">{data?.portfolio.pendingApplications}</div>
             <p className="text-xs text-orange-600 mt-1">À évaluer</p>
           </CardContent>
         </Card>
@@ -306,7 +306,7 @@ export default function BankPartnerDashboard() {
               <div className="p-4 bg-green-50 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-green-800">Score Excellent (80-100)</span>
-                  <span className="text-2xl font-bold text-green-600">{data?.excellentScore}</span>
+                  <span className="text-2xl font-bold text-green-600">{data?.creditScoreDistribution.excellent}</span>
                 </div>
                 <p className="text-sm text-gray-600">Risque faible - Approbation automatique</p>
               </div>
@@ -314,7 +314,7 @@ export default function BankPartnerDashboard() {
               <div className="p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-blue-800">Score Bon (60-79)</span>
-                  <span className="text-2xl font-bold text-blue-600">{data?.goodScore}</span>
+                  <span className="text-2xl font-bold text-blue-600">{data?.creditScoreDistribution.good}</span>
                 </div>
                 <p className="text-sm text-gray-600">Risque modéré - Révision manuelle</p>
               </div>
@@ -322,7 +322,7 @@ export default function BankPartnerDashboard() {
               <div className="p-4 bg-orange-50 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-orange-800">Score Moyen (40-59)</span>
-                  <span className="text-2xl font-bold text-orange-600">{data?.averageScore}</span>
+                  <span className="text-2xl font-bold text-orange-600">{data?.creditScoreDistribution.average}</span>
                 </div>
                 <p className="text-sm text-gray-600">Risque élevé - Garanties requises</p>
               </div>
@@ -330,7 +330,7 @@ export default function BankPartnerDashboard() {
               <div className="p-4 bg-red-50 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-red-800">Score Faible (&lt;40)</span>
-                  <span className="text-2xl font-bold text-red-600">{data?.poorScore}</span>
+                  <span className="text-2xl font-bold text-red-600">{data?.creditScoreDistribution.poor}</span>
                 </div>
                 <p className="text-sm text-gray-600">Risque très élevé - Refus automatique</p>
               </div>
@@ -371,12 +371,12 @@ export default function BankPartnerDashboard() {
                     <td className="p-3 text-sm">{new Date(loan.dueDate).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${
-                        loan.status === 'current' ? 'bg-green-100 text-green-800' :
-                        loan.status === 'late' ? 'bg-orange-100 text-orange-800' :
-                        'bg-red-100 text-red-800'
+                        loan.status === 'active' ? 'bg-green-100 text-green-800' :
+                        loan.status === 'overdue' ? 'bg-orange-100 text-orange-800' :
+                        'bg-blue-100 text-blue-800'
                       }`}>
-                        {loan.status === 'current' ? 'À jour' :
-                         loan.status === 'late' ? 'En retard' : 'Défaut'}
+                        {loan.status === 'active' ? 'À jour' :
+                         loan.status === 'overdue' ? 'En retard' : 'Terminé'}
                       </span>
                     </td>
                   </tr>

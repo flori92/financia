@@ -140,8 +140,8 @@ export default function TaxAdminDashboard() {
             <Users className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.activeCompanies?.toLocaleString()}</div>
-            <p className="text-xs text-gray-600 mt-1">+{data?.newCompanies} ce mois</p>
+            <div className="text-2xl font-bold">{data?.overview.activeCompanies?.toLocaleString()}</div>
+            <p className="text-xs text-gray-600 mt-1">+{data?.overview.newCompanies} ce mois</p>
           </CardContent>
         </Card>
 
@@ -151,7 +151,7 @@ export default function TaxAdminDashboard() {
             <Clock className="w-4 h-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.pendingDeclarations}</div>
+            <div className="text-2xl font-bold">{data?.overview.pendingDeclarations}</div>
             <p className="text-xs text-orange-600 mt-1">À traiter</p>
           </CardContent>
         </Card>
@@ -162,8 +162,8 @@ export default function TaxAdminDashboard() {
             <TrendingUp className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.monthlyRevenue?.toLocaleString()} FCFA</div>
-            <p className="text-xs text-green-600 mt-1">+{data?.revenueGrowth}% vs mois dernier</p>
+            <div className="text-2xl font-bold">{data?.overview.monthlyRevenue?.toLocaleString()} FCFA</div>
+            <p className="text-xs text-green-600 mt-1">+{data?.overview.revenueGrowth}% vs mois dernier</p>
           </CardContent>
         </Card>
 
@@ -173,7 +173,7 @@ export default function TaxAdminDashboard() {
             <AlertCircle className="w-4 h-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.anomalies}</div>
+            <div className="text-2xl font-bold">{data?.compliance.anomalies}</div>
             <p className="text-xs text-red-600 mt-1">Nécessite attention</p>
           </CardContent>
         </Card>
@@ -220,21 +220,21 @@ export default function TaxAdminDashboard() {
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="font-medium">Conformes</span>
                 </div>
-                <span className="text-2xl font-bold text-green-600">{data?.compliantCompanies}</span>
+                <span className="text-2xl font-bold text-green-600">{data?.compliance.compliantCompanies}</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-orange-600" />
                   <span className="font-medium">En retard</span>
                 </div>
-                <span className="text-2xl font-bold text-orange-600">{data?.lateCompanies}</span>
+                <span className="text-2xl font-bold text-orange-600">{data?.compliance.lateCompanies}</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <AlertCircle className="w-5 h-5 text-red-600" />
                   <span className="font-medium">Non conformes</span>
                 </div>
-                <span className="text-2xl font-bold text-red-600">{data?.nonCompliantCompanies}</span>
+                <span className="text-2xl font-bold text-red-600">{data?.compliance.nonCompliantCompanies}</span>
               </div>
             </div>
           </CardContent>

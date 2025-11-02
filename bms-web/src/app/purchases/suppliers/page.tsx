@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import SupplierModal from "@/components/purchases/supplier-modal";
 
 export default function SuppliersPage() {
-  const [suppliers, setSuppliers] = useState([]);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

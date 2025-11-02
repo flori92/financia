@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/Tabs";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { apiGet, apiPatch, getCompanyId } from "@/lib/api";
 

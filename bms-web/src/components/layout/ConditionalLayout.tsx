@@ -9,7 +9,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const noLayoutPages = ['/', '/login', '/register', '/reset-password'];
 
-  if (noLayoutPages.includes(pathname)) {
+  if (pathname && noLayoutPages.includes(pathname)) {
     return <>{children}</>;
   }
 
