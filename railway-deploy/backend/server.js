@@ -1,6 +1,12 @@
-// Redirection temporaire pour l'ancienne URL
+// BMS Backend Dynamic - Mode Hybride Statique/Dynamique
 const express = require('express');
 const cors = require('cors');
+
+// Import du système dynamique
+const database = require('./database');
+const DynamicService = require('./services/DynamicService');
+const TreasuryService = require('./services/TreasuryService');
+const AccountingService = require('./services/AccountingService');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -926,103 +932,110 @@ app.get('/api/v1/companies', (req, res) => {
   ]);
 });
 
-// Dashboard endpoint
-app.get('/api/v1/accounting/dashboard/metrics', (req, res) => {
-  const companyId = req.query.companyId;
-  res.json({
-    kpiMonth: {
-      revenue: 15000000,
-      expenses: 12000000,
-      netIncome: 3000000,
-      margin: 20.0
-    },
-    evolutionChart: [
-      { month: 'nov. 2024', revenue: 12000000, expenses: 10000000 },
-      { month: 'déc. 2024', revenue: 13000000, expenses: 10500000 },
-      { month: 'janv. 2025', revenue: 14000000, expenses: 11000000 },
-      { month: 'févr. 2025', revenue: 13500000, expenses: 10800000 },
-      { month: 'mars 2025', revenue: 14500000, expenses: 11200000 },
-      { month: 'avr. 2025', revenue: 15000000, expenses: 11500000 },
-      { month: 'mai 2025', revenue: 15500000, expenses: 11800000 },
-      { month: 'juin 2025', revenue: 16000000, expenses: 12000000 },
-      { month: 'juil. 2025', revenue: 15800000, expenses: 11900000 },
-      { month: 'août 2025', revenue: 16200000, expenses: 12100000 },
-      { month: 'sept. 2025', revenue: 16500000, expenses: 12200000 },
-      { month: 'oct. 2025', revenue: 15000000, expenses: 12000000 }
-    ],
-    topClients: [
-      { name: 'Client Alpha', amount: 5000000 },
-      { name: 'Client Beta', amount: 3000000 },
-      { name: 'Client Gamma', amount: 2000000 },
-      { name: 'Client Delta', amount: 1500000 },
-      { name: 'Client Epsilon', amount: 1000000 }
-    ],
-    topSuppliers: [
-      { name: 'Fournisseur A', amount: 2000000 },
-      { name: 'Fournisseur B', amount: 1500000 },
-      { name: 'Fournisseur C', amount: 1000000 },
-      { name: 'Fournisseur D', amount: 800000 },
-      { name: 'Fournisseur E', amount: 500000 }
-    ],
-    financialRatios: {
-      currentAssets: 25000000,
-      currentLiabilities: 15000000,
-      equity: 20000000,
-      totalLiabilities: 18000000,
-      liquidityRatio: 1.67,
-      solvencyRatio: 1.11
-    },
-    alerts: [
-      {
-        type: 'warning',
-        title: 'Créances en retard',
-        message: 'Vous avez 500 000 FCFA de créances de plus de 90 jours.'
-      }
-    ],
-    recentActivity: {
-      entries: [
-        {
-          date: '2025-11-01',
-          description: 'Facture Client Alpha',
-          type: 'Vente',
-          amount: 5000000
-        },
-        {
-          date: '2025-10-30',
-          description: 'Paiement Fournisseur A',
-          type: 'Dépense',
-          amount: -2000000
-        }
-      ]
-    }
-  });
+// Middleware mode hybride
+app.use(async (req, res, next) => {
+  try {
+    req.isDynamic = await database.isDynamicMode();
+    req.mode = await database.getSetting('mode') || 'hybrid';
+    next();
+  } catch (error) {
+    req.isDynamic = false;
+    req.mode = 'static';
+    next();
+  }
 });
 
-// Aged balance endpoint
-app.get('/api/v1/accounting/aged-balance', (req, res) => {
-  const { type, asOfDate } = req.query;
-  res.json({
-    type: type || 'receivables',
-    asOfDate: asOfDate || new Date().toISOString().split('T')[0],
-    items: [
-      {
-        party: 'Client Alpha',
-        total: 5000000,
-        current: 2000000,
-        days30_60: 1500000,
-        days60_90: 1000000,
-        over90: 500000,
-        oldestDate: '2025-08-15'
+// Dashboard endpoint (DYNAMIQUE)
+app.get('/api/v1/accounting/dashboard/metrics', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await AccountingService.getDashboardMetrics(companyId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Aged balance endpoint (DYNAMIQUE)
+app.get('/api/v1/accounting/aged-balance', async (req, res) => {
+  try {
+    const { companyId, type, asOfDate } = req.query;
+    const result = await AccountingService.getAgedBalance(companyId, type, asOfDate);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Treasury endpoints (DYNAMIQUES)
+app.get('/api/v1/treasury/forecast', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await TreasuryService.getForecast(companyId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/treasury/alerts', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await TreasuryService.getAlerts(companyId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// System mode management
+app.get('/api/v1/system/mode', async (req, res) => {
+  try {
+    const mode = await database.getSetting('mode') || 'hybrid';
+    const isDynamic = await database.isDynamicMode();
+    
+    res.json({
+      current: mode,
+      isDynamic: isDynamic,
+      available: ['static', 'dynamic', 'hybrid'],
+      features: {
+        database: isDynamic,
+        realTimeCalculations: isDynamic,
+        cache: true,
+        staticFallback: true
       }
-    ],
-    totals: {
-      total: 5000000,
-      current: 2000000,
-      days30_60: 1500000,
-      days60_90: 1000000,
-      over90: 500000
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/system/mode', async (req, res) => {
+  try {
+    const { mode } = req.body;
+    
+    if (!['static', 'dynamic', 'hybrid'].includes(mode)) {
+      return res.status(400).json({
+        error: 'Mode invalide. Options: static, dynamic, hybrid'
+      });
     }
-  });
+
+    await database.run(
+      'INSERT OR REPLACE INTO settings (key, value, description) VALUES (?, ?, ?)',
+      ['mode', mode, `Mode changé le ${new Date().toISOString()}`]
+    );
+
+    DynamicService.clearCache();
+
+    res.json({
+      success: true,
+      mode: mode,
+      message: `Mode changé vers ${mode.toUpperCase()} avec succès`,
+      restartRequired: mode === 'dynamic'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // 404 handler
@@ -1035,10 +1048,40 @@ app.use('*', (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 BMS API Gateway started on port ${PORT}`);
-  console.log(`📊 Health: http://localhost:${PORT}/health`);
-  console.log(`🏢 Production Mode: ACTIVE`);
-  console.log(`🌐 CORS enabled for all origins`);
+// DÉMARRAGE SERVEUR DYNAMIQUE
+async function startServer() {
+  try {
+    // Initialiser la base de données
+    await database.init();
+    
+    // Démarrer le serveur
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 BMS Backend Dynamic started on port ${PORT}`);
+      console.log(`📊 Health: http://localhost:${PORT}/health`);
+      console.log(`🔧 Mode Management: http://localhost:${PORT}/api/v1/system/mode`);
+      console.log(`💾 Database: ${process.env.NODE_ENV === 'production' ? 'Production' : 'Development'}`);
+      console.log(`🌐 CORS enabled for all origins`);
+      console.log(`⚡ Features: Dynamic calculations, Cache, Real-time updates`);
+      console.log(`🎯 Status: PRODUCTION READY`);
+    });
+  } catch (error) {
+    console.error('❌ Erreur démarrage serveur:', error);
+    process.exit(1);
+  }
+}
+
+// Gestion arrêt gracieux
+process.on('SIGINT', async () => {
+  console.log('\n🔄 Arrêt gracieux du serveur...');
+  await database.close();
+  process.exit(0);
 });
+
+process.on('SIGTERM', async () => {
+  console.log('\n🔄 Arrêt gracieux du serveur...');
+  await database.close();
+  process.exit(0);
+});
+
+// Démarrer le serveur
+startServer();
