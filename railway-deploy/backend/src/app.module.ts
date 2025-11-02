@@ -44,6 +44,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 
 // AI & Analytics
 import { AIModule } from './ai/ai.module';
+import { AIAnalyticsModule } from './ai/ai-analytics.module';
 import { ReportingModule } from './reporting/reporting.module';
 
 // Financial Services
@@ -187,6 +188,7 @@ import { AppController } from './app.controller';
     AutomationModule,
     RbacModule,
     AIModule,
+    AIAnalyticsModule,
     BudgetModule,
     HRModule,
     InventoryModule,
