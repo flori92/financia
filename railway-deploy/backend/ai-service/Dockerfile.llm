@@ -16,38 +16,14 @@ RUN apt-get update && apt-get install -y \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Copy requirements and download script first
+COPY requirements.txt download_models.py ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download models during build (faster startup)
-RUN python -c "
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import os
-
-print('📥 Pré-chargement des modèles LLM...')
-
-# Download lightweight models for faster startup
-models_to_download = [
-    'microsoft/DialoGPT-medium',
-    'distilbert-base-uncased',
-    'sentence-transformers/all-MiniLM-L6-v2'
-]
-
-for model_name in models_to_download:
-    try:
-        print(f'Téléchargement de {model_name}...')
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-        print(f'✅ {model_name} téléchargé')
-    except Exception as e:
-        print(f'❌ Erreur {model_name}: {e}')
-
-print('✅ Pré-chargement terminé')
-"
+RUN python download_models.py
 
 # Download French NLP model
 RUN python -m spacy download fr_core_news_sm
