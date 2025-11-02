@@ -7,6 +7,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MobileMoneyService } from './mobile-money.service';
@@ -84,5 +85,48 @@ export class MobileMoneyController {
       amount: body.amount,
       currency: 'XOF',
     };
+  }
+
+  @Get('transactions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Lister les transactions Mobile Money' })
+  @ApiResponse({ status: 200, description: 'Liste des transactions' })
+  async getTransactions(
+    @Query('companyId') companyId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 20,
+    @Query('status') status?: string,
+    @Query('provider') provider?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.mobileMoneyService.getTransactions({
+      companyId,
+      page,
+      limit,
+      status,
+      provider,
+      startDate,
+      endDate,
+    });
+  }
+
+  @Get('transactions/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Détails d\'une transaction Mobile Money' })
+  @ApiResponse({ status: 200, description: 'Détails de la transaction' })
+  async getTransaction(@Param('id') id: string) {
+    return this.mobileMoneyService.getTransactionById(id);
+  }
+
+  @Get('stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Statistiques des transactions Mobile Money' })
+  @ApiResponse({ status: 200, description: 'Statistiques' })
+  async getStats(@Query('companyId') companyId: string) {
+    return this.mobileMoneyService.getTransactionStats(companyId);
   }
 }

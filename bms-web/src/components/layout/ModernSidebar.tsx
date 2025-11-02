@@ -10,7 +10,8 @@ import {
   Users, Send, PieChart, Activity, LineChart, Layers, CheckCircle,
   ScanSearch, Sparkles, GitBranch, Receipt, FilePlus2, FileCheck,
   ShieldCheck, CalendarClock, FileBarChart, Gauge, Monitor, Database,
-  AlertTriangle, UserCog, Shield, LogOut, ListTree, ScrollText, Scan
+  AlertTriangle, UserCog, Shield, LogOut, ListTree, ScrollText, Scan,
+  Smartphone
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -78,6 +79,7 @@ const menuItems: SidebarItem[] = [
     icon: Wallet,
     submenu: [
       { label: "Multi-banques", href: "/treasury", icon: Landmark },
+      { label: "Mobile Money", href: "/accountant/mobile-money", icon: Smartphone, badge: "KKia", badgeColor: "emerald" },
       { label: "Rapprochement bancaire", href: "/accountant/bank", icon: GitCompare, badge: "API", badgeColor: "purple" },
       { label: "Prévisionnel trésorerie", href: "/treasury/forecast", icon: TrendingUp },
       { label: "Opérations", href: "/treasury/operations", icon: ArrowRightLeft, badge: "SEPA", badgeColor: "emerald" },

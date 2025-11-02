@@ -487,4 +487,119 @@ export class MobileMoneyService {
 
     return JSON.stringify(qrData);
   }
+
+  /**
+   * Lister les transactions avec filtres
+   */
+  async getTransactions(options: {
+    companyId: string;
+    page: number;
+    limit: number;
+    status?: string;
+    provider?: string;
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const { companyId, page, limit, status, provider, startDate, endDate } = options;
+    
+    const queryBuilder = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.invoice', 'invoice')
+      .leftJoinAndSelect('transaction.payment', 'payment')
+      .where('invoice.companyId = :companyId', { companyId });
+
+    // Filtres
+    if (status) {
+      queryBuilder.andWhere('transaction.status = :status', { status });
+    }
+    
+    if (provider) {
+      queryBuilder.andWhere('transaction.provider = :provider', { provider });
+    }
+    
+    if (startDate) {
+      queryBuilder.andWhere('transaction.createdAt >= :startDate', { 
+        startDate: new Date(startDate) 
+      });
+    }
+    
+    if (endDate) {
+      queryBuilder.andWhere('transaction.createdAt <= :endDate', { 
+        endDate: new Date(endDate) 
+      });
+    }
+
+    // Pagination
+    const skip = (page - 1) * limit;
+    queryBuilder
+      .orderBy('transaction.createdAt', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    const [transactions, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      transactions,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Détails d'une transaction
+   */
+  async getTransactionById(id: string) {
+    const transaction = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.invoice', 'invoice')
+      .leftJoinAndSelect('transaction.payment', 'payment')
+      .where('transaction.id = :id', { id })
+      .getOne();
+
+    if (!transaction) {
+      throw new BadRequestException('Transaction non trouvée');
+    }
+
+    return transaction;
+  }
+
+  /**
+   * Statistiques des transactions
+   */
+  async getTransactionStats(companyId: string) {
+    const stats = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoin('transaction.invoice', 'invoice')
+      .where('invoice.companyId = :companyId', { companyId })
+      .select('COUNT(transaction.id)', 'total')
+      .addSelect('SUM(CASE WHEN transaction.status = :success THEN 1 ELSE 0 END)', 'successful')
+      .addSelect('SUM(CASE WHEN transaction.status = :failed THEN 1 ELSE 0 END)', 'failed')
+      .addSelect('SUM(CASE WHEN transaction.status = :pending THEN 1 ELSE 0 END)', 'pending')
+      .addSelect('SUM(transaction.amount)', 'totalAmount')
+      .addSelect('SUM(CASE WHEN transaction.status = :success THEN transaction.amount ELSE 0 END)', 'successfulAmount')
+      .setParameter('success', 'success')
+      .setParameter('failed', 'failed')
+      .setParameter('pending', 'pending')
+      .getRawOne();
+
+    // Stats par provider
+    const providerStats = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoin('transaction.invoice', 'invoice')
+      .where('invoice.companyId = :companyId', { companyId })
+      .select('transaction.provider', 'provider')
+      .addSelect('COUNT(transaction.id)', 'count')
+      .addSelect('SUM(transaction.amount)', 'total')
+      .groupBy('transaction.provider')
+      .getRawMany();
+
+    return {
+      ...stats,
+      byProvider: providerStats,
+    };
+  }
 }
