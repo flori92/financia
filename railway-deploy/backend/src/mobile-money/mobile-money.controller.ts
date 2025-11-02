@@ -11,12 +11,16 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MobileMoneyService } from './mobile-money.service';
+import { KkiapayProvider } from './providers/kkiapay.provider';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('mobile-money')
 @Controller('mobile-money')
 export class MobileMoneyController {
-  constructor(private readonly mobileMoneyService: MobileMoneyService) {}
+  constructor(
+    private readonly mobileMoneyService: MobileMoneyService,
+    private readonly kkiapayProvider: KkiapayProvider
+  ) {}
 
   @Post('pay')
   @UseGuards(JwtAuthGuard)
@@ -117,6 +121,19 @@ export class MobileMoneyController {
   @ApiResponse({ status: 200, description: 'Détails de la transaction' })
   async getTransaction(@Param('id') id: string) {
     return this.mobileMoneyService.getTransactionById(id);
+  }
+
+  @Get('test-connection')
+  @ApiOperation({ summary: 'Tester la connexion à l\'API Mobile Money' })
+  @ApiResponse({ status: 200, description: 'Connexion testée avec succès' })
+  async testConnection() {
+    const isConnected = await this.kkiapayProvider.verifyConnection();
+    
+    return {
+      provider: 'kkiapay',
+      connected: isConnected,
+      timestamp: new Date().toISOString(),
+    };
   }
 
   @Get('stats')

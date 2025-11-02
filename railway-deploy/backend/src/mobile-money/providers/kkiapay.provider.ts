@@ -27,6 +27,12 @@ export class KkiapayProvider {
     this.privateKey = this.configService.get<string>('MOBILE_MONEY_PRIVATE_KEY');
     this.secretKey = this.configService.get<string>('MOBILE_MONEY_SECRET_KEY');
 
+    // Vérifier que les clés sont bien chargées
+    this.logger.log('Configuration Kkiapay:');
+    this.logger.log(`Public Key: ${this.publicKey ? this.publicKey.substring(0, 10) + '...' : 'Non définie'}`);
+    this.logger.log(`Private Key: ${this.privateKey ? this.privateKey.substring(0, 10) + '...' : 'Non définie'}`);
+    this.logger.log(`Secret Key: ${this.secretKey ? this.secretKey.substring(0, 10) + '...' : 'Non définie'}`);
+
     this.client = axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -250,5 +256,32 @@ export class KkiapayProvider {
   }
 </script>
     `.trim();
+  }
+
+  /**
+   * Vérifier la connexion à l'API Kkiapay
+   */
+  async verifyConnection(): Promise<boolean> {
+    try {
+      this.logger.log('Vérification de la connexion à l\'API Kkiapay...');
+      
+      // Utiliser une requête simple pour vérifier la connexion
+      const response = await this.client.get('/api/v1/transactions', {
+        params: {
+          limit: 1, // Limiter à 1 transaction pour test
+        },
+        timeout: 5000, // Timeout de 5 secondes
+      });
+
+      this.logger.log('Connexion Kkiapay établie avec succès');
+      return true;
+    } catch (error: any) {
+      this.logger.error('Erreur de connexion à Kkiapay:', error.message);
+      if (error.response) {
+        this.logger.error(`Status: ${error.response.status}`);
+        this.logger.error(`Data: ${JSON.stringify(error.response.data)}`);
+      }
+      return false;
+    }
   }
 }
