@@ -61,7 +61,7 @@ export default function AgedBalancePage() {
     return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
   }, [activeTab, asOfDate]);
 
-  const nf = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const nf = (v: number) => (v || 0).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   const getPercentage = (part: number, total: number) => {
     if (total === 0) return 0;

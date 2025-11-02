@@ -239,6 +239,7 @@ export default function NotificationSettingsPage() {
                     type={showPasswords.smtp ? 'text' : 'password'}
                     value={config.smtpPass || ''}
                     onChange={(e) => setConfig({ ...config, smtpPass: e.target.value })}
+                    autoComplete="new-password"
                     placeholder="Mot de passe d'application"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
                   />
@@ -277,6 +278,7 @@ export default function NotificationSettingsPage() {
                     type={showPasswords.sendgrid ? 'text' : 'password'}
                     value={config.sendgridApiKey || ''}
                     onChange={(e) => setConfig({ ...config, sendgridApiKey: e.target.value })}
+                    autoComplete="new-password"
                     placeholder="SG.xxxxx..."
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
                   />
@@ -372,6 +374,7 @@ export default function NotificationSettingsPage() {
                     type={showPasswords.twilio ? 'text' : 'password'}
                     value={config.twilioAuthToken || ''}
                     onChange={(e) => setConfig({ ...config, twilioAuthToken: e.target.value })}
+                    autoComplete="new-password"
                     placeholder="Votre token Twilio"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
                   />
@@ -410,6 +413,7 @@ export default function NotificationSettingsPage() {
                     type={showPasswords.meta ? 'text' : 'password'}
                     value={config.metaAccessToken || ''}
                     onChange={(e) => setConfig({ ...config, metaAccessToken: e.target.value })}
+                    autoComplete="new-password"
                     placeholder="Token d'accès Meta"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
                   />
@@ -504,6 +508,7 @@ export default function NotificationSettingsPage() {
                     type={showPasswords.twilioSms ? 'text' : 'password'}
                     value={config.twilioAuthToken || ''}
                     onChange={(e) => setConfig({ ...config, twilioAuthToken: e.target.value })}
+                    autoComplete="new-password"
                     placeholder="Votre token Twilio"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
                   />
