@@ -17,6 +17,7 @@ const ENTREPRENEUR_NAV = [
   { href: "/budget", label: "Budget", icon: LineChart },
   { href: "/treasury", label: "Trésorerie", icon: Wallet },
   { href: "/entrepreneur/direct-debits", label: "Prélèvements", icon: Repeat },
+  { href: "/settings/notifications", label: "Notifications", icon: Send },
   { href: "/settings", label: "Paramètres", icon: Settings },
 ];
 

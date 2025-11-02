@@ -65,7 +65,37 @@ import { AppController } from './app.controller';
     }),
 
     // Database
-    DatabaseModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DATABASE_HOST', 'localhost'),
+        port: configService.get<number>('DATABASE_PORT', 5432),
+        username: configService.get<string>('DATABASE_USER', 'postgres'),
+        password: configService.get<string>('DATABASE_PASSWORD', 'postgres'),
+        database: configService.get<string>('DATABASE_NAME', 'bms_erp'),
+        entities: [
+          Company,
+          User,
+          AuditLog,
+          ChartOfAccounts,
+          JournalEntry,
+          JournalEntryLine,
+          FiscalYear,
+          BankAccount,
+          BankTransaction,
+          BankSync,
+          Invoice,
+          InvoiceItem,
+          NotificationConfig,
+        ],
+        synchronize: process.env.NODE_ENV === 'development',
+        logging: process.env.NODE_ENV === 'development',
+        migrationsRun: true,
+        migrations: ['src/migrations/*.ts'],
+      }),
+      inject: [ConfigService],
+    }),
 
     // Redis Cache (désactivé temporairement)
 

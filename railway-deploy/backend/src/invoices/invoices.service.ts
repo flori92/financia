@@ -245,7 +245,7 @@ export class InvoicesService {
       dueDate: invoice.dueDate,
       invoiceUrl,
       method,
-    });
+    }, invoice.companyId);
 
     // Mettre à jour la facture
     invoice.deliveryMethod = method;

@@ -80,9 +80,9 @@ export class NotificationsService {
   }
 
   /**
-   * Envoyer une notification par SendGrid
+   * Envoyer une notification par email avec SendGrid (environnement)
    */
-  private async sendWithSendGrid(payload: NotificationPayload): Promise<boolean> {
+  private async sendWithSendGridEnv(payload: NotificationPayload): Promise<boolean> {
     try {
       const sgMail = require('@sendgrid/mail');
       sgMail.setApiKey(this.configService.get<string>('SENDGRID_API_KEY'));
@@ -104,11 +104,84 @@ export class NotificationsService {
   }
 
   /**
+   * Envoyer une notification par SMTP (config BDD)
+   */
+  private async sendWithSMTP(payload: NotificationPayload, config: any): Promise<boolean> {
+    try {
+      const nodemailer = require('nodemailer');
+      
+      const transporter = nodemailer.createTransporter({
+        host: config.smtpHost,
+        port: config.smtpPort,
+        secure: config.smtpSecure,
+        auth: {
+          user: config.smtpUser,
+          pass: config.smtpPass,
+        },
+      });
+
+      const mailOptions = {
+        from: config.smtpFrom,
+        to: payload.to,
+        subject: payload.subject,
+        html: payload.message.replace(/\n/g, '<br>'),
+      };
+
+      await transporter.sendMail(mailOptions);
+      this.logger.log(`Email sent successfully to ${payload.to}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send email via SMTP: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Envoyer une notification par email avec SendGrid (config BDD)
+   */
+  private async sendWithSendGrid(payload: NotificationPayload, config: any): Promise<boolean> {
+    try {
+      const sgMail = require('@sendgrid/mail');
+      sgMail.setApiKey(config.sendgridApiKey);
+
+      const msg = {
+        to: payload.to,
+        from: config.sendgridFrom,
+        subject: payload.subject,
+        html: payload.message.replace(/\n/g, '<br>'),
+      };
+
+      await sgMail.send(msg);
+      this.logger.log(`Email sent successfully via SendGrid to ${payload.to}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send email via SendGrid: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
    * Envoyer une notification par SMS
    */
-  async sendSMS(payload: NotificationPayload): Promise<boolean> {
-    const provider = this.configService.get<string>('SMS_PROVIDER', 'console');
+  async sendSMS(payload: NotificationPayload, companyId?: string): Promise<boolean> {
+    let provider = 'console';
+    
+    // Try to get config from database first
+    if (companyId) {
+      try {
+        const config = await this.configDbService.findByCompanyId(companyId);
+        provider = config.smsProvider || 'console';
+        
+        if (provider === 'twilio') {
+          return this.sendWithTwilioSMS(payload, config);
+        }
+      } catch (error) {
+        this.logger.warn('Could not load SMS config from DB, falling back to env vars');
+      }
+    }
 
+    // Fallback to environment variables
+    provider = this.configService.get<string>('SMS_PROVIDER', 'console');
     this.logger.log(`Sending SMS to ${payload.to}`);
 
     if (provider === 'console') {
@@ -129,11 +202,55 @@ export class NotificationsService {
   }
 
   /**
+   * Envoyer une notification par SMS avec Twilio
+   */
+  private async sendWithTwilioSMS(payload: NotificationPayload, config: any): Promise<boolean> {
+    try {
+      const twilio = require('twilio');
+      const client = twilio(
+        config.twilioAccountSid,
+        config.twilioAuthToken
+      );
+
+      const message = await client.messages.create({
+        body: payload.message,
+        from: `+${config.twilioPhoneNumber}`,
+        to: `+${payload.to}`,
+      });
+
+      this.logger.log(`SMS sent successfully via Twilio: ${message.sid}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send SMS via Twilio: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
    * Envoyer une notification par WhatsApp
    */
-  async sendWhatsApp(payload: NotificationPayload): Promise<boolean> {
-    const provider = this.configService.get<string>('WHATSAPP_PROVIDER', 'console');
+  async sendWhatsApp(payload: NotificationPayload, companyId?: string): Promise<boolean> {
+    let provider = 'console';
+    
+    // Try to get config from database first
+    if (companyId) {
+      try {
+        const config = await this.configDbService.findByCompanyId(companyId);
+        provider = config.whatsappProvider || 'console';
+        
+        if (provider === 'twilio') {
+          return this.sendWhatsAppWithTwilio(payload, config);
+        }
+        if (provider === 'meta') {
+          return this.sendWhatsAppWithMeta(payload, config);
+        }
+      } catch (error) {
+        this.logger.warn('Could not load WhatsApp config from DB, falling back to env vars');
+      }
+    }
 
+    // Fallback to environment variables
+    provider = this.configService.get<string>('WHATSAPP_PROVIDER', 'console');
     this.logger.log(`Sending WhatsApp to ${payload.to}`);
 
     if (provider === 'console') {
@@ -147,12 +264,12 @@ export class NotificationsService {
 
     // Implémentation avec Twilio WhatsApp
     if (provider === 'twilio') {
-      return this.sendWhatsAppWithTwilio(payload);
+      return this.sendWhatsAppWithTwilioEnv(payload);
     }
 
     // Implémentation avec Meta WhatsApp Business API
     if (provider === 'meta') {
-      return this.sendWhatsAppWithMeta(payload);
+      return this.sendWhatsAppWithMetaEnv(payload);
     }
 
     return true;
@@ -316,7 +433,7 @@ Veuillez réessayer ou nous contacter.
     dueDate: Date;
     invoiceUrl: string;
     method: 'email' | 'sms' | 'whatsapp';
-  }): Promise<void> {
+  }, companyId?: string): Promise<void> {
     const message = `
 📄 Nouvelle facture
 
@@ -334,7 +451,7 @@ Voir la facture: ${params.invoiceUrl}
             to: params.customerEmail,
             subject: `Facture ${params.invoiceNumber}`,
             message,
-          });
+          }, companyId);
         }
         break;
 
@@ -343,7 +460,7 @@ Voir la facture: ${params.invoiceUrl}
           await this.sendSMS({
             to: params.customerPhone,
             message: `📄 Facture ${params.invoiceNumber}: ${params.amount} FCFA. ${params.invoiceUrl}`,
-          });
+          }, companyId);
         }
         break;
 
@@ -352,7 +469,7 @@ Voir la facture: ${params.invoiceUrl}
           await this.sendWhatsApp({
             to: params.customerWhatsApp,
             message,
-          });
+          }, companyId);
         }
         break;
     }
@@ -404,7 +521,7 @@ Consultez votre tableau de bord pour plus de détails.
     amount: number;
     daysOverdue: number;
     invoiceUrl: string;
-  }): Promise<void> {
+  }, companyId?: string): Promise<void> {
     const urgency = params.daysOverdue > 30 ? '🚨 URGENT' : '⏰ Rappel';
     
     const message = `
@@ -424,13 +541,13 @@ Voir la facture: ${params.invoiceUrl}
       to: params.customerEmail,
       subject: `${urgency} - Facture ${params.invoiceNumber} impayée`,
       message,
-    });
+    }, companyId);
 
     // SMS
     await this.sendSMS({
       to: params.customerPhone,
       message: `${urgency}: Facture ${params.invoiceNumber} de ${params.amount} FCFA en retard de ${params.daysOverdue} jours. ${params.invoiceUrl}`,
-    });
+    }, companyId);
   }
 
   /**
