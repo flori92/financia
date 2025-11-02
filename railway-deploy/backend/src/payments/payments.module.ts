@@ -10,7 +10,6 @@ import { AccountingModule } from '../accounting/accounting.module';
 // Payment Providers
 import { StripeService } from './providers/stripe.service';
 import { PayPalService } from './providers/paypal.service';
-import { SepaService } from './providers/sepa.service';
 
 /**
  * Module de gestion des paiements
@@ -26,13 +25,11 @@ import { SepaService } from './providers/sepa.service';
     PaymentsService,
     StripeService,
     PayPalService,
-    SepaService,
   ],
   exports: [
     PaymentsService,
     StripeService,
     PayPalService,
-    SepaService,
   ],
 })
 export class PaymentsModule {}
