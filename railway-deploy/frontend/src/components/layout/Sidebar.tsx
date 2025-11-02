@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight, Send, ArrowUpDown, GripVertical } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight, Send, ArrowUpDown, GripVertical, DollarSign, Calendar, CreditCard } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState, useRef } from "react";
 
