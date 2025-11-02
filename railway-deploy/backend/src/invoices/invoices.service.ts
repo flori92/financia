@@ -6,6 +6,7 @@ import { InvoiceItem } from './entities/invoice-item.entity';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { AuditService } from '../audit/audit.service';
 import { AccountingAutomationService } from '../accounting/accounting-automation.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class InvoicesService {
@@ -16,6 +17,7 @@ export class InvoicesService {
     private invoiceItemRepository: Repository<InvoiceItem>,
     private readonly auditService: AuditService,
     private readonly automation: AccountingAutomationService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(createInvoiceDto: CreateInvoiceDto, userId: string): Promise<Invoice> {
@@ -215,11 +217,40 @@ export class InvoicesService {
   ): Promise<Invoice> {
     const invoice = await this.findOne(id, companyId);
 
-    // TODO: Implémenter l'envoi réel via WhatsApp/SMS/Email
-    // Pour l'instant, on marque juste comme envoyé
+    // Récupérer les informations du client depuis CRM
+    let customerInfo = null;
+    try {
+      // TODO: Implémenter la récupération des infos client
+      // customerInfo = await this.crmService.getContactById(invoice.partyId);
+      customerInfo = {
+        email: invoice.partyEmail || 'client@example.com',
+        phone: invoice.partyPhone || '+22900000000',
+        whatsapp: invoice.partyWhatsApp || invoice.partyPhone || '+22900000000',
+        name: invoice.partyName || 'Client',
+      };
+    } catch (error) {
+      console.warn('Could not fetch customer info:', error.message);
+    }
 
+    // Générer l'URL de la facture
+    const invoiceUrl = `${process.env.FRONTEND_URL || 'https://app.bms.com'}/invoices/${invoice.id}`;
+
+    // Envoyer la notification
+    await this.notificationsService.notifyInvoiceSent({
+      customerEmail: customerInfo?.email,
+      customerPhone: customerInfo?.phone,
+      customerWhatsApp: customerInfo?.whatsapp,
+      invoiceNumber: invoice.invoiceNumber,
+      amount: Number(invoice.totalAmount),
+      dueDate: invoice.dueDate,
+      invoiceUrl,
+      method,
+    });
+
+    // Mettre à jour la facture
     invoice.deliveryMethod = method;
     invoice.sentAt = new Date();
+    invoice.status = invoice.status === 'draft' ? 'submitted' : invoice.status;
 
     return this.invoiceRepository.save(invoice);
   }

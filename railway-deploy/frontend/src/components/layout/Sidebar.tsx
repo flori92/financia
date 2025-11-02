@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight, Send } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -23,6 +23,7 @@ const ENTREPRENEUR_NAV = [
 const ACCOUNTANT_NAV = [
   { href: "/accountant", label: "Dashboard Comptable", icon: LayoutDashboard },
   { href: "/accountant/validation", label: "Centre de Validation", icon: FileCheck },
+  { href: "/accountant/reminders", label: "Relances Clients", icon: Send },
   { href: "/accountant/chart-of-accounts", label: "Plan Comptable SYSCOHADA", icon: Landmark },
   { href: "/accountant/journal", label: "Journal des Écritures", icon: FileText },
   { href: "/accountant/general-ledger", label: "Grand Livre", icon: LayoutDashboard },

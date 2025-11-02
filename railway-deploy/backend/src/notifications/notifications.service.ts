@@ -33,12 +33,74 @@ export class NotificationsService {
       return true;
     }
 
-    // TODO: Implémenter avec SendGrid, Nodemailer, etc.
-    // if (provider === 'sendgrid') {
-    //   return this.sendWithSendGrid(payload);
-    // }
+    // Implémentation avec Nodemailer (SMTP)
+    if (provider === 'smtp') {
+      return this.sendWithSMTP(payload);
+    }
+
+    // Implémentation avec SendGrid
+    if (provider === 'sendgrid') {
+      return this.sendWithSendGrid(payload);
+    }
 
     return true;
+  }
+
+  /**
+   * Envoyer une notification par SMTP (Nodemailer)
+   */
+  private async sendWithSMTP(payload: NotificationPayload): Promise<boolean> {
+    try {
+      const nodemailer = require('nodemailer');
+      
+      const transporter = nodemailer.createTransporter({
+        host: this.configService.get<string>('SMTP_HOST'),
+        port: this.configService.get<number>('SMTP_PORT', 587),
+        secure: this.configService.get<boolean>('SMTP_SECURE', false),
+        auth: {
+          user: this.configService.get<string>('SMTP_USER'),
+          pass: this.configService.get<string>('SMTP_PASS'),
+        },
+      });
+
+      const mailOptions = {
+        from: this.configService.get<string>('SMTP_FROM', '"BMS" <noreply@bms.com>'),
+        to: payload.to,
+        subject: payload.subject,
+        html: payload.message.replace(/\n/g, '<br>'),
+      };
+
+      await transporter.sendMail(mailOptions);
+      this.logger.log(`Email sent successfully to ${payload.to}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send email via SMTP: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Envoyer une notification par SendGrid
+   */
+  private async sendWithSendGrid(payload: NotificationPayload): Promise<boolean> {
+    try {
+      const sgMail = require('@sendgrid/mail');
+      sgMail.setApiKey(this.configService.get<string>('SENDGRID_API_KEY'));
+
+      const msg = {
+        to: payload.to,
+        from: this.configService.get<string>('SENDGRID_FROM', 'noreply@bms.com'),
+        subject: payload.subject,
+        html: payload.message.replace(/\n/g, '<br>'),
+      };
+
+      await sgMail.send(msg);
+      this.logger.log(`Email sent successfully via SendGrid to ${payload.to}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send email via SendGrid: ${error.message}`);
+      return false;
+    }
   }
 
   /**
@@ -83,12 +145,87 @@ export class NotificationsService {
       return true;
     }
 
-    // TODO: Implémenter avec Twilio WhatsApp ou Meta WhatsApp Business API
-    // if (provider === 'twilio') {
-    //   return this.sendWhatsAppWithTwilio(payload);
-    // }
+    // Implémentation avec Twilio WhatsApp
+    if (provider === 'twilio') {
+      return this.sendWhatsAppWithTwilio(payload);
+    }
+
+    // Implémentation avec Meta WhatsApp Business API
+    if (provider === 'meta') {
+      return this.sendWhatsAppWithMeta(payload);
+    }
 
     return true;
+  }
+
+  /**
+   * Envoyer WhatsApp via Twilio
+   */
+  private async sendWhatsAppWithTwilio(payload: NotificationPayload): Promise<boolean> {
+    try {
+      const twilio = require('twilio');
+      const client = twilio(
+        this.configService.get<string>('TWILIO_ACCOUNT_SID'),
+        this.configService.get<string>('TWILIO_AUTH_TOKEN')
+      );
+
+      const message = await client.messages.create({
+        body: payload.message,
+        from: `whatsapp:${this.configService.get<string>('TWILIO_WHATSAPP_NUMBER')}`,
+        to: `whatsapp:${payload.to}`,
+      });
+
+      this.logger.log(`WhatsApp message sent via Twilio: ${message.sid}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send WhatsApp via Twilio: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Envoyer WhatsApp via Meta Business API
+   */
+  private async sendWhatsAppWithMeta(payload: NotificationPayload): Promise<boolean> {
+    try {
+      const response = await fetch(
+        `https://graph.facebook.com/v18.0/${this.configService.get<string>('META_PHONE_NUMBER_ID')}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.configService.get<string>('META_ACCESS_TOKEN')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to: payload.to,
+            type: 'template',
+            template: {
+              name: 'invoice_notification',
+              language: { code: 'fr' },
+              components: [
+                {
+                  type: 'body',
+                  parameters: [
+                    { type: 'text', text: payload.message }
+                  ]
+                }
+              ]
+            }
+          }),
+        }
+      );
+
+      if (response.ok) {
+        this.logger.log(`WhatsApp message sent via Meta to ${payload.to}`);
+        return true;
+      } else {
+        throw new Error(`Meta API error: ${response.statusText}`);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to send WhatsApp via Meta: ${error.message}`);
+      return false;
+    }
   }
 
   /**
