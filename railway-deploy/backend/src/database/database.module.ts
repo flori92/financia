@@ -192,18 +192,40 @@ const ALL_ENTITIES = [
         const dbHost = configService.get<string>('DB_HOST') || 'postgres.railway.internal';
         const dbPort = configService.get<number>('DB_PORT') || 5432;
         const dbUser = configService.get<string>('DB_USER') || 'postgres';
+        const dbPassword = configService.get<string>('DB_PASSWORD');
         const dbName = configService.get<string>('DB_NAME') || 'railway';
         
         console.log('🔧 TypeORM config:', { dbHost, dbPort, dbUser, dbName });
         console.log('🔗 Database connection: postgres://****:****@', dbHost, ':', dbPort, '/', dbName);
         
-        return {
+        // Utiliser les paramètres individuels au lieu de l'URL pour éviter les problèmes de parsing
+        const config: any = {
           type: 'postgres',
-          url: databaseUrl,
+          host: dbHost,
+          port: dbPort,
+          username: dbUser,
+          password: dbPassword,
+          database: dbName,
           entities: ALL_ENTITIES,
           synchronize: configService.get('NODE_ENV') === 'development',
           logging: configService.get('NODE_ENV') === 'development',
+          // Force IPv4 pour éviter les problèmes avec ::1
+          extra: {
+            host: dbHost,
+          },
         };
+        
+        // Fallback sur DATABASE_URL si les variables individuelles ne sont pas définies
+        if (!dbPassword && databaseUrl) {
+          config.url = databaseUrl;
+          delete config.host;
+          delete config.port;
+          delete config.username;
+          delete config.password;
+          delete config.database;
+        }
+        
+        return config;
       },
     }),
     TypeOrmModule.forFeature(ALL_ENTITIES),
