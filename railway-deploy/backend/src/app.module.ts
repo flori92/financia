@@ -50,6 +50,7 @@ import { ReportingModule } from './reporting/reporting.module';
 import { BankingModule } from './banking/banking.module';
 import { MobileMoneyModule } from './mobile-money/mobile-money.module';
 import { TreasuryModule } from './treasury/treasury.module';
+import { SEPAModule } from './modules/sepa/sepa.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { LoansModule } from './loans/loans.module';
 
@@ -155,6 +156,7 @@ import { AppController } from './app.controller';
     InvoicesModule,
     PaymentsModule,
     TreasuryModule,
+    SEPAModule,
     BankingModule,
     CrmModule,
     TaxModule,

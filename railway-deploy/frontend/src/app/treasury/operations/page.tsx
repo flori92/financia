@@ -187,6 +187,59 @@ export default function TreasuryOperationsPage() {
     }
   }
 
+  async function handleImportSEPA() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.xml';
+    
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('companyId', getCompanyId());
+        
+        const response = await fetch('/api/v1/sepa/import', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Ajouter les transactions importées à la liste
+          const newOperations = result.data.transactions.map((tx: any) => ({
+            id: tx.id,
+            reference: `SEPA-${tx.id}`,
+            beneficiary: tx.creditor,
+            paymentDate: tx.executionDate,
+            amount: tx.amount,
+            currency: tx.currency,
+            status: 'draft' as OperationStatus,
+            paymentMethod: 'bank_transfer',
+          }));
+          
+          setOperations(prev => [...newOperations, ...prev]);
+          alert(`Fichier SEPA importé avec succès !\n${result.data.transactionsCount} transactions importées`);
+        } else {
+          setError(result.message || 'Erreur lors de l\'import SEPA');
+        }
+      } catch (error) {
+        console.error('Erreur import SEPA:', error);
+        setError('Erreur lors de l\'import du fichier SEPA');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    input.click();
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -197,9 +250,11 @@ export default function TreasuryOperationsPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50"
+            onClick={handleImportSEPA}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Upload className="w-4 h-4" />
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             Importer un lot SEPA
           </button>
           <button

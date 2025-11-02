@@ -261,4 +261,65 @@ export class SEPAService {
   private async sendToDGFIP(xml: string): Promise<any> {
     return { reference: 'DGFIP-123', status: 'accepted', acknowledgment: 'OK' };
   }
+
+  /**
+   * Importer et parser un fichier SEPA
+   */
+  async importSEPAFile(buffer: Buffer, companyId: string): Promise<any> {
+    try {
+      const xmlContent = buffer.toString('utf-8');
+      
+      // Validation basique du XML
+      if (!xmlContent.includes('<Document') || !xmlContent.includes('SEPA')) {
+        throw new Error('Format de fichier SEPA invalide');
+      }
+
+      // Parser le XML (implémentation simplifiée)
+      const transactions = this.parseSEPAFile(xmlContent);
+      
+      return {
+        companyId,
+        filename: `sepa-import-${Date.now()}.xml`,
+        transactionsCount: transactions.length,
+        totalAmount: transactions.reduce((sum, tx) => sum + tx.amount, 0),
+        transactions,
+        importedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      throw new Error(`Erreur lors de l'import SEPA: ${error.message}`);
+    }
+  }
+
+  /**
+   * Parser le contenu d'un fichier SEPA
+   */
+  private parseSEPAFile(xmlContent: string): any[] {
+    // Implémentation simplifiée - dans un vrai projet, utiliser un parser XML robuste
+    const transactions: any[] = [];
+    
+    // Simulation de parsing - extraire les informations du virement
+    const amountMatch = xmlContent.match(/<InstdAmt[^>]*>([\d.]+)<\/InstdAmt>/g);
+    const creditorMatch = xmlContent.match(/<Nm[^>]*>([^<]+)<\/Nm>/g);
+    const ibanMatch = xmlContent.match(/<IBAN[^>]*>([^<]+)<\/IBAN>/g);
+    
+    const count = Math.min(amountMatch?.length || 0, creditorMatch?.length || 0, ibanMatch?.length || 0);
+    
+    for (let i = 0; i < count; i++) {
+      const amount = parseFloat(amountMatch[i].replace(/<[^>]*>/g, ''));
+      const creditor = creditorMatch[i].replace(/<[^>]*>/g, '');
+      const iban = ibanMatch[i].replace(/<[^>]*>/g, '');
+      
+      transactions.push({
+        id: `SEPA-${Date.now()}-${i}`,
+        amount,
+        creditor,
+        iban,
+        currency: 'EUR',
+        executionDate: new Date().toISOString().split('T')[0],
+        status: 'pending',
+      });
+    }
+    
+    return transactions;
+  }
 }
