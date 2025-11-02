@@ -43,7 +43,7 @@ import { BankAccount } from '../banking/entities/bank-account.entity';
 import { BankReconciliation } from '../banking/entities/bank-reconciliation.entity';
 // Bank API (connexions externes)
 import { BankConnection } from '../banking/bank-api/entities/bank-connection.entity';
-import { BankAnomaly } from '../banking/bank-api/entities/bank-anomaly.entity';
+// BankAnomaly exclus du module principal (utilisé uniquement dans bank-api)
 
 // 8. CRM & Sales Entities
 import { Contact } from '../crm/entities/contact.entity';
@@ -133,7 +133,7 @@ const ALL_ENTITIES = [
   BankReconciliation,
   // Bank API (connexions externes)
   BankConnection,
-  BankAnomaly,
+  // BankAnomaly exclus du module principal (utilisé uniquement dans bank-api)
   
   // CRM & Sales
   Contact,
