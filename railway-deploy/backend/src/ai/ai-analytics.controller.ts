@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Query, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
-import { AIAnalyticsService, ForecastResult, PredictionData } from './ai-analytics.service';
+import { AIAnalyticsService, ForecastResult, PredictionData, ApiResponse } from './ai-analytics.service';
 
 @ApiTags('AI Analytics & ML')
 @Controller('api/v1/ai')
@@ -16,7 +16,7 @@ export class AIAnalyticsController {
     historicalData: Array<{ date: string; value: number; category?: string }>;
     horizon: number;
     frequency: 'daily' | 'weekly' | 'monthly';
-  }): Promise<{ success: boolean; data?: ForecastResult; error?: string; fallback?: ForecastResult }> {
+  }): Promise<ApiResponse<ForecastResult>> {
     try {
       const forecast = await this.aiService.generateTimeSeriesForecast({
         historical: data.historicalData,

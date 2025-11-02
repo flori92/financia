@@ -27,6 +27,21 @@ export interface ForecastResult {
   recommendations: string[];
 }
 
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  fallback?: T;
+  metadata?: {
+    companyId?: string;
+    generatedAt?: string;
+    horizon?: number;
+    frequency?: string;
+    targetPeriod?: string;
+    [key: string]: any;
+  };
+}
+
 export class AIAnalyticsService {
   private readonly BASE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
   
