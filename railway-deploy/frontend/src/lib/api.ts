@@ -29,7 +29,7 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
   return res.text();
 }
 
-function getBaseUrl() {
+export function getBaseUrl() {
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   return 'http://localhost:3001';
 }
