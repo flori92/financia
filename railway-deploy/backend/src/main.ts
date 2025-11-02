@@ -4,6 +4,12 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 
+// Polyfill pour le module crypto Node.js (nécessaire pour @nestjs/schedule sur Railway)
+import { webcrypto } from 'crypto';
+if (!globalThis.crypto) {
+  (globalThis as any).crypto = webcrypto;
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
