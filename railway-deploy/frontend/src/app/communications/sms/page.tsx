@@ -46,7 +46,12 @@ export default function SMSPage() {
           <h1 className="text-3xl font-bold">SMS</h1>
           <p className="text-gray-600">Envoyez des SMS à vos clients</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button 
+          className="bg-teal-600 hover:bg-teal-700"
+          onClick={() => {
+            alert('Fonctionnalité Nouveau SMS - En développement !\n\nCette fonctionnalité permettra :\n• Composer un nouveau SMS\n• Choisir des destinataires (individuels ou groupe)\n• Utiliser des templates SMS\n• Personnaliser avec variables\n• Programmer l\'envoi\n• Suivre la livraison en temps réel');
+          }}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau SMS
         </Button>
@@ -113,7 +118,13 @@ export default function SMSPage() {
               </thead>
               <tbody>
                 {messages.map((msg) => (
-                  <tr key={msg.id} className="border-b hover:bg-gray-50">
+                  <tr 
+                    key={msg.id} 
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    onClick={() => {
+                      alert(`SMS Details:\n\nDestinataire: ${msg.recipient}\nMessage: ${msg.message}\nType: ${msg.type}\nStatut: ${msg.status}\nDate: ${new Date(msg.sentAt).toLocaleString('fr-FR')}\nCoût: ${msg.cost} FCFA\n\nFonctionnalités disponibles:\n• Renvoyer le SMS\n• Voir détails de livraison\n• Exporter le rapport\n• Annuler si en attente`);
+                    }}
+                  >
                     <td className="p-3 font-medium">{msg.recipient}</td>
                     <td className="p-3 text-sm text-gray-600 max-w-md truncate">{msg.message}</td>
                     <td className="p-3">

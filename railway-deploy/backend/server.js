@@ -7,6 +7,7 @@ const database = require('./database');
 const DynamicService = require('./services/DynamicService');
 const TreasuryService = require('./services/TreasuryService');
 const AccountingService = require('./services/AccountingService');
+const CommunicationService = require('./services/CommunicationService');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -690,53 +691,104 @@ app.get('/api/v1/support/tickets', (req, res) => {
   ]);
 });
 
-// Communications endpoints
-app.get('/api/v1/communications/templates', (req, res) => {
-  res.json([
-    {
-      id: '1',
-      name: 'Template Facture',
-      type: 'email',
-      subject: 'Votre facture',
-      status: 'active'
-    }
-  ]);
+// === COMMUNICATIONS (DYNAMIQUES) ===
+app.get('/api/v1/communications/templates', async (req, res) => {
+  try {
+    const templates = await CommunicationService.getTemplates();
+    res.json(templates);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.get('/api/v1/communications/sms', (req, res) => {
-  res.json([
-    {
-      id: '1',
-      message: 'Votre facture est disponible',
-      recipients: 5,
-      status: 'sent',
-      sentAt: '2025-11-01'
-    }
-  ]);
+app.post('/api/v1/communications/templates', async (req, res) => {
+  try {
+    const template = await CommunicationService.createTemplate(req.body);
+    res.json(template);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.get('/api/v1/communications/emails', (req, res) => {
-  res.json([
-    {
-      id: '1',
-      subject: 'Facture F001',
-      recipients: 1,
-      status: 'sent',
-      sentAt: '2025-11-01'
-    }
-  ]);
+app.put('/api/v1/communications/templates/:id', async (req, res) => {
+  try {
+    const template = await CommunicationService.updateTemplate(req.params.id, req.body);
+    res.json(template);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.get('/api/v1/communications/whatsapp', (req, res) => {
-  res.json([
-    {
-      id: '1',
-      message: 'Confirmation commande',
-      recipients: 2,
-      status: 'delivered',
-      sentAt: '2025-11-01'
-    }
-  ]);
+app.delete('/api/v1/communications/templates/:id', async (req, res) => {
+  try {
+    const result = await CommunicationService.deleteTemplate(req.params.id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/communications/sms', async (req, res) => {
+  try {
+    const messages = await CommunicationService.getSMSMessages();
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/sms', async (req, res) => {
+  try {
+    const sms = await CommunicationService.sendSMS(req.body);
+    res.json(sms);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/communications/emails', async (req, res) => {
+  try {
+    const emails = await CommunicationService.getEmails();
+    res.json(emails);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/emails', async (req, res) => {
+  try {
+    const email = await CommunicationService.sendEmail(req.body);
+    res.json(email);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/communications/whatsapp', async (req, res) => {
+  try {
+    const messages = await CommunicationService.getWhatsAppMessages();
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/whatsapp', async (req, res) => {
+  try {
+    const message = await CommunicationService.sendWhatsApp(req.body);
+    res.json(message);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/communications/stats', async (req, res) => {
+  try {
+    const stats = await CommunicationService.getCommunicationStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // NIF endpoints

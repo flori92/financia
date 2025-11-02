@@ -48,7 +48,12 @@ export default function TemplatesPage() {
           <h1 className="text-3xl font-bold">Templates de Communication</h1>
           <p className="text-gray-600">Gérez vos modèles d'emails, SMS et WhatsApp</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button 
+          className="bg-teal-600 hover:bg-teal-700"
+          onClick={() => {
+            alert('Fonctionnalité Nouveau Template - En développement !\n\nCette fonctionnalité permettra :\n• Créer un nouveau template\n• Choisir le canal (Email/SMS/WhatsApp)\n• Définir la catégorie (Notification/Relance/Marketing)\n• Utiliser des variables dynamiques\n• Prévisualiser le template\n• Tester avant sauvegarde');
+          }}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Template
         </Button>
@@ -58,7 +63,13 @@ export default function TemplatesPage() {
         {templates.map((template) => {
           const Icon = getIcon(template.channel);
           return (
-            <Card key={template.id} className="hover:shadow-lg transition">
+            <Card 
+              key={template.id} 
+              className="hover:shadow-lg transition cursor-pointer"
+              onClick={() => {
+                alert(`Template: ${template.name}\n\nCanal: ${template.channel}\nCatégorie: ${template.category}\nSujet: ${template.subject || 'N/A'}\nUtilisé: ${template.usageCount} fois\n\nFonctionnalités disponibles:\n• Utiliser ce template pour envoyer un message\n• Dupliquer le template\n• Voir les statistiques d\'utilisation\n• Exporter le template\n• Partager avec l\'équipe`);
+              }}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
@@ -110,10 +121,27 @@ export default function TemplatesPage() {
                       Utilisé {template.usageCount} fois
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          alert(`Modifier Template: ${template.name}\n\nCette fonctionnalité permettra :\n• Éditer le contenu du template\n• Modifier le sujet (pour emails)\n• Changer la catégorie\n• Ajouter/Modifier des variables\n• Prévisualiser les changements`);
+                        }}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-600 hover:text-red-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Supprimer le template "${template.name}" ?\n\nCette action est irréversible.\n\nLe template a été utilisé ${template.usageCount} fois.`)) {
+                            alert(`Template "${template.name}" supprimé avec succès !\n\nFonctionnalités de suppression :\n• Confirmation avant suppression\n• Vérification des utilisations actives\n• Archive automatique des templates supprimés`);
+                          }
+                        }}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

@@ -46,7 +46,12 @@ export default function WhatsAppPage() {
           <h1 className="text-3xl font-bold">WhatsApp Business</h1>
           <p className="text-gray-600">Communiquez avec vos clients via WhatsApp</p>
         </div>
-        <Button className="bg-green-600 hover:bg-green-700">
+        <Button 
+          className="bg-green-600 hover:bg-green-700"
+          onClick={() => {
+            alert('Fonctionnalité Nouveau Message WhatsApp - En développement !\n\nCette fonctionnalité permettra :\n• Composer un nouveau message WhatsApp\n• Choisir des contacts individuels ou groupes\n• Utiliser des templates WhatsApp\n• Envoyer images, documents, PDF\n• Programmer l\'envoi\n• Suivre la livraison (envoyé/délivré/lu)\n• Gérer les réponses automatiques');
+          }}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Message
         </Button>
@@ -113,7 +118,13 @@ export default function WhatsAppPage() {
               </thead>
               <tbody>
                 {messages.map((msg) => (
-                  <tr key={msg.id} className="border-b hover:bg-gray-50">
+                  <tr 
+                    key={msg.id} 
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    onClick={() => {
+                      alert(`WhatsApp Message Details:\n\nContact: ${msg.contact}\nTéléphone: ${msg.phone}\nMessage: ${msg.message}\nType: ${msg.type}\nStatut: ${msg.status}\nDate: ${new Date(msg.sentAt).toLocaleString('fr-FR')}\n\nFonctionnalités disponibles:\n• Renvoyer le message\n• Voir détails de livraison\n• Exporter la conversation\n• Répondre directement\n• Archiver la conversation`);
+                    }}
+                  >
                     <td className="p-3 font-medium">{msg.contact}</td>
                     <td className="p-3 text-sm">{msg.phone}</td>
                     <td className="p-3 text-sm text-gray-600 max-w-md truncate">{msg.message}</td>

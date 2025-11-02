@@ -139,7 +139,36 @@ class Database {
         key TEXT PRIMARY KEY,
         value TEXT,
         description TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Communication Templates
+      `CREATE TABLE IF NOT EXISTS communication_templates (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        channel TEXT NOT NULL,
+        category TEXT NOT NULL,
+        subject TEXT,
+        content TEXT NOT NULL,
+        usage_count INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Communication Logs
+      `CREATE TABLE IF NOT EXISTS communication_logs (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        channel TEXT NOT NULL,
+        recipient TEXT NOT NULL,
+        subject TEXT,
+        content TEXT NOT NULL,
+        type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        sent_at DATETIME NOT NULL,
+        cost INTEGER DEFAULT 0,
+        metadata TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`
     ];
 

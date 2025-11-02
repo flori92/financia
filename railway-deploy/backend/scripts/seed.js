@@ -2,6 +2,7 @@
 
 const database = require('../database');
 const moment = require('moment');
+const { v4: uuidv4 } = require('uuid');
 
 async function seed() {
   console.log('🌱 Démarrage seed BMS...');
@@ -108,6 +109,38 @@ async function seed() {
       `, [companyId, name, position, department, salary, hireDate]);
     }
 
+    // Templates de communication
+    const templates = [
+      ['Facture Envoyée', 'email', 'notification', 'Votre facture #{invoiceNumber}', 'Bonjour {clientName},\n\nVeuillez trouver ci-joint votre facture #{invoiceNumber} d\'un montant de {amount} FCFA.\n\nDate d\'échéance : {dueDate}\n\nCordialement,\nL\'équipe BMS', 45],
+      ['Relance Paiement', 'sms', 'reminder', null, 'Bonjour {clientName}, votre facture #{invoiceNumber} de {amount} FCFA est en attente de paiement depuis {daysOverdue} jours. Merci de régulariser.', 23],
+      ['Confirmation Commande', 'whatsapp', 'notification', null, '✅ Commande confirmée !\n\nNuméro : {orderNumber}\nMontant : {amount} FCFA\nLivraison prévue : {deliveryDate}\n\nMerci pour votre confiance !', 67],
+      ['Bienvenue Client', 'email', 'onboarding', 'Bienvenue chez {companyName}', 'Cher {clientName},\n\nNous vous remercions de votre confiance !\n\nVotre compte est maintenant actif.\n\nN\'hésitez pas à nous contacter.\n\nCordialement', 12],
+      ['Promotion Spéciale', 'sms', 'marketing', null, '🎉 OFFRE SPÉCIALE ! Profitez de -20% sur tous nos services jusqu\'au {endDate}. Code : {promoCode}', 89]
+    ];
+
+    for (const [name, channel, category, subject, content, usageCount] of templates) {
+      await database.run(`
+        INSERT INTO communication_templates (id, name, channel, category, subject, content, usage_count)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [uuidv4(), name, channel, category, subject, content, usageCount]);
+    }
+
+    // Logs de communication (exemples)
+    const logs = [
+      [companyId, 'email', 'client@exemple.com', 'Facture F001', 'Veuillez trouver ci-joint votre facture...', 'notification', 'delivered', moment().subtract(2, 'hours').toISOString(), 0],
+      [companyId, 'sms', '+22912345678', null, 'Votre facture F001 est disponible.', 'notification', 'delivered', moment().subtract(1, 'day').toISOString(), 50],
+      [companyId, 'whatsapp', '+22987654321', null, 'Votre commande a été confirmée !', 'notification', 'read', moment().subtract(3, 'hours').toISOString(), 0],
+      [companyId, 'email', 'fournisseur@exemple.com', 'Commande confirmée', 'Nous vous confirmons la réception...', 'notification', 'sent', moment().subtract(2, 'days').toISOString(), 0],
+      [companyId, 'sms', '+22998765432', null, '🎉 Promotion spéciale -20% !', 'marketing', 'delivered', moment().subtract(5, 'days').toISOString(), 50]
+    ];
+
+    for (const [compId, channel, recipient, subject, content, type, status, sentAt, cost] of logs) {
+      await database.run(`
+        INSERT INTO communication_logs (id, company_id, channel, recipient, subject, content, type, status, sent_at, cost)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [uuidv4(), compId, channel, recipient, subject, content, type, status, sentAt, cost]);
+    }
+
     // Configuration système avancée
     await database.run(`
       INSERT OR REPLACE INTO settings (key, value, description) 
@@ -121,7 +154,10 @@ async function seed() {
         ('multi_currency', 'false', 'Support multi-monnaies (bientôt)'),
         ('api_rate_limit', '1000', 'Limite API par heure'),
         ('backup_frequency', 'daily', 'Fréquence de backup automatique'),
-        ('notification_email', 'admin@bms.bj', 'Email pour notifications système')
+        ('notification_email', 'admin@bms.bj', 'Email pour notifications système'),
+        ('sms_enabled', 'true', 'Envoi SMS activé'),
+        ('whatsapp_enabled', 'true', 'WhatsApp Business activé'),
+        ('email_smtp_enabled', 'true', 'SMTP Email activé')
     `);
 
     // Statistiques du seed
@@ -130,7 +166,9 @@ async function seed() {
       invoices: invoices.length,
       contacts: contacts.length,
       employees: employees.length,
-      settings: 10
+      templates: templates.length,
+      communicationLogs: logs.length,
+      settings: 13
     };
 
     console.log('📊 Données de seed insérées:');

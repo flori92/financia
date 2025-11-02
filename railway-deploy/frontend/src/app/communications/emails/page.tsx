@@ -61,7 +61,13 @@ export default function EmailsPage() {
           <h1 className="text-3xl font-bold">Emails</h1>
           <p className="text-gray-600">Gérez vos communications par email</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button 
+          className="bg-teal-600 hover:bg-teal-700"
+          onClick={() => {
+            // Ouvrir modal nouveau message
+            alert('Fonctionnalité Nouveau Message - En développement !\n\nCette fonctionnalité permettra :\n• Composer un nouvel email\n• Choisir des destinataires\n• Utiliser des templates\n• Ajouter des pièces jointes\n• Programmer l\'envoi');
+          }}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Message
         </Button>
@@ -102,7 +108,13 @@ export default function EmailsPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               {templates.map((template) => (
-                <button key={template.id} className="w-full text-left p-2 hover:bg-gray-50 rounded text-sm">
+                <button 
+                  key={template.id} 
+                  className="w-full text-left p-2 hover:bg-gray-50 rounded text-sm"
+                  onClick={() => {
+                    alert(`Template: ${template.name}\n\nUtiliser ce template pour composer un nouveau message.\n\nFonctionnalités :\n• Pré-remplir le sujet et contenu\n• Personnaliser avec variables\n• Envoyer immédiatement ou programmer`);
+                  }}
+                >
                   {template.name}
                 </button>
               ))}
@@ -118,7 +130,13 @@ export default function EmailsPage() {
             <CardContent>
               <div className="space-y-2">
                 {filteredEmails.map((email) => (
-                  <div key={email.id} className={`p-4 border rounded-lg hover:bg-gray-50 cursor-pointer ${!email.read ? 'bg-blue-50 border-blue-200' : ''}`}>
+                  <div 
+                    key={email.id} 
+                    className={`p-4 border rounded-lg hover:bg-gray-50 cursor-pointer ${!email.read ? 'bg-blue-50 border-blue-200' : ''}`}
+                    onClick={() => {
+                      alert(`Email: ${email.subject}\n\nDe: ${email.from}\nDate: ${new Date(email.date).toLocaleDateString('fr-FR')}\n\nFonctionnalités disponibles :\n• Marquer comme lu/non lu\n• Mettre en favori\n• Archiver\n• Supprimer\n• Répondre / Transférer`);
+                    }}
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
