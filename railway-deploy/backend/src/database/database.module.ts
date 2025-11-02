@@ -198,6 +198,24 @@ const ALL_ENTITIES = [
         const synchronize = !isProduction && nodeEnv === 'development';
         const logging = !isProduction && nodeEnv === 'development';
         
+        // DEBUG: Afficher toutes les variables DB disponibles
+        console.log('🔍 All DB Environment Variables:', {
+          DATABASE_URL: !!databaseUrl,
+          DB_PASSWORD: !!dbPassword,
+          DB_HOST: !!configService.get<string>('DB_HOST'),
+          DB_PORT: !!configService.get<string>('DB_PORT'),
+          DB_USER: !!configService.get<string>('DB_USER'),
+          DB_NAME: !!configService.get<string>('DB_NAME'),
+          PGUSER: !!configService.get<string>('PGUSER'),
+          PGPASSWORD: !!configService.get<string>('PGPASSWORD'),
+          PGDATABASE: !!configService.get<string>('PGDATABASE'),
+          PGHOST: !!configService.get<string>('PGHOST'),
+          PGPORT: !!configService.get<string>('PGPORT'),
+          RAILWAY_ENVIRONMENT: !!configService.get<string>('RAILWAY_ENVIRONMENT'),
+          RAILWAY_PUBLIC_DOMAIN: !!configService.get<string>('RAILWAY_PUBLIC_DOMAIN'),
+          RAILWAY_SERVICE_NAME: !!configService.get<string>('RAILWAY_SERVICE_NAME')
+        });
+        
         console.log('🔧 Database config:', { 
           nodeEnv,
           isRailway,
@@ -224,26 +242,52 @@ const ALL_ENTITIES = [
         // Sinon utiliser les paramètres individuels (Railway ou dev local)
         // Railway utilise des variables individuelles, pas DATABASE_URL
         const dbHost = isRailway 
-          ? configService.get<string>('DB_HOST') || 'postgres.railway.internal'
+          ? configService.get<string>('DB_HOST') || configService.get<string>('PGHOST') || 'postgres.railway.internal'
           : configService.get<string>('DB_HOST') || 'localhost';
-        const dbPort = configService.get<number>('DB_PORT') || 5432;
-        const dbUser = configService.get<string>('DB_USER') || 'postgres';
+        const dbPort = configService.get<number>('DB_PORT') || parseInt(configService.get<string>('PGPORT') || '5432');
+        const dbUser = isRailway
+          ? configService.get<string>('DB_USER') || configService.get<string>('PGUSER') || 'postgres'
+          : configService.get<string>('DB_USER') || 'postgres';
         const dbName = isRailway
-          ? configService.get<string>('DB_NAME') || 'railway'
+          ? configService.get<string>('DB_NAME') || configService.get<string>('PGDATABASE') || 'railway'
           : configService.get<string>('DB_NAME') || 'bms_dev';
         
-        console.log(`🔗 Using individual params (${isRailway ? 'Railway' : 'Dev'} mode):`, { dbHost, dbPort, dbUser, dbName });
+        // Essayer plusieurs sources pour le mot de passe
+        const finalPassword = dbPassword || 
+                              configService.get<string>('PGPASSWORD') || 
+                              configService.get<string>('RAILWAY_POSTGRES_PASSWORD') ||
+                              configService.get<string>('POSTGRES_PASSWORD');
+        
+        console.log(`🔗 Using individual params (${isRailway ? 'Railway' : 'Dev'} mode):`, { 
+          dbHost, 
+          dbPort, 
+          dbUser, 
+          dbName, 
+          hasPassword: !!finalPassword,
+          passwordSource: dbPassword ? 'DB_PASSWORD' : 
+                          configService.get<string>('PGPASSWORD') ? 'PGPASSWORD' :
+                          configService.get<string>('RAILWAY_POSTGRES_PASSWORD') ? 'RAILWAY_POSTGRES_PASSWORD' :
+                          configService.get<string>('POSTGRES_PASSWORD') ? 'POSTGRES_PASSWORD' : 'NONE'
+        });
+        
+        // ERREUR: Si aucun mot de passe n'est disponible sur Railway
+        if (isRailway && !finalPassword) {
+          console.error('❌ ERREUR CRITIQUE: Aucun mot de passe PostgreSQL trouvé sur Railway !');
+          console.error('❌ Variables requises: DB_PASSWORD ou PGPASSWORD ou RAILWAY_POSTGRES_PASSWORD');
+          throw new Error('Configuration PostgreSQL incomplète sur Railway: mot de passe manquant');
+        }
         
         return {
           type: 'postgres',
           host: dbHost,
           port: dbPort,
           username: dbUser,
-          password: dbPassword,
+          password: finalPassword, // Utiliser le mot de passe final trouvé
           database: dbName,
           entities: ALL_ENTITIES,
           synchronize, // false en production
           logging,
+          ssl: isProduction ? { rejectUnauthorized: false } : false,
         };
       },
     }),
