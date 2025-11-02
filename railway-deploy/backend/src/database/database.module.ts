@@ -202,10 +202,15 @@ const ALL_ENTITIES = [
         console.log('🔍 All DB Environment Variables:', {
           DATABASE_URL: !!databaseUrl,
           DB_PASSWORD: !!dbPassword,
+          DATABASE_PASSWORD: !!configService.get<string>('DATABASE_PASSWORD'),
           DB_HOST: !!configService.get<string>('DB_HOST'),
+          DATABASE_HOST: !!configService.get<string>('DATABASE_HOST'),
           DB_PORT: !!configService.get<string>('DB_PORT'),
+          DATABASE_PORT: !!configService.get<string>('DATABASE_PORT'),
           DB_USER: !!configService.get<string>('DB_USER'),
+          DATABASE_USER: !!configService.get<string>('DATABASE_USER'),
           DB_NAME: !!configService.get<string>('DB_NAME'),
+          DATABASE_NAME: !!configService.get<string>('DATABASE_NAME'),
           PGUSER: !!configService.get<string>('PGUSER'),
           PGPASSWORD: !!configService.get<string>('PGPASSWORD'),
           PGDATABASE: !!configService.get<string>('PGDATABASE'),
@@ -240,20 +245,21 @@ const ALL_ENTITIES = [
         }
         
         // Sinon utiliser les paramètres individuels (Railway ou dev local)
-        // Railway utilise des variables individuelles, pas DATABASE_URL
+        // Railway utilise des variables avec préfixe DATABASE_
         const dbHost = isRailway 
-          ? configService.get<string>('DB_HOST') || configService.get<string>('PGHOST') || 'postgres.railway.internal'
+          ? configService.get<string>('DATABASE_HOST') || configService.get<string>('DB_HOST') || configService.get<string>('PGHOST') || 'postgres.railway.internal'
           : configService.get<string>('DB_HOST') || 'localhost';
-        const dbPort = configService.get<number>('DB_PORT') || parseInt(configService.get<string>('PGPORT') || '5432');
+        const dbPort = configService.get<number>('DATABASE_PORT') || configService.get<number>('DB_PORT') || parseInt(configService.get<string>('PGPORT') || '5432');
         const dbUser = isRailway
-          ? configService.get<string>('DB_USER') || configService.get<string>('PGUSER') || 'postgres'
+          ? configService.get<string>('DATABASE_USER') || configService.get<string>('DB_USER') || configService.get<string>('PGUSER') || 'postgres'
           : configService.get<string>('DB_USER') || 'postgres';
         const dbName = isRailway
-          ? configService.get<string>('DB_NAME') || configService.get<string>('PGDATABASE') || 'railway'
+          ? configService.get<string>('DATABASE_NAME') || configService.get<string>('DB_NAME') || configService.get<string>('PGDATABASE') || 'railway'
           : configService.get<string>('DB_NAME') || 'bms_dev';
         
         // Essayer plusieurs sources pour le mot de passe
         const finalPassword = dbPassword || 
+                              configService.get<string>('DATABASE_PASSWORD') ||
                               configService.get<string>('PGPASSWORD') || 
                               configService.get<string>('RAILWAY_POSTGRES_PASSWORD') ||
                               configService.get<string>('POSTGRES_PASSWORD');
@@ -265,6 +271,7 @@ const ALL_ENTITIES = [
           dbName, 
           hasPassword: !!finalPassword,
           passwordSource: dbPassword ? 'DB_PASSWORD' : 
+                          configService.get<string>('DATABASE_PASSWORD') ? 'DATABASE_PASSWORD' :
                           configService.get<string>('PGPASSWORD') ? 'PGPASSWORD' :
                           configService.get<string>('RAILWAY_POSTGRES_PASSWORD') ? 'RAILWAY_POSTGRES_PASSWORD' :
                           configService.get<string>('POSTGRES_PASSWORD') ? 'POSTGRES_PASSWORD' : 'NONE'
@@ -273,7 +280,7 @@ const ALL_ENTITIES = [
         // ERREUR: Si aucun mot de passe n'est disponible sur Railway
         if (isRailway && !finalPassword) {
           console.error('❌ ERREUR CRITIQUE: Aucun mot de passe PostgreSQL trouvé sur Railway !');
-          console.error('❌ Variables requises: DB_PASSWORD ou PGPASSWORD ou RAILWAY_POSTGRES_PASSWORD');
+          console.error('❌ Variables requises: DATABASE_PASSWORD ou DB_PASSWORD ou PGPASSWORD ou RAILWAY_POSTGRES_PASSWORD');
           throw new Error('Configuration PostgreSQL incomplète sur Railway: mot de passe manquant');
         }
         
