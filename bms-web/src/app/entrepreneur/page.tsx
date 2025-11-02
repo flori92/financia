@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, FileText, Award, Bell, AlertTriangle, Target, Activity } from 'lucide-react';
 import { apiGet, getCompanyId } from '@/lib/api';
+import { useEffectiveCompanyId, useSelectedClientName, isExpertClientMode } from '@/hooks/useCompanyId';
 
 interface EntrepreneurData {
   kpiMonth: {
@@ -32,7 +33,7 @@ export default function EntrepreneurDashboard() {
 
   useEffect(() => {
     const loadData = async () => {
-      const companyId = getCompanyId();
+      const companyId = useEffectiveCompanyId();
       if (!companyId) {
         setError("Aucune société sélectionnée");
         setLoading(false);
@@ -69,18 +70,29 @@ export default function EntrepreneurDashboard() {
     };
 
     loadData();
-  }, []);
+  }, []); // La dépendance sera gérée par useEffectEffectiveCompanyId
 
   if (loading) return <div className="p-8">Chargement...</div>;
   if (error) return <div className="p-8 text-red-600">Erreur: {error}</div>;
   if (!data) return <div className="p-8">Aucune donnée disponible</div>;
 
+  // Récupérer le nom du client si on est en mode expert
+  const selectedClientName = useSelectedClientName();
+  const isExpertMode = isExpertClientMode();
+
   return (
     <div className="p-8 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Tableau de Bord Entrepreneur</h1>
-          <p className="text-gray-600">Vue d'ensemble de votre activité</p>
+          <h1 className="text-3xl font-bold">
+            {isExpertMode ? `Gestion Client: ${selectedClientName}` : 'Tableau de Bord Entrepreneur'}
+          </h1>
+          <p className="text-gray-600">
+            {isExpertMode 
+              ? 'Vous naviguez dans l\'espace de ce client en tant qu\'expert-comptable' 
+              : 'Vue d\'ensemble de votre activité'
+            }
+          </p>
         </div>
         <Button className="bg-teal-600 hover:bg-teal-700">
           <FileText className="w-4 h-4 mr-2" />

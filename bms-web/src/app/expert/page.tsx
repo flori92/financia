@@ -23,9 +23,18 @@ import {
     TrendingDown,
     DollarSign,
     Target,
-    Activity
+    Activity,
+    ArrowRight,
+    Settings,
+  Eye,
+  Edit
 } from 'lucide-react';
 import { formatNumber } from '@/lib/format';
+import { ExpertProvider, useExpert } from '@/contexts/expert-context';
+import { ClientSelector } from '@/components/expert/ClientSelector';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface ExpertMetrics {
     cabinet: {
@@ -78,14 +87,16 @@ interface ExpertMetrics {
     }>;
 }
 
-export default function ExpertDashboardPage() {
+function ExpertDashboardContent() {
+    const { selectedClient, isExpertMode, clients } = useExpert();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<ExpertMetrics | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     async function loadDashboard() {
-        const companyId = getCompanyId();
-        if (!companyId) {
+        // Utiliser le client sélectionné ou l'ID par défaut
+        const effectiveCompanyId = selectedClient?.id || getCompanyId();
+        if (!effectiveCompanyId) {
             setError("Aucune société sélectionnée");
             setLoading(false);
             return;
@@ -94,16 +105,49 @@ export default function ExpertDashboardPage() {
         try {
             setLoading(true);
             
-            // Simuler les données d'un cabinet comptable multi-clients
-            // En réalité, ces données viendraient d'une agrégation de plusieurs entreprises
-            const mockData: ExpertMetrics = {
-                cabinet: {
-                    totalClients: 12,
-                    activeClients: 8,
-                    totalRevenue: 45000000,
-                    pendingTasks: 5
-                },
-                clientsMetrics: [
+            // Si un client est sélectionné, charger les données de ce client spécifique
+            if (selectedClient) {
+                // Charger les données entrepreneur pour le client sélectionné
+                const [metrics, treasuryAlerts] = await Promise.allSettled([
+                    apiGet("/api/v1/accounting/dashboard/metrics", { companyId: effectiveCompanyId }),
+                    apiGet("/api/v1/treasury/alerts", { companyId: effectiveCompanyId })
+                ]);
+
+                const clientData: ExpertMetrics = {
+                    cabinet: {
+                        totalClients: 1,
+                        activeClients: 1,
+                        totalRevenue: metrics.status === "fulfilled" ? metrics.value.kpiMonth?.revenue || 0 : 0,
+                        pendingTasks: metrics.status === "fulfilled" ? metrics.value.alerts?.length || 0 : 0
+                    },
+                    clientsMetrics: [{
+                        id: selectedClient.id,
+                        name: selectedClient.name,
+                        revenue: metrics.status === "fulfilled" ? metrics.value.kpiMonth?.revenue || 0 : 0,
+                        netIncome: metrics.status === "fulfilled" ? metrics.value.kpiMonth?.netIncome || 0 : 0,
+                        margin: metrics.status === "fulfilled" ? metrics.value.kpiMonth?.margin || 0 : 0,
+                        lastActivity: selectedClient.lastActivity,
+                        alerts: metrics.status === "fulfilled" ? metrics.value.alerts?.length || 0 : 0
+                    }],
+                    performanceData: metrics.status === "fulfilled" ? metrics.value.evolutionChart || [] : [],
+                    topClients: metrics.status === "fulfilled" ? metrics.value.topClients || [] : [],
+                    alerts: metrics.status === "fulfilled" ? metrics.value.alerts || [] : [],
+                    recentActivity: metrics.status === "fulfilled" ? metrics.value.recentActivity?.entries || [] : [],
+                    revenueByMonth: metrics.status === "fulfilled" ? metrics.value.evolutionChart?.map((item: any) => ({ month: item.month.split(' ')[0], revenue: item.revenue })) || [] : [],
+                    upcomingDeadlines: []
+                };
+
+                setData(clientData);
+            } else {
+                // Vue cabinet : données agrégées de tous les clients
+                const mockData: ExpertMetrics = {
+                    cabinet: {
+                        totalClients: clients.length,
+                        activeClients: clients.filter(c => c.status === 'active').length,
+                        totalRevenue: 45000000,
+                        pendingTasks: 5
+                    },
+                    clientsMetrics: [
                     {
                         id: '1',
                         name: 'SARL Tech Solutions',
@@ -178,8 +222,9 @@ export default function ExpertDashboardPage() {
                 ]
             };
 
-            setData(mockData);
-            setError(null);
+                setData(mockData);
+                setError(null);
+            }
         } catch (err: any) {
             setError(err.message || 'Erreur lors du chargement des données');
         } finally {
@@ -189,7 +234,7 @@ export default function ExpertDashboardPage() {
 
     useEffect(() => {
         loadDashboard();
-    }, []);
+    }, [selectedClient]); // Recharger quand le client change
 
     if (loading) {
         return <div className="p-8 text-center text-slate-500">Chargement du dashboard...</div>;
@@ -205,16 +250,80 @@ export default function ExpertDashboardPage() {
 
     return (
         <div className="space-y-6 p-6">
+            {/* Sélecteur de clients */}
+            <ClientSelector />
+            
             {/* En-tête */}
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-slate-900">Dashboard Expert-Comptable</h1>
-                <button 
-                    onClick={loadDashboard}
-                    className="text-sm text-app-primary hover:underline"
-                >
-                    Actualiser
-                </button>
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">
+                        {selectedClient ? `Gestion Client: ${selectedClient.name}` : 'Dashboard Expert-Comptable'}
+                    </h1>
+                    <p className="text-sm text-slate-600">
+                        {selectedClient 
+                            ? 'Vous naviguez dans l\'espace du client sélectionné' 
+                            : 'Vue d\'ensemble de votre cabinet et de tous vos clients'
+                        }
+                    </p>
+                </div>
+                <div className="flex items-center gap-2">
+                    {selectedClient && (
+                        <Badge className="bg-blue-100 text-blue-800">
+                            <Eye className="w-3 h-3 mr-1" />
+                            Mode Client
+                        </Badge>
+                    )}
+                    <button 
+                        onClick={loadDashboard}
+                        className="text-sm text-app-primary hover:underline"
+                    >
+                        Actualiser
+                    </button>
+                </div>
             </div>
+
+            {/* Actions rapides pour le client sélectionné */}
+            {selectedClient && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <Settings className="w-5 h-5" />
+                            Actions pour {selectedClient.name}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Button 
+                                variant="outline" 
+                                className="justify-start"
+                                onClick={() => window.open(`/entrepreneur?clientId=${selectedClient.id}`, '_blank')}
+                            >
+                                <Eye className="w-4 h-4 mr-2" />
+                                Vue Entrepreneur
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className="justify-start"
+                                onClick={() => window.open(`/accountant?companyId=${selectedClient.id}`, '_blank')}
+                            >
+                                <Edit className="w-4 h-4 mr-2" />
+                                Comptabilité
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className="justify-start"
+                                onClick={() => window.open(`/treasury?companyId=${selectedClient.id}`, '_blank')}
+                            >
+                                <DollarSign className="w-4 h-4 mr-2" />
+                                Trésorerie
+                            </Button>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-3">
+                            Accédez à toutes les fonctionnalités du client comme si vous étiez l'entrepreneur
+                        </p>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Métriques principales */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -388,5 +497,14 @@ export default function ExpertDashboardPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// Wrapper principal avec le contexte
+export default function ExpertDashboardPage() {
+    return (
+        <ExpertProvider>
+            <ExpertDashboardContent />
+        </ExpertProvider>
     );
 }

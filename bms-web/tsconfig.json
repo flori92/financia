@@ -32,6 +32,9 @@
       ],
       "@/lib/*": [
         "src/lib/*"
+      ],
+      "@/contexts/*": [
+        "src/contexts/*"
       ]
     },
     "incremental": true,
