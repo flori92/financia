@@ -1,25 +1,23 @@
-// Redirection temporaire pour l'ancienne URL
+// BMS API Gateway - Production Server
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// CORS configuré pour toutes les origines
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
-
-app.use(express.json());
-
 // Logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
+
+// CORS
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
+app.use(express.json());
 
 // Health endpoint
 app.get('/health', (req, res) => {
@@ -28,8 +26,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     port: PORT,
     service: 'bms-api-gateway',
-    version: '1.0.0-production',
-    message: 'BMS API Gateway - Production Ready'
+    version: '1.0.0-production'
   });
 });
 
@@ -158,35 +155,6 @@ app.get('/api/v1/accounting/aged-balance', (req, res) => {
   });
 });
 
-// Endpoints supplémentaires pour éviter les 404
-app.get('/api/v1/accounting/general-ledger', (req, res) => {
-  res.json({ entries: [], total: 0 });
-});
-
-app.get('/api/v1/accounting/chart-of-accounts', (req, res) => {
-  res.json({ accounts: [], total: 0 });
-});
-
-app.get('/api/v1/banking/transactions', (req, res) => {
-  res.json({ transactions: [], total: 0 });
-});
-
-app.get('/api/v1/treasury/alerts', (req, res) => {
-  res.json({ alerts: [], total: 0 });
-});
-
-app.get('/api/v1/treasury/forecast', (req, res) => {
-  res.json({ forecast: [], total: 0 });
-});
-
-app.get('/api/v1/tax/vat/return', (req, res) => {
-  res.json({ vatReturn: {}, total: 0 });
-});
-
-app.get('/api/v1/accounting/close/last', (req, res) => {
-  res.json({ closure: {}, total: 0 });
-});
-
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -202,5 +170,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 BMS API Gateway started on port ${PORT}`);
   console.log(`📊 Health: http://localhost:${PORT}/health`);
   console.log(`🏢 Production Mode: ACTIVE`);
-  console.log(`🌐 CORS enabled for all origins`);
 });
