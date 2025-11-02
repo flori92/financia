@@ -425,6 +425,90 @@ app.get('/api/v1/hr/payroll', (req, res) => {
   ]);
 });
 
+// HR Timesheets endpoints
+app.get('/api/hr/timesheets', async (req, res) => {
+  try {
+    const { companyId, employeeId, startDate, endDate, status } = req.query;
+    
+    // Mock timesheets data
+    const mockTimesheets = [
+      {
+        id: '1',
+        employeeId: '1',
+        employeeName: 'Jean Dupont',
+        weekStart: '2025-10-27',
+        weekEnd: '2025-11-02',
+        totalHours: 40,
+        status: 'submitted',
+        entries: [
+          { date: '2025-10-27', project: 'Projet A', hours: 8 },
+          { date: '2025-10-28', project: 'Projet A', hours: 8 },
+          { date: '2025-10-29', project: 'Projet B', hours: 8 },
+          { date: '2025-10-30', project: 'Projet B', hours: 8 },
+          { date: '2025-10-31', project: 'Projet A', hours: 8 }
+        ]
+      },
+      {
+        id: '2',
+        employeeId: '2',
+        employeeName: 'Marie Koné',
+        weekStart: '2025-10-27',
+        weekEnd: '2025-11-02',
+        totalHours: 38,
+        status: 'draft',
+        entries: [
+          { date: '2025-10-27', project: 'Comptabilité', hours: 7.5 },
+          { date: '2025-10-28', project: 'Comptabilité', hours: 7.5 },
+          { date: '2025-10-29', project: 'Rapports', hours: 8 },
+          { date: '2025-10-30', project: 'Comptabilité', hours: 7.5 },
+          { date: '2025-10-31', project: 'Rapports', hours: 7.5 }
+        ]
+      }
+    ];
+    
+    // Filter by criteria if provided
+    let filteredTimesheets = mockTimesheets;
+    if (employeeId) {
+      filteredTimesheets = filteredTimesheets.filter(ts => ts.employeeId === employeeId);
+    }
+    if (status) {
+      filteredTimesheets = filteredTimesheets.filter(ts => ts.status === status);
+    }
+    
+    res.json(filteredTimesheets);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/hr/timesheets/:id/submit', async (req, res) => {
+  try {
+    const { id } = req.params;
+    res.json({ 
+      success: true, 
+      message: `Timesheet ${id} soumis avec succès`,
+      status: 'submitted'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/hr/timesheets/:id/approve', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { approverId } = req.body;
+    res.json({ 
+      success: true, 
+      message: `Timesheet ${id} approuvé par ${approverId}`,
+      status: 'approved',
+      approvedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // CRM endpoints
 app.get('/api/v1/crm/dashboard', (req, res) => {
   res.json({
@@ -484,7 +568,97 @@ app.delete('/api/v1/crm/contacts/:id', (req, res) => {
   res.json({ success: true, message: 'Contact supprimé' });
 });
 
-// === CRM (DYNAMIQUES) ===
+// Payments All Transactions Endpoint
+app.get('/payments/all-transactions', async (req, res) => {
+  try {
+    const { companyId, limit = 50, offset = 0, type, status } = req.query;
+    
+    // Mock comprehensive transactions data
+    const mockTransactions = [
+      {
+        id: '1',
+        type: 'payment',
+        amount: 500000,
+        method: 'bank_transfer',
+        status: 'completed',
+        date: '2025-11-01',
+        description: 'Paiement Fournisseur A',
+        party: 'Fournisseur A',
+        partyType: 'supplier',
+        category: 'supplier_payment',
+        reference: 'P001'
+      },
+      {
+        id: '2',
+        type: 'payment',
+        amount: 250000,
+        method: 'mobile_money',
+        status: 'completed',
+        date: '2025-11-02',
+        description: 'Paiement Client B',
+        party: 'Client B',
+        partyType: 'customer',
+        category: 'customer_payment',
+        reference: 'P002'
+      },
+      {
+        id: '3',
+        type: 'sepa_import',
+        amount: 1500000,
+        method: 'bank_transfer',
+        status: 'pending',
+        date: '2025-11-03',
+        description: 'Import SEPA - Fournisseurs',
+        party: 'Multiple',
+        partyType: 'supplier',
+        category: 'sepa_import',
+        reference: 'SEPA-001'
+      },
+      {
+        id: '4',
+        type: 'payment',
+        amount: 100000,
+        method: 'cash',
+        status: 'draft',
+        date: '2025-11-03',
+        description: 'Dépenses bureau',
+        party: 'Fournisseur C',
+        partyType: 'supplier',
+        category: 'expense',
+        reference: 'P004'
+      }
+    ];
+    
+    // Filter by criteria
+    let filteredTransactions = mockTransactions;
+    if (type) {
+      filteredTransactions = filteredTransactions.filter(t => t.type === type);
+    }
+    if (status) {
+      filteredTransactions = filteredTransactions.filter(t => t.status === status);
+    }
+    
+    // Pagination
+    const paginatedTransactions = filteredTransactions.slice(
+      parseInt(offset), 
+      parseInt(offset) + parseInt(limit)
+    );
+    
+    res.json({
+      transactions: paginatedTransactions,
+      pagination: {
+        total: filteredTransactions.length,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: parseInt(offset) + parseInt(limit) < filteredTransactions.length
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// === FIN DES ENDPOINTS PAYMENTS ===
 app.get('/api/v1/crm/dashboard', async (req, res) => {
   try {
     const companyId = req.query.companyId;
@@ -593,6 +767,26 @@ app.delete('/api/v1/crm/contacts/:id', async (req, res) => {
 });
 
 // === OPPORTUNITÉS CRM (NOUVEAUX) ===
+app.get('/api/crm/stats', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const stats = await CRMService.getCRMStats(companyId);
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/crm/opportunities/pipeline/stages', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const stages = await CRMService.getPipelineStages(companyId);
+    res.json(stages);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/crm/opportunities/pipeline/overview', async (req, res) => {
   try {
     const companyId = req.query.companyId;
