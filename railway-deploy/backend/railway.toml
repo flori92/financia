@@ -1,6 +1,7 @@
-# Configuration Railway pour BMS API - Version Express Simple
+# Configuration Railway pour BMS API - Version Docker Express
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile-express"
 
 [deploy]
 startCommand = "node index.js"
@@ -11,7 +12,7 @@ restartPolicyMaxRetries = 5
 
 [env]
 NODE_ENV = "production"
-PORT = "8080"
+PORT = "3001"
 
 [service]
 name = "bms-api-gateway"

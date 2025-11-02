@@ -1,17 +1,31 @@
-// Simple serveur Express pour Railway (fallback)
+// Simple serveur Express pour Railway (Production)
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// CORS
+// Middleware de logging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
+// CORS configuré pour Railway
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: [
+    'https://bms-frontend-production.up.railway.app',
+    'https://bms-production-d9e9.up.railway.app',
+    'http://localhost:3000',
+    'http://localhost:3001'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Health endpoint
 app.get('/health', (req, res) => {
@@ -161,16 +175,23 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║                                                       ║
-║   BMS API Gateway (Express Simple)               ║
+║   BMS API Gateway (Express Production)           ║
 ║   Status: ✅ RUNNING                                   ║
 ║   Port: ${port}                                    ║
 ║   Environment: ${process.env.NODE_ENV || 'unknown'}           ║
+║   PID: ${process.pid}                                    ║
 ║                                                       ║
 ║   Health: GET /health                                ║
 ║   Companies: GET /api/v1/companies                  ║
 ║   Dashboard: GET /api/v1/accounting/dashboard/metrics║
 ║   Aged Balance: GET /api/v1/accounting/aged-balance  ║
 ║                                                       ║
+║   Frontend URL: https://bms-frontend-production.up.railway.app ║
+║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
   `);
+  
+  console.log(`🚀 BMS API Gateway started successfully on port ${port}`);
+  console.log(`📊 Health check available at: http://localhost:${port}/health`);
+  console.log(`🔗 CORS enabled for Railway frontend`);
 });

@@ -2,11 +2,12 @@
 import { demoDashboardData, demoCompanies } from './demo-data';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bms-api-gateway-production.up.railway.app';
+const FORCE_PRODUCTION_MODE = process.env.NODE_ENV === 'production'; // Forcer le backend en production
 
 // Vérifier si le backend est disponible
-let isBackendAvailable = true;
+let isBackendAvailable = true; // Par défaut, on considère le backend disponible en production
 let lastHealthCheck = 0;
-const HEALTH_CHECK_INTERVAL = 30000; // 30 secondes
+const HEALTH_CHECK_INTERVAL = 60000; // 60 secondes pour la production
 
 async function checkBackendHealth(): Promise<boolean> {
   try {
@@ -43,11 +44,14 @@ async function apiCall<T>(
   demoData: T, 
   options: RequestInit = {}
 ): Promise<T> {
-  const backendAvailable = await ensureBackendHealth();
-  
-  if (!backendAvailable) {
-    console.log(`Mode démo activé pour ${endpoint}`);
-    return demoData;
+  // En production, on essaie toujours le backend d'abord
+  if (!FORCE_PRODUCTION_MODE) {
+    const backendAvailable = await ensureBackendHealth();
+    
+    if (!backendAvailable) {
+      console.log(`Mode démo activé pour ${endpoint}`);
+      return demoData;
+    }
   }
 
   try {
@@ -66,9 +70,16 @@ async function apiCall<T>(
 
     return await response.json();
   } catch (error) {
-    console.error(`Erreur API ${endpoint}, basculement en mode démo:`, error);
-    isBackendAvailable = false; // Forcer le mode démo pour les prochains appels
-    return demoData;
+    console.error(`Erreur API ${endpoint}:`, error);
+    
+    // En production, on ne bascule en mode démo qu'en cas d'erreur critique
+    if (!FORCE_PRODUCTION_MODE) {
+      isBackendAvailable = false; // Forcer le mode démo pour les prochains appels
+      return demoData;
+    }
+    
+    // En production, on propage l'erreur pour que l'utilisateur sache qu'il y a un problème
+    throw error;
   }
 }
 
