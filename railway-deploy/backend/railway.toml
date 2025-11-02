@@ -1,0 +1,35 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[env]
+NODE_ENV = "production"
+PORT = "3001"
+
+[[services]]
+name = "api"
+
+[services.variables]
+NODE_ENV = "production"
+PORT = "3001"
+DATABASE_URL = "${{Postgres.DATABASE_URL}}"
+JWT_SECRET = "${{JWT_SECRET}}"
+SUPABASE_URL = "${{SUPABASE_URL}}"
+SUPABASE_ANON_KEY = "${{SUPABASE_ANON_KEY}}"
+
+[[services.ports]]
+port = 3001
+handlers = ["http"]
+
+[[services]]
+name = "postgres"
+
+[services.variables]
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = "${{Postgres.PASSWORD}}"
+POSTGRES_DB = "bms_erp"

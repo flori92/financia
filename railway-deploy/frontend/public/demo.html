@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Démonstration Comptable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+                        <h1 class="text-xl font-semibold">BMS - Démonstration Comptable</h1>
+                    </div>
+                    <div class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                        🎭 Mode Démo Statique
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-white border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex gap-8">
+                    <button onclick="showTab('dashboard')" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                        📊 Dashboard Comptable
+                    </button>
+                    <button onclick="showTab('mobile-money')" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i data-lucide="smartphone" class="w-4 h-4 inline mr-2"></i>
+                        Mobile Money
+                    </button>
+                    <button onclick="showTab('aged-balance')" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>
+                        Balance Âgée
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content">
+                <!-- Alertes -->
+                <div class="space-y-3 mb-6">
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                            <div>
+                                <p class="font-medium text-emerald-900">Excellente santé financière</p>
+                                <p class="text-sm text-emerald-700">Liquidité supérieure à 2.5x les exigences minimales</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                            <div>
+                                <p class="font-medium text-blue-900">Objectif mensuel atteint</p>
+                                <p class="text-sm text-blue-700">CA du mois: 3.5M XOF (+12% vs objectif)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-blue-600 font-medium">CA Mois</p>
+                                <p class="text-2xl font-bold text-blue-900">3 500 000 XOF</p>
+                                <p class="text-xs text-blue-700 mt-1">Produits classe 7</p>
+                            </div>
+                            <i data-lucide="trending-up" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-orange-600 font-medium">Charges Mois</p>
+                                <p class="text-2xl font-bold text-orange-900">2 100 000 XOF</p>
+                                <p class="text-xs text-orange-700 mt-1">Charges classe 6</p>
+                            </div>
+                            <i data-lucide="trending-down" class="w-8 h-8 text-orange-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-xl border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-emerald-600 font-medium">Résultat Net</p>
+                                <p class="text-2xl font-bold text-emerald-900">1 400 000 XOF</p>
+                                <p class="text-xs text-emerald-700 mt-1">Bénéfice</p>
+                            </div>
+                            <i data-lucide="bar-chart-3" class="w-8 h-8 text-emerald-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-purple-600 font-medium">Marge Brute</p>
+                                <p class="text-2xl font-bold text-purple-900">40.0%</p>
+                                <p class="text-xs text-purple-700 mt-1">Excellente</p>
+                            </div>
+                            <i data-lucide="trending-up" class="w-8 h-8 text-purple-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Clients et Fournisseurs -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <i data-lucide="users" class="w-5 h-5 text-emerald-600"></i>
+                            Top Clients
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-medium">SOCIETE GENERAL</span>
+                                <span class="text-emerald-700 font-mono">1 250 000 XOF</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-medium">ECOBANK SENEGAL</span>
+                                <span class="text-emerald-700 font-mono">980 000 XOF</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-medium">SONATEL SA</span>
+                                <span class="text-emerald-700 font-mono">750 000 XOF</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <i data-lucide="building" class="w-5 h-5 text-orange-600"></i>
+                            Top Fournisseurs
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-medium">FOURNISSEUR INFO TECH</span>
+                                <span class="text-orange-700 font-mono">680 000 XOF</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-medium">MATERIEL BUREAU SA</span>
+                                <span class="text-orange-700 font-mono">450 000 XOF</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-medium">SERVICES NETTOYAGE</span>
+                                <span class="text-orange-700 font-mono">320 000 XOF</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Money Tab -->
+            <div id="mobile-money-tab" class="tab-content hidden">
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-xl border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Total transactions</p>
+                                <p class="text-2xl font-bold">25</p>
+                            </div>
+                            <i data-lucide="smartphone" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Montant total</p>
+                                <p class="text-2xl font-bold text-green-600">4 250 000 XOF</p>
+                            </div>
+                            <i data-lucide="trending-up" class="w-8 h-8 text-green-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Succès</p>
+                                <p class="text-2xl font-bold text-green-600">20</p>
+                            </div>
+                            <i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">En attente</p>
+                                <p class="text-2xl font-bold text-amber-600">2</p>
+                            </div>
+                            <i data-lucide="clock" class="w-8 h-8 text-amber-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions -->
+                <div class="bg-white rounded-xl border">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left p-4 font-medium">Client</th>
+                                    <th class="text-left p-4 font-medium">Provider</th>
+                                    <th class="text-left p-4 font-medium">Montant</th>
+                                    <th class="text-left p-4 font-medium">Statut</th>
+                                    <th class="text-left p-4 font-medium">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4">
+                                        <p class="font-medium">Aliou Diop</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="capitalize font-medium">wave</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="font-semibold">250 000 XOF</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">success</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="text-sm">01/11/2024</p>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4">
+                                        <p class="font-medium">Fatou Sall</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="capitalize font-medium">orange</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="font-semibold">180 000 XOF</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">success</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="text-sm">01/11/2024</p>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4">
+                                        <p class="font-medium">Mamadou Ba</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="capitalize font-medium">mtn</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="font-semibold">320 000 XOF</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">pending</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="text-sm">01/11/2024</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aged Balance Tab -->
+            <div id="aged-balance-tab" class="tab-content hidden">
+                <!-- Répartition -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                    <div class="bg-emerald-50 p-4 rounded-lg border">
+                        <p class="text-sm text-emerald-600 font-medium">0-30 jours</p>
+                        <p class="text-lg font-bold text-emerald-900">1 900 000 XOF</p>
+                        <p class="text-xs text-emerald-700">34.5%</p>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg border">
+                        <p class="text-sm text-blue-600 font-medium">30-60 jours</p>
+                        <p class="text-lg font-bold text-blue-900">2 400 000 XOF</p>
+                        <p class="text-xs text-blue-700">43.6%</p>
+                    </div>
+
+                    <div class="bg-amber-50 p-4 rounded-lg border">
+                        <p class="text-sm text-amber-600 font-medium">60-90 jours</p>
+                        <p class="text-lg font-bold text-amber-900">900 000 XOF</p>
+                        <p class="text-xs text-amber-700">16.4%</p>
+                    </div>
+
+                    <div class="bg-rose-50 p-4 rounded-lg border">
+                        <p class="text-sm text-rose-600 font-medium flex items-center gap-1">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            +90 jours
+                        </p>
+                        <p class="text-lg font-bold text-rose-900">300 000 XOF</p>
+                        <p class="text-xs text-rose-700">5.5%</p>
+                    </div>
+
+                    <div class="bg-slate-100 p-4 rounded-lg border">
+                        <p class="text-sm text-slate-600 font-medium">Total</p>
+                        <p class="text-lg font-bold text-slate-900">5 500 000 XOF</p>
+                        <p class="text-xs text-slate-700">100%</p>
+                    </div>
+                </div>
+
+                <!-- Tableau détaillé -->
+                <div class="bg-white rounded-xl border">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left p-4 font-medium">Client</th>
+                                    <th class="text-right p-4 font-medium">Total</th>
+                                    <th class="text-right p-4 font-medium">0-30j</th>
+                                    <th class="text-right p-4 font-medium">30-60j</th>
+                                    <th class="text-right p-4 font-medium">60-90j</th>
+                                    <th class="text-right p-4 font-medium">+90j</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">SOCIETE GENERAL</td>
+                                    <td class="p-4 text-right font-mono">2 500 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-emerald-700">800 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-blue-700">1 200 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-amber-700">400 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-rose-700">100 000 XOF</td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">ECOBANK SENEGAL</td>
+                                    <td class="p-4 text-right font-mono">1 800 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-emerald-700">600 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-blue-700">800 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-amber-700">300 000 XOF</td>
+                                    <td class="p-4 text-right font-mono text-rose-700">100 000 XOF</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-t-2">
+                                    <td class="p-4 font-bold">Total</td>
+                                    <td class="p-4 text-right font-bold font-mono">5 500 000 XOF</td>
+                                    <td class="p-4 text-right font-bold font-mono text-emerald-700">1 900 000 XOF</td>
+                                    <td class="p-4 text-right font-bold font-mono text-blue-700">2 400 000 XOF</td>
+                                    <td class="p-4 text-right font-bold font-mono text-amber-700">900 000 XOF</td>
+                                    <td class="p-4 text-right font-bold font-mono text-rose-700">300 000 XOF</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mt-8">
+            <div class="flex items-center gap-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                <div>
+                    <p class="font-medium text-emerald-900">Mode Démonstration Statique</p>
+                    <p class="text-sm text-emerald-700">
+                        Version HTML pure - fonctionne immédiatement sans aucune configuration.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            // Reset all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+
+            // Highlight selected button
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+            event.target.classList.add('border-blue-500', 'text-blue-600');
+
+            // Re-initialize icons for the new content
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
