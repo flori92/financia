@@ -88,8 +88,6 @@ export class MobileMoneyController {
   }
 
   @Get('transactions')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Lister les transactions Mobile Money' })
   @ApiResponse({ status: 200, description: 'Liste des transactions' })
   async getTransactions(
