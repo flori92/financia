@@ -154,7 +154,7 @@ export default function TreasuryPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="status">Type de synchronisation</Label>
-                  <Select value={newAccount.status} onValueChange={(value: "Connecté" | "Manuel") => setNewAccount({...newAccount, status: value})}>
+                  <Select value={newAccount.status} onValueChange={(value: string) => setNewAccount({...newAccount, status: value})}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
