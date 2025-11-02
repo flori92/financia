@@ -226,7 +226,7 @@ class AIAnalyticsService {
       const [revenueForecast, expenseForecast, insights] = await Promise.all([
         this.generateCategoryForecast(historicalData.revenues, 'revenue'),
         this.generateCategoryForecast(historicalData.expenses, 'expense'),
-        this.generateBusinessInsights(historicalData, target_period)
+        this.generateBusinessInsights(historicalData, period)
       ]);
 
       return {

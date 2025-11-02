@@ -238,16 +238,16 @@ class BMSAIAnalytics:
                     recommendation = "Programme de fidélité personnalisé"
                 elif avg_frequency > customers_df['frequency'].quantile(0.75):
                     segment_name = "Clients Actifs"
-                    characteristics = ["Achats fréquents", "Bon potentiel"]
-                    recommendation = "Promotions cross-selling"
+                    characteristics = ["Très fréquent", "Engagé"]
+                    recommendation = "Offres spéciales et promotions"
                 elif avg_recency < customers_df['recency'].quantile(0.25):
                     segment_name = "Clients Récents"
-                    characteristics = ["Nouveaux", "À développer"]
-                    recommendation = "Programme d'onboarding"
+                    characteristics = ["Nouveaux", "Potentiel"]
+                    recommendation = "Programme d'onboarding et découverte"
                 else:
                     segment_name = "Clients Standards"
-                    characteristics = ["Activité modérée", "À réactiver"]
-                    recommendation = "Campagne de réactivation"
+                    characteristics = ["Régulier", "Stable"]
+                    recommendation = "Maintenir le service standard"
                 
                 segments.append({
                     'id': str(cluster_id),
@@ -260,34 +260,12 @@ class BMSAIAnalytics:
             
             return {
                 'segments': segments,
-                'model_accuracy': 0.75  # Silhouette score moyen
+                'model_accuracy': 0.75,
+                'total_customers': len(customers_df)
             }
             
         except Exception as e:
             return self._generate_basic_segments(data)
-    
-    def _forecast_series(self, series, horizon):
-        """Prévision d'une série temporelle avec Prophet"""
-        df = series.reset_index()
-        df.columns = ['ds', 'y']
-        df['ds'] = pd.to_datetime(df['ds'])
-        
-        model = Prophet(yearly_seasonality=True, weekly_seasonality=True)
-        model.fit(df)
-        
-        future = model.make_future_dataframe(periods=horizon)
-        forecast = model.predict(future)
-        
-        predictions = forecast.tail(horizon)
-        
-        return [
-            {
-                'date': row['ds'].strftime('%Y-%m-%d'),
-                'value': max(0, row['yhat']),
-                'confidence': 0.8
-            }
-            for _, row in predictions.iterrows()
-        ]
     
     def _generate_weekly_summary(self, daily_forecast):
         """Génère le résumé hebdomadaire"""
