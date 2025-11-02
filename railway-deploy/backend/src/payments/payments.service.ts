@@ -8,6 +8,8 @@ import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { AllocatePaymentDto } from './dto/allocate-payment.dto';
 import { AuditService } from '../audit/audit.service';
 import { AccountingAutomationService } from '../accounting/accounting-automation.service';
+import { MobileMoneyTransaction } from '../mobile-money/entities/mobile-money-transaction.entity';
+import { BankTransaction } from '../banking/entities/bank-transaction.entity';
 
 /**
  * Service de gestion des paiements
@@ -19,6 +21,10 @@ export class PaymentsService {
     private paymentsRepository: Repository<Payment>,
     @InjectRepository(PaymentAllocation)
     private allocationsRepository: Repository<PaymentAllocation>,
+    @InjectRepository(MobileMoneyTransaction)
+    private mobileMoneyRepository: Repository<MobileMoneyTransaction>,
+    @InjectRepository(BankTransaction)
+    private bankTransactionRepository: Repository<BankTransaction>,
     private readonly auditService: AuditService,
     private readonly automation: AccountingAutomationService,
   ) {}
@@ -431,5 +437,202 @@ export class PaymentsService {
     });
 
     return `${prefix}-${year}${month}-${String(count + 1).padStart(4, '0')}`;
+  }
+
+  /**
+   * Récupérer toutes les transactions (banque, mobile money, espèces)
+   */
+  async getAllTransactions(options: {
+    companyId: string;
+    page: number;
+    limit: number;
+    type: string;
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const { companyId, page, limit, type, startDate, endDate } = options;
+    const skip = (page - 1) * limit;
+    
+    const transactions: any[] = [];
+    let total = 0;
+
+    // Transactions bancaires
+    if (type === 'all' || type === 'bank') {
+      const bankQuery = this.bankTransactionRepository
+        .createQueryBuilder('transaction')
+        .leftJoinAndSelect('transaction.bankAccount', 'bankAccount')
+        .where('bankAccount.companyId = :companyId', { companyId });
+
+      if (startDate) {
+        bankQuery.andWhere('transaction.transactionDate >= :startDate', { startDate });
+      }
+      if (endDate) {
+        bankQuery.andWhere('transaction.transactionDate <= :endDate', { endDate });
+      }
+
+      const [bankTransactions, bankCount] = await bankQuery
+        .orderBy('transaction.transactionDate', 'DESC')
+        .skip(skip)
+        .take(limit)
+        .getManyAndCount();
+
+      bankTransactions.forEach(transaction => {
+        transactions.push({
+          id: transaction.id,
+          type: 'bank',
+          reference: transaction.reference,
+          amount: transaction.amount,
+          currency: transaction.currency,
+          status: transaction.status,
+          date: transaction.transactionDate,
+          description: transaction.description,
+          partyName: transaction.counterparty,
+          method: `Banque ${transaction.bankAccount?.bankName || 'Inconnue'}`,
+          category: this.getTransactionCategory('bank', transaction.type),
+          metadata: {
+            bankAccount: transaction.bankAccount?.accountNumber,
+            transactionType: transaction.type,
+          }
+        });
+      });
+
+      total += bankCount;
+    }
+
+    // Transactions Mobile Money
+    if (type === 'all' || type === 'mobile') {
+      const mobileQuery = this.mobileMoneyRepository
+        .createQueryBuilder('transaction')
+        .leftJoinAndSelect('transaction.invoice', 'invoice')
+        .where('invoice.companyId = :companyId', { companyId });
+
+      if (startDate) {
+        mobileQuery.andWhere('transaction.createdAt >= :startDate', { startDate });
+      }
+      if (endDate) {
+        mobileQuery.andWhere('transaction.createdAt <= :endDate', { endDate });
+      }
+
+      const [mobileTransactions, mobileCount] = await mobileQuery
+        .orderBy('transaction.createdAt', 'DESC')
+        .skip(skip)
+        .take(limit)
+        .getManyAndCount();
+
+      mobileTransactions.forEach(transaction => {
+        transactions.push({
+          id: transaction.id,
+          type: 'mobile',
+          reference: transaction.transactionReference,
+          amount: transaction.amount,
+          currency: transaction.currency,
+          status: transaction.status,
+          date: transaction.createdAt,
+          description: transaction.description || `Paiement ${transaction.provider}`,
+          partyName: transaction.customerPhone || transaction.provider,
+          method: `Mobile Money ${transaction.provider.toUpperCase()}`,
+          category: this.getTransactionCategory('mobile', transaction.provider),
+          metadata: {
+            provider: transaction.provider,
+            phoneNumber: transaction.customerPhone,
+            invoiceId: transaction.invoiceId,
+          }
+        });
+      });
+
+      total += mobileCount;
+    }
+
+    // Paiements en espèces et autres
+    if (type === 'all' || type === 'cash') {
+      const cashQuery = this.paymentsRepository
+        .createQueryBuilder('payment')
+        .where('payment.companyId = :companyId', { companyId })
+        .andWhere('payment.paymentMethod IN (:...methods)', { methods: ['cash', 'check', 'transfer'] });
+
+      if (startDate) {
+        cashQuery.andWhere('payment.paymentDate >= :startDate', { startDate });
+      }
+      if (endDate) {
+        cashQuery.andWhere('payment.paymentDate <= :endDate', { endDate });
+      }
+
+      const [cashPayments, cashCount] = await cashQuery
+        .orderBy('payment.paymentDate', 'DESC')
+        .skip(skip)
+        .take(limit)
+        .getManyAndCount();
+
+      cashPayments.forEach(payment => {
+        transactions.push({
+          id: payment.id,
+          type: 'cash',
+          reference: payment.paymentNumber,
+          amount: payment.amount,
+          currency: payment.currency,
+          status: payment.status,
+          date: payment.paymentDate,
+          description: payment.description,
+          partyName: payment.partyName,
+          method: this.getPaymentMethodLabel(payment.paymentMethod),
+          category: this.getTransactionCategory('cash', payment.paymentMethod),
+          metadata: {
+            paymentMethod: payment.paymentMethod,
+            partyType: payment.partyType,
+            invoiceId: payment.invoiceId,
+          }
+        });
+      });
+
+      total += cashCount;
+    }
+
+    // Trier par date (plus récent d'abord)
+    transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Pagination finale
+    const paginatedTransactions = transactions.slice(skip, skip + limit);
+
+    return {
+      transactions: paginatedTransactions,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  private getTransactionCategory(type: string, subType: string): string {
+    const categories = {
+      bank: {
+        credit: 'Encaissement',
+        debit: 'Décaissement',
+        transfer: 'Virement',
+      },
+      mobile: {
+        mtn: 'Mobile Money',
+        moov: 'Mobile Money',
+        orange: 'Mobile Money',
+        wave: 'Mobile Money',
+      },
+      cash: {
+        cash: 'Espèces',
+        check: 'Chèque',
+        transfer: 'Virement',
+      },
+    };
+    
+    return categories[type]?.[subType] || 'Autre';
+  }
+
+  private getPaymentMethodLabel(method: string): string {
+    const labels = {
+      cash: 'Espèces',
+      check: 'Chèque',
+      transfer: 'Virement bancaire',
+      card: 'Carte bancaire',
+    };
+    
+    return labels[method] || method;
   }
 }

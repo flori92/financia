@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight, Send } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight, Send, ArrowUpDown } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -35,6 +35,7 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/bank", label: "Rapprochement Bancaire", icon: Building2 },
   { href: "/accountant/tax/vat", label: "Déclaration TVA", icon: Receipt },
   { href: "/accountant/close", label: "Clôture de Période", icon: Lock },
+  { href: "/accountant/transactions", label: "Transactions", icon: ArrowUpDown },
 ];
 
 const REVENUE_ANALYSIS_NAV = [

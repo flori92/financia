@@ -240,4 +240,31 @@ export class PaymentsController {
   async deletePayment(@Param('id') id: string): Promise<void> {
     return this.paymentsService.deletePayment(id);
   }
+
+  @Get('all-transactions')
+  @ApiOperation({ summary: 'Récupérer toutes les transactions (banque, mobile money, espèces)' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'type', required: false, enum: ['bank', 'mobile', 'cash', 'all'] })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  @ApiResponse({ status: 200, description: 'Liste des transactions' })
+  async getAllTransactions(
+    @Query('companyId') companyId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 20,
+    @Query('type') type: string = 'all',
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.paymentsService.getAllTransactions({
+      companyId,
+      page,
+      limit,
+      type,
+      startDate,
+      endDate,
+    });
+  }
 }
