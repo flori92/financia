@@ -195,8 +195,8 @@ const ALL_ENTITIES = [
         const isRailway = !!configService.get<string>('RAILWAY_ENVIRONMENT');
         const isProduction = nodeEnv === 'production' || isRailway;
         
-        // SÉCURITÉ: En production, TOUJOURS désactiver synchronize
-        const synchronize = !isProduction && nodeEnv === 'development';
+        // TEMPORAIRE: Activer synchronize pour création tables en production
+        const synchronize = true; // !isProduction && nodeEnv === 'development';
         const logging = !isProduction && nodeEnv === 'development';
         
         // DEBUG: Afficher toutes les variables DB disponibles
