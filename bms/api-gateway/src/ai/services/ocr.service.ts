@@ -190,10 +190,13 @@ export class OcrService {
     const dateMatches = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g) || [];
     const date = dateMatches[0] || new Date().toISOString().split('T')[0];
 
-    // Extraction montants (cherche les patterns de prix)
-    const amountMatches = text.match(/(\d+[\s,.]?\d*)\s*(?:€|EUR|FCFA|XOF)/gi) || [];
+    // Extraction montants (patterns étendus pour plusieurs devises)
+    const amountMatches = text.match(/(\d+[\s,.]?\d*)\s*(?:€|EUR|EURO|\$|USD|£|GBP|FCFA|XOF|XAF|C\$|CAD|CHF|¥|JPY|CNY|A\$|AUD)/gi) || [];
     const amounts = amountMatches.map(m => parseFloat(m.replace(/[^\d,.]/g, '').replace(',', '.')));
 
+    // Détection de la devise
+    const detectedCurrency = this.detectCurrency(text);
+    
     // Le montant total est généralement le plus grand
     const total = amounts.length > 0 ? Math.max(...amounts) : 0;
 
@@ -221,7 +224,7 @@ export class OcrService {
       subtotal,
       vatAmount,
       total,
-      currency: 'FCFA',
+      currency: detectedCurrency,
     };
   }
 
@@ -362,13 +365,16 @@ export class OcrService {
     const date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0];
     const time = timeMatch ? timeMatch[1] : '';
 
-    // Extraction des articles et montants
+    // Détection de la devise
+    const detectedCurrency = this.detectCurrency(text);
+
+    // Extraction des articles et montants (patterns étendus)
     const items = lines
-      .filter(line => /\d+[,.]?\d*\s*(?:€|EUR|FCFA|XOF)/i.test(line))
+      .filter(line => /\d+[,.]?\d*\s*(?:€|EUR|EURO|\$|USD|£|GBP|FCFA|XOF|XAF|C\$|CAD|CHF|¥|JPY|CNY|A\$|AUD)/i.test(line))
       .map(line => {
-        const amountMatch = line.match(/(\d+[,.]?\d*)\s*(?:€|EUR|FCFA|XOF)/i);
+        const amountMatch = line.match(/(\d+[,.]?\d*)\s*(?:€|EUR|EURO|\$|USD|£|GBP|FCFA|XOF|XAF|C\$|CAD|CHF|¥|JPY|CNY|A\$|AUD)/i);
         const amount = amountMatch ? parseFloat(amountMatch[1].replace(',', '.')) : 0;
-        const description = line.replace(/\d+[,.]?\d*\s*(?:€|EUR|FCFA|XOF)/i, '').trim();
+        const description = line.replace(/\d+[,.]?\d*\s*(?:€|EUR|EURO|\$|USD|£|GBP|FCFA|XOF|XAF|C\$|CAD|CHF|¥|JPY|CNY|A\$|AUD)/i, '').trim();
         return { description: description || 'Article', amount };
       });
 
@@ -394,7 +400,7 @@ export class OcrService {
       subtotal,
       tax,
       total,
-      currency: 'FCFA',
+      currency: detectedCurrency,
       paymentMethod,
       confidence: confidence / 100,
       rawText: text,
@@ -541,6 +547,35 @@ export class OcrService {
       this.logger.warn('Classification failed, defaulting to invoice');
       return 'invoice';
     }
+  }
+
+  /**
+   * Détecte la devise dans un texte OCR
+   */
+  private detectCurrency(text: string): string {
+    // Patterns pour chaque devise par ordre de priorité
+    const patterns = [
+      { code: 'EUR', regex: /(?:\d+[,.]?\d*)\s*(?:€|EUR|EURO)/gi },
+      { code: 'USD', regex: /(?:\d+[,.]?\d*)\s*(?:\$|USD|DOLLAR)/gi },
+      { code: 'GBP', regex: /(?:\d+[,.]?\d*)\s*(?:£|GBP|POUND)/gi },
+      { code: 'FCFA', regex: /(?:\d+[,.]?\d*)\s*(?:FCFA|XOF|CFA)/gi },
+      { code: 'XAF', regex: /(?:\d+[,.]?\d*)\s*(?:FCFA|XAF)/gi },
+      { code: 'CAD', regex: /(?:\d+[,.]?\d*)\s*(?:C\$|CAD)/gi },
+      { code: 'CHF', regex: /(?:\d+[,.]?\d*)\s*(?:CHF|SWISS)/gi },
+      { code: 'JPY', regex: /(?:\d+[,.]?\d*)\s*(?:¥|JPY|YEN)/gi },
+      { code: 'CNY', regex: /(?:\d+[,.]?\d*)\s*(?:¥|CNY|YUAN)/gi },
+      { code: 'AUD', regex: /(?:\d+[,.]?\d*)\s*(?:A\$|AUD)/gi }
+    ];
+
+    // Parcourir les patterns par ordre de priorité
+    for (const { code, regex } of patterns) {
+      if (regex.test(text)) {
+        return code;
+      }
+    }
+
+    // Par défaut, FCFA pour l'Afrique de l'Ouest
+    return 'FCFA';
   }
 
   /**

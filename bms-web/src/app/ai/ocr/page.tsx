@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info, PenTool } from "lucide-react";
+import { formatCurrency, detectCurrency, type CurrencyCode } from "@/lib/currency";
+import { CurrencyBadge } from "@/components/ui/currency-badge";
 
 type DocumentType = "invoice" | "receipt" | "bank_statement";
 
@@ -22,6 +24,12 @@ export default function OcrPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any>(null);
   const [modifiedFields, setModifiedFields] = useState<Set<string>>(new Set());
+
+  // Helper pour formater les montants selon la devise
+  const formatAmount = (amount: number, currency?: string): string => {
+    const currencyCode = (currency || result?.data?.currency || 'XOF') as CurrencyCode;
+    return formatCurrency(amount, currencyCode);
+  };
 
   const documentTypes: { value: DocumentType; label: string; icon: typeof FileText; description: string }[] = [
     { value: "invoice", label: "Facture", icon: FileText, description: "Extraction de factures fournisseurs" },
@@ -184,7 +192,7 @@ export default function OcrPage() {
     return (
       <div>
         <label className="text-sm font-medium text-gray-600">{label}</label>
-        <div className="mt-1 text-lg font-semibold">{type === "number" ? new Intl.NumberFormat("fr-FR").format(currentValue) : currentValue}</div>
+        <div className="mt-1 text-lg font-semibold">{type === "number" ? formatAmount(currentValue) : currentValue}</div>
       </div>
     );
   };
@@ -233,7 +241,7 @@ export default function OcrPage() {
                 />
               ) : (
                 <div className="mt-1 text-lg font-semibold text-[#0D9488]">
-                  {new Intl.NumberFormat("fr-FR").format(displayData.total)} FCFA
+                  {formatAmount(displayData.total)}
                 </div>
               )}
             </div>
@@ -282,7 +290,7 @@ export default function OcrPage() {
                           onChange={(e) => handleItemChange(idx, 'unitPrice', parseFloat(e.target.value))}
                           className="w-28 px-2 py-1 border rounded text-right"
                         />
-                      ) : `${new Intl.NumberFormat("fr-FR").format(item.unitPrice)} FCFA`}
+                      ) : `${formatAmount(item.unitPrice, displayData.currency)}`}
                     </td>
                     <td className="text-right font-medium">
                       {isEditing ? (
@@ -293,7 +301,7 @@ export default function OcrPage() {
                           onChange={(e) => handleItemChange(idx, 'total', parseFloat(e.target.value))}
                           className="w-32 px-2 py-1 border rounded text-right"
                         />
-                      ) : `${new Intl.NumberFormat("fr-FR").format(item.total)} FCFA`}
+                      ) : `${formatAmount(item.total, displayData.currency)}`}
                     </td>
                   </tr>
                 ))}
@@ -315,7 +323,7 @@ export default function OcrPage() {
                   }`}
                 />
               ) : (
-                <span>{new Intl.NumberFormat("fr-FR").format(displayData.subtotal)} FCFA</span>
+                <span>{formatAmount(displayData.subtotal)}</span>
               )}
             </div>
             <div className="flex justify-between text-sm items-center">
@@ -331,7 +339,7 @@ export default function OcrPage() {
                   }`}
                 />
               ) : (
-                <span>{new Intl.NumberFormat("fr-FR").format(displayData.vatAmount)} FCFA</span>
+                <span>{formatAmount(displayData.vatAmount)}</span>
               )}
             </div>
             <div className="flex justify-between text-lg font-bold items-center">
@@ -347,7 +355,7 @@ export default function OcrPage() {
                   }`}
                 />
               ) : (
-                <span className="text-[#0D9488]">{new Intl.NumberFormat("fr-FR").format(displayData.total)} FCFA</span>
+                <span className="text-[#0D9488]">{formatAmount(displayData.total)}</span>
               )}
             </div>
           </div>
@@ -376,7 +384,7 @@ export default function OcrPage() {
             {data.items?.map((item: any, idx: number) => (
               <div key={idx} className="flex justify-between py-1 text-sm">
                 <span>{item.description}</span>
-                <span className="font-medium">{new Intl.NumberFormat("fr-FR").format(item.amount)} FCFA</span>
+                <span className="font-medium">{formatAmount(item.amount, data.currency)}</span>
               </div>
             ))}
           </div>
@@ -384,15 +392,15 @@ export default function OcrPage() {
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>Sous-total</span>
-              <span>{new Intl.NumberFormat("fr-FR").format(data.subtotal)} FCFA</span>
+              <span>{formatAmount(data.subtotal, data.currency)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Taxe</span>
-              <span>{new Intl.NumberFormat("fr-FR").format(data.tax)} FCFA</span>
+              <span>{formatAmount(data.tax, data.currency)}</span>
             </div>
             <div className="flex justify-between text-lg font-bold">
               <span>Total</span>
-              <span className="text-[#0D9488]">{new Intl.NumberFormat("fr-FR").format(data.total)} FCFA</span>
+              <span className="text-[#0D9488]">{formatAmount(data.total, data.currency)}</span>
             </div>
             <div className="text-sm text-gray-600">
               Paiement: {data.paymentMethod}
@@ -422,9 +430,9 @@ export default function OcrPage() {
                   <td>{transaction.description}</td>
                   <td className={`text-right font-medium ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
                     {transaction.type === 'credit' ? '+' : ''}
-                    {new Intl.NumberFormat("fr-FR").format(transaction.amount)} FCFA
+                    {formatAmount(transaction.amount, 'XOF')}
                   </td>
-                  <td className="text-right">{new Intl.NumberFormat("fr-FR").format(transaction.balance)} FCFA</td>
+                  <td className="text-right">{formatAmount(transaction.balance, 'XOF')}</td>
                 </tr>
               ))}
             </tbody>
@@ -579,9 +587,12 @@ export default function OcrPage() {
               <div className="bg-white rounded-xl border p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold">Données extraites</h3>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>{(result.confidence * 100).toFixed(0)}% confiance</span>
+                  <div className="flex items-center gap-2">
+                    <CurrencyBadge currency={(result.data.currency || 'XOF') as CurrencyCode} />
+                    <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>{(result.confidence * 100).toFixed(0)}% confiance</span>
+                    </div>
                   </div>
                 </div>
                 {renderExtractedData()}
