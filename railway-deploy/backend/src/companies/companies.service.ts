@@ -10,6 +10,11 @@ export class CompaniesService {
     private readonly repo: Repository<Company>,
   ) {}
 
+  async create(companyData: Partial<Company>): Promise<Company> {
+    const company = this.repo.create(companyData);
+    return this.repo.save(company);
+  }
+
   async findAll(): Promise<Company[]> {
     return this.repo.find({ order: { name: 'ASC' } });
   }

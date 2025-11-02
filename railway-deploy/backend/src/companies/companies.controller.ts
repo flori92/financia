@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CompaniesService } from './companies.service';
 
@@ -7,6 +7,13 @@ import { CompaniesService } from './companies.service';
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Créer une nouvelle société' })
+  @ApiResponse({ status: 201, description: 'Société créée avec succès' })
+  async create(@Body() companyData: any) {
+    return this.companiesService.create(companyData);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Lister toutes les sociétés' })
