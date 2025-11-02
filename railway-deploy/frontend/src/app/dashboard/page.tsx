@@ -378,7 +378,7 @@ export default function DashboardPage() {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-4">
-              <h1 className="text-3xl font-semibold tracking-tight">Tableau de bord ERP</h1>
+              <h1 className="text-3xl font-semibold tracking-tight">Tableau de bord MS</h1>
               <button onClick={reload} className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium">
                 Actualiser
               </button>

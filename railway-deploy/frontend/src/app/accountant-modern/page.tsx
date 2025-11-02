@@ -32,7 +32,7 @@ export default function AccountantModernPage() {
           <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
             <div className="flex items-start justify-between">
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight mb-2">Tableau de bord ERP</h1>
+                <h1 className="text-3xl font-semibold tracking-tight mb-2">Tableau de bord MS</h1>
                 <p className="text-white/80 text-lg mb-6">Vue consolidée de votre activité comptable, trésorerie et fiscale</p>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg backdrop-blur-sm">
