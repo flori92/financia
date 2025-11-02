@@ -20,6 +20,8 @@ import { BankAccount } from './banking/entities/bank-account.entity';
 import { BankTransaction } from './banking/entities/bank-transaction.entity';
 import { Invoice } from './invoices/entities/invoice.entity';
 import { InvoiceItem } from './invoices/entities/invoice-item.entity';
+import { Payment } from './payments/entities/payment.entity';
+import { PaymentAllocation } from './payments/entities/payment-allocation.entity';
 import { NotificationConfig } from './notifications/entities/notification-config.entity';
 import { Role } from './rbac/entities/role.entity';
 import { Permission } from './rbac/entities/permission.entity';
@@ -100,6 +102,8 @@ import { AppController } from './app.controller';
           BankTransaction,
           Invoice,
           InvoiceItem,
+          Payment,
+          PaymentAllocation,
           NotificationConfig,
           Role,
           Permission,
