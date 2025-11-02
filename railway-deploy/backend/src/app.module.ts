@@ -25,6 +25,7 @@ import { Payment } from './payments/entities/payment.entity';
 import { PaymentAllocation } from './payments/entities/payment-allocation.entity';
 import { PurchaseOrder } from './purchases/entities/purchase-order.entity';
 import { PurchaseReceipt } from './purchases/entities/purchase-receipt.entity';
+import { MobileMoneyTransaction } from './mobile-money/entities/mobile-money-transaction.entity';
 import { NotificationConfig } from './notifications/entities/notification-config.entity';
 import { Role } from './rbac/entities/role.entity';
 import { Permission } from './rbac/entities/permission.entity';
@@ -110,6 +111,7 @@ import { AppController } from './app.controller';
           PaymentAllocation,
           PurchaseOrder,
           PurchaseReceipt,
+          MobileMoneyTransaction,
           NotificationConfig,
           Role,
           Permission,
