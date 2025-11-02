@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
@@ -648,6 +649,8 @@ export class AccountingService {
       throw new BadRequestException('companyId est requis');
     }
 
+    try {
+
     // Comptes de référence (extraits SYSCOHADA, représentatifs des classes 1 à 8)
     const defs: Array<{ n: string; name: string; type: 'asset'|'liability'|'equity'|'revenue'|'expense'; cls: number }>= [
       // Classe 1 — Ressources durables (equity/liability)
@@ -732,13 +735,17 @@ export class AccountingService {
         companyId,
         currency: 'XOF',
         isActive: true,
-        balance: 0,
+        balance: 0.00,
       });
       await this.accountsRepository.save(account);
       created++;
     }
 
     return created;
+    } catch (error) {
+      console.error('Erreur dans seedSyscohada:', error);
+      throw new InternalServerErrorException(`Erreur lors de l'initialisation SYSCOHADA: ${error.message}`);
+    }
   }
 
   /**
