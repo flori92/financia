@@ -97,4 +97,103 @@ export class AIService {
       response: `J'ai bien reçu votre question : "${content}"\n\nJe suis votre assistant comptable BMS et je peux vous aider avec :\n\n💼 Comptabilité & Fiscalité\n📊 Analyse financière\n💰 Gestion de trésorerie\n🤖 Automatisation des tâches\n\nPour une aide plus précise, posez-moi une question sur :\n- Factures et écritures comptables\n- Déclaration TVA\n- Prévisions de trésorerie\n- OCR et extraction de documents\n- Clôture comptable\n- États financiers\n\nComment puis-je vous assister ?`
     };
   }
+
+  /**
+   * Analyse une transaction bancaire pour détecter des anomalies
+   */
+  async analyzeBankTransaction(params: {
+    amount: number;
+    description: string;
+    date: Date;
+    accountId: string;
+    usualAmounts?: number[];
+    usualCategories?: string[];
+  }): Promise<{
+    isAnomalous: boolean;
+    riskScore: number; // 0-100
+    anomalies: string[];
+    suggestedCategory?: string;
+    confidence: number;
+  }> {
+    const { amount, description, usualAmounts = [], usualCategories = [] } = params;
+    
+    // Calcul du score de risque
+    let riskScore = 0;
+    const anomalies: string[] = [];
+    
+    // Anomalie 1: Montant inhabituel
+    if (usualAmounts.length > 0) {
+      const avgAmount = usualAmounts.reduce((a, b) => a + b, 0) / usualAmounts.length;
+      const deviation = Math.abs(amount - avgAmount) / avgAmount;
+      
+      if (deviation > 2) {
+        riskScore += 40;
+        anomalies.push('Montant très inhabituel');
+      } else if (deviation > 1) {
+        riskScore += 20;
+        anomalies.push('Montant inhabituel');
+      }
+    }
+    
+    // Anomalie 2: Heure anormale (nuit/week-end)
+    const transactionHour = params.date.getHours();
+    const isWeekend = params.date.getDay() === 0 || params.date.getDay() === 6;
+    
+    if (transactionHour >= 22 || transactionHour <= 5) {
+      riskScore += 15;
+      anomalies.push('Transaction nocturne');
+    }
+    
+    if (isWeekend) {
+      riskScore += 10;
+      anomalies.push('Transaction week-end');
+    }
+    
+    // Anomalie 3: Description suspecte
+    const suspiciousKeywords = ['urgent', 'immediate', 'secret', 'cash', 'withdrawal', 'transfer'];
+    const lowerDescription = description.toLowerCase();
+    
+    for (const keyword of suspiciousKeywords) {
+      if (lowerDescription.includes(keyword)) {
+        riskScore += 10;
+        anomalies.push(`Description suspecte: ${keyword}`);
+        break;
+      }
+    }
+    
+    // Suggestion de catégorie basée sur la description
+    let suggestedCategory: string | undefined;
+    let confidence = 0.5;
+    
+    const categoryKeywords = {
+      'salary': ['salaire', 'paie', 'salary', 'wage'],
+      'rent': ['loyer', 'rent', 'housing'],
+      'utilities': ['edf', 'eau', 'electricity', 'water', 'internet', 'phone'],
+      'food': ['restaurant', 'carrefour', 'auchan', 'food', 'grocery'],
+      'transport': ['uber', 'taxi', 'essence', 'transport', 'fuel'],
+      'entertainment': ['netflix', 'spotify', 'cinema', 'movie'],
+      'shopping': ['amazon', 'fnac', 'shopping', 'store']
+    };
+    
+    for (const [category, keywords] of Object.entries(categoryKeywords)) {
+      if (keywords.some(keyword => lowerDescription.includes(keyword))) {
+        suggestedCategory = category;
+        confidence = 0.8;
+        break;
+      }
+    }
+    
+    // Limiter le score de risque à 100
+    riskScore = Math.min(riskScore, 100);
+    
+    const isAnomalous = riskScore > 50;
+    
+    return {
+      isAnomalous,
+      riskScore,
+      anomalies,
+      suggestedCategory,
+      confidence
+    };
+  }
 }

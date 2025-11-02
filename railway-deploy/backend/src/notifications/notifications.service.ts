@@ -398,4 +398,57 @@ Connectez-vous à votre tableau de bord pour plus de détails.
       message: `${emoji} ${urgency}: Trésorerie ${params.companyName} - ${params.runway}j de runway, ${params.currentBalance.toLocaleString()} FCFA`,
     });
   }
+
+  /**
+   * Envoyer une notification de connexion bancaire
+   */
+  async sendBankConnectionNotification(params: {
+    userEmail: string;
+    bankName: string;
+    status: 'success' | 'error';
+    message?: string;
+  }): Promise<void> {
+    const emoji = params.status === 'success' ? '✅' : '❌';
+    const status = params.status === 'success' ? 'réussie' : 'échouée';
+    
+    await this.sendEmail({
+      to: params.userEmail,
+      subject: `${emoji} Connexion bancaire ${status} - ${params.bankName}`,
+      message: `
+Votre connexion bancaire avec ${params.bankName} est ${status}.
+
+${params.message || ''}
+
+Connectez-vous à votre tableau de bord pour gérer vos connexions.
+      `.trim(),
+    });
+  }
+
+  /**
+   * Envoyer une notification d'anomalie bancaire
+   */
+  async sendBankAnomalyNotification(params: {
+    userEmail: string;
+    bankName: string;
+    anomalyType: string;
+    amount?: number;
+    description: string;
+  }): Promise<void> {
+    const amountText = params.amount ? ` de ${params.amount.toLocaleString()} FCFA` : '';
+    
+    await this.sendEmail({
+      to: params.userEmail,
+      subject: `🚨 Anomalie bancaire détectée - ${params.bankName}`,
+      message: `
+Une anomalie bancaire a été détectée :
+
+Banque : ${params.bankName}
+Type : ${params.anomalyType}
+Montant${amountText} : ${params.amount?.toLocaleString() || 'N/A'} FCFA
+Description : ${params.description}
+
+Veuillez vérifier cette transaction dans votre tableau de bord.
+      `.trim(),
+    });
+  }
 }
