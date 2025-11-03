@@ -11,7 +11,8 @@
     "test:ai": "node src/ai/test-all-ai-ml.js",
     "test:ocr": "node src/ai/test-ocr.js",
     "test:working": "node src/ai/test-working-features.js",
-    "test:100": "node src/ai/test-100-percent.js"
+    "test:100": "node src/ai/test-100-percent.js",
+    "monitor:100": "node src/ai/monitor-100-percent.js"
   },
   "dependencies": {
     "africastalking": "^0.7.7",
