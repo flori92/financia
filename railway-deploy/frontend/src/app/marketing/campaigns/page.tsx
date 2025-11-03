@@ -30,7 +30,7 @@ export default function CampaignsPage() {
           <h1 className="text-3xl font-bold">Campagnes Marketing</h1>
           <p className="text-gray-600">Gérez vos campagnes email et SMS</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => alert("Fonctionnalité en développement : Nouvelle Campagne")}>
           <Plus className="w-4 h-4 mr-2" />
           Nouvelle Campagne
         </Button>
@@ -133,7 +133,7 @@ export default function CampaignsPage() {
                       </span>
                     </td>
                     <td className="p-3">
-                      <Button variant="ghost" size="sm">Voir</Button>
+                      <Button variant="ghost" size="sm" onClick={() => alert("Fonctionnalité en développement : Voir")}>Voir</Button>
                     </td>
                   </tr>
                 ))}

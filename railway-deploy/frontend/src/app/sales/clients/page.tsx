@@ -141,10 +141,10 @@ export default function SalesClientsPage() {
         </div>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Nouveau Client
-            </Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => alert("Fonctionnalité en développement : Nouveau Client")}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau Client
+          </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -175,7 +175,7 @@ export default function SalesClientsPage() {
                 <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                   Annuler
                 </Button>
-                <Button type="submit">Ajouter le client</Button>
+                <Button type="submit" onClick={() => alert("Fonctionnalité en développement : Ajouter le client")}>Ajouter le client</Button>
               </div>
             </form>
           </DialogContent>

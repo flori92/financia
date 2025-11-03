@@ -37,7 +37,7 @@ export default function TicketsPage() {
           <h1 className="text-3xl font-bold">Support Client</h1>
           <p className="text-gray-600">Gérez les tickets de support</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => alert("Fonctionnalité en développement : Nouveau Ticket")}>
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Ticket
         </Button>
@@ -137,7 +137,7 @@ export default function TicketsPage() {
                       {new Date(ticket.createdAt).toLocaleDateString('fr-FR')}
                     </td>
                     <td className="p-3">
-                      <Button variant="ghost" size="sm">Voir</Button>
+                      <Button variant="ghost" size="sm" onClick={() => alert("Fonctionnalité en développement : Voir")}>Voir</Button>
                     </td>
                   </tr>
                 ))}
