@@ -1450,10 +1450,57 @@ app.get('/api/v1/inventory/items', (req, res) => {
   res.json([
     {
       id: '1',
-      name: 'Produit A',
-      quantity: 100,
+      sku: 'PRD-001',
+      name: 'Ordinateur Portable Dell XPS 15',
+      warehouse: 'Entrepôt Principal Cotonou',
+      quantity: 150,
+      unitPrice: 850000,
       unit: 'pcs',
-      value: 500000,
+      value: 127500000,
+      status: 'in_stock'
+    },
+    {
+      id: '2',
+      sku: 'PRD-002',
+      name: 'Écran Samsung 27" 4K',
+      warehouse: 'Entrepôt Principal Cotonou',
+      quantity: 45,
+      unitPrice: 320000,
+      unit: 'pcs',
+      value: 14400000,
+      status: 'low_stock'
+    },
+    {
+      id: '3',
+      sku: 'PRD-003',
+      name: 'Clavier Mécanique Logitech',
+      warehouse: 'Entrepôt Secondaire Porto-Novo',
+      quantity: 200,
+      unitPrice: 65000,
+      unit: 'pcs',
+      value: 13000000,
+      status: 'in_stock'
+    },
+    {
+      id: '4',
+      sku: 'PRD-004',
+      name: 'Souris Sans Fil HP',
+      warehouse: 'Entrepôt Principal Cotonou',
+      quantity: 30,
+      unitPrice: 25000,
+      unit: 'pcs',
+      value: 750000,
+      status: 'out_of_stock'
+    },
+    {
+      id: '5',
+      sku: 'PRD-005',
+      name: 'Câble HDMI 2m',
+      warehouse: 'Entrepôt Secondaire Porto-Novo',
+      quantity: 500,
+      unitPrice: 8000,
+      unit: 'pcs',
+      value: 4000000,
       status: 'in_stock'
     }
   ]);
