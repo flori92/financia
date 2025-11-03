@@ -25,8 +25,9 @@ interface Template {
 
 export default function EmailsPage() {
   const [emails, setEmails] = useState<Email[]>([]);
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templates, setTemplates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCompose, setShowCompose] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState('inbox');
 
   useEffect(() => {
@@ -63,10 +64,7 @@ export default function EmailsPage() {
         </div>
         <Button 
           className="bg-teal-600 hover:bg-teal-700"
-          onClick={() => {
-            // Ouvrir modal nouveau message
-            alert('Fonctionnalité Nouveau Message - En développement !\n\nCette fonctionnalité permettra :\n• Composer un nouvel email\n• Choisir des destinataires\n• Utiliser des templates\n• Ajouter des pièces jointes\n• Programmer l\'envoi');
-          }}
+          onClick={() => setShowCompose(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Message
