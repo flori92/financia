@@ -4,6 +4,7 @@ import { apiGet, apiPost, getCompanyId } from "@/lib/api";
 import { Lock, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function ClosePeriodPage() {
+  // v3.0 - Fix API URL routing
   const [loading, setLoading] = useState(false);
   const [closures, setClosures] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<string>(
