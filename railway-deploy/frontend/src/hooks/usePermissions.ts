@@ -1,8 +1,6 @@
 // Hook de gestion des permissions par profil BMS
 import React from 'react';
-import { useAuth } from './useAuth';
-
-type UserRole = 'expert-comptable' | 'entrepreneur' | 'bank' | 'fiscal';
+import { useAuth, UserRole } from './useAuth';
 
 interface Permission {
   module: string;
@@ -174,7 +172,12 @@ export const ProtectedComponent: React.FC<ProtectedComponentProps> = ({
   const canUserAccess = (): boolean => {
     if (!user) return false;
     
-    const userPermissions = PERMISSION_MATRIX[user.role];
+    // Vérification explicite que le rôle est valide
+    if (!Object.keys(PERMISSION_MATRIX).includes(user.role)) {
+      return false;
+    }
+    
+    const userPermissions = PERMISSION_MATRIX[user.role as UserRole];
     if (!userPermissions) return false;
     
     const modulePermissions = userPermissions[module];
@@ -198,7 +201,12 @@ export const useRequireAuth = (module: string, action: string = 'read') => {
   const canUserAccess = (): boolean => {
     if (!user) return false;
     
-    const userPermissions = PERMISSION_MATRIX[user.role];
+    // Vérification explicite que le rôle est valide
+    if (!Object.keys(PERMISSION_MATRIX).includes(user.role)) {
+      return false;
+    }
+    
+    const userPermissions = PERMISSION_MATRIX[user.role as UserRole];
     if (!userPermissions) return false;
     
     const modulePermissions = userPermissions[module];
@@ -210,7 +218,12 @@ export const useRequireAuth = (module: string, action: string = 'read') => {
   const getAccessMessage = (): string => {
     if (!user) return 'Vous devez être connecté pour accéder à cette ressource';
     
-    const userPermissions = PERMISSION_MATRIX[user.role];
+    // Vérification explicite que le rôle est valide
+    if (!Object.keys(PERMISSION_MATRIX).includes(user.role)) {
+      return `Rôle ${user.role} non reconnu`;
+    }
+    
+    const userPermissions = PERMISSION_MATRIX[user.role as UserRole];
     if (!userPermissions) return `Rôle ${user.role} non reconnu`;
     
     const modulePermissions = userPermissions[module];

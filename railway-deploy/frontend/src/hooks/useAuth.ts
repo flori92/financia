@@ -1,9 +1,9 @@
 // Hook d'authentification pour BMS
 import { useState, useEffect } from 'react';
 
-type UserRole = 'expert-comptable' | 'entrepreneur' | 'bank' | 'fiscal';
+export type UserRole = 'expert-comptable' | 'entrepreneur' | 'bank' | 'fiscal';
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
