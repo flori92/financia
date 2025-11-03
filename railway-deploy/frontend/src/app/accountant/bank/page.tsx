@@ -1,7 +1,7 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
 import { useState, useEffect } from "react";
-import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, Link2, X } from "lucide-react";
+import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, Link2, X, Filter, FileDown, FileUp } from "lucide-react";
 import { useToast } from "@/components/providers/ToastProvider";
 
 export default function BankReconciliationPage() {
@@ -18,6 +18,9 @@ export default function BankReconciliationPage() {
   const [matching, setMatching] = useState(false);
   const [threshold, setThreshold] = useState<number>(0.8);
   const [limit, setLimit] = useState<number>(100);
+  const [filters, setFilters] = useState({ startDate: '', endDate: '', minAmount: '', maxAmount: '', status: 'all' });
+  const [showFilters, setShowFilters] = useState(false);
+  const [uploadingCsv, setUploadingCsv] = useState(false);
 
   useEffect(() => {
     // Récupérer companyId depuis localStorage si présent
@@ -150,11 +153,73 @@ export default function BankReconciliationPage() {
     }
   };
 
-  const bankBalance = 15068500;
-  const bookBalance = 15120000;
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingCsv(true);
+    try {
+      const text = await file.text();
+      const res = await fetch(`${getBaseUrl()}/api/v1/banking/import-csv`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId, csvContent: text }),
+      });
+      if (!res.ok) throw new Error('Erreur import CSV');
+      const data = await res.json();
+      await loadTransactions();
+      show({ 
+        title: `${data.imported} transactions importées`, 
+        description: data.skipped ? `${data.skipped} doublons ignorés` : undefined,
+        variant: 'success' 
+      });
+    } catch (e) {
+      console.error(e);
+      show({ title: 'Échec import CSV', variant: 'error' });
+    } finally {
+      setUploadingCsv(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Date', 'Description', 'Référence', 'Montant', 'Statut', 'Notes'];
+    const rows = filteredTransactions.map(tx => [
+      new Date(tx.transactionDate || tx.date).toLocaleDateString('fr-FR'),
+      tx.label || tx.description || '',
+      tx.reference || '',
+      tx.amount,
+      tx.status,
+      tx.notes || ''
+    ]);
+    const csv = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rapprochement_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    show({ title: 'Export CSV téléchargé', variant: 'success' });
+  };
+
+  const bankBalance = transactions.reduce((sum, t) => t.status !== 'ignored' ? sum + t.amount : sum, 0);
+  const bookBalance = transactions.filter(t => t.status === 'reconciled').reduce((sum, t) => sum + t.amount, 0);
   const difference = Math.abs(bankBalance - bookBalance);
   const reconciledCount = transactions.filter(t => t.status === 'reconciled').length;
   const pendingCount = transactions.filter(t => t.status === 'pending').length;
+  const ignoredCount = transactions.filter(t => t.status === 'ignored').length;
+
+  const filteredTransactions = transactions.filter(tx => {
+    if (filters.status !== 'all' && tx.status !== filters.status) return false;
+    if (filters.startDate && new Date(tx.transactionDate || tx.date) < new Date(filters.startDate)) return false;
+    if (filters.endDate && new Date(tx.transactionDate || tx.date) > new Date(filters.endDate)) return false;
+    if (filters.minAmount && Math.abs(tx.amount) < Number(filters.minAmount)) return false;
+    if (filters.maxAmount && Math.abs(tx.amount) > Number(filters.maxAmount)) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -163,50 +228,116 @@ export default function BankReconciliationPage() {
           <h1 className="text-2xl font-semibold">Rapprochement bancaire</h1>
           <p className="text-gray-600">Lettrage automatique et rapprochement intelligent</p>
         </div>
-        <div className="flex gap-2 items-center">
-          {/* Paramètres auto-match */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-white border rounded-lg">
-            <label className="text-sm text-gray-600">Seuil</label>
-            <input
-              type="number"
-              min={0.5}
-              max={0.99}
-              step={0.05}
-              value={threshold}
-              onChange={(e) => setThreshold(Math.min(0.99, Math.max(0.5, Number(e.target.value) || 0)))}
-              className="w-20 border rounded px-2 py-1 text-sm"
-            />
-            <label className="text-sm text-gray-600">Limite</label>
-            <input
-              type="number"
-              min={1}
-              max={500}
-              step={1}
-              value={limit}
-              onChange={(e) => setLimit(Math.min(500, Math.max(1, Number(e.target.value) || 1)))}
-              className="w-20 border rounded px-2 py-1 text-sm"
-            />
-          </div>
+        <div className="flex gap-2 items-center flex-wrap">
+          <label className="flex items-center gap-2 px-4 py-2 bg-white border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 cursor-pointer">
+            <FileUp className="w-4 h-4" />
+            {uploadingCsv ? 'Import...' : 'Importer CSV'}
+            <input type="file" accept=".csv" onChange={handleCsvUpload} className="hidden" disabled={uploadingCsv} />
+          </label>
+          <button
+            onClick={exportToCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            <FileDown className="w-4 h-4" />
+            Exporter
+          </button>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg ${showFilters ? 'bg-teal-100 text-teal-700' : 'bg-white border'}`}
+          >
+            <Filter className="w-4 h-4" />
+            Filtres
+          </button>
           <button
             onClick={handleSync}
             disabled={syncing}
             className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Synchronisation...' : 'Synchroniser'}
+            Sync
           </button>
           <button
             onClick={handleAutoMatch}
             disabled={pendingCount === 0 || matching}
-            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
             <CheckCircle className={`w-4 h-4 ${matching ? 'animate-spin' : ''}`} />
-            {matching ? 'Lettrage...' : `Lettrage auto (${pendingCount})`}
+            Lettrage auto ({pendingCount})
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Panneau de filtres */}
+      {showFilters && (
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Date début</label>
+              <input
+                type="date"
+                value={filters.startDate}
+                onChange={(e) => setFilters({...filters, startDate: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Date fin</label>
+              <input
+                type="date"
+                value={filters.endDate}
+                onChange={(e) => setFilters({...filters, endDate: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Montant min (FCFA)</label>
+              <input
+                type="number"
+                value={filters.minAmount}
+                onChange={(e) => setFilters({...filters, minAmount: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Montant max (FCFA)</label>
+              <input
+                type="number"
+                value={filters.maxAmount}
+                onChange={(e) => setFilters({...filters, maxAmount: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+                placeholder="999999999"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Statut</label>
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters({...filters, status: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="all">Tous</option>
+                <option value="pending">En attente</option>
+                <option value="reconciled">Rapprochées</option>
+                <option value="ignored">Ignorées</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={() => setFilters({ startDate: '', endDate: '', minAmount: '', maxAmount: '', status: 'all' })}
+              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50"
+            >
+              Réinitialiser
+            </button>
+            <span className="text-sm text-gray-600 py-2">
+              {filteredTransactions.length} transaction(s) affichée(s) sur {transactions.length}
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Solde bancaire</div>
           <div className="text-2xl font-semibold text-[#0D9488]">{bankBalance.toLocaleString()} FCFA</div>
@@ -221,11 +352,17 @@ export default function BankReconciliationPage() {
             {difference.toLocaleString()} FCFA
           </div>
         </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-600">Taux rapprochement</div>
+          <div className="text-2xl font-semibold text-teal-600">
+            {transactions.length > 0 ? Math.round((reconciledCount / transactions.length) * 100) : 0}%
+          </div>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Opérations à rapprocher</h2>
+          <h2 className="text-lg font-semibold">Opérations bancaires</h2>
           <div className="flex items-center gap-4 text-sm">
             <span className="text-green-600 flex items-center gap-1">
               <CheckCircle className="w-4 h-4" />
@@ -234,6 +371,10 @@ export default function BankReconciliationPage() {
             <span className="text-orange-600 flex items-center gap-1">
               <AlertCircle className="w-4 h-4" />
               {pendingCount} en attente
+            </span>
+            <span className="text-gray-600 flex items-center gap-1">
+              <X className="w-4 h-4" />
+              {ignoredCount} ignorées
             </span>
           </div>
         </div>
@@ -252,9 +393,9 @@ export default function BankReconciliationPage() {
             <tbody>
               {loading ? (
                 <tr><td colSpan={6} className="text-center py-8 text-gray-500">Chargement...</td></tr>
-              ) : transactions.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-8 text-gray-500">Aucune transaction</td></tr>
-              ) : transactions.map((transaction) => (
+              ) : filteredTransactions.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8 text-gray-500">Aucune transaction correspondante</td></tr>
+              ) : filteredTransactions.map((transaction) => (
                 <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 text-sm">{new Date(transaction.transactionDate || transaction.date).toLocaleDateString('fr-FR')}</td>
                   <td className="py-3 px-4">{transaction.label || transaction.description}</td>

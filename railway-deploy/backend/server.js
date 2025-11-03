@@ -359,6 +359,20 @@ app.post('/api/v1/banking/reconcile-entry', (req, res) => {
   });
 });
 
+app.post('/api/v1/banking/import-csv', (req, res) => {
+  const { csvContent, companyId } = req.body;
+  // Simulation d'import CSV
+  const lines = csvContent.split('\n').filter(l => l.trim());
+  const imported = Math.max(0, lines.length - 1); // -1 pour header
+  const skipped = Math.floor(imported * 0.1); // 10% de doublons simulés
+  
+  res.json({
+    imported: imported - skipped,
+    skipped,
+    total: imported
+  });
+});
+
 // Tax endpoints
 app.get('/api/v1/tax/vat/return', (req, res) => {
   const { companyId, startDate, endDate } = req.query;
