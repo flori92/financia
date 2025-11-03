@@ -2,89 +2,109 @@ const moment = require('moment');
 const database = require('../database');
 
 class CRMService {
-  // Pipeline Opportunities - MODE 100% DYNAMIQUE SQLITE
-  async getPipelineOverview(companyId) {
+  
+  // ===== STATISTIQUES DASHBOARD CRM =====
+  
+  async getCRMStats(companyId) {
     const db = database;
     
-    // Récupérer tous les stages du pipeline
-    const stages = await db.all(`
-      SELECT * FROM pipeline_stages 
-      WHERE company_id = ? 
-      ORDER BY order_number ASC
-    `, [companyId]);
+    try {
+      // 1. Statistiques contacts
+      const contactStats = await this.getContactsStats(companyId);
+      
+      // 2. Statistiques opportunités
+      const opportunityStats = await this.getOpportunitiesStats(companyId);
+      
+      // 3. Statistiques activités (derniers 30 jours)
+      const recentActivities = await db.all(`
+        SELECT type, COUNT(*) as count
+        FROM activities 
+        WHERE company_id = ? AND created_at >= date('now', '-30 days')
+        GROUP BY type
+      `, [companyId]);
+      
+      const activitiesByType = {};
+      recentActivities.forEach(activity => {
+        activitiesByType[activity.type] = activity.count;
+      });
+      
+      // 4. Tâches en attente
+      const pendingTasks = await db.get(`
+        SELECT COUNT(*) as count
+        FROM tasks 
+        WHERE company_id = ? AND status IN ('todo', 'in_progress')
+      `, [companyId]);
+      
+      // 5. Opportunités à suivre (proche de la date de clôture)
+      const followUpOpportunities = await db.all(`
+        SELECT o.id, o.title, o.close_date, c.first_name, c.last_name, c.company_name
+        FROM opportunities o
+        LEFT JOIN contacts c ON o.contact_id = c.id
+        WHERE o.company_id = ? AND o.status = 'open' 
+        AND o.close_date <= date('now', '+7 days')
+        ORDER BY o.close_date ASC
+        LIMIT 5
+      `, [companyId]);
+      
+      // 6. Performance commerciale (CA ce mois)
+      const monthlyRevenue = await db.get(`
+        SELECT SUM(amount) as total, COUNT(*) as count
+        FROM opportunities 
+        WHERE company_id = ? AND status = 'won' 
+        AND close_date >= date('now', 'start of month')
+      `, [companyId]);
+      
+      // 7. Pipeline valeur par stage
+      const pipelineValue = await db.all(`
+        SELECT ps.name, ps.probability, COUNT(o.id) as opp_count, COALESCE(SUM(o.amount), 0) as total_value
+        FROM pipeline_stages ps
+        LEFT JOIN opportunities o ON ps.id = o.stage_id AND o.company_id = ps.company_id AND o.status = 'open'
+        WHERE ps.company_id = ?
+        GROUP BY ps.id, ps.name, ps.probability
+        ORDER BY ps.order_number
+      `, [companyId]);
+      
+      return {
+        contacts: contactStats,
+        opportunities: opportunityStats,
+        activities: {
+          byType: activitiesByType,
+          totalRecent: Object.values(activitiesByType).reduce((sum, count) => sum + count, 0)
+        },
+        tasks: {
+          pending: pendingTasks.count || 0
+        },
+        followUps: followUpOpportunities,
+        performance: {
+          monthlyRevenue: monthlyRevenue.total || 0,
+          monthlyWonDeals: monthlyRevenue.count || 0
+        },
+        pipeline: {
+          stages: pipelineValue,
+          totalValue: pipelineValue.reduce((sum, stage) => sum + stage.total_value, 0)
+        },
+        kpis: {
+          conversionRate: opportunityStats.total > 0 ? (opportunityStats.won / opportunityStats.total) * 100 : 0,
+          averageDealSize: opportunityStats.total > 0 ? (opportunityStats.total_value / opportunityStats.total) : 0,
+          pipelineHealth: this.calculatePipelineHealth(pipelineValue)
+        }
+      };
+      
+    } catch (error) {
+      console.error('Erreur getCRMStats:', error);
+      throw error;
+    }
+  }
+  
+  calculatePipelineHealth(pipelineStages) {
+    const totalOpps = pipelineStages.reduce((sum, stage) => sum + stage.opp_count, 0);
+    if (totalOpps === 0) return 0;
     
-    // Récupérer toutes les opportunités avec leurs contacts
-    const opportunities = await db.all(`
-      SELECT 
-        o.*,
-        c.first_name,
-        c.last_name,
-        c.company_name,
-        c.email,
-        c.phone
-      FROM opportunities o
-      LEFT JOIN contacts c ON o.contact_id = c.id
-      WHERE o.company_id = ?
-      ORDER BY o.created_at DESC
-    `, [companyId]);
+    const earlyStages = pipelineStages.slice(0, 3).reduce((sum, stage) => sum + stage.opp_count, 0);
+    const lateStages = pipelineStages.slice(3).reduce((sum, stage) => sum + stage.opp_count, 0);
     
-    // Grouper les opportunités par stage
-    const opportunitiesByStage = {};
-    stages.forEach(stage => {
-      opportunitiesByStage[stage.id] = [];
-    });
-    
-    opportunities.forEach(opp => {
-      if (opportunitiesByStage[opp.stage_id]) {
-        opportunitiesByStage[opp.stage_id].push({
-          id: opp.id,
-          title: opp.title,
-          amount: opp.amount,
-          probability: opp.probability,
-          status: opp.status,
-          contact: opp.contact_id ? {
-            firstName: opp.first_name,
-            lastName: opp.last_name,
-            companyName: opp.company_name,
-            email: opp.email,
-            phone: opp.phone
-          } : undefined,
-          closeDate: opp.close_date,
-          description: opp.description,
-          assignedTo: opp.assigned_to,
-          createdAt: opp.created_at,
-          updatedAt: opp.updated_at
-        });
-      }
-    });
-    
-    // Ajouter les opportunités aux stages
-    const stagesWithOpportunities = stages.map(stage => ({
-      id: stage.id,
-      name: stage.name,
-      type: stage.type,
-      order: stage.order_number,
-      probability: stage.probability,
-      color: stage.color,
-      opportunities: opportunitiesByStage[stage.id] || []
-    }));
-    
-    // Calculer les statistiques
-    const allOpportunities = opportunities.filter(opp => opp.status === 'open');
-    const totalValue = allOpportunities.reduce((sum, opp) => sum + (opp.amount || 0), 0);
-    const averageDealSize = allOpportunities.length > 0 ? totalValue / allOpportunities.length : 0;
-    
-    // Taux de conversion (opportunités gagnées / total)
-    const wonOpportunities = opportunities.filter(opp => opp.status === 'won');
-    const conversionRate = opportunities.length > 0 ? (wonOpportunities.length / opportunities.length) * 100 : 0;
-    
-    return {
-      stages: stagesWithOpportunities,
-      opportunitiesByStage,
-      totalValue,
-      averageDealSize,
-      conversionRate
-    };
+    const ratio = lateStages / totalOpps;
+    return Math.round(ratio * 100);
   }
 
   // Déplacer une opportunité vers un autre stage

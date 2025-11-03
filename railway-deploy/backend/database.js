@@ -265,6 +265,75 @@ class Database {
         processed_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // ===== TABLES CRM COMPLÉMENTAIRES =====
+      
+      // Activities (Historique des interactions)
+      `CREATE TABLE IF NOT EXISTS activities (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        type TEXT NOT NULL, -- call, email, meeting, task, note
+        subject TEXT NOT NULL,
+        description TEXT,
+        contact_id TEXT,
+        opportunity_id TEXT,
+        user_id TEXT, -- Qui a fait l'activité
+        status TEXT DEFAULT 'completed', -- planned, completed, cancelled
+        priority TEXT DEFAULT 'medium',
+        due_date DATETIME,
+        completed_at DATETIME,
+        duration_minutes INTEGER, -- Pour les appels/réunions
+        location TEXT, -- Pour les réunions
+        attendees TEXT, -- JSON array des participants
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (company_id) REFERENCES companies(id),
+        FOREIGN KEY (contact_id) REFERENCES contacts(id),
+        FOREIGN KEY (opportunity_id) REFERENCES opportunities(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )`,
+
+      // Tasks (Tâches à faire)
+      `CREATE TABLE IF NOT EXISTS tasks (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        contact_id TEXT,
+        opportunity_id TEXT,
+        assigned_to TEXT, -- User ID
+        created_by TEXT, -- User ID
+        status TEXT DEFAULT 'todo', -- todo, in_progress, completed, cancelled
+        priority TEXT DEFAULT 'medium',
+        due_date DATETIME,
+        completed_at DATETIME,
+        reminder_date DATETIME,
+        tags TEXT, -- JSON array
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (company_id) REFERENCES companies(id),
+        FOREIGN KEY (contact_id) REFERENCES contacts(id),
+        FOREIGN KEY (opportunity_id) REFERENCES opportunities(id),
+        FOREIGN KEY (assigned_to) REFERENCES users(id),
+        FOREIGN KEY (created_by) REFERENCES users(id)
+      )`,
+
+      // Notes (Notes sur les contacts)
+      `CREATE TABLE IF NOT EXISTS notes (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        content TEXT NOT NULL,
+        contact_id TEXT,
+        opportunity_id TEXT,
+        user_id TEXT, -- Auteur de la note
+        is_private BOOLEAN DEFAULT FALSE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (company_id) REFERENCES companies(id),
+        FOREIGN KEY (contact_id) REFERENCES contacts(id),
+        FOREIGN KEY (opportunity_id) REFERENCES opportunities(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )`
     ];
 
@@ -601,6 +670,173 @@ class Database {
         opportunity.stage_id, opportunity.contact_id, opportunity.close_date,
         new Date().toISOString(), new Date().toISOString()
       ]);
+    }
+
+    // ===== DONNÉES CRM COMPLÉMENTAIRES =====
+    
+    // Insérer activités exemples
+    const activities = [
+      {
+        id: 'activity_1',
+        type: 'call',
+        subject: 'Appel découverte Projet ERP',
+        description: 'Discussion initiale sur les besoins ERP',
+        contact_id: 'contact_1',
+        opportunity_id: 'opp_1',
+        user_id: 'user_1',
+        status: 'completed',
+        priority: 'medium',
+        due_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        completed_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        duration_minutes: 45
+      },
+      {
+        id: 'activity_2',
+        type: 'email',
+        subject: 'Envoi proposition e-commerce',
+        description: 'Proposition détaillée pour site B2B',
+        contact_id: 'contact_2',
+        opportunity_id: 'opp_2',
+        user_id: 'user_2',
+        status: 'completed',
+        priority: 'high',
+        due_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        completed_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'activity_3',
+        type: 'meeting',
+        subject: 'Réunion de négociation',
+        description: 'Négociation termes et conditions',
+        contact_id: 'contact_3',
+        opportunity_id: 'opp_3',
+        user_id: 'user_1',
+        status: 'completed',
+        priority: 'high',
+        due_date: new Date().toISOString(),
+        completed_at: new Date().toISOString(),
+        duration_minutes: 120,
+        location: 'Bureau client',
+        attendees: '["Chef Moussa", "Jean Dupont"]'
+      },
+      {
+        id: 'activity_4',
+        type: 'task',
+        subject: 'Préparer démo banque digitale',
+        description: 'Créer démo personnalisée pour Banque Modern',
+        contact_id: 'contact_4',
+        opportunity_id: 'opp_4',
+        user_id: 'user_1',
+        status: 'todo',
+        priority: 'high',
+        due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+      }
+    ];
+
+    for (const activity of activities) {
+      await this.run(`
+        INSERT INTO activities (
+          id, company_id, type, subject, description, contact_id, opportunity_id,
+          user_id, status, priority, due_date, completed_at, duration_minutes,
+          location, attendees, created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        activity.id, companyId, activity.type, activity.subject, activity.description,
+        activity.contact_id, activity.opportunity_id, activity.user_id, activity.status,
+        activity.priority, activity.due_date, activity.completed_at || null,
+        activity.duration_minutes || null, activity.location || null,
+        activity.attendees || null, new Date().toISOString(), new Date().toISOString()
+      ]);
+    }
+
+    // Insérer tâches exemples
+    const tasks = [
+      {
+        id: 'task_1',
+        title: 'Suivre appel ERP Entreprise ABC',
+        description: 'Envoyer résumé et prochaines étapes',
+        contact_id: 'contact_1',
+        opportunity_id: 'opp_1',
+        assigned_to: 'user_2',
+        created_by: 'user_2',
+        status: 'todo',
+        priority: 'high',
+        due_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+        reminder_date: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'task_2',
+        title: 'Finaliser proposition e-commerce',
+        description: 'Ajouter fonctionnalités personnalisées',
+        contact_id: 'contact_2',
+        opportunity_id: 'opp_2',
+        assigned_to: 'user_3',
+        created_by: 'user_3',
+        status: 'in_progress',
+        priority: 'medium',
+        due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'task_3',
+        title: 'Préparer contrat Partenariat',
+        description: 'Rédiger accord de distribution',
+        contact_id: 'contact_5',
+        opportunity_id: 'opp_5',
+        assigned_to: 'user_1',
+        created_by: 'user_1',
+        status: 'todo',
+        priority: 'medium',
+        due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
+      }
+    ];
+
+    for (const task of tasks) {
+      await this.run(`
+        INSERT INTO tasks (
+          id, company_id, title, description, contact_id, opportunity_id,
+          assigned_to, created_by, status, priority, due_date, reminder_date,
+          created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        task.id, companyId, task.title, task.description, task.contact_id,
+        task.opportunity_id, task.assigned_to, task.created_by, task.status,
+        task.priority, task.due_date, task.reminder_date || null,
+        new Date().toISOString(), new Date().toISOString()
+      ]);
+    }
+
+    // Insérer notes exemples
+    const notes = [
+      {
+        id: 'note_1',
+        content: 'Client très intéressé par la solution CRM. Budget confirmé de 2.5M FCFA. Décision attendue sous 30 jours.',
+        contact_id: 'contact_1',
+        opportunity_id: 'opp_1',
+        user_id: 'user_2'
+      },
+      {
+        id: 'note_2',
+        content: 'Attention : Ce client a des exigences techniques spécifiques. Nécessite expertise développeur senior.',
+        contact_id: 'contact_4',
+        opportunity_id: 'opp_4',
+        user_id: 'user_1'
+      },
+      {
+        id: 'note_3',
+        content: 'Partenaire stratégique pour la distribution. Accord de principe obtenu.',
+        contact_id: 'contact_5',
+        opportunity_id: 'opp_5',
+        user_id: 'user_1'
+      }
+    ];
+
+    for (const note of notes) {
+      await this.run(`
+        INSERT INTO notes (id, company_id, content, contact_id, opportunity_id, user_id, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `, [note.id, companyId, note.content, note.contact_id, note.opportunity_id, note.user_id, new Date().toISOString(), new Date().toISOString()]);
     }
 
     console.log('📊 Données initiales insérées avec succès');
