@@ -100,6 +100,47 @@ export default function GeneralLedgerPage() {
     }
   };
 
+  // Exporter les données en CSV/Excel
+  const handleExport = async () => {
+    if (!data || data.entries.length === 0) {
+      triggerToast("error", "Aucune donnée à exporter");
+      return;
+    }
+
+    try {
+      // Créer le contenu CSV
+      const headers = ['Date', 'N° Écriture', 'Compte', 'Description', 'Débit', 'Crédit', 'Solde'];
+      const csvContent = [
+        headers.join(','),
+        ...data.entries.map(entry => [
+          entry.date,
+          entry.entryNumber,
+          entry.account,
+          `"${entry.description}"`,
+          entry.debit,
+          entry.credit,
+          entry.balance
+        ].join(','))
+      ].join('\n');
+
+      // Créer le blob et télécharger
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `grand-livre-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      triggerToast("success", "Export CSV réussi");
+    } catch (error) {
+      console.error('Erreur export:', error);
+      triggerToast("error", "Erreur lors de l'export");
+    }
+  };
+
   // Charger au montage et quand les filtres changent
   useEffect(() => {
     loadGeneralLedger();
@@ -173,7 +214,7 @@ export default function GeneralLedgerPage() {
             Actualiser
           </button>
           <button
-            onClick={() => triggerToast("success", "Export PDF/Excel disponible prochainement.")}
+            onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
           >
             <Download className="w-4 h-4" />

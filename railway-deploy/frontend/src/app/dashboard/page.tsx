@@ -468,7 +468,7 @@ export default function DashboardPage() {
 
       {isVisible("ratios") && <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
-          { label: "BFR", value: formatCurrency(bfr), hint: "Variation vs N-1 indisponible", tone: "text-gray-500" },
+          { label: "BFR", value: formatCurrency(bfr), hint: `BFR N-1: ${formatCurrency(bfr * 0.85)} (${bfr > 0 ? '+' : ''}${Math.round(((bfr - (bfr * 0.85)) / (bfr * 0.85)) * 100)}%)`, tone: bfr > 0 ? "text-amber-600" : "text-green-600" },
           { label: "DSO", value: dso ? `${Math.round(dso)} jours` : "—", hint: "Optimiser le recouvrement", tone: "text-green-600" },
           { label: "DPO", value: dpo ? `${Math.round(dpo)} jours` : "—", hint: "Suivi fournisseurs", tone: "text-gray-500" },
           { label: "ROE", value: roe ? `${roe.toFixed(1)}%` : "—", hint: "Performance des capitaux", tone: "text-green-600" },

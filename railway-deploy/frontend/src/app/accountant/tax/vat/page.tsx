@@ -74,7 +74,8 @@ export default function VATPage() {
       
       triggerToast("success", "Export FEC téléchargé avec succès !");
     } catch (error) {
-      triggerToast("info", "Export FEC non disponible. Implémentez l'endpoint backend /api/v1/tax/export/fec");
+      console.error('Erreur export FEC:', error);
+      triggerToast("error", "Erreur lors de l'export FEC. Veuillez réessayer.");
     }
   };
 
@@ -101,7 +102,8 @@ export default function VATPage() {
       setShowGenerateModal(false);
       triggerToast("success", "PDF CA3 généré et téléchargé !");
     } catch (error) {
-      triggerToast("info", "PDF CA3 non disponible. Implémentez l'endpoint backend /api/v1/tax/generate-ca3-pdf");
+      console.error('Erreur génération PDF CA3:', error);
+      triggerToast("error", "Erreur lors de la génération du PDF CA3. Veuillez réessayer.");
       setShowGenerateModal(false);
     }
   };

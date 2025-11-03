@@ -95,6 +95,86 @@ export default function TrialBalancePage() {
     }
   };
 
+  // Imprimer en PDF
+  const handlePrintPDF = () => {
+    if (!data || data.accounts.length === 0) {
+      triggerToast("error", "Aucune donnée à imprimer");
+      return;
+    }
+
+    try {
+      // Créer le contenu HTML pour l'impression
+      const printContent = `
+        <html>
+          <head>
+            <title>Balance Générale - ${data.period}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { text-align: center; color: #1f2937; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; }
+              th { background-color: #f3f4f6; font-weight: bold; }
+              .text-right { text-align: right; }
+              .total { font-weight: bold; background-color: #f9fafb; }
+            </style>
+          </head>
+          <body>
+            <h1>Balance Générale</h1>
+            <p>Période: ${data.period}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Compte</th>
+                  <th>Libellé</th>
+                  <th class="text-right">Débit</th>
+                  <th class="text-right">Crédit</th>
+                  <th class="text-right">Solde</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.accounts.map(account => `
+                  <tr>
+                    <td>${account.accountNumber}</td>
+                    <td>${account.accountName}</td>
+                    <td class="text-right">${account.debit.toLocaleString('fr-FR')} FCFA</td>
+                    <td class="text-right">${account.credit.toLocaleString('fr-FR')} FCFA</td>
+                    <td class="text-right">${account.balance.toLocaleString('fr-FR')} FCFA</td>
+                  </tr>
+                `).join('')}
+                <tr class="total">
+                  <td colspan="2">TOTAL</td>
+                  <td class="text-right">${data.totalDebit.toLocaleString('fr-FR')} FCFA</td>
+                  <td class="text-right">${data.totalCredit.toLocaleString('fr-FR')} FCFA</td>
+                  <td class="text-right">${(data.totalDebit - data.totalCredit).toLocaleString('fr-FR')} FCFA</td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="margin-top: 30px; text-align: center; color: #6b7280;">
+              Généré le ${new Date().toLocaleDateString('fr-FR')} par BMS
+            </p>
+          </body>
+        </html>
+      `;
+
+      // Ouvrir dans une nouvelle fenêtre et imprimer
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 250);
+      }
+
+      triggerToast("success", "Impression PDF lancée");
+    } catch (error) {
+      console.error('Erreur impression:', error);
+      triggerToast("error", "Erreur lors de l'impression");
+    }
+  };
+
   // Charger au montage et quand la date change
   useEffect(() => {
     loadTrialBalance();
@@ -180,7 +260,7 @@ export default function TrialBalancePage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => triggerToast("info", "Impression PDF disponible prochainement.")}
+            onClick={handlePrintPDF}
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
             <Printer className="w-4 h-4" />

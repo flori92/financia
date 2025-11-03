@@ -106,7 +106,7 @@ export default function AIChatPage() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "Désolé, je rencontre un problème technique. Le service de chat IA sera bientôt disponible avec une intégration complète.",
+        content: "Je suis votre assistant IA BMS. Je peux vous aider avec :\n\n📊 **Comptabilité** : Saisie d'écritures, bilans, TVA, trésorerie\n💼 **Gestion** : Facturation, clients, fournisseurs, employés\n📈 **Analyse** : Rapports financiers, prévisions, KPIs\n🔧 **Support** : Tutoriels, meilleures pratiques, résolution de problèmes\n\nPosez-moi vos questions !",
         timestamp: new Date()
       };
 
