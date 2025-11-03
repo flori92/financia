@@ -140,7 +140,7 @@ export default function ModernAccountantDashboard() {
         {/* Alerts */}
         {data?.alerts && data.alerts.length > 0 && (
           <div className="mb-6 space-y-2">
-            {data.alerts.map((alert, index) => (
+            {data.alerts.map((alert: any, index: number) => (
               <SmartAlert
                 key={index}
                 type={alert.type === "danger" ? "error" : alert.type}
@@ -218,7 +218,7 @@ export default function ModernAccountantDashboard() {
           />
           
           <SmartChart
-            data={data?.topClients.map((client, i) => ({
+            data={data?.topClients.map((client: any, i: number) => ({
               name: client.name,
               value: client.amount
             })) || []}
@@ -290,7 +290,7 @@ export default function ModernAccountantDashboard() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <SmartChart
-            data={data?.topSuppliers.map((supplier, i) => ({
+            data={data?.topSuppliers.map((supplier: any, i: number) => ({
               name: supplier.name,
               amount: supplier.amount
             })) || []}

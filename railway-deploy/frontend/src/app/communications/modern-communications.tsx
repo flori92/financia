@@ -184,68 +184,69 @@ export default function ModernCommunicationsPage() {
 
   const campaignColumns = [
     {
-      key: "name" as const,
+      key: "id" as const,
       title: "Campagne",
       sortable: true,
-      filterable: true
+      filterable: true,
+      format: (value: any, row: any) => row.name
     },
     {
-      key: "type" as const,
+      key: "id" as const,
       title: "Type",
       sortable: true,
-      format: (value: string) => (
+      format: (value: any, row: any) => (
         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-          value === "email" ? "bg-blue-100 text-blue-800" :
-          value === "sms" ? "bg-green-100 text-green-800" :
-          value === "whatsapp" ? "bg-purple-100 text-purple-800" :
+          row.type === "email" ? "bg-blue-100 text-blue-800" :
+          row.type === "sms" ? "bg-green-100 text-green-800" :
+          row.type === "whatsapp" ? "bg-purple-100 text-purple-800" :
           "bg-gray-100 text-gray-800"
         }`}>
-          {value.toUpperCase()}
+          {row.type.toUpperCase()}
         </span>
       )
     },
     {
-      key: "targetAudience" as const,
+      key: "id" as const,
       title: "Cible",
       sortable: true,
-      format: (value: number) => value.toLocaleString('fr-FR'),
+      format: (value: any, row: any) => row.targetAudience.toLocaleString('fr-FR'),
       align: "right" as const
     },
     {
-      key: "sent" as const,
+      key: "id" as const,
       title: "Envoyés",
       sortable: true,
-      format: (value: number) => value.toLocaleString('fr-FR'),
+      format: (value: any, row: any) => row.sent.toLocaleString('fr-FR'),
       align: "right" as const
     },
     {
-      key: "openRate" as const,
+      key: "id" as const,
       title: "Taux Ouverture",
       sortable: true,
-      format: (value: number) => `${value.toFixed(1)}%`,
+      format: (value: any, row: any) => `${row.openRate.toFixed(1)}%`,
       align: "right" as const
     },
     {
-      key: "cost" as const,
+      key: "id" as const,
       title: "Coût",
       sortable: true,
-      format: (value: number) => formatCurrency(value),
+      format: (value: any, row: any) => formatCurrency(row.cost),
       align: "right" as const
     },
     {
-      key: "status" as const,
+      key: "id" as const,
       title: "Statut",
       sortable: true,
-      format: (value: string) => (
+      format: (value: any, row: any) => (
         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-          value === "completed" ? "bg-green-100 text-green-800" :
-          value === "active" ? "bg-blue-100 text-blue-800" :
-          value === "paused" ? "bg-amber-100 text-amber-800" :
+          row.status === "completed" ? "bg-green-100 text-green-800" :
+          row.status === "active" ? "bg-blue-100 text-blue-800" :
+          row.status === "paused" ? "bg-amber-100 text-amber-800" :
           "bg-gray-100 text-gray-800"
         }`}>
-          {value === "completed" ? "Terminée" :
-           value === "active" ? "Active" :
-           value === "paused" ? "En pause" : "Brouillon"}
+          {row.status === "completed" ? "Terminée" :
+           row.status === "active" ? "Active" :
+           row.status === "paused" ? "En pause" : "Brouillon"}
         </span>
       )
     }
@@ -310,7 +311,7 @@ export default function ModernCommunicationsPage() {
         {/* Alertes */}
         {data?.alerts && data.alerts.length > 0 && (
           <div className="mb-6 space-y-2">
-            {data.alerts.map((alert, index) => (
+            {data.alerts.map((alert: any, index: number) => (
               <SmartAlert
                 key={index}
                 type={alert.type}
@@ -385,7 +386,7 @@ export default function ModernCommunicationsPage() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <SmartChart
-            data={data?.performanceTrend.map(item => ({
+            data={data?.performanceTrend.map((item: any) => ({
               name: item.date,
               "Envoyés": item.sent,
               "Livrés": item.delivered,
@@ -400,7 +401,7 @@ export default function ModernCommunicationsPage() {
           />
           
           <SmartChart
-            data={data?.channelBreakdown.map(item => ({
+            data={data?.channelBreakdown.map((item: any) => ({
               name: item.channel,
               "Messages": item.messages,
               "Taux Succès": item.successRate * 100
