@@ -430,237 +430,252 @@ class CRMService {
   // ===== GESTION DES CONTACTS =====
   
   async createContact(contactData, companyId) {
-    const isDynamic = await database.isDynamicMode();
+    // Mode dynamique uniquement - insertion en base de données SQLite
+    const db = database;
     
-    if (isDynamic) {
-      // Mode dynamique - insertion en base de données
-      const db = database.getDynamicDB();
-      const contact = {
-        id: require('uuid').v4(),
-        ...contactData,
-        companyId,
-        status: 'active',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      await db.collection('contacts').insertOne(contact);
-      return contact;
-    } else {
-      // Mode statique - simulation
-      return {
-        id: `contact_${Date.now()}`,
-        ...contactData,
-        companyId,
-        status: 'active',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-    }
+    // Convertir camelCase vers snake_case pour la base de données
+    const dbContactData = {};
+    Object.keys(contactData).forEach(key => {
+      if (contactData[key] !== undefined) {
+        const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        dbContactData[dbKey] = contactData[key];
+      }
+    });
+    
+    const contact = {
+      id: require('uuid').v4(),
+      ...dbContactData,
+      company_id: companyId,
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    await db.run(`
+      INSERT INTO contacts (
+        id, company_id, type, company_name, first_name, last_name, email, phone, mobile,
+        position, website, address_line1, address_line2, city, postal_code, country,
+        tax_id, vat_number, notes, tags, scoring, status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      contact.id, contact.company_id, contact.type, contact.company_name, contact.first_name, contact.last_name,
+      contact.email, contact.phone, contact.mobile, contact.position, contact.website,
+      contact.address_line1 || null, contact.address_line2 || null, contact.city || null, contact.postal_code || null, contact.country || 'BJ',
+      contact.tax_id || null, contact.vat_number || null, contact.notes || null, contact.tags || null, contact.scoring || 0,
+      contact.status, contact.created_at, contact.updated_at
+    ]);
+    
+    // Retourner en camelCase pour le frontend
+    return {
+      id: contact.id,
+      type: contact.type,
+      companyName: contact.company_name,
+      firstName: contact.first_name,
+      lastName: contact.last_name,
+      email: contact.email,
+      phone: contact.phone,
+      mobile: contact.mobile,
+      position: contact.position,
+      website: contact.website,
+      addressLine1: contact.address_line1,
+      addressLine2: contact.address_line2,
+      city: contact.city,
+      postalCode: contact.postal_code,
+      country: contact.country,
+      taxId: contact.tax_id,
+      vatNumber: contact.vat_number,
+      notes: contact.notes,
+      status: contact.status,
+      tags: contact.tags,
+      scoring: contact.scoring,
+      createdAt: contact.created_at,
+      updatedAt: contact.updated_at
+    };
   }
 
   async findAllContacts(companyId, options = {}) {
     const { page = 1, limit = 20, search, type, status } = options;
-    const isDynamic = await database.isDynamicMode();
+    // Mode dynamique uniquement - base de données SQLite
+    const db = database;
     
-    if (isDynamic) {
-      const db = database.getDynamicDB();
-      let query = { companyId };
-      
-      if (status && status !== 'all') {
-        query.status = status;
-      }
-      
-      if (type && type !== 'all') {
-        query.type = type;
-      }
-      
-      if (search) {
-        query.$or = [
-          { firstName: { $regex: search, $options: 'i' } },
-          { lastName: { $regex: search, $options: 'i' } },
-          { companyName: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } }
-        ];
-      }
-      
-      const contacts = await db.collection('contacts')
-        .find(query)
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .toArray();
-      
-      const total = await db.collection('contacts').countDocuments(query);
-      
-      return { contacts, total };
-    } else {
-      // Mode statique - données mock
-      const mockContacts = [
-        {
-          id: 'contact_1',
-          type: 'client',
-          companyName: 'Entreprise ABC',
-          firstName: 'Jean',
-          lastName: 'Dupont',
-          email: 'jean.dupont@entreprise-abc.com',
-          phone: '+229 97 00 00 00',
-          position: 'Directeur Général',
-          city: 'Cotonou',
-          country: 'BJ',
-          status: 'active',
-          createdAt: '2025-01-15T10:00:00Z'
-        },
-        {
-          id: 'contact_2',
-          type: 'prospect',
-          companyName: 'Société XYZ',
-          firstName: 'Marie',
-          lastName: 'Assiba',
-          email: 'marie.assiba@societe-xyz.com',
-          phone: '+229 98 00 00 00',
-          position: 'Responsable Achat',
-          city: 'Porto-Novo',
-          country: 'BJ',
-          status: 'active',
-          createdAt: '2025-01-10T14:30:00Z'
-        }
-      ];
-      
-      let filteredContacts = mockContacts;
-      
-      if (search) {
-        filteredContacts = filteredContacts.filter(c => 
-          (c.firstName && c.firstName.toLowerCase().includes(search.toLowerCase())) ||
-          (c.lastName && c.lastName.toLowerCase().includes(search.toLowerCase())) ||
-          (c.companyName && c.companyName.toLowerCase().includes(search.toLowerCase())) ||
-          (c.email && c.email.toLowerCase().includes(search.toLowerCase()))
-        );
-      }
-      
-      if (type && type !== 'all') {
-        filteredContacts = filteredContacts.filter(c => c.type === type);
-      }
-      
-      if (status && status !== 'all') {
-        filteredContacts = filteredContacts.filter(c => c.status === status);
-      }
-      
-      const total = filteredContacts.length;
-      const startIndex = (page - 1) * limit;
-      const contacts = filteredContacts.slice(startIndex, startIndex + limit);
-      
-      return { contacts, total };
+    let whereClause = 'WHERE company_id = ?';
+    let params = [companyId];
+    
+    if (status && status !== 'all') {
+      whereClause += ' AND status = ?';
+      params.push(status);
     }
+    
+    if (type && type !== 'all') {
+      whereClause += ' AND type = ?';
+      params.push(type);
+    }
+    
+    if (search) {
+      whereClause += ` AND (
+        first_name LIKE ? OR 
+        last_name LIKE ? OR 
+        company_name LIKE ? OR 
+        email LIKE ?
+      )`;
+      const searchTerm = `%${search}%`;
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+    
+    // Compter le total
+    const countResult = await db.get(
+      `SELECT COUNT(*) as total FROM contacts ${whereClause}`,
+      params
+    );
+    const total = countResult.total;
+    
+    // Récupérer les contacts avec pagination
+    const contacts = await db.all(`
+      SELECT * FROM contacts 
+      ${whereClause}
+      ORDER BY created_at DESC 
+      LIMIT ? OFFSET ?
+    `, [...params, limit, (page - 1) * limit]);
+    
+    // Convertir snake_case vers camelCase pour le frontend
+    const formattedContacts = contacts.map(contact => ({
+      id: contact.id,
+      type: contact.type,
+      companyName: contact.company_name,
+      firstName: contact.first_name,
+      lastName: contact.last_name,
+      email: contact.email,
+      phone: contact.phone,
+      mobile: contact.mobile,
+      position: contact.position,
+      website: contact.website,
+      addressLine1: contact.address_line1,
+      addressLine2: contact.address_line2,
+      city: contact.city,
+      postalCode: contact.postal_code,
+      country: contact.country,
+      taxId: contact.tax_id,
+      vatNumber: contact.vat_number,
+      notes: contact.notes,
+      status: contact.status,
+      tags: contact.tags,
+      scoring: contact.scoring,
+      createdAt: contact.created_at,
+      updatedAt: contact.updated_at
+    }));
+    
+    return { contacts: formattedContacts, total };
   }
 
   async findContactById(id, companyId) {
-    const isDynamic = await database.isDynamicMode();
+    // Mode dynamique uniquement - base de données SQLite
+    const db = database;
+    const contact = await db.get(
+      'SELECT * FROM contacts WHERE id = ? AND company_id = ?',
+      [id, companyId]
+    );
     
-    if (isDynamic) {
-      const db = database.getDynamicDB();
-      return await db.collection('contacts').findOne({ id, companyId });
-    } else {
-      // Mode statique - recherche dans mock
-      const mockContacts = [
-        {
-          id: 'contact_1',
-          type: 'client',
-          companyName: 'Entreprise ABC',
-          firstName: 'Jean',
-          lastName: 'Dupont',
-          email: 'jean.dupont@entreprise-abc.com',
-          phone: '+229 97 00 00 00',
-          position: 'Directeur Général',
-          city: 'Cotonou',
-          country: 'BJ',
-          status: 'active',
-          createdAt: '2025-01-15T10:00:00Z'
-        }
-      ];
-      
-      return mockContacts.find(c => c.id === id);
-    }
+    if (!contact) return null;
+    
+    // Convertir snake_case vers camelCase pour le frontend
+    return {
+      id: contact.id,
+      type: contact.type,
+      companyName: contact.company_name,
+      firstName: contact.first_name,
+      lastName: contact.last_name,
+      email: contact.email,
+      phone: contact.phone,
+      mobile: contact.mobile,
+      position: contact.position,
+      website: contact.website,
+      addressLine1: contact.address_line1,
+      addressLine2: contact.address_line2,
+      city: contact.city,
+      postalCode: contact.postal_code,
+      country: contact.country,
+      taxId: contact.tax_id,
+      vatNumber: contact.vat_number,
+      notes: contact.notes,
+      status: contact.status,
+      tags: contact.tags,
+      scoring: contact.scoring,
+      createdAt: contact.created_at,
+      updatedAt: contact.updated_at
+    };
   }
 
   async updateContact(id, updateData, companyId) {
-    const isDynamic = await database.isDynamicMode();
+    // Mode dynamique uniquement - base de données SQLite
+    const db = database;
     
-    if (isDynamic) {
-      const db = database.getDynamicDB();
-      await db.collection('contacts').updateOne(
-        { id, companyId },
-        { 
-          $set: { 
-            ...updateData, 
-            updatedAt: new Date().toISOString() 
-          }
-        }
-      );
-      
-      return await this.findContactById(id, companyId);
-    } else {
-      // Mode statique - simulation
-      return {
-        id,
-        ...updateData,
-        companyId,
-        updatedAt: new Date().toISOString()
-      };
-    }
+    // Convertir camelCase vers snake_case pour la base de données
+    const dbUpdateData = {};
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] !== undefined) {
+        const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        dbUpdateData[dbKey] = updateData[key];
+      }
+    });
+    
+    // Construire la clause SET dynamiquement
+    const setClause = [];
+    const params = [];
+    
+    Object.keys(dbUpdateData).forEach(key => {
+      setClause.push(`${key} = ?`);
+      params.push(dbUpdateData[key]);
+    });
+    
+    if (setClause.length === 0) return null;
+    
+    setClause.push('updated_at = ?');
+    params.push(new Date().toISOString());
+    params.push(id, companyId);
+    
+    await db.run(`
+      UPDATE contacts 
+      SET ${setClause.join(', ')}
+      WHERE id = ? AND company_id = ?
+    `, params);
+    
+    return await this.findContactById(id, companyId);
   }
 
   async deleteContact(id, companyId) {
-    const isDynamic = await database.isDynamicMode();
-    
-    if (isDynamic) {
-      const db = database.getDynamicDB();
-      await db.collection('contacts').updateOne(
-        { id, companyId },
-        { $set: { status: 'archived', updatedAt: new Date().toISOString() } }
-      );
-    } else {
-      // Mode statique - simulation
-      return { success: true, message: 'Contact archivé' };
-    }
+    // Mode dynamique uniquement - base de données SQLite
+    const db = database;
+    await db.run(
+      'UPDATE contacts SET status = ?, updated_at = ? WHERE id = ? AND company_id = ?',
+      ['archived', new Date().toISOString(), id, companyId]
+    );
   }
 
   async getContactsStats(companyId) {
-    const isDynamic = await database.isDynamicMode();
+    // Mode dynamique uniquement - base de données SQLite
+    const db = database;
     
-    if (isDynamic) {
-      const db = database.getDynamicDB();
-      const pipeline = [
-        { $match: { companyId, status: { $ne: 'archived' } } },
-        { $group: { _id: '$type', count: { $sum: 1 } } }
-      ];
-      
-      const results = await db.collection('contacts').aggregate(pipeline).toArray();
-      
-      const stats = {
-        total: 0,
-        clients: 0,
-        prospects: 0,
-        suppliers: 0,
-        partners: 0
-      };
-      
-      results.forEach(result => {
-        stats[result._id] = result.count;
-        stats.total += result.count;
-      });
-      
-      return stats;
-    } else {
-      // Mode statique - données mock
-      return {
-        total: 25,
-        clients: 12,
-        prospects: 8,
-        suppliers: 3,
-        partners: 2
-      };
-    }
+    const results = await db.all(`
+      SELECT type, COUNT(*) as count 
+      FROM contacts 
+      WHERE company_id = ? AND status != 'archived'
+      GROUP BY type
+    `, [companyId]);
+    
+    const stats = {
+      total: 0,
+      clients: 0,
+      prospects: 0,
+      suppliers: 0,
+      partners: 0
+    };
+    
+    results.forEach(result => {
+      stats[result.type] = result.count;
+      stats.total += result.count;
+    });
+    
+    return stats;
   }
 }
 

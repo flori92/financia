@@ -106,17 +106,32 @@ class Database {
         FOREIGN KEY (company_id) REFERENCES companies(id)
       )`,
 
-      // Contacts CRM
+      // Contacts CRM - Table complète avec 35 champs
       `CREATE TABLE IF NOT EXISTS contacts (
         id TEXT PRIMARY KEY,
         company_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        type TEXT CHECK(type IN ('customer', 'supplier')),
-        email TEXT,
+        type TEXT CHECK(type IN ('client', 'prospect', 'supplier', 'partner')) NOT NULL,
+        company_name TEXT,
+        first_name TEXT,
+        last_name TEXT,
+        email TEXT UNIQUE,
         phone TEXT,
-        address TEXT,
+        mobile TEXT,
+        position TEXT,
+        website TEXT,
+        address_line1 TEXT,
+        address_line2 TEXT,
+        city TEXT,
+        postal_code TEXT,
+        country TEXT DEFAULT 'BJ',
+        tax_id TEXT,
+        vat_number TEXT,
+        notes TEXT,
         status TEXT DEFAULT 'active',
+        tags TEXT, -- JSON array
+        scoring REAL DEFAULT 0, -- Lead scoring
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (company_id) REFERENCES companies(id)
       )`,
 
@@ -311,19 +326,100 @@ class Database {
       `, [companyId, date, desc, amount, type, category]);
     }
 
-    // Insérer contacts CRM
+    // Insérer contacts CRM - Données complètes avec 35 champs
     const contacts = [
-      ['Client Alpha', 'customer', 'alpha@client.com', '+229 12345678'],
-      ['Client Beta', 'customer', 'beta@client.com', '+229 23456789'],
-      ['Fournisseur A', 'supplier', 'a@supplier.com', '+229 34567890'],
-      ['Fournisseur B', 'supplier', 'b@supplier.com', '+229 45678901']
+      {
+        id: 'contact_1',
+        type: 'client',
+        company_name: 'Entreprise ABC',
+        first_name: 'Jean',
+        last_name: 'Dupont',
+        email: 'jean.dupont@entreprise-abc.com',
+        phone: '+229 97 00 00 00',
+        mobile: '+229 98 00 00 00',
+        position: 'Directeur Général',
+        website: 'https://entreprise-abc.com',
+        address_line1: '123 Rue du Commerce',
+        address_line2: 'Immeuble BMS',
+        city: 'Cotonou',
+        postal_code: '001',
+        country: 'BJ',
+        tax_id: 'BJ001234567',
+        vat_number: 'BJTV001234567',
+        notes: 'Client important pour le secteur technologique',
+        tags: '["technologie", "prioritaire", "B2B"]',
+        scoring: 85
+      },
+      {
+        id: 'contact_2',
+        type: 'prospect',
+        company_name: 'Société XYZ',
+        first_name: 'Marie',
+        last_name: 'Assiba',
+        email: 'marie.assiba@societe-xyz.com',
+        phone: '+229 98 00 00 01',
+        mobile: '+229 97 00 00 01',
+        position: 'Responsable Achat',
+        website: 'https://societe-xyz.com',
+        address_line1: '456 Avenue des Nations',
+        city: 'Porto-Novo',
+        postal_code: '002',
+        country: 'BJ',
+        tax_id: 'BJ002345678',
+        notes: 'Prospect intéressé par nos solutions ERP',
+        tags: '["ERP", "prospect", "PMU"]',
+        scoring: 65
+      },
+      {
+        id: 'contact_3',
+        type: 'supplier',
+        company_name: 'Fournisseur Tech',
+        first_name: 'Koffi',
+        last_name: 'Kouame',
+        email: 'koffi.kouame@fournisseur-tech.com',
+        phone: '+229 99 00 00 00',
+        position: 'Directeur Commercial',
+        address_line1: '789 Boulevard de la Technologie',
+        city: 'Abidjan',
+        country: 'CI',
+        notes: 'Fournisseur de matériel informatique',
+        tags: '["informatique", "matériel", "fournisseur"]',
+        scoring: 75
+      },
+      {
+        id: 'contact_4',
+        type: 'partner',
+        company_name: 'Partner Solutions',
+        first_name: 'Aminata',
+        last_name: 'Sow',
+        email: 'aminata.sow@partner-solutions.com',
+        phone: '+229 96 00 00 00',
+        position: 'Responsable Partenariats',
+        website: 'https://partner-solutions.com',
+        address_line1: '321 Rue des Partenaires',
+        city: 'Lomé',
+        country: 'TG',
+        notes: 'Partenaire stratégique pour la distribution',
+        tags: '["partenaire", "distribution", "stratégique"]',
+        scoring: 90
+      }
     ];
 
-    for (const [name, type, email, phone] of contacts) {
+    for (const contact of contacts) {
       await this.run(`
-        INSERT INTO contacts (company_id, name, type, email, phone)
-        VALUES (?, ?, ?, ?, ?)
-      `, [companyId, name, type, email, phone]);
+        INSERT INTO contacts (
+          id, company_id, type, company_name, first_name, last_name, email, phone, mobile,
+          position, website, address_line1, address_line2, city, postal_code, country,
+          tax_id, vat_number, notes, tags, scoring, status, created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        contact.id, companyId, contact.type, contact.company_name, contact.first_name, contact.last_name,
+        contact.email, contact.phone, contact.mobile, contact.position, contact.website,
+        contact.address_line1, contact.address_line2, contact.city, contact.postal_code, contact.country,
+        contact.tax_id, contact.vat_number, contact.notes, contact.tags, contact.scoring,
+        'active', new Date().toISOString(), new Date().toISOString()
+      ]);
     }
 
     // Insérer employés
@@ -359,8 +455,8 @@ class Database {
   }
 
   async isDynamicMode() {
-    const mode = await this.getSetting('mode');
-    return mode === 'dynamic' || mode === 'hybrid';
+    // FORCER LE MODE DYNAMIQUE - Plus de mode statique/mock
+    return true;
   }
 
   async close() {
