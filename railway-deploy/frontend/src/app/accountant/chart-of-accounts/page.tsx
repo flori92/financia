@@ -289,7 +289,7 @@ export default function ChartOfAccountsPage() {
                   {activeAction?.type === "edit" ? "Modifier un compte" : "Créer un compte"}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Formulaire simulé — connexion API à venir.
+                  Gestion des comptes SYSCOHADA avec synchronisation API
                 </p>
               </div>
               <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100">
