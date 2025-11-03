@@ -7,7 +7,7 @@ export default function MRPPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Planification MRP</h1>
-        <Button>Calculer les besoins</Button>
+        <Button onClick={() => alert("Fonctionnalité en développement : Calculer les besoins")}>Calculer les besoins</Button>
       </div>
       <Card>
         <CardHeader>
