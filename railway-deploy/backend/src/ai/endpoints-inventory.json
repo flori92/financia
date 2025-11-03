@@ -1,0 +1,1502 @@
+{
+  "totalEndpoints": 178,
+  "modules": {
+    "root": [
+      {
+        "method": "GET",
+        "path": "/health"
+      },
+      {
+        "method": "GET",
+        "path": "/payments/all-transactions"
+      }
+    ],
+    "auth": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/login"
+      }
+    ],
+    "treasury": [
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/forecast"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/alerts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/direct-debits"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/direct-debits/statistics"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/treasury/direct-debits/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/treasury/direct-debits/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits/:id/suspend"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits/:id/reactivate"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits/:id/cancel"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/forecast"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/alerts"
+      }
+    ],
+    "accounting": [
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/trial-balance"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/profit-loss"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/balance-sheet"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/general-ledger"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/chart-of-accounts"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/accounting/journal-entries"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/closure"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/closure/preview"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/accounting/closure/close"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/close/last"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/accounting/closure/close"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/close"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/export/chart-of-accounts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/export/trial-balance"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/export/journal-entries"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/dashboard/metrics"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/aged-balance"
+      }
+    ],
+    "banking": [
+      {
+        "method": "GET",
+        "path": "/api/v1/banking/transactions"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/auto-match"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/banking/transactions/:id/entry-suggest"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/reconcile-entry"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/import-csv"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/bulk-reconcile"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/bulk-ignore"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/banking/history"
+      }
+    ],
+    "tax": [
+      {
+        "method": "GET",
+        "path": "/api/v1/tax/vat/return"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/tax/vat/recalculate"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/tax/export/fec"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/tax/generate-ca3-pdf"
+      }
+    ],
+    "ai": [
+      {
+        "method": "GET",
+        "path": "/api/v1/ai/ocr/stats"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ai/ocr/test"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ai/ocr/:type"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ai/chat"
+      }
+    ],
+    "hr": [
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/employees"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/payroll"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/employees"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/payroll"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/leaves"
+      }
+    ],
+    "timesheets": [
+      {
+        "method": "GET",
+        "path": "/api/hr/timesheets"
+      },
+      {
+        "method": "POST",
+        "path": "/api/hr/timesheets/:id/submit"
+      },
+      {
+        "method": "POST",
+        "path": "/api/hr/timesheets/:id/approve"
+      }
+    ],
+    "crm": [
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/crm/contacts/:id"
+      }
+    ],
+    "stats": [
+      {
+        "method": "GET",
+        "path": "/api/crm/stats"
+      }
+    ],
+    "opportunities": [
+      {
+        "method": "GET",
+        "path": "/api/crm/opportunities/pipeline/stages"
+      },
+      {
+        "method": "GET",
+        "path": "/api/crm/opportunities/pipeline/overview"
+      },
+      {
+        "method": "POST",
+        "path": "/api/crm/opportunities/:id/move/:stageId"
+      },
+      {
+        "method": "POST",
+        "path": "/api/crm/opportunities"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/crm/opportunities/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/crm/opportunities/:id"
+      },
+      {
+        "method": "GET",
+        "path": "/api/crm/opportunities/stats"
+      }
+    ],
+    "invoices": [
+      {
+        "method": "GET",
+        "path": "/api/v1/invoices"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/invoices"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/invoices/:id/send"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/invoices/:id/validate"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/invoices/:id/cancel"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/invoices/reminders/preview"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/invoices/reminders/send"
+      }
+    ],
+    "payments": [
+      {
+        "method": "GET",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/payments/:id/validate"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/payments/:id/cancel"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/payments/:id/submit"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/payments/export"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/payments/stats"
+      }
+    ],
+    "assets": [
+      {
+        "method": "GET",
+        "path": "/api/v1/assets"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/assets"
+      }
+    ],
+    "mobile-money": [
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/transactions"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/stats"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/status"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/mobile-money/initiate"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/verify/:transactionId"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/mobile-money/refund/:transactionId"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/mobile-money/webhook"
+      }
+    ],
+    "budget": [
+      {
+        "method": "GET",
+        "path": "/api/v1/budget/revisions"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/budget/new"
+      }
+    ],
+    "projects": [
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/projects"
+      }
+    ],
+    "manufacturing": [
+      {
+        "method": "GET",
+        "path": "/api/v1/manufacturing/bom"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/manufacturing/production-orders"
+      }
+    ],
+    "marketing": [
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/campaigns"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/campaigns"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/leads"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/analytics"
+      }
+    ],
+    "support": [
+      {
+        "method": "GET",
+        "path": "/api/v1/support/tickets"
+      }
+    ],
+    "communications": [
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/templates"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/templates"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/communications/templates/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/communications/templates/:id"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/sms"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/email/send"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/email/invoice"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/email/reminder"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/send"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/invoice"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/payment-confirmation"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/reminder"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/otp"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/emails"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/emails"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/whatsapp"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/whatsapp"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/logs"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/stats"
+      }
+    ],
+    "nif": [
+      {
+        "method": "GET",
+        "path": "/api/v1/nif/my-requests"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/nif/request"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/nif/request/:id/document"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/nif/request/:id/submit"
+      }
+    ],
+    "inventory": [
+      {
+        "method": "GET",
+        "path": "/api/v1/inventory/items"
+      }
+    ],
+    "uploads": [
+      {
+        "method": "GET",
+        "path": "/api/v1/uploads"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/uploads"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/uploads/:id"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/uploads/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/uploads/batch-delete"
+      }
+    ],
+    "purchases": [
+      {
+        "method": "GET",
+        "path": "/api/v1/purchases/suppliers"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/suppliers"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/purchases/orders"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/purchases/rfq"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/rfq"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/rfq/:id/publish"
+      }
+    ],
+    "notification-config": [
+      {
+        "method": "GET",
+        "path": "/api/v1/notification-config"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notification-config"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notification-config/test/:type"
+      }
+    ],
+    "companies": [
+      {
+        "method": "GET",
+        "path": "/api/v1/companies"
+      }
+    ],
+    "sepa": [
+      {
+        "method": "POST",
+        "path": "/api/v1/sepa/import"
+      }
+    ],
+    "system": [
+      {
+        "method": "GET",
+        "path": "/api/v1/system/mode"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/system/mode"
+      }
+    ],
+    "sales": [
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/quotes"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/sales/quotes"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/orders"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/sales/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/clients"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/sales/clients"
+      }
+    ],
+    "ml-forecast": [
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/predict"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ml-forecast/train"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/models/performance"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/auto-select"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/anomalies"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/trend"
+      }
+    ]
+  },
+  "methods": {
+    "GET": 94,
+    "POST": 62,
+    "PUT": 6,
+    "DELETE": 8,
+    "PATCH": 8
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/crm/opportunities"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/crm/opportunities/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/crm/opportunities/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/crm/opportunities/:id/move/:stageId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/crm/opportunities/pipeline/overview"
+    },
+    {
+      "method": "GET",
+      "path": "/api/crm/opportunities/pipeline/stages"
+    },
+    {
+      "method": "GET",
+      "path": "/api/crm/opportunities/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/crm/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/hr/timesheets"
+    },
+    {
+      "method": "POST",
+      "path": "/api/hr/timesheets/:id/approve"
+    },
+    {
+      "method": "POST",
+      "path": "/api/hr/timesheets/:id/submit"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/aged-balance"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/balance-sheet"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/chart-of-accounts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/close"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/close/last"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/closure"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/accounting/closure/close"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/accounting/closure/close"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/closure/preview"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/dashboard/metrics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/export/chart-of-accounts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/export/journal-entries"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/export/trial-balance"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/general-ledger"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/accounting/journal-entries"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/profit-loss"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/accounting/trial-balance"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/chat"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/ocr/:type"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/ocr/stats"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/ocr/test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/assets"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/assets"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/banking/auto-match"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/banking/bulk-ignore"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/banking/bulk-reconcile"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/banking/history"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/banking/import-csv"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/banking/reconcile-entry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/banking/transactions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/banking/transactions/:id/entry-suggest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/budget/new"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/budget/revisions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/email/invoice"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/email/reminder"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/email/send"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/communications/emails"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/emails"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/communications/logs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/communications/sms"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/sms"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/sms/invoice"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/sms/otp"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/sms/payment-confirmation"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/sms/reminder"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/sms/send"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/communications/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/communications/templates"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/templates"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/communications/templates/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/communications/templates/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/communications/whatsapp"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/communications/whatsapp"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/companies"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm/contacts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/crm/contacts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm/contacts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/crm/contacts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm/contacts/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/crm/contacts/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/crm/contacts/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm/contacts/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/crm/contacts/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/crm/contacts/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hr/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hr/employees"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hr/employees"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hr/leaves"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hr/payroll"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hr/payroll"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/inventory/items"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/invoices"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/invoices"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/invoices/:id/cancel"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/invoices/:id/send"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/invoices/:id/validate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/invoices/reminders/preview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/invoices/reminders/send"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/manufacturing/bom"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/manufacturing/production-orders"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/marketing/analytics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/marketing/campaigns"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/marketing/campaigns"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/marketing/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/marketing/leads"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml-forecast/anomalies"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml-forecast/auto-select"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml-forecast/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml-forecast/models/performance"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml-forecast/predict"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ml-forecast/train"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml-forecast/trend"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/mobile-money/initiate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/mobile-money/refund/:transactionId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/mobile-money/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/mobile-money/status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/mobile-money/transactions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/mobile-money/verify/:transactionId"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/mobile-money/webhook"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/nif/my-requests"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/nif/request"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/nif/request/:id/document"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/nif/request/:id/submit"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/notification-config"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notification-config"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notification-config/test/:type"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/payments/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/payments/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/payments/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/payments/:id"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/payments/:id/cancel"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments/:id/submit"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/payments/:id/validate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/export"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/projects"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/projects/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/purchases/orders"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/purchases/orders"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/purchases/rfq"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/purchases/rfq"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/purchases/rfq/:id/publish"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/purchases/suppliers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/purchases/suppliers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sales/clients"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sales/clients"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sales/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sales/orders"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sales/orders"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sales/quotes"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sales/quotes"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sepa/import"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system/mode"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system/mode"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tax/export/fec"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tax/generate-ca3-pdf"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/tax/vat/recalculate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tax/vat/return"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/treasury/direct-debits"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/treasury/direct-debits"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/treasury/direct-debits/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/treasury/direct-debits/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/treasury/direct-debits/:id/cancel"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/treasury/direct-debits/:id/reactivate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/treasury/direct-debits/:id/suspend"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/treasury/direct-debits/statistics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/treasury/forecast"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/treasury/forecast"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/uploads"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/uploads"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/uploads/:id"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/uploads/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/uploads/batch-delete"
+    },
+    {
+      "method": "GET",
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "path": "/payments/all-transactions"
+    }
+  ]
+}

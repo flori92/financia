@@ -1,0 +1,1133 @@
+{
+  "total": 137,
+  "unique": 110,
+  "calls": [
+    {
+      "file": "/frontend/src/app/accountant/assets/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/assets"
+    },
+    {
+      "file": "/frontend/src/app/accountant/assets/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/assets"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/transactions?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/auto-match"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/transactions/${tx.id}/entry-suggest?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/reconcile-entry"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/import-csv"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/bulk-reconcile"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/bulk-ignore"
+    },
+    {
+      "file": "/frontend/src/app/accountant/bank/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/banking/history?companyId=${companyId}&limit=50"
+    },
+    {
+      "file": "/frontend/src/app/accountant/chart-of-accounts/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/close/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/close"
+    },
+    {
+      "file": "/frontend/src/app/accountant/close/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/closure/preview"
+    },
+    {
+      "file": "/frontend/src/app/accountant/close/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/accounting/closure/close"
+    },
+    {
+      "file": "/frontend/src/app/accountant/journal/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/general-ledger"
+    },
+    {
+      "file": "/frontend/src/app/accountant/journal/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/chart-of-accounts"
+    },
+    {
+      "file": "/frontend/src/app/accountant/journal/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/accounting/journal-entries"
+    },
+    {
+      "file": "/frontend/src/app/accountant/journal/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/accounting/export/journal-entries?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/ml-forecast/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/ml-forecast/dashboard"
+    },
+    {
+      "file": "/frontend/src/app/accountant/ml-forecast/page.tsx",
+      "method": "FETCH",
+      "path": "/api/v1/ml-forecast/train"
+    },
+    {
+      "file": "/frontend/src/app/accountant/mobile-money/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/mobile-money/transactions"
+    },
+    {
+      "file": "/frontend/src/app/accountant/mobile-money/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/mobile-money/stats"
+    },
+    {
+      "file": "/frontend/src/app/accountant/reminders/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/invoices/reminders/preview?companyId=1805bc61-7cfd-44e9-8a63-17187bf05dc7"
+    },
+    {
+      "file": "/frontend/src/app/accountant/reminders/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/invoices/reminders/send"
+    },
+    {
+      "file": "/frontend/src/app/accountant/tax/vat/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/tax/vat/recalculate"
+    },
+    {
+      "file": "/frontend/src/app/accountant/tax/vat/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/tax/export/fec?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/tax/vat/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/tax/generate-ca3-pdf?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/transactions/page.tsx",
+      "method": "GET",
+      "path": "/payments/all-transactions?${params}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/trial-balance/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/accounting/export/trial-balance?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/accountant/validation/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/invoices"
+    },
+    {
+      "file": "/frontend/src/app/accountant/validation/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/payments"
+    },
+    {
+      "file": "/frontend/src/app/accountant/validation/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/invoices/${id}/validate"
+    },
+    {
+      "file": "/frontend/src/app/accountant/validation/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/invoices/${id}/cancel"
+    },
+    {
+      "file": "/frontend/src/app/accountant/validation/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/payments/${id}/validate"
+    },
+    {
+      "file": "/frontend/src/app/accountant/validation/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/payments/${id}/cancel"
+    },
+    {
+      "file": "/frontend/src/app/accountant-modern/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/dashboard/metrics"
+    },
+    {
+      "file": "/frontend/src/app/ai/chat/page.tsx",
+      "method": "FETCH",
+      "path": "${process.env.NEXT_PUBLIC_API_URL || getBaseUrl()}/api/v1/ai/chat"
+    },
+    {
+      "file": "/frontend/src/app/budget/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/budget/revisions"
+    },
+    {
+      "file": "/frontend/src/app/budget/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/budget/new"
+    },
+    {
+      "file": "/frontend/src/app/communications/emails/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/communications/emails"
+    },
+    {
+      "file": "/frontend/src/app/communications/emails/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/communications/templates"
+    },
+    {
+      "file": "/frontend/src/app/communications/sms/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/communications/sms"
+    },
+    {
+      "file": "/frontend/src/app/communications/templates/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/communications/templates"
+    },
+    {
+      "file": "/frontend/src/app/communications/whatsapp/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/communications/whatsapp"
+    },
+    {
+      "file": "/frontend/src/app/crm/contacts/[id]/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/crm/contacts/${params.id}"
+    },
+    {
+      "file": "/frontend/src/app/crm/contacts/new/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/contacts"
+    },
+    {
+      "file": "/frontend/src/app/crm/contacts/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/contacts?${params}"
+    },
+    {
+      "file": "/frontend/src/app/crm/dashboard/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/crm/dashboard"
+    },
+    {
+      "file": "/frontend/src/app/crm/opportunities/new/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/contacts?companyId=${companyId}&limit=1000"
+    },
+    {
+      "file": "/frontend/src/app/crm/opportunities/new/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/opportunities/pipeline/stages?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/crm/opportunities/new/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/opportunities"
+    },
+    {
+      "file": "/frontend/src/app/crm/opportunities/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/opportunities/pipeline/overview?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/crm/opportunities/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/opportunities/${opportunityId}/move/${stageId}?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/crm/page.tsx",
+      "method": "FETCH",
+      "path": "/api/crm/stats"
+    },
+    {
+      "file": "/frontend/src/app/dashboard/alerts/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/dashboard/metrics"
+    },
+    {
+      "file": "/frontend/src/app/dashboard/alerts/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "file": "/frontend/src/app/entrepreneur/direct-debits/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/treasury/direct-debits?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/entrepreneur/direct-debits/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/treasury/direct-debits/statistics?companyId=${companyId}"
+    },
+    {
+      "file": "/frontend/src/app/entrepreneur/direct-debits/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/treasury/direct-debits/${id}"
+    },
+    {
+      "file": "/frontend/src/app/entrepreneur/direct-debits/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/treasury/direct-debits/${id}/${action}"
+    },
+    {
+      "file": "/frontend/src/app/entrepreneur/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/dashboard/metrics"
+    },
+    {
+      "file": "/frontend/src/app/entrepreneur/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "file": "/frontend/src/app/expert/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/dashboard/metrics"
+    },
+    {
+      "file": "/frontend/src/app/expert/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "file": "/frontend/src/app/formalization/page.tsx",
+      "method": "DELETE",
+      "path": "/api/v1/uploads/${uploadId}"
+    },
+    {
+      "file": "/frontend/src/app/formalization/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/nif/request/${nifRequest.id}/document"
+    },
+    {
+      "file": "/frontend/src/app/formalization/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/nif/my-requests"
+    },
+    {
+      "file": "/frontend/src/app/formalization/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/nif/request"
+    },
+    {
+      "file": "/frontend/src/app/formalization/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/nif/request/${nifRequest.id}/submit"
+    },
+    {
+      "file": "/frontend/src/app/formalization/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/nif/request/${nifRequest.id}/document"
+    },
+    {
+      "file": "/frontend/src/app/hr/employees/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/hr/employees"
+    },
+    {
+      "file": "/frontend/src/app/hr/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/hr/dashboard"
+    },
+    {
+      "file": "/frontend/src/app/hr/payroll/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/hr/payroll"
+    },
+    {
+      "file": "/frontend/src/app/hr/timesheets/page.tsx",
+      "method": "FETCH",
+      "path": "/api/hr/timesheets?${params}"
+    },
+    {
+      "file": "/frontend/src/app/hr/timesheets/page.tsx",
+      "method": "FETCH",
+      "path": "/api/hr/timesheets/${timesheetId}/submit"
+    },
+    {
+      "file": "/frontend/src/app/hr/timesheets/page.tsx",
+      "method": "FETCH",
+      "path": "/api/hr/timesheets/${timesheetId}/approve"
+    },
+    {
+      "file": "/frontend/src/app/inventory/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/inventory/items"
+    },
+    {
+      "file": "/frontend/src/app/invoices/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/invoices"
+    },
+    {
+      "file": "/frontend/src/app/invoices/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/crm/contacts"
+    },
+    {
+      "file": "/frontend/src/app/invoices/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/invoices/${invoiceId}/send"
+    },
+    {
+      "file": "/frontend/src/app/invoices/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/invoices"
+    },
+    {
+      "file": "/frontend/src/app/invoices/payments/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/payments"
+    },
+    {
+      "file": "/frontend/src/app/invoices/payments/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/payments"
+    },
+    {
+      "file": "/frontend/src/app/invoices/reminders/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/accounting/aged-balance"
+    },
+    {
+      "file": "/frontend/src/app/login/page.tsx",
+      "method": "FETCH",
+      "path": "${apiUrl}/api/v1/auth/login"
+    },
+    {
+      "file": "/frontend/src/app/manufacturing/bom/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/manufacturing/bom"
+    },
+    {
+      "file": "/frontend/src/app/manufacturing/production-orders/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/manufacturing/production-orders"
+    },
+    {
+      "file": "/frontend/src/app/marketing/campaigns/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/marketing/campaigns"
+    },
+    {
+      "file": "/frontend/src/app/marketing/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/marketing/dashboard"
+    },
+    {
+      "file": "/frontend/src/app/nif/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/nif/my-requests"
+    },
+    {
+      "file": "/frontend/src/app/projects/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/projects/dashboard"
+    },
+    {
+      "file": "/frontend/src/app/projects/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/projects"
+    },
+    {
+      "file": "/frontend/src/app/projects/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/projects"
+    },
+    {
+      "file": "/frontend/src/app/purchases/orders/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/purchases/orders"
+    },
+    {
+      "file": "/frontend/src/app/purchases/orders/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/purchases/orders"
+    },
+    {
+      "file": "/frontend/src/app/purchases/rfq/page.tsx",
+      "method": "FETCH",
+      "path": "/api/v1/purchases/rfq"
+    },
+    {
+      "file": "/frontend/src/app/purchases/rfq/page.tsx",
+      "method": "FETCH",
+      "path": "/api/v1/purchases/rfq/${id}/publish"
+    },
+    {
+      "file": "/frontend/src/app/purchases/suppliers/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/purchases/suppliers"
+    },
+    {
+      "file": "/frontend/src/app/sales/clients/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/sales/clients"
+    },
+    {
+      "file": "/frontend/src/app/sales/orders/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/sales/orders"
+    },
+    {
+      "file": "/frontend/src/app/sales/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/sales/dashboard"
+    },
+    {
+      "file": "/frontend/src/app/sales/quotes/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/sales/quotes"
+    },
+    {
+      "file": "/frontend/src/app/sales/quotes/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/sales/clients"
+    },
+    {
+      "file": "/frontend/src/app/sales/quotes/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/sales/quotes"
+    },
+    {
+      "file": "/frontend/src/app/settings/companies/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/companies"
+    },
+    {
+      "file": "/frontend/src/app/settings/companies/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/companies"
+    },
+    {
+      "file": "/frontend/src/app/settings/notifications/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/notification-config"
+    },
+    {
+      "file": "/frontend/src/app/settings/notifications/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/notification-config"
+    },
+    {
+      "file": "/frontend/src/app/settings/notifications/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/notification-config/test/${type}"
+    },
+    {
+      "file": "/frontend/src/app/support/tickets/page.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/support/tickets"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/payments"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/payments"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/payments/${id}"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "DELETE",
+      "path": "/api/v1/payments/${id}"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/uploads/entity/payment/${paymentId}"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "DELETE",
+      "path": "/api/v1/uploads/${id}"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/uploads/batch-delete"
+    },
+    {
+      "file": "/frontend/src/app/transactions/page.tsx",
+      "method": "PATCH",
+      "path": "/api/v1/uploads/${id}"
+    },
+    {
+      "file": "/frontend/src/app/treasury/forecast/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/treasury/forecast"
+    },
+    {
+      "file": "/frontend/src/app/treasury/operations/page.tsx",
+      "method": "GET",
+      "path": "/api/v1/payments"
+    },
+    {
+      "file": "/frontend/src/app/treasury/operations/page.tsx",
+      "method": "POST",
+      "path": "/api/v1/payments"
+    },
+    {
+      "file": "/frontend/src/app/treasury/operations/page.tsx",
+      "method": "FETCH",
+      "path": "/api/v1/sepa/import"
+    },
+    {
+      "file": "/frontend/src/components/layout/ModernSidebar.tsx",
+      "method": "FETCH",
+      "path": "/api/v1/accounting/aged-balance?companyId=${companyId}&type=receivables"
+    },
+    {
+      "file": "/frontend/src/components/layout/ModernTopbar.tsx",
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "file": "/frontend/src/components/layout/Topbar.tsx",
+      "method": "GET",
+      "path": "/api/v1/companies"
+    },
+    {
+      "file": "/frontend/src/components/layout/Topbar.tsx",
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "file": "/frontend/src/components/purchases/create-rfq-modal.tsx",
+      "method": "FETCH",
+      "path": "/api/v1/purchases/rfq"
+    },
+    {
+      "file": "/frontend/src/components/purchases/supplier-modal.tsx",
+      "method": "POST",
+      "path": "/api/v1/purchases/suppliers"
+    },
+    {
+      "file": "/frontend/src/components/shared/CompanySelector.tsx",
+      "method": "FETCH",
+      "path": "${getBaseUrl()}/api/v1/companies"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/accounting/dashboard/metrics"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/treasury/forecast"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/treasury/alerts"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/accounting/close/last"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/tax/vat/return"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/accounting/aged-balance"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/accounting/aged-balance"
+    },
+    {
+      "file": "/frontend/src/hooks/useDashboardData.ts",
+      "method": "GET",
+      "path": "/api/v1/banking/transactions"
+    }
+  ],
+  "grouped": {
+    "GET /api/v1/assets": {
+      "endpoint": "GET /api/v1/assets",
+      "files": {}
+    },
+    "POST /api/v1/assets": {
+      "endpoint": "POST /api/v1/assets",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/transactions?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/transactions?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/auto-match": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/auto-match",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/transactions/${tx.id}/entry-suggest?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/transactions/${tx.id}/entry-suggest?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/reconcile-entry": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/reconcile-entry",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/import-csv": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/import-csv",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/bulk-reconcile": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/bulk-reconcile",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/bulk-ignore": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/bulk-ignore",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/banking/history?companyId=${companyId}&limit=50": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/banking/history?companyId=${companyId}&limit=50",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}",
+      "files": {}
+    },
+    "GET /api/v1/accounting/close": {
+      "endpoint": "GET /api/v1/accounting/close",
+      "files": {}
+    },
+    "GET /api/v1/accounting/closure/preview": {
+      "endpoint": "GET /api/v1/accounting/closure/preview",
+      "files": {}
+    },
+    "POST /api/v1/accounting/closure/close": {
+      "endpoint": "POST /api/v1/accounting/closure/close",
+      "files": {}
+    },
+    "GET /api/v1/accounting/general-ledger": {
+      "endpoint": "GET /api/v1/accounting/general-ledger",
+      "files": {}
+    },
+    "GET /api/v1/accounting/chart-of-accounts": {
+      "endpoint": "GET /api/v1/accounting/chart-of-accounts",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/accounting/journal-entries": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/accounting/journal-entries",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/accounting/export/journal-entries?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/accounting/export/journal-entries?companyId=${companyId}",
+      "files": {}
+    },
+    "GET /api/v1/ml-forecast/dashboard": {
+      "endpoint": "GET /api/v1/ml-forecast/dashboard",
+      "files": {}
+    },
+    "FETCH /api/v1/ml-forecast/train": {
+      "endpoint": "FETCH /api/v1/ml-forecast/train",
+      "files": {}
+    },
+    "GET /api/v1/mobile-money/transactions": {
+      "endpoint": "GET /api/v1/mobile-money/transactions",
+      "files": {}
+    },
+    "GET /api/v1/mobile-money/stats": {
+      "endpoint": "GET /api/v1/mobile-money/stats",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/invoices/reminders/preview?companyId=1805bc61-7cfd-44e9-8a63-17187bf05dc7": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/invoices/reminders/preview?companyId=1805bc61-7cfd-44e9-8a63-17187bf05dc7",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/invoices/reminders/send": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/invoices/reminders/send",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/tax/vat/recalculate": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/tax/vat/recalculate",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/tax/export/fec?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/tax/export/fec?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/tax/generate-ca3-pdf?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/tax/generate-ca3-pdf?companyId=${companyId}",
+      "files": {}
+    },
+    "GET /payments/all-transactions?${params}": {
+      "endpoint": "GET /payments/all-transactions?${params}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/accounting/export/trial-balance?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/accounting/export/trial-balance?companyId=${companyId}",
+      "files": {}
+    },
+    "GET /api/v1/invoices": {
+      "endpoint": "GET /api/v1/invoices",
+      "files": {}
+    },
+    "GET /api/v1/payments": {
+      "endpoint": "GET /api/v1/payments",
+      "files": {}
+    },
+    "PATCH /api/v1/invoices/${id}/validate": {
+      "endpoint": "PATCH /api/v1/invoices/${id}/validate",
+      "files": {}
+    },
+    "PATCH /api/v1/invoices/${id}/cancel": {
+      "endpoint": "PATCH /api/v1/invoices/${id}/cancel",
+      "files": {}
+    },
+    "PATCH /api/v1/payments/${id}/validate": {
+      "endpoint": "PATCH /api/v1/payments/${id}/validate",
+      "files": {}
+    },
+    "PATCH /api/v1/payments/${id}/cancel": {
+      "endpoint": "PATCH /api/v1/payments/${id}/cancel",
+      "files": {}
+    },
+    "GET /api/v1/accounting/dashboard/metrics": {
+      "endpoint": "GET /api/v1/accounting/dashboard/metrics",
+      "files": {}
+    },
+    "FETCH ${process.env.NEXT_PUBLIC_API_URL || getBaseUrl()}/api/v1/ai/chat": {
+      "endpoint": "FETCH ${process.env.NEXT_PUBLIC_API_URL || getBaseUrl()}/api/v1/ai/chat",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/budget/revisions": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/budget/revisions",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/budget/new": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/budget/new",
+      "files": {}
+    },
+    "GET /api/v1/communications/emails": {
+      "endpoint": "GET /api/v1/communications/emails",
+      "files": {}
+    },
+    "GET /api/v1/communications/templates": {
+      "endpoint": "GET /api/v1/communications/templates",
+      "files": {}
+    },
+    "GET /api/v1/communications/sms": {
+      "endpoint": "GET /api/v1/communications/sms",
+      "files": {}
+    },
+    "GET /api/v1/communications/whatsapp": {
+      "endpoint": "GET /api/v1/communications/whatsapp",
+      "files": {}
+    },
+    "GET /api/v1/crm/contacts/${params.id}": {
+      "endpoint": "GET /api/v1/crm/contacts/${params.id}",
+      "files": {}
+    },
+    "FETCH /api/crm/contacts": {
+      "endpoint": "FETCH /api/crm/contacts",
+      "files": {}
+    },
+    "FETCH /api/crm/contacts?${params}": {
+      "endpoint": "FETCH /api/crm/contacts?${params}",
+      "files": {}
+    },
+    "GET /api/v1/crm/dashboard": {
+      "endpoint": "GET /api/v1/crm/dashboard",
+      "files": {}
+    },
+    "FETCH /api/crm/contacts?companyId=${companyId}&limit=1000": {
+      "endpoint": "FETCH /api/crm/contacts?companyId=${companyId}&limit=1000",
+      "files": {}
+    },
+    "FETCH /api/crm/opportunities/pipeline/stages?companyId=${companyId}": {
+      "endpoint": "FETCH /api/crm/opportunities/pipeline/stages?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH /api/crm/opportunities": {
+      "endpoint": "FETCH /api/crm/opportunities",
+      "files": {}
+    },
+    "FETCH /api/crm/opportunities/pipeline/overview?companyId=${companyId}": {
+      "endpoint": "FETCH /api/crm/opportunities/pipeline/overview?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH /api/crm/opportunities/${opportunityId}/move/${stageId}?companyId=${companyId}": {
+      "endpoint": "FETCH /api/crm/opportunities/${opportunityId}/move/${stageId}?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH /api/crm/stats": {
+      "endpoint": "FETCH /api/crm/stats",
+      "files": {}
+    },
+    "GET /api/v1/treasury/alerts": {
+      "endpoint": "GET /api/v1/treasury/alerts",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits/statistics?companyId=${companyId}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits/statistics?companyId=${companyId}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits/${id}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits/${id}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits/${id}/${action}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/treasury/direct-debits/${id}/${action}",
+      "files": {}
+    },
+    "DELETE /api/v1/uploads/${uploadId}": {
+      "endpoint": "DELETE /api/v1/uploads/${uploadId}",
+      "files": {}
+    },
+    "PATCH /api/v1/nif/request/${nifRequest.id}/document": {
+      "endpoint": "PATCH /api/v1/nif/request/${nifRequest.id}/document",
+      "files": {}
+    },
+    "GET /api/v1/nif/my-requests": {
+      "endpoint": "GET /api/v1/nif/my-requests",
+      "files": {}
+    },
+    "POST /api/v1/nif/request": {
+      "endpoint": "POST /api/v1/nif/request",
+      "files": {}
+    },
+    "PATCH /api/v1/nif/request/${nifRequest.id}/submit": {
+      "endpoint": "PATCH /api/v1/nif/request/${nifRequest.id}/submit",
+      "files": {}
+    },
+    "GET /api/v1/hr/employees": {
+      "endpoint": "GET /api/v1/hr/employees",
+      "files": {}
+    },
+    "GET /api/v1/hr/dashboard": {
+      "endpoint": "GET /api/v1/hr/dashboard",
+      "files": {}
+    },
+    "GET /api/v1/hr/payroll": {
+      "endpoint": "GET /api/v1/hr/payroll",
+      "files": {}
+    },
+    "FETCH /api/hr/timesheets?${params}": {
+      "endpoint": "FETCH /api/hr/timesheets?${params}",
+      "files": {}
+    },
+    "FETCH /api/hr/timesheets/${timesheetId}/submit": {
+      "endpoint": "FETCH /api/hr/timesheets/${timesheetId}/submit",
+      "files": {}
+    },
+    "FETCH /api/hr/timesheets/${timesheetId}/approve": {
+      "endpoint": "FETCH /api/hr/timesheets/${timesheetId}/approve",
+      "files": {}
+    },
+    "GET /api/v1/inventory/items": {
+      "endpoint": "GET /api/v1/inventory/items",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/invoices": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/invoices",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/crm/contacts": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/crm/contacts",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/invoices/${invoiceId}/send": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/invoices/${invoiceId}/send",
+      "files": {}
+    },
+    "POST /api/v1/payments": {
+      "endpoint": "POST /api/v1/payments",
+      "files": {}
+    },
+    "GET /api/v1/accounting/aged-balance": {
+      "endpoint": "GET /api/v1/accounting/aged-balance",
+      "files": {}
+    },
+    "FETCH ${apiUrl}/api/v1/auth/login": {
+      "endpoint": "FETCH ${apiUrl}/api/v1/auth/login",
+      "files": {}
+    },
+    "GET /api/v1/manufacturing/bom": {
+      "endpoint": "GET /api/v1/manufacturing/bom",
+      "files": {}
+    },
+    "GET /api/v1/manufacturing/production-orders": {
+      "endpoint": "GET /api/v1/manufacturing/production-orders",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/marketing/campaigns": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/marketing/campaigns",
+      "files": {}
+    },
+    "GET /api/v1/marketing/dashboard": {
+      "endpoint": "GET /api/v1/marketing/dashboard",
+      "files": {}
+    },
+    "GET /api/v1/projects/dashboard": {
+      "endpoint": "GET /api/v1/projects/dashboard",
+      "files": {}
+    },
+    "GET /api/v1/projects": {
+      "endpoint": "GET /api/v1/projects",
+      "files": {}
+    },
+    "GET /api/v1/purchases/orders": {
+      "endpoint": "GET /api/v1/purchases/orders",
+      "files": {}
+    },
+    "POST /api/v1/purchases/orders": {
+      "endpoint": "POST /api/v1/purchases/orders",
+      "files": {}
+    },
+    "FETCH /api/v1/purchases/rfq": {
+      "endpoint": "FETCH /api/v1/purchases/rfq",
+      "files": {}
+    },
+    "FETCH /api/v1/purchases/rfq/${id}/publish": {
+      "endpoint": "FETCH /api/v1/purchases/rfq/${id}/publish",
+      "files": {}
+    },
+    "GET /api/v1/purchases/suppliers": {
+      "endpoint": "GET /api/v1/purchases/suppliers",
+      "files": {}
+    },
+    "GET /api/v1/sales/clients": {
+      "endpoint": "GET /api/v1/sales/clients",
+      "files": {}
+    },
+    "GET /api/v1/sales/orders": {
+      "endpoint": "GET /api/v1/sales/orders",
+      "files": {}
+    },
+    "GET /api/v1/sales/dashboard": {
+      "endpoint": "GET /api/v1/sales/dashboard",
+      "files": {}
+    },
+    "GET /api/v1/sales/quotes": {
+      "endpoint": "GET /api/v1/sales/quotes",
+      "files": {}
+    },
+    "POST /api/v1/sales/quotes": {
+      "endpoint": "POST /api/v1/sales/quotes",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/companies": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/companies",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/notification-config": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/notification-config",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/notification-config/test/${type}": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/notification-config/test/${type}",
+      "files": {}
+    },
+    "FETCH ${getBaseUrl()}/api/v1/support/tickets": {
+      "endpoint": "FETCH ${getBaseUrl()}/api/v1/support/tickets",
+      "files": {}
+    },
+    "PATCH /api/v1/payments/${id}": {
+      "endpoint": "PATCH /api/v1/payments/${id}",
+      "files": {}
+    },
+    "DELETE /api/v1/payments/${id}": {
+      "endpoint": "DELETE /api/v1/payments/${id}",
+      "files": {}
+    },
+    "GET /api/v1/uploads/entity/payment/${paymentId}": {
+      "endpoint": "GET /api/v1/uploads/entity/payment/${paymentId}",
+      "files": {}
+    },
+    "DELETE /api/v1/uploads/${id}": {
+      "endpoint": "DELETE /api/v1/uploads/${id}",
+      "files": {}
+    },
+    "POST /api/v1/uploads/batch-delete": {
+      "endpoint": "POST /api/v1/uploads/batch-delete",
+      "files": {}
+    },
+    "PATCH /api/v1/uploads/${id}": {
+      "endpoint": "PATCH /api/v1/uploads/${id}",
+      "files": {}
+    },
+    "GET /api/v1/treasury/forecast": {
+      "endpoint": "GET /api/v1/treasury/forecast",
+      "files": {}
+    },
+    "FETCH /api/v1/sepa/import": {
+      "endpoint": "FETCH /api/v1/sepa/import",
+      "files": {}
+    },
+    "FETCH /api/v1/accounting/aged-balance?companyId=${companyId}&type=receivables": {
+      "endpoint": "FETCH /api/v1/accounting/aged-balance?companyId=${companyId}&type=receivables",
+      "files": {}
+    },
+    "GET /api/v1/companies": {
+      "endpoint": "GET /api/v1/companies",
+      "files": {}
+    },
+    "POST /api/v1/purchases/suppliers": {
+      "endpoint": "POST /api/v1/purchases/suppliers",
+      "files": {}
+    },
+    "GET /api/v1/accounting/close/last": {
+      "endpoint": "GET /api/v1/accounting/close/last",
+      "files": {}
+    },
+    "GET /api/v1/tax/vat/return": {
+      "endpoint": "GET /api/v1/tax/vat/return",
+      "files": {}
+    },
+    "GET /api/v1/banking/transactions": {
+      "endpoint": "GET /api/v1/banking/transactions",
+      "files": {}
+    }
+  }
+}

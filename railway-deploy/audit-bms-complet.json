@@ -1,0 +1,1274 @@
+{
+  "timestamp": "2025-11-03T14:37:26.245Z",
+  "backend": {
+    "totalEndpoints": 178,
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/health"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/login"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/forecast"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/alerts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/direct-debits"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/direct-debits/statistics"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/treasury/direct-debits/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/treasury/direct-debits/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits/:id/suspend"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits/:id/reactivate"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/treasury/direct-debits/:id/cancel"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/trial-balance"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/profit-loss"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/balance-sheet"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/general-ledger"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/chart-of-accounts"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/accounting/journal-entries"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/closure"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/closure/preview"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/accounting/closure/close"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/close/last"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/accounting/closure/close"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/close"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/banking/transactions"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/auto-match"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/banking/transactions/:id/entry-suggest"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/reconcile-entry"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/import-csv"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/bulk-reconcile"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/banking/bulk-ignore"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/banking/history"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/tax/vat/return"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/tax/vat/recalculate"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/tax/export/fec"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/tax/generate-ca3-pdf"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ai/ocr/stats"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ai/ocr/test"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ai/ocr/:type"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ai/chat"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/employees"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/payroll"
+      },
+      {
+        "method": "GET",
+        "path": "/api/hr/timesheets"
+      },
+      {
+        "method": "POST",
+        "path": "/api/hr/timesheets/:id/submit"
+      },
+      {
+        "method": "POST",
+        "path": "/api/hr/timesheets/:id/approve"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "GET",
+        "path": "/payments/all-transactions"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/crm/contacts"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/crm/contacts/:id"
+      },
+      {
+        "method": "GET",
+        "path": "/api/crm/stats"
+      },
+      {
+        "method": "GET",
+        "path": "/api/crm/opportunities/pipeline/stages"
+      },
+      {
+        "method": "GET",
+        "path": "/api/crm/opportunities/pipeline/overview"
+      },
+      {
+        "method": "POST",
+        "path": "/api/crm/opportunities/:id/move/:stageId"
+      },
+      {
+        "method": "POST",
+        "path": "/api/crm/opportunities"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/crm/opportunities/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/crm/opportunities/:id"
+      },
+      {
+        "method": "GET",
+        "path": "/api/crm/opportunities/stats"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/invoices"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/invoices"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/invoices/:id/send"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/invoices/:id/validate"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/invoices/:id/cancel"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/invoices/reminders/preview"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/invoices/reminders/send"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/payments/:id/validate"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/payments/:id/cancel"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/assets"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/assets"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/transactions"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/stats"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/budget/revisions"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/budget/new"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/manufacturing/bom"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/manufacturing/production-orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/campaigns"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/support/tickets"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/templates"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/templates"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/communications/templates/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/communications/templates/:id"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/sms"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/email/send"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/email/invoice"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/email/reminder"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/send"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/invoice"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/payment-confirmation"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/reminder"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/sms/otp"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/emails"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/emails"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/whatsapp"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/communications/whatsapp"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/logs"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/status"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/mobile-money/initiate"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/mobile-money/verify/:transactionId"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/mobile-money/refund/:transactionId"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/mobile-money/webhook"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/communications/stats"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/nif/my-requests"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/nif/request"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/nif/request/:id/document"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/nif/request/:id/submit"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/inventory/items"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/uploads"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/uploads"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/uploads/:id"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/v1/uploads/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/uploads/batch-delete"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/purchases/suppliers"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/suppliers"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/purchases/orders"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/purchases/rfq"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/rfq"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/purchases/rfq/:id/publish"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/notification-config"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notification-config"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notification-config/test/:type"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/export/chart-of-accounts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/export/trial-balance"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/export/journal-entries"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/companies"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/dashboard/metrics"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/accounting/aged-balance"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/forecast"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/treasury/alerts"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/payments"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/v1/payments/:id"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/payments/:id/submit"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/sepa/import"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/payments/export"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/payments/stats"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/system/mode"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/system/mode"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/quotes"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/sales/quotes"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/orders"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/sales/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/sales/clients"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/sales/clients"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/employees"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/payroll"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/hr/leaves"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/projects"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/campaigns"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/leads"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/marketing/analytics"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/dashboard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/predict"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/ml-forecast/train"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/models/performance"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/auto-select"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/anomalies"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/ml-forecast/trend"
+      }
+    ]
+  },
+  "frontend": {
+    "totalPages": 101,
+    "pages": [
+      {
+        "route": "/accountant/aged-balance",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/aged-balance/page.tsx"
+      },
+      {
+        "route": "/accountant/assets",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/assets/page.tsx"
+      },
+      {
+        "route": "/accountant/balance-sheet",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/balance-sheet/page.tsx"
+      },
+      {
+        "route": "/accountant/bank",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/bank/page.tsx"
+      },
+      {
+        "route": "/accountant/cash-flow-coherence",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/cash-flow-coherence/page.tsx"
+      },
+      {
+        "route": "/accountant/chart-of-accounts",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/chart-of-accounts/page.tsx"
+      },
+      {
+        "route": "/accountant/close",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/close/page.tsx"
+      },
+      {
+        "route": "/accountant/general-ledger",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/general-ledger/page.tsx"
+      },
+      {
+        "route": "/accountant/journal",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/journal/page.tsx"
+      },
+      {
+        "route": "/accountant/ml-forecast",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/ml-forecast/page.tsx"
+      },
+      {
+        "route": "/accountant/mobile-money",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/mobile-money/page.tsx"
+      },
+      {
+        "route": "/accountant/multi-dimensional-analysis",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/multi-dimensional-analysis/page.tsx"
+      },
+      {
+        "route": "/accountant",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/page.tsx"
+      },
+      {
+        "route": "/accountant/profit-loss",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/profit-loss/page.tsx"
+      },
+      {
+        "route": "/accountant/reminders",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/reminders/page.tsx"
+      },
+      {
+        "route": "/accountant/revenue-recognition",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/revenue-recognition/page.tsx"
+      },
+      {
+        "route": "/accountant/tax/vat",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/tax/vat/page.tsx"
+      },
+      {
+        "route": "/accountant/transactions",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/transactions/page.tsx"
+      },
+      {
+        "route": "/accountant/trial-balance",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/trial-balance/page.tsx"
+      },
+      {
+        "route": "/accountant/validation",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant/validation/page.tsx"
+      },
+      {
+        "route": "/accountant-modern",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/accountant-modern/page.tsx"
+      },
+      {
+        "route": "/ai/chat",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/ai/chat/page.tsx"
+      },
+      {
+        "route": "/ai/ocr",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/ai/ocr/page.tsx"
+      },
+      {
+        "route": "/api-test",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/api-test/page.tsx"
+      },
+      {
+        "route": "/bank-partner",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/bank-partner/page.tsx"
+      },
+      {
+        "route": "/budget/analytics",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/budget/analytics/page.tsx"
+      },
+      {
+        "route": "/budget/control",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/budget/control/page.tsx"
+      },
+      {
+        "route": "/budget",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/budget/page.tsx"
+      },
+      {
+        "route": "/budget/tracking",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/budget/tracking/page.tsx"
+      },
+      {
+        "route": "/communications/emails",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/communications/emails/page.tsx"
+      },
+      {
+        "route": "/communications/sms",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/communications/sms/page.tsx"
+      },
+      {
+        "route": "/communications/templates",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/communications/templates/page.tsx"
+      },
+      {
+        "route": "/communications/whatsapp",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/communications/whatsapp/page.tsx"
+      },
+      {
+        "route": "/crm/contacts/[id]",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/crm/contacts/[id]/page.tsx"
+      },
+      {
+        "route": "/crm/contacts/new",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/crm/contacts/new/page.tsx"
+      },
+      {
+        "route": "/crm/contacts",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/crm/contacts/page.tsx"
+      },
+      {
+        "route": "/crm/dashboard",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/crm/dashboard/page.tsx"
+      },
+      {
+        "route": "/crm/opportunities/new",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/crm/opportunities/new/page.tsx"
+      },
+      {
+        "route": "/crm/opportunities",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/crm/opportunities/page.tsx"
+      },
+      {
+        "route": "/crm",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/crm/page.tsx"
+      },
+      {
+        "route": "/dashboard/alerts",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/dashboard/alerts/page.tsx"
+      },
+      {
+        "route": "/dashboard/bi",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/dashboard/bi/page.tsx"
+      },
+      {
+        "route": "/dashboard",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/dashboard/page.tsx"
+      },
+      {
+        "route": "/demo",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/demo/page.tsx"
+      },
+      {
+        "route": "/demo-simple",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/demo-simple/page.tsx"
+      },
+      {
+        "route": "/entrepreneur/direct-debits",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/entrepreneur/direct-debits/page.tsx"
+      },
+      {
+        "route": "/entrepreneur",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/entrepreneur/page.tsx"
+      },
+      {
+        "route": "/expert",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/expert/page.tsx"
+      },
+      {
+        "route": "/financial-analysis",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/financial-analysis/page.tsx"
+      },
+      {
+        "route": "/formalization",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/formalization/page.tsx"
+      },
+      {
+        "route": "/hr/employees",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/hr/employees/page.tsx"
+      },
+      {
+        "route": "/hr/expenses",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/hr/expenses/page.tsx"
+      },
+      {
+        "route": "/hr/leaves",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/hr/leaves/page.tsx"
+      },
+      {
+        "route": "/hr",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/hr/page.tsx"
+      },
+      {
+        "route": "/hr/payroll",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/hr/payroll/page.tsx"
+      },
+      {
+        "route": "/hr/timesheets",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/hr/timesheets/page.tsx"
+      },
+      {
+        "route": "/inventory",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/inventory/page.tsx"
+      },
+      {
+        "route": "/invoices",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/invoices/page.tsx"
+      },
+      {
+        "route": "/invoices/payments",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/invoices/payments/page.tsx"
+      },
+      {
+        "route": "/invoices/reminders",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/invoices/reminders/page.tsx"
+      },
+      {
+        "route": "/learning",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/learning/page.tsx"
+      },
+      {
+        "route": "/login",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/login/page.tsx"
+      },
+      {
+        "route": "/manufacturing/bom",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/manufacturing/bom/page.tsx"
+      },
+      {
+        "route": "/manufacturing/mrp",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/manufacturing/mrp/page.tsx"
+      },
+      {
+        "route": "/manufacturing",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/manufacturing/page.tsx"
+      },
+      {
+        "route": "/manufacturing/production-orders",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/manufacturing/production-orders/page.tsx"
+      },
+      {
+        "route": "/marketing/campaigns",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/marketing/campaigns/page.tsx"
+      },
+      {
+        "route": "/marketing",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/marketing/page.tsx"
+      },
+      {
+        "route": "/nif",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/nif/page.tsx"
+      },
+      {
+        "route": "/",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/page.tsx"
+      },
+      {
+        "route": "/projects",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/projects/page.tsx"
+      },
+      {
+        "route": "/purchases/analytics",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/purchases/analytics/page.tsx"
+      },
+      {
+        "route": "/purchases/orders",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/purchases/orders/page.tsx"
+      },
+      {
+        "route": "/purchases",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/purchases/page.tsx"
+      },
+      {
+        "route": "/purchases/payments",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/purchases/payments/page.tsx"
+      },
+      {
+        "route": "/purchases/receptions",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/purchases/receptions/page.tsx"
+      },
+      {
+        "route": "/purchases/rfq",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/purchases/rfq/page.tsx"
+      },
+      {
+        "route": "/purchases/suppliers",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/purchases/suppliers/page.tsx"
+      },
+      {
+        "route": "/receivables-payables",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/receivables-payables/page.tsx"
+      },
+      {
+        "route": "/sales/analytics",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/sales/analytics/page.tsx"
+      },
+      {
+        "route": "/sales/clients",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/sales/clients/page.tsx"
+      },
+      {
+        "route": "/sales/cycle",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/sales/cycle/page.tsx"
+      },
+      {
+        "route": "/sales/orders",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/sales/orders/page.tsx"
+      },
+      {
+        "route": "/sales",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/sales/page.tsx"
+      },
+      {
+        "route": "/sales/quotes",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/sales/quotes/page.tsx"
+      },
+      {
+        "route": "/settings/audit",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/settings/audit/page.tsx"
+      },
+      {
+        "route": "/settings/companies",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/settings/companies/page.tsx"
+      },
+      {
+        "route": "/settings/integrations",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/settings/integrations/page.tsx"
+      },
+      {
+        "route": "/settings/notifications",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/settings/notifications/page.tsx"
+      },
+      {
+        "route": "/settings",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/settings/page.tsx"
+      },
+      {
+        "route": "/settings/users",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/settings/users/page.tsx"
+      },
+      {
+        "route": "/support/tickets",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/support/tickets/page.tsx"
+      },
+      {
+        "route": "/tax/calendar",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/tax/calendar/page.tsx"
+      },
+      {
+        "route": "/tax/declarations",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/tax/declarations/page.tsx"
+      },
+      {
+        "route": "/tax/other",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/tax/other/page.tsx"
+      },
+      {
+        "route": "/tax",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/tax/page.tsx"
+      },
+      {
+        "route": "/tax-admin",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/tax-admin/page.tsx"
+      },
+      {
+        "route": "/transactions",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/transactions/page.tsx"
+      },
+      {
+        "route": "/treasury/forecast",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/treasury/forecast/page.tsx"
+      },
+      {
+        "route": "/treasury/operations",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/treasury/operations/page.tsx"
+      },
+      {
+        "route": "/treasury",
+        "file": "/Users/floriace/MERP/railway-deploy/frontend/src/app/treasury/page.tsx"
+      }
+    ],
+    "apiCalls": []
+  },
+  "issues": {
+    "potentialMismatches": [],
+    "unusedEndpoints": [
+      "POST /api/v1/auth/login",
+      "GET /api/v1/treasury/forecast",
+      "GET /api/v1/treasury/alerts",
+      "GET /api/v1/treasury/direct-debits",
+      "GET /api/v1/treasury/direct-debits/statistics",
+      "POST /api/v1/treasury/direct-debits",
+      "GET /api/v1/accounting/trial-balance",
+      "GET /api/v1/accounting/profit-loss",
+      "GET /api/v1/accounting/balance-sheet",
+      "GET /api/v1/accounting/general-ledger",
+      "GET /api/v1/accounting/chart-of-accounts",
+      "POST /api/v1/accounting/journal-entries",
+      "GET /api/v1/accounting/closure",
+      "GET /api/v1/accounting/closure/preview",
+      "POST /api/v1/accounting/closure/close",
+      "GET /api/v1/accounting/close/last",
+      "POST /api/v1/accounting/closure/close",
+      "GET /api/v1/accounting/close",
+      "GET /api/v1/banking/transactions",
+      "POST /api/v1/banking/auto-match",
+      "POST /api/v1/banking/reconcile-entry",
+      "POST /api/v1/banking/import-csv",
+      "POST /api/v1/banking/bulk-reconcile",
+      "POST /api/v1/banking/bulk-ignore",
+      "GET /api/v1/banking/history",
+      "GET /api/v1/tax/vat/return",
+      "POST /api/v1/tax/vat/recalculate",
+      "GET /api/v1/tax/export/fec",
+      "GET /api/v1/tax/generate-ca3-pdf",
+      "GET /api/v1/ai/ocr/stats",
+      "POST /api/v1/ai/ocr/test",
+      "POST /api/v1/ai/chat",
+      "GET /api/v1/hr/employees",
+      "GET /api/v1/hr/payroll",
+      "GET /api/hr/timesheets",
+      "GET /api/v1/crm/dashboard",
+      "GET /api/v1/crm/contacts",
+      "POST /api/v1/crm/contacts",
+      "GET /payments/all-transactions",
+      "GET /api/v1/crm/dashboard",
+      "GET /api/v1/crm/contacts",
+      "POST /api/v1/crm/contacts",
+      "GET /api/crm/stats",
+      "GET /api/crm/opportunities/pipeline/stages",
+      "GET /api/crm/opportunities/pipeline/overview",
+      "POST /api/crm/opportunities",
+      "GET /api/crm/opportunities/stats",
+      "GET /api/v1/invoices",
+      "POST /api/v1/invoices",
+      "GET /api/v1/invoices/reminders/preview",
+      "POST /api/v1/invoices/reminders/send",
+      "GET /api/v1/payments",
+      "POST /api/v1/payments",
+      "GET /api/v1/assets",
+      "POST /api/v1/assets",
+      "GET /api/v1/mobile-money/transactions",
+      "GET /api/v1/mobile-money/stats",
+      "GET /api/v1/budget/revisions",
+      "POST /api/v1/budget/new",
+      "GET /api/v1/projects",
+      "GET /api/v1/manufacturing/bom",
+      "GET /api/v1/manufacturing/production-orders",
+      "GET /api/v1/marketing/campaigns",
+      "GET /api/v1/support/tickets",
+      "GET /api/v1/communications/templates",
+      "POST /api/v1/communications/templates",
+      "GET /api/v1/communications/sms",
+      "POST /api/v1/communications/sms",
+      "POST /api/v1/communications/email/send",
+      "POST /api/v1/communications/email/invoice",
+      "POST /api/v1/communications/email/reminder",
+      "POST /api/v1/communications/sms/send",
+      "POST /api/v1/communications/sms/invoice",
+      "POST /api/v1/communications/sms/payment-confirmation",
+      "POST /api/v1/communications/sms/reminder",
+      "POST /api/v1/communications/sms/otp",
+      "GET /api/v1/communications/emails",
+      "POST /api/v1/communications/emails",
+      "GET /api/v1/communications/whatsapp",
+      "POST /api/v1/communications/whatsapp",
+      "GET /api/v1/communications/logs",
+      "GET /api/v1/mobile-money/status",
+      "POST /api/v1/mobile-money/initiate",
+      "POST /api/v1/mobile-money/webhook",
+      "GET /api/v1/communications/stats",
+      "GET /api/v1/nif/my-requests",
+      "POST /api/v1/nif/request",
+      "GET /api/v1/inventory/items",
+      "GET /api/v1/uploads",
+      "POST /api/v1/uploads",
+      "POST /api/v1/uploads/batch-delete",
+      "GET /api/v1/purchases/suppliers",
+      "POST /api/v1/purchases/suppliers",
+      "GET /api/v1/purchases/orders",
+      "POST /api/v1/purchases/orders",
+      "GET /api/v1/purchases/rfq",
+      "POST /api/v1/purchases/rfq",
+      "GET /api/v1/notification-config",
+      "POST /api/v1/notification-config",
+      "GET /api/v1/accounting/export/chart-of-accounts",
+      "GET /api/v1/accounting/export/trial-balance",
+      "GET /api/v1/accounting/export/journal-entries",
+      "GET /api/v1/companies",
+      "GET /api/v1/accounting/dashboard/metrics",
+      "GET /api/v1/accounting/aged-balance",
+      "GET /api/v1/treasury/forecast",
+      "GET /api/v1/treasury/alerts",
+      "GET /api/v1/payments",
+      "POST /api/v1/payments",
+      "POST /api/v1/sepa/import",
+      "GET /api/v1/payments/export",
+      "GET /api/v1/payments/stats",
+      "GET /api/v1/system/mode",
+      "POST /api/v1/system/mode",
+      "GET /api/v1/sales/dashboard",
+      "GET /api/v1/sales/quotes",
+      "POST /api/v1/sales/quotes",
+      "GET /api/v1/sales/orders",
+      "POST /api/v1/sales/orders",
+      "GET /api/v1/sales/clients",
+      "POST /api/v1/sales/clients",
+      "GET /api/v1/hr/dashboard",
+      "GET /api/v1/hr/employees",
+      "GET /api/v1/hr/payroll",
+      "GET /api/v1/hr/leaves",
+      "GET /api/v1/projects/dashboard",
+      "GET /api/v1/projects",
+      "POST /api/v1/projects",
+      "GET /api/v1/marketing/dashboard",
+      "GET /api/v1/marketing/campaigns",
+      "GET /api/v1/marketing/leads",
+      "GET /api/v1/marketing/analytics",
+      "GET /api/v1/ml-forecast/dashboard",
+      "GET /api/v1/ml-forecast/predict",
+      "POST /api/v1/ml-forecast/train",
+      "GET /api/v1/ml-forecast/models/performance",
+      "GET /api/v1/ml-forecast/auto-select",
+      "GET /api/v1/ml-forecast/anomalies",
+      "GET /api/v1/ml-forecast/trend"
+    ]
+  }
+}
