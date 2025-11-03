@@ -79,8 +79,8 @@ Fichier: ${mockData.fileName}
 Date d'import: ${mockData.importDate}
 Sociétés importées: ${mockData.companiesCount}
 
-✅ Import effectué avec succès !
-📁 Données intégrées et disponibles
+Import effectué avec succès !
+Données intégrées et disponibles
 
 Sociétés ajoutées:
 - Entreprise Alpha SARL

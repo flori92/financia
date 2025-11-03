@@ -329,7 +329,7 @@ export default function OpportunitiesPage() {
               contacts: ['Contact A', 'Contact B', 'Contact C']
             };
             
-            alert(`Filtres avancés appliqués !\n\n📊 Statuts: ${filters.status.join(', ')}\n💰 Montant: ${filters.amountRange.min.toLocaleString('fr-FR')} - ${filters.amountRange.max.toLocaleString('fr-FR')} FCFA\n📅 Période: ${filters.dateRange.start.toLocaleDateString('fr-FR')} - ${filters.dateRange.end.toLocaleDateString('fr-FR')}\n👥 Contacts: ${filters.contacts.length} disponibles\n\n✅ Filtres sauvegardés et appliqués !`);
+            alert(`Filtres avancés appliqués !\n\nStatuts: ${filters.status.join(', ')}\nMontant: ${filters.amountRange.min.toLocaleString('fr-FR')} - ${filters.amountRange.max.toLocaleString('fr-FR')} FCFA\nPériode: ${filters.dateRange.start.toLocaleDateString('fr-FR')} - ${filters.dateRange.end.toLocaleDateString('fr-FR')}\nContacts: ${filters.contacts.length} disponibles\n\nFiltres sauvegardés et appliqués !`);
           }}
         >
           <Filter className="h-4 w-4 mr-2" />
@@ -349,7 +349,7 @@ export default function OpportunitiesPage() {
             const content = `Rapport de Prévisions des Ventes
 ====================================
 
-📈 Revenus mensuels prévisionnels:
+Revenus mensuels prévisionnels:
 Mois 1: ${forecast.monthlyRevenue[0].toLocaleString('fr-FR')} FCFA
 Mois 2: ${forecast.monthlyRevenue[1].toLocaleString('fr-FR')} FCFA
 Mois 3: ${forecast.monthlyRevenue[2].toLocaleString('fr-FR')} FCFA
@@ -357,12 +357,12 @@ Mois 4: ${forecast.monthlyRevenue[3].toLocaleString('fr-FR')} FCFA
 Mois 5: ${forecast.monthlyRevenue[4].toLocaleString('fr-FR')} FCFA
 Mois 6: ${forecast.monthlyRevenue[5].toLocaleString('fr-FR')} FCFA
 
-📊 Taux de conversion: ${forecast.conversionRate}%
-🎯 Objectif atteint: ${forecast.targetAchievement}%
-💰 Total projeté 6 mois: ${forecast.totalProjected.toLocaleString('fr-FR')} FCFA
+Taux de conversion: ${forecast.conversionRate}%
+Objectif atteint: ${forecast.targetAchievement}%
+Total projeté 6 mois: ${forecast.totalProjected.toLocaleString('fr-FR')} FCFA
 
-✅ Prévisions générées avec succès !
-📁 Export Excel/PDF disponible
+Prévisions générées avec succès !
+Export Excel/PDF disponible
 
 Analyse performance:
 - Opportunités chaudes: 12
@@ -381,7 +381,7 @@ Généré le: ${new Date().toLocaleString('fr-FR')}`;
             a.click();
             URL.revokeObjectURL(url);
 
-            alert(`Prévisions générées !\n💰 Total projeté: ${forecast.totalProjected.toLocaleString('fr-FR')} FCFA\n📊 Taux conversion: ${forecast.conversionRate}%\n🎯 Objectif: ${forecast.targetAchievement}%\n\n📁 Rapport exporté avec succès !`);
+            alert(`Prévisions générées !\nTotal projeté: ${forecast.totalProjected.toLocaleString('fr-FR')} FCFA\nTaux conversion: ${forecast.conversionRate}%\nObjectif: ${forecast.targetAchievement}%\n\nRapport exporté avec succès !`);
           }}
         >
           <TrendingUp className="h-4 w-4 mr-2" />

@@ -48,7 +48,7 @@ export default function TicketsPage() {
             estimatedResponseTime: Math.floor(Math.random() * 24) + 1
           };
           
-          alert(`Nouveau ticket créé !\n\n🎫 Numéro: ${newTicket.id}\n📝 Sujet: ${newTicket.subject}\n🔴 Priorité: ${newTicket.priority}\n⏰ Temps de réponse estimé: ${newTicket.estimatedResponseTime}h\n\n✅ Ticket pris en charge et en attente de traitement !`);
+          alert(`Nouveau ticket créé !\n\nNuméro: ${newTicket.id}\nSujet: ${newTicket.subject}\nPriorité: ${newTicket.priority}\nTemps de réponse estimé: ${newTicket.estimatedResponseTime}h\n\nTicket pris en charge et en attente de traitement !`);
         }}>
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Ticket
@@ -159,7 +159,7 @@ export default function TicketsPage() {
                         customerSatisfaction: Math.floor(Math.random() * 3) + 3
                       };
                       
-                      alert(`Détails Ticket: ${ticketDetails.id}\n\n📊 Informations:\n🔴 Priorité: ${ticketDetails.priority}\n👤 Agent assigné: ${ticketDetails.assignedAgent}\n⏱️ Temps de résolution: ${ticketDetails.resolutionTime}h\n😊 Satisfaction client: ${ticketDetails.customerSatisfaction}/5\n\n📈 Statut: ${ticketDetails.status === 'open' ? 'Ouvert' : ticketDetails.status === 'in-progress' ? 'En cours' : 'Résolu'}\n\n✅ Détails complets disponibles !`);
+                      alert(`Détails Ticket: ${ticketDetails.id}\n\nInformations:\nPriorité: ${ticketDetails.priority}\nAgent assigné: ${ticketDetails.assignedAgent}\nTemps de résolution: ${ticketDetails.resolutionTime}h\nSatisfaction client: ${ticketDetails.customerSatisfaction}/5\n\nStatut: ${ticketDetails.status === 'open' ? 'Ouvert' : ticketDetails.status === 'in-progress' ? 'En cours' : 'Résolu'}\n\nDétails complets disponibles !`);
                     }}>Voir</Button>
                     </td>
                   </tr>

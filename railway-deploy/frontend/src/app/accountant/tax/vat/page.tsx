@@ -128,17 +128,17 @@ Numéro DEB: ${mockData.debNumber}
 Numéro DES: ${mockData.desNumber}
 Date d'import: ${mockData.importDate}
 
-📊 Valeurs déclarées:
+Valeurs déclarées:
 - Valeur totale: ${mockData.totalValue.toLocaleString('fr-FR')} FCFA
 - Valeur douanière: ${mockData.customsValue.toLocaleString('fr-FR')} FCFA
 - Montant TVA: ${mockData.vatAmount.toLocaleString('fr-FR')} FCFA
 
-📦 Détail marchandise:
+Détail marchandise:
 - Nombre de fournisseurs: ${mockData.supplierCount}
 - Nombre de lignes produits: ${mockData.productLines}
 
-✅ Import connecté aux flux douanes effectué avec succès!
-📁 Données intégrées et disponibles pour déclaration TVA
+Import connecté aux flux douanes effectué avec succès!
+Données intégrées et disponibles pour déclaration TVA
 
 Généré le: ${new Date().toLocaleString('fr-FR')}`;
 

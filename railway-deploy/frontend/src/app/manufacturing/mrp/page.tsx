@@ -21,13 +21,13 @@ export default function MRPPage() {
 =====================================
 
 Date de calcul: ${mockData.calculationDate}
-📦 Matériaux nécessaires: ${mockData.materialsNeeded}
-🏭 Ordres de production: ${mockData.productionOrders}
-💰 Coût total estimé: ${mockData.totalCost.toLocaleString('fr-FR')} FCFA
-📅 Date livraison prévue: ${mockData.deliveryDate}
+Matériaux nécessaires: ${mockData.materialsNeeded}
+Ordres de production: ${mockData.productionOrders}
+Coût total estimé: ${mockData.totalCost.toLocaleString('fr-FR')} FCFA
+Date livraison prévue: ${mockData.deliveryDate}
 
-✅ Calcul MRP effectué avec succès !
-📊 Besoins optimisés et plan générés
+Calcul MRP effectué avec succès !
+Besoins optimisés et plan générés
 
 Matériaux critiques:
 - Acier laminé: 500 tonnes

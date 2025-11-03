@@ -43,7 +43,7 @@ export default function CampaignsPage() {
             createdAt: new Date().toISOString()
           };
           
-          alert(`Nouvelle campagne créée !\n\n📧 Nom: ${newCampaign.name}\n👥 Cible: ${newCampaign.targetAudience.toLocaleString('fr-FR')} contacts\n💰 Budget: ${newCampaign.budget.toLocaleString('fr-FR')} FCFA\n📈 ROI attendu: ${newCampaign.expectedROI}%\n\n✅ Campagne prête à être configurée !`);
+          alert(`Nouvelle campagne créée !\n\nNom: ${newCampaign.name}\nCible: ${newCampaign.targetAudience.toLocaleString('fr-FR')} contacts\nBudget: ${newCampaign.budget.toLocaleString('fr-FR')} FCFA\nROI attendu: ${newCampaign.expectedROI}%\n\nCampagne prête à être configurée !`);
         }}>
           <Plus className="w-4 h-4 mr-2" />
           Nouvelle Campagne
@@ -157,7 +157,7 @@ export default function CampaignsPage() {
                         revenue: Math.floor(Math.random() * 200000) + 50000
                       };
                       
-                      alert(`Détails Campagne: ${campaign.name}\n\n📊 Statistiques performance:\n✉️ Envoyés: ${campaignDetails.sent.toLocaleString('fr-FR')}\n📖 Ouverts: ${campaignDetails.opened}%\n🖱️ Cliqués: ${campaignDetails.clicked}%\n🛒 Conversions: ${campaignDetails.converted}%\n💰 Revenus: ${campaignDetails.revenue.toLocaleString('fr-FR')} FCFA\n\n📈 Performance: ${campaignDetails.converted > 5 ? 'Excellente' : campaignDetails.converted > 2 ? 'Bonne' : 'À améliorer'}`);
+                      alert(`Détails Campagne: ${campaign.name}\n\nStatistiques performance:\nEnvoyés: ${campaignDetails.sent.toLocaleString('fr-FR')}\nOuverts: ${campaignDetails.opened}%\nCliqués: ${campaignDetails.clicked}%\nConversions: ${campaignDetails.converted}%\nRevenus: ${campaignDetails.revenue.toLocaleString('fr-FR')} FCFA\n\nPerformance: ${campaignDetails.converted > 5 ? 'Excellente' : campaignDetails.converted > 2 ? 'Bonne' : 'À améliorer'}`);
                     }}>Voir</Button>
                     </td>
                   </tr>
