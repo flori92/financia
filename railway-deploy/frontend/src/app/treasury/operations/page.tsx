@@ -201,7 +201,7 @@ export default function TreasuryOperationsPage() {
     return { count: operations.length, total, pending };
   }, [operations]);
 
-  async function submitOperation() {
+  async function submitNewOperation() {
     const amountValue = Number(form.amount || 0);
     if (!form.beneficiary.trim() || amountValue <= 0) {
       setError("Merci de renseigner un bénéficiaire et un montant valide.");
@@ -239,7 +239,7 @@ export default function TreasuryOperationsPage() {
       setFormVisible(false);
       setForm({ beneficiary: "", amount: "", paymentDate: new Date().toISOString().slice(0, 10), reference: "" });
     } catch (err) {
-      console.error("submitOperation", err);
+      console.error("submitNewOperation", err);
       setError("Échec de l'envoi via l'API. L'opération a été enregistrée localement.");
       setOperations((prev) => [
         {
@@ -535,7 +535,7 @@ export default function TreasuryOperationsPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={submitOperation}
+                  onClick={submitNewOperation}
                   disabled={sending}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0D9488] text-white text-sm hover:bg-[#0B7C74] disabled:opacity-60"
                 >
