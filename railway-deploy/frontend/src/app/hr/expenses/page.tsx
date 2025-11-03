@@ -83,6 +83,10 @@ export default function ExpensesPage() {
     loadExpenses();
   }, [filter]);
 
+  const handleViewReceipt = (receiptUrl: string) => {
+    window.open(receiptUrl, '_blank');
+  };
+
   const loadExpenses = async () => {
     setLoading(true);
     try {
@@ -460,7 +464,7 @@ export default function ExpensesPage() {
                   </Badge>
                   <div className="flex gap-1">
                     {expense.receiptUrl && (
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleViewReceipt(expense.receiptUrl!)} title="Voir le reçu">
                         <Eye className="w-4 h-4" />
                       </Button>
                     )}

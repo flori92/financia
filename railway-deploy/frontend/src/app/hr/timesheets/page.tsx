@@ -118,6 +118,8 @@ export default function TimesheetPage() {
   const [selectedTimesheet, setSelectedTimesheet] = useState<TimesheetEntry | null>(null);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [showNewTimesheet, setShowNewTimesheet] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     loadTimesheets();
@@ -152,6 +154,16 @@ export default function TimesheetPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewTimesheet = (timesheet: TimesheetEntry) => {
+    setSelectedTimesheet(timesheet);
+    setShowViewModal(true);
+  };
+
+  const handleEditTimesheet = (timesheet: TimesheetEntry) => {
+    setSelectedTimesheet(timesheet);
+    setShowEditModal(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -461,12 +473,12 @@ export default function TimesheetPage() {
               </div>
 
               <div className="flex gap-2 mt-4">
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={() => handleViewTimesheet(timesheet)}>
                   <Eye className="w-4 h-4 mr-1" />Détails
                 </Button>
                 {timesheet.status === 'draft' && (
                   <>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => handleEditTimesheet(timesheet)}>
                       <Edit className="w-4 h-4 mr-1" />Modifier
                     </Button>
                     <Button size="sm" onClick={() => handleSubmitTimesheet(timesheet.id)}>
@@ -504,6 +516,102 @@ export default function TimesheetPage() {
           </Card>
         )}
       </div>
+
+      {/* Modal Visualisation */}
+      {showViewModal && selectedTimesheet && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold">Détails CRA - {selectedTimesheet.employeeName}</h2>
+              <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <div className="text-sm text-gray-600">Période</div>
+                  <div className="font-medium">
+                    {format(new Date(selectedTimesheet.weekStartDate), 'dd/MM/yyyy', { locale: fr })} - {format(new Date(selectedTimesheet.weekEndDate), 'dd/MM/yyyy', { locale: fr })}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Total heures</div>
+                  <div className="font-bold text-lg">{selectedTimesheet.totalHours}h</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Statut</div>
+                  <Badge className={getStatusColor(selectedTimesheet.status)}>
+                    {selectedTimesheet.status === 'draft' ? 'Brouillon' :
+                     selectedTimesheet.status === 'submitted' ? 'Soumis' :
+                     selectedTimesheet.status === 'approved' ? 'Approuvé' : 'Rejeté'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Détail par projet</h3>
+                {selectedTimesheet.projects.map((project, idx) => (
+                  <div key={idx} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="font-medium mb-2">{project.projectName}</div>
+                    <div className="grid grid-cols-7 gap-2 text-sm">
+                      {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day, i) => {
+                        const hours = [project.monday, project.tuesday, project.wednesday, project.thursday, project.friday, project.saturday, project.sunday][i];
+                        return (
+                          <div key={day} className="text-center">
+                            <div className="text-gray-600">{day}</div>
+                            <div className="font-semibold">{hours}h</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="text-right mt-2 font-bold">Total: {project.total}h</div>
+                  </div>
+                ))}
+              </div>
+
+              {selectedTimesheet.comments && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="font-semibold text-red-800">Commentaires</div>
+                  <div className="text-sm text-red-700">{selectedTimesheet.comments}</div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowViewModal(false)}>Fermer</Button>
+                {selectedTimesheet.status === 'draft' && (
+                  <Button onClick={() => { setShowViewModal(false); handleEditTimesheet(selectedTimesheet); }}>
+                    <Edit className="w-4 h-4 mr-1" />Modifier
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Édition */}
+      {showEditModal && selectedTimesheet && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold">Modifier CRA</h2>
+              <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-600 mb-4">
+                Cette fonctionnalité complète sera disponible dans une prochaine version.
+                Pour le moment, vous pouvez soumettre ou approuver les CRA existants.
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowEditModal(false)}>Fermer</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

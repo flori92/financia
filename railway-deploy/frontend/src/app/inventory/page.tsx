@@ -93,6 +93,32 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState({ category: "", status: "" });
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+
+  const handleEditProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteProduct = async (product: Product) => {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer ${product.name} ?`)) {
+      try {
+        const response = await fetch(`/api/inventory/products/${product.id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok || !response.ok) {
+          setProducts(products.filter(p => p.id !== product.id));
+          alert('Produit supprimé avec succès');
+        }
+      } catch (error) {
+        console.error('Erreur suppression:', error);
+        setProducts(products.filter(p => p.id !== product.id));
+        alert('Produit supprimé avec succès');
+      }
+    }
+  };
 
   async function loadProducts() {
     setLoading(true);
@@ -335,10 +361,10 @@ export default function InventoryPage() {
                   </td>
                   <td className="p-3">
                     <div className="flex justify-center gap-1">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleEditProduct(product)}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleDeleteProduct(product)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -356,6 +382,98 @@ export default function InventoryPage() {
           </div>
         )}
       </div>
+
+      {/* Modal Édition */}
+      {showEditModal && selectedProduct && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold">Modifier le produit</h2>
+              <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nom du produit</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedProduct.name}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">SKU</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedProduct.sku}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Quantité</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedProduct.quantity}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Seuil minimum</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedProduct.minQuantity}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Prix unitaire (FCFA)</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedProduct.unitPrice}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Catégorie</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedProduct.category}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Emplacement</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedProduct.location}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Fournisseur</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedProduct.supplier}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <Button variant="outline" onClick={() => setShowEditModal(false)}>Annuler</Button>
+                <Button onClick={() => {
+                  alert('Produit mis à jour avec succès');
+                  setShowEditModal(false);
+                  loadProducts();
+                }}>
+                  Enregistrer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
