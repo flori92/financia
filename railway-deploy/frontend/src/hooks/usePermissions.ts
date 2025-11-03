@@ -171,10 +171,10 @@ export const ProtectedComponent: React.FC<ProtectedComponentProps> = ({
   const { canAccess } = usePermissions();
   
   if (!canAccess(module, action)) {
-    return <>{fallback || React.createElement('div', { className: 'text-gray-500 text-sm' }, 'Accès limité')}</>;
+    return fallback || React.createElement('div', { className: 'text-gray-500 text-sm' }, 'Accès limité');
   }
   
-  return <>{children}</>;
+  return React.createElement(React.Fragment, null, children);
 };
 
 // Hook pour vérifier et rediriger
@@ -182,6 +182,6 @@ export const useRequireAuth = (module: string, action: string = 'read') => {
   const { canAccess, getAccessMessage } = usePermissions();
   
   if (!canAccess(module, action)) {
-    throw new Error(getAccessMessage(module));
+    throw new Error(getAccessMessage(module, action));
   }
 };
