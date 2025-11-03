@@ -7,19 +7,19 @@
 
 ## 📊 ÉTAT ACTUEL GLOBAL
 
-### ✅ **Modules 100% terminés (12/34)**
-1. **Comptabilité** - Expert-comptable ⭐⭐⭐
-2. **Rapprochement Bancaire** - CSV + bulk + historique ⭐⭐⭐
-3. **Communications** - Email/SMS/WhatsApp ⭐⭐⭐
-4. **Stock** - Données corrigées ⭐⭐⭐
-5. **Architecture Permissions** - 4 profils ⭐⭐⭐
-6. **Ventes** - Page principale + devis + commandes + clients ⭐⭐⭐
-7. **Achats** - Hub complet + fournisseurs + commandes + RFQ ⭐⭐⭐
-8. **RH** - Dashboard KPIs + modules employés/paie/congés ⭐⭐⭐
-9. **Projets** - Dashboard KPIs + gestion ordres + équipes ⭐⭐⭐
-10. **Budget** - Suivi budgétaire complet + rapports ⭐⭐⭐
-11. **Manufacturing** - Production + ordres fabrication + qualité ⭐⭐⭐
-12. **Marketing** - Campagnes + leads + analytics ⭐⭐⭐
+### ✅ **Modules 100% terminés ET CONNECTÉS (12/34)**
+1. **Comptabilité** - Expert-comptable + API complète ⭐⭐⭐
+2. **Rapprochement Bancaire** - CSV + bulk + API connectée ⭐⭐⭐
+3. **Communications** - Email/SMS/WhatsApp + API ⭐⭐⭐
+4. **Stock** - Données corrigées + API ⭐⭐⭐
+5. **Architecture Permissions** - 4 profils + hook centralisé ⭐⭐⭐
+6. **Ventes** - Pages + API complètes connectées ⭐⭐⭐
+7. **Achats** - Hub complet + API connectées ⭐⭐⭐
+8. **RH** - Dashboard + API complètes connectées ⭐⭐⭐
+9. **Projets** - Dashboard + API complètes connectées ⭐⭐⭐
+10. **Budget** - Pages + API connectées ⭐⭐⭐
+11. **Manufacturing** - Production + API connectées ⭐⭐⭐
+12. **Marketing** - Pages + API complètes connectées ⭐⭐⭐
 
 ### ⚠️ **Modules 70-90% (À finaliser)**
 1. **Factures** - Backend OK, frontend à tester

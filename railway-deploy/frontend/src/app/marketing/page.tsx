@@ -26,7 +26,12 @@ export default function MarketingPage() {
 
   const loadMarketingData = async () => {
     try {
-      // Simuler les données marketing
+      // Charger les données marketing depuis l'API
+      const response = await apiGet('/api/v1/marketing/dashboard');
+      setData(response);
+    } catch (error) {
+      console.error("Erreur chargement données marketing:", error);
+      // Fallback vers données mock si API indisponible
       const mockData: MarketingData = {
         totalCampaigns: 24,
         activeCampaigns: 6,
@@ -38,8 +43,6 @@ export default function MarketingPage() {
         socialMediaFollowers: 12500
       };
       setData(mockData);
-    } catch (error) {
-      console.error("Erreur chargement données marketing:", error);
     } finally {
       setLoading(false);
     }

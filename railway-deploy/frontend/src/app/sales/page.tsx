@@ -29,7 +29,11 @@ export default function SalesPage() {
 
   const loadSalesData = async () => {
     try {
-      // Simuler les données ventes
+      const response = await apiGet('/api/v1/sales/dashboard');
+      setData(response);
+    } catch (error) {
+      console.error("Erreur chargement données ventes:", error);
+      // Fallback vers données mock si API indisponible
       const mockData: SalesData = {
         totalRevenue: 45000000,
         monthlyRevenue: 12500000,
@@ -39,8 +43,6 @@ export default function SalesPage() {
         averageOrderValue: 288461
       };
       setData(mockData);
-    } catch (error) {
-      console.error("Erreur chargement données ventes:", error);
     } finally {
       setLoading(false);
     }

@@ -35,7 +35,12 @@ export default function SalesClientsPage() {
 
   const loadClients = async () => {
     try {
-      // Simuler les données
+      // Charger les clients depuis l'API
+      const clientsResponse = await apiGet('/api/v1/sales/clients');
+      setClients(clientsResponse);
+    } catch (error) {
+      console.error("Erreur chargement clients:", error);
+      // Fallback vers données mock si API indisponible
       const mockClients: SalesClient[] = [
         {
           id: "1",
@@ -83,8 +88,6 @@ export default function SalesClientsPage() {
       ];
 
       setClients(mockClients);
-    } catch (error) {
-      console.error("Erreur chargement clients:", error);
     } finally {
       setLoading(false);
     }

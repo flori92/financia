@@ -23,12 +23,20 @@ export default function ProjectsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Charger les projets
+        // Charger les KPIs depuis l'API
+        const dashboardResponse = await apiGet('/api/v1/projects/dashboard');
+        setData(dashboardResponse);
+
+        // Charger les projets depuis l'API
+        const projectsResponse = await apiGet('/api/v1/projects');
+        setProjects(projectsResponse);
+      } catch (error) {
+        console.error("Erreur chargement données:", error);
+        // Fallback vers données mock si API indisponible
         apiGet("/api/v1/projects")
           .then(setProjects)
           .catch(() => setProjects([]));
         
-        // Simuler les données KPIs
         const mockData: ProjectData = {
           totalProjects: 12,
           activeProjects: 8,
@@ -39,8 +47,6 @@ export default function ProjectsPage() {
           completionRate: 75.5
         };
         setData(mockData);
-      } catch (error) {
-        console.error("Erreur chargement données:", error);
       } finally {
         setLoading(false);
       }

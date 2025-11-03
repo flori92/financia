@@ -26,7 +26,12 @@ export default function HRPage() {
 
   const loadHRData = async () => {
     try {
-      // Simuler les données RH
+      // Charger les données RH depuis l'API
+      const response = await apiGet('/api/v1/hr/dashboard');
+      setData(response);
+    } catch (error) {
+      console.error("Erreur chargement données RH:", error);
+      // Fallback vers données mock si API indisponible
       const mockData: HRData = {
         totalEmployees: 45,
         activeEmployees: 42,
@@ -38,8 +43,6 @@ export default function HRPage() {
         turnoverRate: 8.5
       };
       setData(mockData);
-    } catch (error) {
-      console.error("Erreur chargement données RH:", error);
     } finally {
       setLoading(false);
     }

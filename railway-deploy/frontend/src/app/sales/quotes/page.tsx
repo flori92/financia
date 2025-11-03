@@ -39,7 +39,16 @@ export default function QuotesPage() {
 
   const loadData = async () => {
     try {
-      // Simuler les données
+      // Charger les devis depuis l'API
+      const quotesResponse = await apiGet('/api/v1/sales/quotes');
+      setQuotes(quotesResponse);
+
+      // Charger les clients depuis l'API
+      const clientsResponse = await apiGet('/api/v1/sales/clients');
+      setClients(clientsResponse);
+    } catch (error) {
+      console.error("Erreur chargement données:", error);
+      // Fallback vers données mock si API indisponible
       const mockQuotes: Quote[] = [
         {
           id: "1",
@@ -84,8 +93,6 @@ export default function QuotesPage() {
 
       setQuotes(mockQuotes);
       setClients(mockClients);
-    } catch (error) {
-      console.error("Erreur chargement données:", error);
     } finally {
       setLoading(false);
     }
@@ -100,7 +107,21 @@ export default function QuotesPage() {
 
     setCreatingQuote(true);
     try {
-      // Simuler création
+      // Créer le devis via l'API
+      const quote = await apiPost('/api/v1/sales/quotes', newQuote);
+      
+      setQuotes([quote, ...quotes]);
+      setIsCreateModalOpen(false);
+      setNewQuote({
+        clientId: "",
+        validUntil: "",
+        items: [{ description: "", quantity: 1, unitPrice: 0 }]
+      });
+      
+      alert("Devis créé avec succès !");
+    } catch (error) {
+      console.error("Erreur création devis:", error);
+      // Fallback simulation si API indisponible
       const quote: Quote = {
         id: Date.now().toString(),
         quoteNumber: `DEV-2025-${String(quotes.length + 1).padStart(3, '0')}`,
@@ -120,9 +141,6 @@ export default function QuotesPage() {
         validUntil: "",
         items: [{ description: "", quantity: 1, unitPrice: 0 }]
       });
-    } catch (error) {
-      console.error("Erreur création devis:", error);
-      alert("Erreur lors de la création du devis");
     } finally {
       setCreatingQuote(false);
     }

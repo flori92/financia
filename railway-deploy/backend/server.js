@@ -13,6 +13,10 @@ const TreasuryOperationsService = require('./services/TreasuryOperationsService'
 const EmailService = require('./services/EmailService');
 const SMSService = require('./services/SMSService');
 const MobileMoneyService = require('./services/MobileMoneyService');
+const SalesService = require('./src/sales/sales.service');
+const HRService = require('./src/hr/hr.service');
+const ProjectsService = require('./src/projects/projects.service');
+const MarketingService = require('./src/marketing/marketing.service');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -1963,6 +1967,198 @@ process.on('SIGTERM', async () => {
   console.log('\n🔄 Arrêt gracieux du serveur...');
   await database.close();
   process.exit(0);
+});
+
+// ========== SALES ENDPOINTS ==========
+const salesService = new SalesService();
+
+app.get('/api/v1/sales/dashboard', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await salesService.getDashboardMetrics(companyId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/sales/quotes', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await salesService.getQuotes(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/sales/quotes', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await salesService.createQuote(req.body, companyId);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/sales/orders', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await salesService.getOrders(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/sales/orders', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await salesService.createOrder(req.body, companyId);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/sales/clients', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await salesService.getClients(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/sales/clients', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await salesService.createClient(req.body, companyId);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== HR ENDPOINTS ==========
+const hrService = new HRService();
+
+app.get('/api/v1/hr/dashboard', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await hrService.getDashboardMetrics(companyId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/hr/employees', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await hrService.getEmployees(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/hr/payroll', async (req, res) => {
+  try {
+    const { companyId, month } = req.query;
+    const result = await hrService.getPayroll(companyId, month);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/hr/leaves', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await hrService.getLeaves(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== PROJECTS ENDPOINTS ==========
+const projectsService = new ProjectsService();
+
+app.get('/api/v1/projects/dashboard', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await projectsService.getDashboardMetrics(companyId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/projects', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await projectsService.getProjects(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/projects', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await projectsService.createProject(req.body, companyId);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== MARKETING ENDPOINTS ==========
+const marketingService = new MarketingService();
+
+app.get('/api/v1/marketing/dashboard', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const result = await marketingService.getDashboardMetrics(companyId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/marketing/campaigns', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await marketingService.getCampaigns(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/marketing/leads', async (req, res) => {
+  try {
+    const { companyId, status } = req.query;
+    const result = await marketingService.getLeads(companyId, status);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/marketing/analytics', async (req, res) => {
+  try {
+    const { companyId, period } = req.query;
+    const result = await marketingService.getAnalytics(companyId, period);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Démarrer le serveur

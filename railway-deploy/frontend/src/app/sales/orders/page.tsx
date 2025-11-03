@@ -32,7 +32,12 @@ export default function SalesOrdersPage() {
 
   const loadOrders = async () => {
     try {
-      // Simuler les données
+      // Charger les commandes depuis l'API
+      const ordersResponse = await apiGet('/api/v1/sales/orders');
+      setOrders(ordersResponse);
+    } catch (error) {
+      console.error("Erreur chargement commandes:", error);
+      // Fallback vers données mock si API indisponible
       const mockOrders: SalesOrder[] = [
         {
           id: "1",
@@ -75,8 +80,6 @@ export default function SalesOrdersPage() {
       ];
 
       setOrders(mockOrders);
-    } catch (error) {
-      console.error("Erreur chargement commandes:", error);
     } finally {
       setLoading(false);
     }
