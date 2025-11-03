@@ -30,9 +30,15 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
 }
 
 export function getBaseUrl() {
-  // Next.js injecte NEXT_PUBLIC_* au build time, accessible côté client
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  return 'http://localhost:3001';
+  // SOLUTION FORTE : Forcer l'URL backend en production
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+  
+  // Debug log
+  if (typeof window !== 'undefined') {
+    console.log('🔗 API Base URL:', backendUrl);
+  }
+  
+  return backendUrl;
 }
 
 function getToken() {
