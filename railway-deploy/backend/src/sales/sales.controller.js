@@ -1,3 +1,4 @@
+// Sales Controller - JavaScript/Node.js Express.js
 const salesService = require('./sales.service');
 
 class SalesController {
