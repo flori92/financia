@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, FileText, Award, Bell, AlertTriangle, Target, Activity } from 'lucide-react';
 import { apiGet, getCompanyId } from '@/lib/api';
 import { useEffectiveCompanyId, useSelectedClientName, isExpertClientMode } from '@/hooks/useCompanyId';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface EntrepreneurData {
   kpiMonth: {
@@ -58,6 +59,7 @@ export default function EntrepreneurDashboard() {
   const [data, setData] = useState<EntrepreneurData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { userRole, canWrite } = usePermissions();
 
   useEffect(() => {
     const loadData = async () => {
@@ -128,10 +130,12 @@ export default function EntrepreneurDashboard() {
             }
           </p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
-          <FileText className="w-4 h-4 mr-2" />
-          Nouvelle Transaction
-        </Button>
+        {canWrite('entrepreneur') && (
+          <Button className="bg-teal-600 hover:bg-teal-700">
+            <FileText className="w-4 h-4 mr-2" />
+            Nouvelle Transaction
+          </Button>
+        )}
       </div>
 
       {/* Alertes */}
