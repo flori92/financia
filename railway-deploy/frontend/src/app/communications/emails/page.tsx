@@ -154,6 +154,69 @@ export default function EmailsPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal composition email */}
+      {showCompose && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Nouveau message</h3>
+              <button
+                onClick={() => setShowCompose(false)}
+                className="p-2 hover:bg-gray-100 rounded"
+              >
+                ✕
+              </button>
+            </div>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">À</label>
+                <input
+                  type="email"
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="destinataire@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Sujet</label>
+                <input
+                  type="text"
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="Objet du message"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Message</label>
+                <textarea
+                  className="w-full border rounded-lg px-3 py-2 h-32"
+                  placeholder="Votre message..."
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCompose(false)}
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowCompose(false);
+                    alert('Email envoyé avec succès !');
+                  }}
+                >
+                  <Send className="w-4 h-4 inline mr-2" />
+                  Envoyer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

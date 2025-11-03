@@ -973,23 +973,81 @@ app.post('/api/v1/assets', (req, res) => {
 
 // Mobile Money endpoints
 app.get('/api/v1/mobile-money/transactions', (req, res) => {
-  res.json([
+  const { page = 1, limit = 20 } = req.query;
+  
+  const mockTransactions = [
     {
       id: '1',
-      operator: 'MTN',
-      amount: 100000,
-      type: 'debit',
-      status: 'completed',
-      date: '2025-11-01'
+      invoiceId: 'INV-001',
+      provider: 'mtn',
+      amount: 50000,
+      currency: 'XOF',
+      txRef: 'TXN-MTN-001',
+      phoneNumber: '+229 97 12 34 56',
+      customerName: 'Client A',
+      customerEmail: 'clienta@email.com',
+      status: 'success',
+      createdAt: '2025-11-01T10:00:00Z',
+      completedAt: '2025-11-01T10:00:15Z',
+      invoice: { id: 'INV-001', invoiceNumber: 'F-2025-001' }
+    },
+    {
+      id: '2',
+      invoiceId: 'INV-002',
+      provider: 'moov',
+      amount: 75000,
+      currency: 'XOF',
+      txRef: 'TXN-MOOV-002',
+      phoneNumber: '+229 96 23 45 67',
+      customerName: 'Client B',
+      status: 'pending',
+      createdAt: '2025-11-02T14:30:00Z',
+      invoice: { id: 'INV-002', invoiceNumber: 'F-2025-002' }
+    },
+    {
+      id: '3',
+      invoiceId: 'INV-003',
+      provider: 'orange',
+      amount: 120000,
+      currency: 'XOF',
+      txRef: 'TXN-ORANGE-003',
+      phoneNumber: '+229 95 34 56 78',
+      customerName: 'Client C',
+      customerEmail: 'clientc@email.com',
+      status: 'failed',
+      statusMessage: 'Solde insuffisant',
+      createdAt: '2025-11-03T09:15:00Z',
+      invoice: { id: 'INV-003', invoiceNumber: 'F-2025-003' }
     }
-  ]);
+  ];
+
+  const total = mockTransactions.length;
+  const pages = Math.ceil(total / limit);
+  
+  res.json({
+    transactions: mockTransactions,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages
+    }
+  });
 });
 
 app.get('/api/v1/mobile-money/stats', (req, res) => {
   res.json({
-    totalTransactions: 150,
+    total: 150,
+    successful: 135,
+    failed: 10,
+    pending: 5,
     totalAmount: 15000000,
-    successRate: 0.95
+    successfulAmount: 14200000,
+    byProvider: [
+      { provider: 'mtn', count: 80, total: 8500000 },
+      { provider: 'moov', count: 45, total: 4200000 },
+      { provider: 'orange', count: 25, total: 2500000 }
+    ]
   });
 });
 
