@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Mail, Send, Inbox, Archive, Trash2, Star, Paperclip } from 'lucide-react';
+import { Plus, Mail, Send, Inbox, Archive, Trash2, Star, Paperclip, Search, Filter, MoreVertical, Eye, EyeOff, Reply, Forward } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { formatCurrency } from "@/lib/format-utils";
 
@@ -27,6 +27,8 @@ interface Template {
 export default function EmailsPage() {
   const [emails, setEmails] = useState<Email[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
+  const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCompose, setShowCompose] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState('inbox');
@@ -49,6 +51,53 @@ export default function EmailsPage() {
     { id: 'archive', name: 'Archives', icon: Archive, count: emails.filter(e => e.folder === 'archive').length },
     { id: 'trash', name: 'Corbeille', icon: Trash2, count: emails.filter(e => e.folder === 'trash').length },
   ];
+
+  // Actions sur les emails
+  const toggleReadStatus = (emailId: string) => {
+    setEmails(emails.map(email => 
+      email.id === emailId ? { ...email, read: !email.read } : email
+    ));
+    setShowActionMenu(null);
+  };
+
+  const toggleStarred = (emailId: string) => {
+    setEmails(emails.map(email => 
+      email.id === emailId ? { ...email, starred: !email.starred } : email
+    ));
+    setShowActionMenu(null);
+  };
+
+  const archiveEmail = (emailId: string) => {
+    setEmails(emails.map(email => 
+      email.id === emailId ? { ...email, folder: 'archive' } : email
+    ));
+    setShowActionMenu(null);
+  };
+
+  const deleteEmail = (emailId: string) => {
+    setEmails(emails.map(email => 
+      email.id === emailId ? { ...email, folder: 'trash' } : email
+    ));
+    setShowActionMenu(null);
+  };
+
+  const replyToEmail = (emailId: string) => {
+    const email = emails.find(e => e.id === emailId);
+    if (email) {
+      setShowCompose(true);
+      setSelectedEmail(emailId);
+      setShowActionMenu(null);
+    }
+  };
+
+  const forwardEmail = (emailId: string) => {
+    const email = emails.find(e => e.id === emailId);
+    if (email) {
+      setShowCompose(true);
+      setSelectedEmail(emailId);
+      setShowActionMenu(null);
+    }
+  };
 
   const filteredEmails = emails.filter(e => 
     selectedFolder === 'starred' ? e.starred : e.folder === selectedFolder
@@ -131,13 +180,10 @@ export default function EmailsPage() {
                 {filteredEmails.map((email) => (
                   <div 
                     key={email.id} 
-                    className={`p-4 border rounded-lg hover:bg-gray-50 cursor-pointer ${!email.read ? 'bg-blue-50 border-blue-200' : ''}`}
-                    onClick={() => {
-                      alert(`Email: ${email.subject}\n\nDe: ${email.from}\nDate: ${new Date(email.date).toLocaleDateString('fr-FR')}\n\nFonctionnalités disponibles :\n• Marquer comme lu/non lu\n• Mettre en favori\n• Archiver\n• Supprimer\n• Répondre / Transférer`);
-                    }}
+                    className={`p-4 border rounded-lg hover:bg-gray-50 relative ${!email.read ? 'bg-blue-50 border-blue-200' : ''}`}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                      <div className="flex-1" onClick={() => toggleReadStatus(email.id)}>
                         <div className="flex items-center gap-2 mb-1">
                           {email.starred && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
                           <span className={`font-medium ${!email.read ? 'font-bold' : ''}`}>{email.from}</span>
@@ -146,8 +192,67 @@ export default function EmailsPage() {
                         <div className={`text-sm ${!email.read ? 'font-semibold' : 'text-gray-600'}`}>{email.subject}</div>
                         <div className="text-sm text-gray-500 mt-1 line-clamp-1">{email.preview}</div>
                       </div>
-                      <div className="text-xs text-gray-500 ml-4">{new Date(email.date).toLocaleDateString('fr-FR')}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-gray-500">{new Date(email.date).toLocaleDateString('fr-FR')}</div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowActionMenu(showActionMenu === email.id ? null : email.id);
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
+
+                    {/* Menu d'actions */}
+                    {showActionMenu === email.id && (
+                      <div className="absolute right-4 top-12 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 w-48">
+                        <button
+                          onClick={() => toggleReadStatus(email.id)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          {email.read ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                          {email.read ? 'Marquer comme non lu' : 'Marquer comme lu'}
+                        </button>
+                        <button
+                          onClick={() => toggleStarred(email.id)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Star className="w-4 h-4" />
+                          {email.starred ? 'Enlever des favoris' : 'Mettre en favori'}
+                        </button>
+                        <button
+                          onClick={() => replyToEmail(email.id)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Reply className="w-4 h-4" />
+                          Répondre
+                        </button>
+                        <button
+                          onClick={() => forwardEmail(email.id)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Forward className="w-4 h-4" />
+                          Transférer
+                        </button>
+                        <button
+                          onClick={() => archiveEmail(email.id)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Archive className="w-4 h-4" />
+                          Archiver
+                        </button>
+                        <button
+                          onClick={() => deleteEmail(email.id)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Supprimer
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, MessageCircle, Check, CheckCheck, Clock } from 'lucide-react';
+import { Plus, MessageCircle, Check, CheckCheck, Clock, MoreVertical, RefreshCw, Download, Reply, Archive } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { formatCurrency } from "@/lib/format-utils";
 
@@ -21,6 +21,60 @@ export default function WhatsAppPage() {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCompose, setShowCompose] = useState(false);
+  const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
+
+  // Actions WhatsApp
+  const resendMessage = (messageId: string) => {
+    const message = messages.find(m => m.id === messageId);
+    if (message) {
+      // Simuler renvoi
+      alert(`Message renvoyé à ${message.contact}: ${message.message}`);
+      setShowActionMenu(null);
+    }
+  };
+
+  const viewDeliveryDetails = (messageId: string) => {
+    const message = messages.find(m => m.id === messageId);
+    if (message) {
+      alert(`Détails de livraison pour ${message.contact}:\n\nStatut: ${message.status}\nEnvoyé le: ${new Date(message.sentAt).toLocaleString('fr-FR')}\nTéléphone: ${message.phone}\nType: ${message.type}`);
+      setShowActionMenu(null);
+    }
+  };
+
+  const exportConversation = (messageId: string) => {
+    const message = messages.find(m => m.id === messageId);
+    if (message) {
+      const content = `Conversation WhatsApp - ${message.contact}\n` +
+        `Date: ${new Date(message.sentAt).toLocaleString('fr-FR')}\n` +
+        `Téléphone: ${message.phone}\n` +
+        `Message: ${message.message}\n` +
+        `Statut: ${message.status}\n` +
+        `Type: ${message.type}`;
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `whatsapp-${message.contact}-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      setShowActionMenu(null);
+    }
+  };
+
+  const replyToMessage = (messageId: string) => {
+    const message = messages.find(m => m.id === messageId);
+    if (message) {
+      setShowCompose(true);
+      setShowActionMenu(null);
+    }
+  };
+
+  const archiveConversation = (messageId: string) => {
+    setMessages(messages.filter(m => m.id !== messageId));
+    setShowActionMenu(null);
+  };
 
   useEffect(() => {
     apiGet('/api/v1/communications/whatsapp')
@@ -114,16 +168,14 @@ export default function WhatsAppPage() {
                   <th className="text-left p-3">Type</th>
                   <th className="text-left p-3">Statut</th>
                   <th className="text-left p-3">Date</th>
+                  <th className="text-left p-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {messages.map((msg) => (
                   <tr 
                     key={msg.id} 
-                    className="border-b hover:bg-gray-50 cursor-pointer"
-                    onClick={() => {
-                      alert(`WhatsApp Message Details:\n\nContact: ${msg.contact}\nTéléphone: ${msg.phone}\nMessage: ${msg.message}\nType: ${msg.type}\nStatut: ${msg.status}\nDate: ${new Date(msg.sentAt).toLocaleString('fr-FR')}\n\nFonctionnalités disponibles:\n• Renvoyer le message\n• Voir détails de livraison\n• Exporter la conversation\n• Répondre directement\n• Archiver la conversation`);
-                    }}
+                    className="border-b hover:bg-gray-50 relative"
                   >
                     <td className="p-3 font-medium">{msg.contact}</td>
                     <td className="p-3 text-sm">{msg.phone}</td>
@@ -134,26 +186,84 @@ export default function WhatsAppPage() {
                         msg.type === 'notification' ? 'bg-blue-100 text-blue-800' :
                         'bg-purple-100 text-purple-800'
                       }`}>
-                        {msg.type === 'reminder' ? 'Relance' : 
-                         msg.type === 'notification' ? 'Notification' : 'Marketing'}
+                        {msg.type === 'reminder' ? 'Rappel' :
+                         msg.type === 'notification' ? 'Notification' : 'Info'}
                       </span>
                     </td>
                     <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        {msg.status === 'read' && <CheckCheck className="w-4 h-4 text-green-600" />}
-                        {msg.status === 'delivered' && <CheckCheck className="w-4 h-4 text-blue-600" />}
-                        {msg.status === 'sent' && <Check className="w-4 h-4 text-gray-600" />}
-                        {msg.status === 'failed' && <Clock className="w-4 h-4 text-red-600" />}
-                        <span className="text-sm">
-                          {msg.status === 'read' ? 'Lu' :
-                           msg.status === 'delivered' ? 'Délivré' :
-                           msg.status === 'sent' ? 'Envoyé' : 'Échec'}
-                        </span>
-                      </div>
+                      <span className={`flex items-center gap-1 text-xs ${
+                        msg.status === 'delivered' ? 'text-green-600' :
+                        msg.status === 'sent' ? 'text-blue-600' :
+                        'text-orange-600'
+                      }`}>
+                        {msg.status === 'delivered' ? <CheckCheck className="w-3 h-3" /> :
+                         msg.status === 'sent' ? <Check className="w-3 h-3" /> :
+                         <Clock className="w-3 h-3" />}
+                        {msg.status === 'delivered' ? 'Livré' :
+                         msg.status === 'sent' ? 'Envoyé' : 'En attente'}
+                      </span>
                     </td>
-                    <td className="p-3 text-sm">{new Date(msg.sentAt).toLocaleString('fr-FR')}</td>
+                    <td className="p-3 text-sm text-gray-500">
+                      {new Date(msg.sentAt).toLocaleString('fr-FR')}
+                    </td>
+                    <td className="p-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowActionMenu(showActionMenu === msg.id ? null : msg.id);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
+                
+                {/* Menu d'actions WhatsApp */}
+                {showActionMenu && (
+                  <tr>
+                    <td colSpan={7} className="p-0 relative">
+                      <div className="absolute right-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 w-56">
+                        <button
+                          onClick={() => resendMessage(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Renvoyer le message
+                        </button>
+                        <button
+                          onClick={() => viewDeliveryDetails(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <CheckCheck className="w-4 h-4" />
+                          Voir détails de livraison
+                        </button>
+                        <button
+                          onClick={() => exportConversation(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Exporter la conversation
+                        </button>
+                        <button
+                          onClick={() => replyToMessage(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Reply className="w-4 h-4" />
+                          Répondre directement
+                        </button>
+                        <button
+                          onClick={() => archiveConversation(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                        >
+                          <Archive className="w-4 h-4" />
+                          Archiver la conversation
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
