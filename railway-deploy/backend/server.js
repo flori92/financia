@@ -1934,16 +1934,6 @@ app.post('/api/v1/system/mode', async (req, res) => {
   }
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    status: 'error',
-    code: 404,
-    message: 'Endpoint not found',
-    path: req.originalUrl
-  });
-});
-
 // DÉMARRAGE SERVEUR DYNAMIQUE
 async function startServer() {
   try {
@@ -2311,6 +2301,16 @@ app.get('/api/v1/ml-forecast/trend', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// 404 handler - DOIT être à la fin après toutes les routes
+app.use('*', (req, res) => {
+  res.status(404).json({
+    status: 'error',
+    code: 404,
+    message: 'Endpoint not found',
+    path: req.originalUrl
+  });
 });
 
 // Démarrer le serveur
