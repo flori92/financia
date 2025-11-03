@@ -186,7 +186,7 @@ export default function TrialBalancePage() {
 
   const handleExportExcel = async () => {
     try {
-      if (!data || data.items.length === 0) {
+      if (!data || data.accounts.length === 0) {
         triggerToast("error", "Aucune donnée à exporter");
         return;
       }
@@ -196,7 +196,7 @@ export default function TrialBalancePage() {
         title: 'Balance de Vérification',
         headers: ['Compte', 'Libellé', 'Débit', 'Crédit'],
         rows: [
-          ...data.items.map(item => [
+          ...data.accounts.map((item: any) => [
             item.accountNumber,
             item.name,
             item.debit ? item.debit.toLocaleString('fr-FR') + ' FCFA' : '',

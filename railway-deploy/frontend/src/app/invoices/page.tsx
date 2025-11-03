@@ -7,6 +7,17 @@ import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react
 import { EmailDialog } from "@/components/shared/EmailDialog";
 
 export default function InvoicesPage() {
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    // Simuler un toast avec alert pour l'instant
+    if (type === "error") {
+      alert(`❌ Erreur: ${message}`);
+    } else if (type === "success") {
+      alert(`✅ Succès: ${message}`);
+    } else {
+      alert(`ℹ️ Info: ${message}`);
+    }
+  };
+
   const [invoices, setInvoices] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -184,12 +195,12 @@ export default function InvoicesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">CA du mois</div>
-          <div className="text-2xl font-semibold text-[#0D9488]">{safeToLocaleString(totalRevenue)} FCFA</div>
+          <div className="text-2xl font-semibold text-[#0D9488]">{totalRevenue.toLocaleString('fr-FR')} FCFA</div>
           <div className="text-xs text-green-600">+12% vs mois dernier</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Factures impayées</div>
-          <div className="text-2xl font-semibold text-orange-600">{safeToLocaleString(unpaidAmount)} FCFA</div>
+          <div className="text-2xl font-semibold text-orange-600">{unpaidAmount.toLocaleString('fr-FR')} FCFA</div>
           <div className="text-xs text-gray-600">{invoices.filter(inv => inv.status === 'pending').length} facture(s)</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
