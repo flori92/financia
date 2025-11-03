@@ -46,12 +46,17 @@ export default function ClosePeriodPage() {
       return 0;
     };
 
+    // Harmonisation des schémas possibles provenant du backend
+    const revenues = asNumber(raw.totalRevenues ?? raw.revenues ?? raw.revenueTotal ?? 0);
+    const expenses = asNumber(raw.totalExpenses ?? raw.expenses ?? raw.expenseTotal ?? 0);
+    const result = asNumber(raw.result ?? raw.resultAmount ?? raw.netResult ?? (revenues - expenses));
+
     return {
       ...raw,
-      totalRevenues: asNumber(raw.totalRevenues ?? raw.revenues ?? 0),
-      totalExpenses: asNumber(raw.totalExpenses ?? raw.expenses ?? 0),
-      result: asNumber(raw.result ?? raw.resultAmount ?? (asNumber(raw.totalRevenues) - asNumber(raw.totalExpenses))),
-      canClose: Boolean(raw.canClose),
+      totalRevenues: revenues,
+      totalExpenses: expenses,
+      result,
+      canClose: Boolean(raw.canClose ?? true),
     };
   }
 
