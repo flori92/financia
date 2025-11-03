@@ -18,11 +18,11 @@ export default function VATPage() {
     { account: "445620", description: "TVA déductible achats", base: 225000, rate: 20, amount: -45000 }
   ]);
 
-  const [toast, setToast] = useState<{ type: "success" | "info" | "warning"; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "warning" | "error"; message: string } | null>(null);
   const [showTransmitModal, setShowTransmitModal] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
 
-  const triggerToast = (type: "success" | "info" | "warning", message: string) => {
+  const triggerToast = (type: "success" | "info" | "warning" | "error", message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 2800);
   };

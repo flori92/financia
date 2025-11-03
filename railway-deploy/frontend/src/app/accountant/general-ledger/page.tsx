@@ -31,9 +31,9 @@ export default function GeneralLedgerPage() {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   
-  const [toast, setToast] = useState<{ type: "success" | "info"; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
 
-  const triggerToast = (type: "success" | "info", message: string) => {
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 2600);
   };

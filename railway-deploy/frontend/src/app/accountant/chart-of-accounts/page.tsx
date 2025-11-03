@@ -18,10 +18,10 @@ export default function ChartOfAccountsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [toast, setToast] = useState<{ type: "success" | "info"; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
   const [activeAction, setActiveAction] = useState<{ type: "import" | "export" | "create" | "edit"; payload?: any } | null>(null);
 
-  const triggerToast = (type: "success" | "info", message: string) => {
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 2800);
   };

@@ -10,6 +10,9 @@ interface TrialBalanceItem {
   name: string;
   debit: number;
   credit: number;
+  accountNumber: string;
+  accountName: string;
+  balance: number;
 }
 
 interface TrialBalanceData {
@@ -26,9 +29,9 @@ export default function TrialBalancePage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const [toast, setToast] = useState<{ type: "success" | "info"; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
 
-  const triggerToast = (type: "success" | "info", message: string) => {
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 2600);
   };
@@ -72,12 +75,12 @@ export default function TrialBalancePage() {
       
       // En cas d'erreur, afficher des données de démonstration
       const mockAccounts = [
-        { account: "101000", name: "Capital social", debit: 0, credit: 100000 },
-        { account: "411000", name: "Clients", debit: 85000, credit: 0 },
-        { account: "401000", name: "Fournisseurs", debit: 0, credit: 25000 },
-        { account: "701000", name: "Ventes", debit: 0, credit: 150000 },
-        { account: "607000", name: "Achats", debit: 80000, credit: 0 },
-        { account: "512000", name: "Banque", debit: 110000, credit: 0 }
+        { account: "101000", name: "Capital social", debit: 0, credit: 100000, accountNumber: "101000", accountName: "Capital social", balance: -100000 },
+        { account: "411000", name: "Clients", debit: 85000, credit: 0, accountNumber: "411000", accountName: "Clients", balance: 85000 },
+        { account: "401000", name: "Fournisseurs", debit: 0, credit: 25000, accountNumber: "401000", accountName: "Fournisseurs", balance: -25000 },
+        { account: "701000", name: "Ventes", debit: 0, credit: 150000, accountNumber: "701000", accountName: "Ventes", balance: -150000 },
+        { account: "607000", name: "Achats", debit: 80000, credit: 0, accountNumber: "607000", accountName: "Achats", balance: 80000 },
+        { account: "512000", name: "Banque", debit: 110000, credit: 0, accountNumber: "512000", accountName: "Banque", balance: 110000 }
       ];
       
       const totalDebit = mockAccounts.reduce((sum, item) => sum + item.debit, 0);
