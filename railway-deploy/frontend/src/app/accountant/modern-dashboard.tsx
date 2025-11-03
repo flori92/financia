@@ -136,7 +136,6 @@ export default function ModernAccountantDashboard() {
           </button>
         </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Alerts */}
         {data?.alerts && data.alerts.length > 0 && (
           <div className="mb-6 space-y-2">
