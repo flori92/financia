@@ -426,6 +426,242 @@ class CRMService {
       { id: 'proposal', name: 'Proposition', type: 'proposal', order: 3, probability: 50 }
     ];
   }
+
+  // ===== GESTION DES CONTACTS =====
+  
+  async createContact(contactData, companyId) {
+    const isDynamic = await database.isDynamicMode();
+    
+    if (isDynamic) {
+      // Mode dynamique - insertion en base de données
+      const db = database.getDynamicDB();
+      const contact = {
+        id: require('uuid').v4(),
+        ...contactData,
+        companyId,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await db.collection('contacts').insertOne(contact);
+      return contact;
+    } else {
+      // Mode statique - simulation
+      return {
+        id: `contact_${Date.now()}`,
+        ...contactData,
+        companyId,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    }
+  }
+
+  async findAllContacts(companyId, options = {}) {
+    const { page = 1, limit = 20, search, type, status } = options;
+    const isDynamic = await database.isDynamicMode();
+    
+    if (isDynamic) {
+      const db = database.getDynamicDB();
+      let query = { companyId };
+      
+      if (status && status !== 'all') {
+        query.status = status;
+      }
+      
+      if (type && type !== 'all') {
+        query.type = type;
+      }
+      
+      if (search) {
+        query.$or = [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } },
+          { companyName: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ];
+      }
+      
+      const contacts = await db.collection('contacts')
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray();
+      
+      const total = await db.collection('contacts').countDocuments(query);
+      
+      return { contacts, total };
+    } else {
+      // Mode statique - données mock
+      const mockContacts = [
+        {
+          id: 'contact_1',
+          type: 'client',
+          companyName: 'Entreprise ABC',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          email: 'jean.dupont@entreprise-abc.com',
+          phone: '+229 97 00 00 00',
+          position: 'Directeur Général',
+          city: 'Cotonou',
+          country: 'BJ',
+          status: 'active',
+          createdAt: '2025-01-15T10:00:00Z'
+        },
+        {
+          id: 'contact_2',
+          type: 'prospect',
+          companyName: 'Société XYZ',
+          firstName: 'Marie',
+          lastName: 'Assiba',
+          email: 'marie.assiba@societe-xyz.com',
+          phone: '+229 98 00 00 00',
+          position: 'Responsable Achat',
+          city: 'Porto-Novo',
+          country: 'BJ',
+          status: 'active',
+          createdAt: '2025-01-10T14:30:00Z'
+        }
+      ];
+      
+      let filteredContacts = mockContacts;
+      
+      if (search) {
+        filteredContacts = filteredContacts.filter(c => 
+          (c.firstName && c.firstName.toLowerCase().includes(search.toLowerCase())) ||
+          (c.lastName && c.lastName.toLowerCase().includes(search.toLowerCase())) ||
+          (c.companyName && c.companyName.toLowerCase().includes(search.toLowerCase())) ||
+          (c.email && c.email.toLowerCase().includes(search.toLowerCase()))
+        );
+      }
+      
+      if (type && type !== 'all') {
+        filteredContacts = filteredContacts.filter(c => c.type === type);
+      }
+      
+      if (status && status !== 'all') {
+        filteredContacts = filteredContacts.filter(c => c.status === status);
+      }
+      
+      const total = filteredContacts.length;
+      const startIndex = (page - 1) * limit;
+      const contacts = filteredContacts.slice(startIndex, startIndex + limit);
+      
+      return { contacts, total };
+    }
+  }
+
+  async findContactById(id, companyId) {
+    const isDynamic = await database.isDynamicMode();
+    
+    if (isDynamic) {
+      const db = database.getDynamicDB();
+      return await db.collection('contacts').findOne({ id, companyId });
+    } else {
+      // Mode statique - recherche dans mock
+      const mockContacts = [
+        {
+          id: 'contact_1',
+          type: 'client',
+          companyName: 'Entreprise ABC',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          email: 'jean.dupont@entreprise-abc.com',
+          phone: '+229 97 00 00 00',
+          position: 'Directeur Général',
+          city: 'Cotonou',
+          country: 'BJ',
+          status: 'active',
+          createdAt: '2025-01-15T10:00:00Z'
+        }
+      ];
+      
+      return mockContacts.find(c => c.id === id);
+    }
+  }
+
+  async updateContact(id, updateData, companyId) {
+    const isDynamic = await database.isDynamicMode();
+    
+    if (isDynamic) {
+      const db = database.getDynamicDB();
+      await db.collection('contacts').updateOne(
+        { id, companyId },
+        { 
+          $set: { 
+            ...updateData, 
+            updatedAt: new Date().toISOString() 
+          }
+        }
+      );
+      
+      return await this.findContactById(id, companyId);
+    } else {
+      // Mode statique - simulation
+      return {
+        id,
+        ...updateData,
+        companyId,
+        updatedAt: new Date().toISOString()
+      };
+    }
+  }
+
+  async deleteContact(id, companyId) {
+    const isDynamic = await database.isDynamicMode();
+    
+    if (isDynamic) {
+      const db = database.getDynamicDB();
+      await db.collection('contacts').updateOne(
+        { id, companyId },
+        { $set: { status: 'archived', updatedAt: new Date().toISOString() } }
+      );
+    } else {
+      // Mode statique - simulation
+      return { success: true, message: 'Contact archivé' };
+    }
+  }
+
+  async getContactsStats(companyId) {
+    const isDynamic = await database.isDynamicMode();
+    
+    if (isDynamic) {
+      const db = database.getDynamicDB();
+      const pipeline = [
+        { $match: { companyId, status: { $ne: 'archived' } } },
+        { $group: { _id: '$type', count: { $sum: 1 } } }
+      ];
+      
+      const results = await db.collection('contacts').aggregate(pipeline).toArray();
+      
+      const stats = {
+        total: 0,
+        clients: 0,
+        prospects: 0,
+        suppliers: 0,
+        partners: 0
+      };
+      
+      results.forEach(result => {
+        stats[result._id] = result.count;
+        stats.total += result.count;
+      });
+      
+      return stats;
+    } else {
+      // Mode statique - données mock
+      return {
+        total: 25,
+        clients: 12,
+        prospects: 8,
+        suppliers: 3,
+        partners: 2
+      };
+    }
+  }
 }
 
 module.exports = new CRMService();

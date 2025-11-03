@@ -93,7 +93,10 @@ export default function ContactsPage() {
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-600 mb-4">Aucun contact trouvé</p>
           <Link href="/crm/contacts/new">
-            <Button onClick={() => alert("Fonctionnalité en développement : Créer votre premier contact")}>Créer votre premier contact</Button>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Créer votre premier contact
+            </Button>
           </Link>
         </div>
       ) : (

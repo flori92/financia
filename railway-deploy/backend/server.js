@@ -956,6 +956,89 @@ app.get('/api/crm/opportunities/stats', async (req, res) => {
   }
 });
 
+// ===== CONTACTS CRM =====
+
+// Créer un contact
+app.post('/api/crm/contacts', async (req, res) => {
+  try {
+    const companyId = req.query.companyId;
+    const contact = await CRMService.createContact(req.body, companyId);
+    res.json({ success: true, data: contact, message: 'Contact créé avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Lister tous les contacts
+app.get('/api/crm/contacts', async (req, res) => {
+  try {
+    const companyId = req.query.companyId;
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 20,
+      search: req.query.search,
+      type: req.query.type,
+      status: req.query.status
+    };
+    const result = await CRMService.findAllContacts(companyId, options);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtenir un contact par ID
+app.get('/api/crm/contacts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.query.companyId;
+    const contact = await CRMService.findContactById(id, companyId);
+    
+    if (!contact) {
+      return res.json({ success: false, message: 'Contact non trouvé' });
+    }
+    
+    res.json({ success: true, data: contact });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Mettre à jour un contact
+app.put('/api/crm/contacts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.query.companyId;
+    const contact = await CRMService.updateContact(id, req.body, companyId);
+    res.json({ success: true, data: contact, message: 'Contact mis à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Archiver un contact
+app.delete('/api/crm/contacts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.query.companyId;
+    await CRMService.deleteContact(id, companyId);
+    res.json({ success: true, message: 'Contact archivé avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Statistiques CRM
+app.get('/api/crm/stats', async (req, res) => {
+  try {
+    const companyId = req.query.companyId;
+    const stats = await CRMService.getContactsStats(companyId);
+    res.json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Invoices endpoints
 app.get('/api/v1/invoices', (req, res) => {
   res.json([

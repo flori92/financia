@@ -14,8 +14,14 @@ export default function ContactDetailPage() {
     if (!params?.id) return;
     setLoading(true);
     try {
-      const data = await apiGet(`/api/v1/crm/contacts/${params.id}`);
-      setContact(data);
+      const companyId = localStorage.getItem('companyId') || '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
+      const res = await fetch(`/api/crm/contacts/${params.id}?companyId=${companyId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setContact(data.data);
+        }
+      }
     } catch (e) {
       console.error(e);
     } finally {
