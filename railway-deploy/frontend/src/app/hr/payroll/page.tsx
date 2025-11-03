@@ -60,8 +60,8 @@ export default function PayrollPage() {
                   <div className="text-sm text-slate-600">{p.month}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium">{safeToLocaleString(p.netSalary)} FCFA</div>
-                  <div className="text-sm text-slate-600">Brut: {safeToLocaleString(p.grossSalary)}</div>
+                  <div className="font-medium">{p.netSalary.toLocaleString('fr-FR')} FCFA</div>
+                  <div className="text-sm text-slate-600">Brut: {p.grossSalary.toLocaleString('fr-FR')}</div>
                 </div>
               </div>
             ))}

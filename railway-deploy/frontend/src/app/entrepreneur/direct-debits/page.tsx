@@ -310,7 +310,7 @@ export default function DirectDebitsPage() {
               <div>
                 <p className="text-sm text-gray-600">Mensuel</p>
                 <p className="text-xl font-bold text-rose-600">
-                  {safeToLocaleString(statistics.monthlyAmount)} FCFA
+                  {statistics.monthlyAmount.toLocaleString('fr-FR')} FCFA
                 </p>
               </div>
             </div>
@@ -348,7 +348,7 @@ export default function DirectDebitsPage() {
                   </div>
                 </td>
                 <td className="p-4 text-right font-mono font-semibold">
-                  {safeToLocaleString(debit.amount)} {debit.currency}
+                  {debit.amount.toLocaleString('fr-FR')} {debit.currency}
                 </td>
                 <td className="p-4">{getFrequencyLabel(debit.frequency)}</td>
                 <td className="p-4">

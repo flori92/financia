@@ -449,16 +449,16 @@ export default function BankReconciliationPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Solde bancaire</div>
-          <div className="text-2xl font-semibold text-[#0D9488]">{safeToLocaleString(bankBalance)} FCFA</div>
+          <div className="text-2xl font-semibold text-[#0D9488]">{bankBalance.toLocaleString('fr-FR')} FCFA</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Solde comptable</div>
-          <div className="text-2xl font-semibold text-blue-600">{safeToLocaleString(bookBalance)} FCFA</div>
+          <div className="text-2xl font-semibold text-blue-600">{bookBalance.toLocaleString('fr-FR')} FCFA</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Écart à justifier</div>
           <div className={`text-2xl font-semibold ${difference === 0 ? 'text-green-600' : 'text-orange-600'}`}>
-            {safeToLocaleString(difference)} FCFA
+            {difference.toLocaleString('fr-FR')} FCFA
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
