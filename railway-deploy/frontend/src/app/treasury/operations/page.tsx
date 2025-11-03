@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
-import { ArrowRightLeft, Loader2, Plus, Upload, AlertTriangle } from "lucide-react";
+import { ArrowRightLeft, Loader2, Plus, Upload, AlertTriangle, MoreVertical, Edit, Send, XCircle, Download, History } from "lucide-react";
 
 type OperationStatus = "draft" | "submitted" | "processed" | "failed";
 
@@ -75,6 +75,79 @@ export default function TreasuryOperationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [formVisible, setFormVisible] = useState(false);
   const [sending, setSending] = useState(false);
+  const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
+  const [editingOperation, setEditingOperation] = useState<string | null>(null);
+
+  // Actions Opérations Trésorerie
+  const modifyOperation = (operationId: string) => {
+    const operation = operations.find(op => op.id === operationId);
+    if (operation) {
+      setEditingOperation(operationId);
+      setFormVisible(true);
+      setShowActionMenu(null);
+    }
+  };
+
+  const submitOperation = (operationId: string) => {
+    const operation = operations.find(op => op.id === operationId);
+    if (operation && operation.status === 'draft') {
+      setOperations(operations.map(op => 
+        op.id === operationId ? { ...op, status: 'submitted' } : op
+      ));
+      alert(`Opération ${operation.reference} soumise pour traitement !`);
+      setShowActionMenu(null);
+    }
+  };
+
+  const cancelOperation = (operationId: string) => {
+    const operation = operations.find(op => op.id === operationId);
+    if (operation && (operation.status === 'draft' || operation.status === 'submitted')) {
+      setOperations(operations.filter(op => op.id !== operationId));
+      alert(`Opération ${operation.reference} annulée avec succès !`);
+      setShowActionMenu(null);
+    }
+  };
+
+  const exportOperationProof = (operationId: string) => {
+    const operation = operations.find(op => op.id === operationId);
+    if (operation) {
+      const content = `Justificatif Opération Trésorerie\n` +
+        `=====================================\n\n` +
+        `Référence: ${operation.reference}\n` +
+        `Bénéficiaire: ${operation.beneficiary}\n` +
+        `Date de paiement: ${new Date(operation.paymentDate).toLocaleDateString('fr-FR')}\n` +
+        `Montant: ${formatCurrency(operation.amount, operation.currency)}\n` +
+        `Statut: ${operation.status}\n` +
+        `Généré le: ${new Date().toLocaleString('fr-FR')}\n\n` +
+        `Ce document sert de justificatif pour l'opération de trésorerie.`;
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `justificatif-${operation.reference}-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      setShowActionMenu(null);
+    }
+  };
+
+  const viewOperationHistory = (operationId: string) => {
+    const operation = operations.find(op => op.id === operationId);
+    if (operation) {
+      const history = [
+        `Opération ${operation.reference} créée le ${new Date().toLocaleDateString('fr-FR')}`,
+        `Bénéficiaire: ${operation.beneficiary}`,
+        `Montant: ${formatCurrency(operation.amount, operation.currency)}`,
+        `Statut actuel: ${operation.status}`,
+        `Dernière modification: ${new Date().toLocaleString('fr-FR')}`
+      ];
+      
+      alert(`Historique des modifications:\n\n${history.join('\n')}`);
+      setShowActionMenu(null);
+    }
+  };
   const [form, setForm] = useState({
     beneficiary: "",
     amount: "",
@@ -326,10 +399,7 @@ export default function TreasuryOperationsPage() {
                   return (
                     <tr 
                       key={operation.id} 
-                      className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"
-                      onClick={() => {
-                        alert(`Détails Opération: ${operation.reference}\n\nBénéficiaire: ${operation.beneficiary}\nDate: ${new Date(operation.paymentDate).toLocaleDateString("fr-FR")}\nMontant: ${formatCurrency(operation.amount, operation.currency)}\nStatut: ${badge.label}\n\nActions disponibles:\n• Modifier les détails\n• Soumettre pour traitement\n• Annuler l\'opération\n• Exporter le justificatif\n• Voir l\'historique des modifications`);
-                      }}
+                      className="border-b border-slate-100 hover:bg-slate-50 relative"
                     >
                       <td className="py-3 text-slate-700 font-medium">{operation.reference}</td>
                       <td className="py-3 text-slate-600">{operation.beneficiary}</td>
@@ -343,9 +413,65 @@ export default function TreasuryOperationsPage() {
                           {badge.label}
                         </span>
                       </td>
+                      <td className="py-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowActionMenu(showActionMenu === operation.id ? null : operation.id);
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
+                
+                {/* Menu d'actions Trésorerie */}
+                {showActionMenu && (
+                  <tr>
+                    <td colSpan={6} className="p-0 relative">
+                      <div className="absolute right-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 w-56">
+                        <button
+                          onClick={() => modifyOperation(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Modifier les détails
+                        </button>
+                        <button
+                          onClick={() => submitOperation(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Send className="w-4 h-4" />
+                          Soumettre pour traitement
+                        </button>
+                        <button
+                          onClick={() => cancelOperation(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Annuler l'opération
+                        </button>
+                        <button
+                          onClick={() => exportOperationProof(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Exporter le justificatif
+                        </button>
+                        <button
+                          onClick={() => viewOperationHistory(showActionMenu)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <History className="w-4 h-4" />
+                          Voir l'historique
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
