@@ -17,6 +17,7 @@ const SalesService = require('./src/sales/sales.service');
 const HRService = require('./src/hr/hr.service');
 const ProjectsService = require('./src/projects/projects.service');
 const MarketingService = require('./src/marketing/marketing.service');
+const MLForecastService = require('./src/ml-forecast/ml-forecast.service');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -2156,6 +2157,146 @@ app.get('/api/v1/marketing/analytics', async (req, res) => {
     const { companyId, period } = req.query;
     const result = await marketingService.getAnalytics(companyId, period);
     res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== ML FORECAST ENDPOINTS (AI/ML Advanced) ==========
+const mlForecastService = new MLForecastService();
+
+// Dashboard ML complet
+app.get('/api/v1/ml-forecast/dashboard', async (req, res) => {
+  try {
+    const { companyId, metric = 'revenue', horizon = 6 } = req.query;
+    
+    // Générer prévisions avec le meilleur modèle
+    const forecast = await mlForecastService.generateForecast(companyId, 'Ensemble', parseInt(horizon), metric);
+    const models = await mlForecastService.getModelsPerformance(companyId, metric);
+    const trend = await mlForecastService.analyzeTrend(companyId, metric);
+    const anomalies = await mlForecastService.detectAnomalies(companyId, metric);
+    
+    // Générer insights
+    const insights = [];
+    const recommendations = [];
+    
+    if (trend.trend === 'croissance') {
+      insights.push(`Tendance de croissance ${trend.strength} avec un taux de ${trend.growthRate.toFixed(1)}% par mois`);
+      if (trend.growthRate > 10) {
+        recommendations.push('Capitaliser sur la dynamique de croissance actuelle');
+        recommendations.push('Considérer l\'expansion des capacités de production');
+      }
+    } else {
+      insights.push(`Tendance de décroissance observée`);
+      recommendations.push('Analyser les causes et mettre en place des actions correctives');
+    }
+    
+    const avgConfidence = forecast.forecasts.reduce((sum, f) => sum + f.confidence, 0) / forecast.forecasts.length;
+    insights.push(`Fiabilité des prévisions: ${avgConfidence.toFixed(1)}%`);
+    
+    if (anomalies.length > 0) {
+      insights.push(`${anomalies.length} anomalie(s) détectée(s) dans les données historiques`);
+      recommendations.push('Vérifier les périodes avec des valeurs anormales');
+    }
+    
+    // Détection de saisonnalité
+    const monthlyVariations = forecast.forecasts.map(f => f.predicted);
+    const maxVar = Math.max(...monthlyVariations);
+    const minVar = Math.min(...monthlyVariations);
+    const variationRange = ((maxVar - minVar) / minVar) * 100;
+    
+    if (variationRange > 20) {
+      insights.push(`Saisonnalité détectée avec variation de ${variationRange.toFixed(1)}%`);
+      recommendations.push('Planifier les ressources selon les variations saisonnières');
+    }
+    
+    res.json({
+      forecasts: forecast.forecasts,
+      models: models.map(m => ({
+        name: m.model,
+        accuracy: m.accuracy,
+        mae: m.mae,
+        rmse: m.rmse,
+        mape: m.mape,
+        lastTrained: m.trained_at,
+        status: m.status
+      })),
+      insights,
+      recommendations,
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        horizon: parseInt(horizon),
+        metric: metric,
+        frequency: 'monthly'
+      }
+    });
+  } catch (error) {
+    console.error('Erreur dashboard ML:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Générer prévisions avec un modèle spécifique
+app.get('/api/v1/ml-forecast/predict', async (req, res) => {
+  try {
+    const { companyId, model = 'Ensemble', horizon = 6, metric = 'revenue' } = req.query;
+    const forecast = await mlForecastService.generateForecast(companyId, model, parseInt(horizon), metric);
+    res.json(forecast);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Entraîner tous les modèles
+app.post('/api/v1/ml-forecast/train', async (req, res) => {
+  try {
+    const { companyId, metric = 'revenue' } = req.body;
+    const results = await mlForecastService.trainAllModels(companyId, metric);
+    res.json({ success: true, models: results });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Performance des modèles
+app.get('/api/v1/ml-forecast/models/performance', async (req, res) => {
+  try {
+    const { companyId, metric = 'revenue' } = req.query;
+    const performances = await mlForecastService.getModelsPerformance(companyId, metric);
+    res.json(performances);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Auto-sélection du meilleur modèle
+app.get('/api/v1/ml-forecast/auto-select', async (req, res) => {
+  try {
+    const { companyId, metric = 'revenue' } = req.query;
+    const bestModel = await mlForecastService.autoSelectBestModel(companyId, metric);
+    res.json(bestModel);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Détection d'anomalies
+app.get('/api/v1/ml-forecast/anomalies', async (req, res) => {
+  try {
+    const { companyId, metric = 'revenue' } = req.query;
+    const anomalies = await mlForecastService.detectAnomalies(companyId, metric);
+    res.json(anomalies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Analyse de tendance
+app.get('/api/v1/ml-forecast/trend', async (req, res) => {
+  try {
+    const { companyId, metric = 'revenue' } = req.query;
+    const trend = await mlForecastService.analyzeTrend(companyId, metric);
+    res.json(trend);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

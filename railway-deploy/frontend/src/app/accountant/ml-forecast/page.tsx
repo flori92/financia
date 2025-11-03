@@ -59,37 +59,26 @@ export default function MLForecastPage() {
   const loadForecastData = async () => {
     setLoading(true);
     try {
-      // Données mock pour la démo
-      const mockData: MLForecastData = {
-        forecasts: [
-          { period: '2025-11', actual: 3200000, predicted: 3150000, confidence: 92, accuracy: 95.2, model: 'LSTM' },
-          { period: '2025-12', actual: null, predicted: 3450000, confidence: 89, accuracy: null, model: 'Ensemble' },
-          { period: '2026-01', actual: null, predicted: 3100000, confidence: 87, accuracy: null, model: 'Ensemble' },
-          { period: '2026-02', actual: null, predicted: 3300000, confidence: 85, accuracy: null, model: 'ARIMA' },
-          { period: '2026-03', actual: null, predicted: 3550000, confidence: 83, accuracy: null, model: 'Ensemble' },
-          { period: '2026-04', actual: null, predicted: 3400000, confidence: 81, accuracy: null, model: 'Prophet' }
-        ],
-        models: [
-          { name: 'LSTM', accuracy: 94.2, mae: 125000, rmse: 180000, mape: 4.2, lastTrained: '2025-10-28', status: 'active' },
-          { name: 'ARIMA', accuracy: 91.8, mae: 156000, rmse: 210000, mape: 5.1, lastTrained: '2025-10-27', status: 'active' },
-          { name: 'Prophet', accuracy: 89.5, mae: 189000, rmse: 245000, mape: 6.2, lastTrained: '2025-10-26', status: 'active' },
-          { name: 'Ensemble', accuracy: 95.8, mae: 98000, rmse: 145000, mape: 3.4, lastTrained: '2025-10-28', status: 'active' }
-        ],
-        insights: [
-          'Tendance de croissance soutenue prévue pour les 6 prochains mois',
-          'Saisonnalité détectée avec pic prévu en Q3 2026',
-          'Modèle Ensemble recommandé pour meilleure précision',
-          'Fiabilité des prévisions: 85-92% selon horizon temporel'
-        ],
-        recommendations: [
-          'Maintenir la stratégie actuelle de croissance',
-          'Surveiller les coûts opérationnels en Q3 2026',
-          'Investir dans capacité production pour Q2-Q3 2026',
-          'Optimiser les marges durant les périodes de faible activité'
-        ]
+      // Charger données réelles depuis API ML
+      const response = await apiGet('/api/v1/ml-forecast/dashboard', {
+        companyId: getCompanyId(),
+        metric: 'revenue',
+        horizon: forecastPeriod === '3months' ? 3 : forecastPeriod === '6months' ? 6 : 12
+      });
+
+      if (!response) {
+        throw new Error('Pas de données disponibles');
+      }
+
+      const mlData: MLForecastData = {
+        forecasts: response.forecasts || [],
+        models: response.models || [],
+        insights: response.insights || [],
+        recommendations: response.recommendations || [],
+        metadata: response.metadata
       };
       
-      setData(mockData);
+      setData(mlData);
     } catch (error) {
       console.error('Error loading forecast data:', error);
     } finally {
@@ -131,7 +120,17 @@ export default function MLForecastPage() {
   const handleRetrainModels = async () => {
     setIsTraining(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Appel API pour réentraîner tous les modèles
+      await fetch('/api/v1/ml-forecast/train', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          companyId: getCompanyId(),
+          metric: 'revenue' 
+        })
+      });
+
+      // Recharger les données après entraînement
       await loadForecastData();
     } catch (error) {
       console.error('Error retraining models:', error);
