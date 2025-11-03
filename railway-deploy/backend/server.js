@@ -2174,8 +2174,10 @@ app.get('/api/v1/marketing/analytics', async (req, res) => {
 // ========== ML FORECAST ENDPOINTS (AI/ML Advanced) ==========
 const mlForecastService = new MLForecastService();
 
-// Dashboard ML complet
+// Dashboard ML complet  
+console.log('🔥 REGISTERING ML FORECAST ROUTES - Version 3.0');
 app.get('/api/v1/ml-forecast/dashboard', async (req, res) => {
+  console.log('📊 ML Dashboard endpoint called');
   try {
     const { companyId, metric = 'revenue', horizon = 6 } = req.query;
     
