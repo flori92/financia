@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
-import { formatCurrency, safeToLocaleString } from "@/lib/format-utils";
+import { formatCurrency } from "@/lib/format-utils";
+import { ProfessionalExporter } from "@/lib/export-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FolderKanban, Calendar, Clock, TrendingUp, Users, DollarSign, CheckCircle, Plus } from "lucide-react";
+import { FolderKanban, Calendar, Clock, TrendingUp, Users, DollarSign, CheckCircle, Plus, Download, Eye, Edit, Trash2 } from "lucide-react";
 
 interface ProjectData {
   totalProjects: number;
@@ -16,10 +17,37 @@ interface ProjectData {
   completionRate: number;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  status: 'planning' | 'active' | 'completed' | 'on-hold';
+  progress: number;
+  budget: number;
+  spent: number;
+  startDate: string;
+  endDate: string;
+  manager: string;
+  team: string[];
+  description: string;
+}
+
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [data, setData] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    if (type === "error") {
+      alert(`❌ Erreur: ${message}`);
+    } else if (type === "success") {
+      alert(`✅ Succès: ${message}`);
+    } else {
+      alert(`ℹ️ Info: ${message}`);
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -34,18 +62,62 @@ export default function ProjectsPage() {
       } catch (error) {
         console.error("Erreur chargement données:", error);
         // Fallback vers données mock si API indisponible
-        apiGet("/api/v1/projects")
-          .then(setProjects)
-          .catch(() => setProjects([]));
+        const mockProjects: Project[] = [
+          {
+            id: '1',
+            name: 'Site E-commerce BMS',
+            status: 'active',
+            progress: 75,
+            budget: 15000000,
+            spent: 11250000,
+            startDate: '2025-01-15',
+            endDate: '2025-06-30',
+            manager: 'Jean Dupont',
+            team: ['Alice', 'Bob', 'Charlie'],
+            description: 'Développement plateforme e-commerce complète'
+          },
+          {
+            id: '2',
+            name: 'Application Mobile CRM',
+            status: 'planning',
+            progress: 25,
+            budget: 8000000,
+            spent: 2000000,
+            startDate: '2025-02-01',
+            endDate: '2025-08-15',
+            manager: 'Marie Martin',
+            team: ['David', 'Emma'],
+            description: 'Application mobile pour gestion CRM'
+          },
+          {
+            id: '3',
+            name: 'Migration Cloud Infrastructure',
+            status: 'completed',
+            progress: 100,
+            budget: 5000000,
+            spent: 4800000,
+            startDate: '2024-11-01',
+            endDate: '2025-01-31',
+            manager: 'Pierre Durand',
+            team: ['Frank', 'Grace'],
+            description: 'Migration complète vers AWS'
+          }
+        ];
+        setProjects(mockProjects);
         
         const mockData: ProjectData = {
-          totalProjects: 12,
-          activeProjects: 8,
-          completedProjects: 4,
-          totalBudget: 45000000,
-          upcomingDeadlines: 3,
+          totalProjects: mockProjects.length,
+          activeProjects: mockProjects.filter(p => p.status === 'active').length,
+          completedProjects: mockProjects.filter(p => p.status === 'completed').length,
+          totalBudget: mockProjects.reduce((sum, p) => sum + p.budget, 0),
+          upcomingDeadlines: mockProjects.filter(p => {
+            const deadline = new Date(p.endDate);
+            const weekFromNow = new Date();
+            weekFromNow.setDate(weekFromNow.getDate() + 7);
+            return deadline <= weekFromNow && p.status !== 'completed';
+          }).length,
           teamMembers: 25,
-          completionRate: 75.5
+          completionRate: Math.round(mockProjects.reduce((sum, p) => sum + p.progress, 0) / mockProjects.length)
         };
         setData(mockData);
       } finally {
@@ -56,6 +128,90 @@ export default function ProjectsPage() {
     loadData();
   }, []);
 
+  const handleCreateProject = () => {
+    const newProject: Project = {
+      id: Date.now().toString(),
+      name: `Nouveau Projet ${projects.length + 1}`,
+      status: 'planning',
+      progress: 0,
+      budget: 5000000,
+      spent: 0,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      manager: 'À assigner',
+      team: [],
+      description: 'Description du nouveau projet'
+    };
+
+    setProjects([...projects, newProject]);
+    setShowCreateModal(false);
+    triggerToast("success", `Projet "${newProject.name}" créé avec succès !`);
+  };
+
+  const handleViewProject = (project: Project) => {
+    setSelectedProject(project);
+    setShowDetailsModal(true);
+  };
+
+  const handleExportProjects = () => {
+    if (!projects || projects.length === 0) {
+      triggerToast("error", "Aucun projet à exporter");
+      return;
+    }
+
+    const exportData = {
+      title: 'Rapport des Projets',
+      headers: ['Nom', 'Statut', 'Progression', 'Budget', 'Dépensé', 'Responsable', 'Date Fin'],
+      rows: projects.map(project => [
+        project.name,
+        project.status === 'completed' ? 'Terminé' : 
+        project.status === 'active' ? 'Actif' : 
+        project.status === 'planning' ? 'Planification' : 'En pause',
+        `${project.progress}%`,
+        project.budget.toLocaleString('fr-FR') + ' FCFA',
+        project.spent.toLocaleString('fr-FR') + ' FCFA',
+        project.manager,
+        project.endDate
+      ]),
+      metadata: {
+        date: new Date().toLocaleDateString('fr-FR'),
+        company: 'BMS Business Management System',
+        period: 'Tous les projets',
+        author: 'Service Projets'
+      }
+    };
+
+    const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
+    
+    if (formatChoice) {
+      ProfessionalExporter.exportExcel(exportData, 'projets');
+      triggerToast("success", "Projets exportés en Excel avec styles professionnels !");
+    } else {
+      ProfessionalExporter.exportPDF(exportData, 'projets');
+      triggerToast("success", "Projets exportés en PDF pour impression !");
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-emerald-100 text-emerald-700';
+      case 'active': return 'bg-blue-100 text-blue-700';
+      case 'planning': return 'bg-amber-100 text-amber-700';
+      case 'on-hold': return 'bg-slate-100 text-slate-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'completed': return 'Terminé';
+      case 'active': return 'Actif';
+      case 'planning': return 'Planification';
+      case 'on-hold': return 'En pause';
+      default: return status;
+    }
+  };
+
   if (loading) return <div className="p-8">Chargement...</div>;
 
   return (
@@ -65,10 +221,23 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold">Projets</h1>
           <p className="text-gray-600">Gestion de projets et suivi des tâches</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nouveau Projet
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleExportProjects}
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Exporter
+          </Button>
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => setShowCreateModal(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau Projet
+          </Button>
+        </div>
       </div>
 
       {/* KPIs */}
@@ -118,35 +287,158 @@ export default function ProjectsPage() {
         </Card>
       </div>
 
+      {/* Liste des projets */}
       <div className="grid grid-cols-1 gap-4">
-        {projects.map((project: any) => (
-          <div key={project.id} className="card p-4">
+        {projects.map((project) => (
+          <Card key={project.id} className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <FolderKanban className="w-5 h-5 text-blue-600" />
-                <h3 className="font-semibold">{project.name}</h3>
+                <div>
+                  <h3 className="font-semibold">{project.name}</h3>
+                  <p className="text-sm text-gray-600">{project.description}</p>
+                </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-sm ${project.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
-                {project.status}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(project.status)}`}>
+                  {getStatusText(project.status)}
+                </span>
+                <div className="flex gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleViewProject(project)}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-4 gap-4 text-sm">
               <div>
                 <div className="text-slate-600">Progression</div>
                 <div className="font-semibold">{project.progress}%</div>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full" 
+                    style={{ width: `${project.progress}%` }}
+                  ></div>
+                </div>
               </div>
               <div>
                 <div className="text-slate-600">Budget</div>
-                <div className="font-semibold">{safeToLocaleString(project.budget)} FCFA</div>
+                <div className="font-semibold">{project.budget.toLocaleString('fr-FR')} FCFA</div>
               </div>
               <div>
                 <div className="text-slate-600">Dépensé</div>
-                <div className="font-semibold">{safeToLocaleString(project.spent)} FCFA</div>
+                <div className="font-semibold">{project.spent.toLocaleString('fr-FR')} FCFA</div>
+              </div>
+              <div>
+                <div className="text-slate-600">Responsable</div>
+                <div className="font-semibold">{project.manager}</div>
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
+
+      {/* Modal création projet */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Nouveau Projet</h2>
+            <p className="text-gray-600 mb-4">
+              Créer un nouveau projet avec les paramètres par défaut. Vous pourrez le modifier ultérieurement.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCreateModal(false)}
+              >
+                Annuler
+              </Button>
+              <Button onClick={handleCreateProject}>
+                Créer le projet
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal détails projet */}
+      {showDetailsModal && selectedProject && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h2 className="text-xl font-semibold">{selectedProject.name}</h2>
+                <p className="text-gray-600">{selectedProject.description}</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowDetailsModal(false)}
+              >
+                ×
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-sm text-gray-600">Statut</label>
+                <div className={`px-3 py-1 rounded-full text-sm inline-block ${getStatusColor(selectedProject.status)}`}>
+                  {getStatusText(selectedProject.status)}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Progression</label>
+                <div className="font-semibold">{selectedProject.progress}%</div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Date de début</label>
+                <div className="font-semibold">{selectedProject.startDate}</div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Date de fin</label>
+                <div className="font-semibold">{selectedProject.endDate}</div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Budget</label>
+                <div className="font-semibold">{selectedProject.budget.toLocaleString('fr-FR')} FCFA</div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Dépensé</label>
+                <div className="font-semibold">{selectedProject.spent.toLocaleString('fr-FR')} FCFA</div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Responsable</label>
+                <div className="font-semibold">{selectedProject.manager}</div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Équipe</label>
+                <div className="font-semibold">{selectedProject.team.join(', ') || 'À définir'}</div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline">
+                <Edit className="w-4 h-4 mr-2" />
+                Modifier
+              </Button>
+              <Button className="bg-red-600 hover:bg-red-700">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Supprimer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
