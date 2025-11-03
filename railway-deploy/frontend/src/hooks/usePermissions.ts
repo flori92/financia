@@ -1,4 +1,5 @@
 // Hook de gestion des permissions par profil BMS
+import React from 'react';
 import { useAuth } from './useAuth';
 
 type UserRole = 'expert-comptable' | 'entrepreneur' | 'bank' | 'fiscal';
@@ -168,10 +169,9 @@ export const ProtectedComponent: React.FC<ProtectedComponentProps> = ({
   fallback
 }) => {
   const { canAccess } = usePermissions();
-  const defaultFallback = <div className="text-gray-500 text-sm">Accès limité</div>;
   
   if (!canAccess(module, action)) {
-    return <>{fallback || defaultFallback}</>;
+    return <>{fallback || React.createElement('div', { className: 'text-gray-500 text-sm' }, 'Accès limité')}</>;
   }
   
   return <>{children}</>;
