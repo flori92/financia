@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
 import { api } from "@/lib/api-service";
-import { BackendStatusAlert } from "@/components/backend-status-alert";
 import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 
 type AgedBalanceType = 'receivables' | 'payables';
@@ -76,9 +75,6 @@ export default function AgedBalancePage() {
           {toast.text}
         </div>
       )}
-
-      {/* Alerte de statut backend */}
-      <BackendStatusAlert />
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Balance Âgée</h1>

@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
 import { api } from "@/lib/api-service";
-import { BackendStatusAlert } from "@/components/backend-status-alert";
 import { formatCurrency } from "@/lib/format-utils";
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock, FileText } from "lucide-react";
 
@@ -92,9 +91,6 @@ export default function AccountantDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Alerte de statut backend */}
-      <BackendStatusAlert />
-      
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Dashboard Comptable</h1>
         <button 
