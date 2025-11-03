@@ -39,32 +39,6 @@ interface BudgetItem {
   lastUpdated: string;
 }
 
-interface BudgetMetrics {
-  totalBudgeted: number;
-  totalActual: number;
-  overallVariance: number;
-  overallVariancePercent: number;
-  period: string;
-  budgetItems: BudgetItem[];
-  departmentBreakdown: Array<{
-    name: string;
-    budgeted: number;
-    actual: number;
-    variance: number;
-  }>;
-  monthlyTrend: Array<{
-    month: string;
-    budgeted: number;
-    actual: number;
-    variance: number;
-  }>;
-  alerts: Array<{
-    type: "critical" | "warning" | "info";
-    title: string;
-    message: string;
-    itemId?: string;
-  }>;
-}
 
 export default function ModernBudgetPage() {
   const [data, setData] = useState<BudgetMetrics | null>(null);

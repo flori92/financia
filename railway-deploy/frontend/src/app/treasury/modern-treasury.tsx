@@ -43,26 +43,6 @@ interface TreasuryForecast {
   confidence?: number;
 }
 
-interface TreasuryMetrics {
-  totalBalance: number;
-  totalInflow: number;
-  totalOutflow: number;
-  netCashFlow: number;
-  runway: number;
-  criticalThreshold: number;
-  warningThreshold: number;
-  accounts: BankAccount[];
-  forecast: TreasuryForecast[];
-  alerts: Array<{
-    type: "critical" | "warning" | "info";
-    title: string;
-    message: string;
-    action?: {
-      label: string;
-      onClick: () => void;
-    };
-  }>;
-}
 
 export default function ModernTreasuryPage() {
   const [data, setData] = useState<TreasuryMetrics | null>(null);

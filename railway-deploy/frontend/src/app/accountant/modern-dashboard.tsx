@@ -186,8 +186,8 @@ export default function ModernAccountantDashboard() {
             value={formatCurrency(data?.kpiMonth.netIncome || 0)}
             icon={DollarSign}
             trend={{ value: 15, isPositive: true }}
-            description={data?.kpiMonth.netIncome >= 0 ? "Bénéfice" : "Perte"}
-            color={data?.kpiMonth.netIncome >= 0 ? "green" : "red"}
+            description={(data?.kpiMonth?.netIncome ?? 0) >= 0 ? "Bénéfice" : "Perte"}
+            color={(data?.kpiMonth?.netIncome ?? 0) >= 0 ? "green" : "red"}
             loading={loading}
           />
           
