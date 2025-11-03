@@ -4,7 +4,8 @@ import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react";
-import { EmailDialog } from "@/components/shared/EmailDialog";
+import { ProfessionalEmailDialog } from "@/components/shared/ProfessionalEmailDialog";
+import { ExportPreviewDialog } from "@/components/shared/ExportPreviewDialog";
 
 export default function InvoicesPage() {
   const triggerToast = (type: "success" | "info" | "error", message: string) => {
@@ -23,6 +24,8 @@ export default function InvoicesPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [showExportPreview, setShowExportPreview] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'excel'>('pdf');
   const [loading, setLoading] = useState(true);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -145,9 +148,18 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleEmailDialogSend = async (data: { to: string; subject: string; message: string }) => {
+  const handleEmailDialogSend = async (data: { 
+    to: string; 
+    cc?: string;
+    subject: string; 
+    message: string;
+    attachments?: File[];
+  }) => {
     if (selectedInvoice) {
+      console.log('📧 Envoi email avec:', data);
+      console.log('📎 Pièces jointes:', data.attachments?.length || 0);
       await handleSendInvoice(selectedInvoice.id, 'email');
+      triggerToast('success', `Email envoyé à ${data.to} avec ${data.attachments?.length || 0} pièce(s) jointe(s)`);
     }
   };
 
@@ -283,6 +295,47 @@ export default function InvoicesPage() {
     }
   };
 
+  const handleExportWithFormat = (format: 'pdf' | 'excel' | 'csv') => {
+    const exportData = {
+      title: 'Liste des Factures',
+      headers: ['N° Facture', 'Client', 'Date', 'Échéance', 'Montant', 'Statut'],
+      rows: invoices.map(inv => [
+        inv.number,
+        getClientName(inv.clientId),
+        new Date(inv.date).toLocaleDateString('fr-FR'),
+        new Date(inv.dueDate).toLocaleDateString('fr-FR'),
+        inv.amount.toLocaleString('fr-FR') + ' FCFA',
+        getStatusLabel(inv.status)
+      ]),
+      metadata: {
+        date: new Date().toLocaleDateString('fr-FR'),
+        company: 'BMS Business Management System',
+        period: 'Toutes les factures',
+        author: 'Service Facturation'
+      }
+    };
+
+    if (format === 'excel') {
+      ProfessionalExporter.exportExcel(exportData, 'factures');
+      triggerToast("success", "✅ Factures exportées en Excel !");
+    } else if (format === 'pdf') {
+      ProfessionalExporter.exportPDF(exportData, 'factures');
+      triggerToast("success", "✅ Factures exportées en PDF !");
+    } else if (format === 'csv') {
+      // Export CSV basique
+      const csvContent = [
+        exportData.headers.join(','),
+        ...exportData.rows.map((row: any[]) => row.join(','))
+      ].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'factures.csv';
+      link.click();
+      triggerToast("success", "✅ Factures exportées en CSV !");
+    }
+  };
+
   const totalRevenue = invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
   const unpaidAmount = invoices.filter(inv => inv.status === 'pending').reduce((sum, inv) => sum + inv.amount, 0);
 
@@ -295,11 +348,11 @@ export default function InvoicesPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={handleExport}
+            onClick={() => setShowExportPreview(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
           >
             <Download className="w-4 h-4" />
-            Export Factur-X
+            Prévisualiser & Exporter
           </button>
           <button
             onClick={() => setShowAddForm(true)}
@@ -480,12 +533,19 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      <EmailDialog
+      <ProfessionalEmailDialog
         isOpen={showEmailDialog}
         onClose={() => setShowEmailDialog(false)}
         onSend={handleEmailDialogSend}
         defaultTo={selectedInvoice ? getClientEmail(selectedInvoice.clientId) : ""}
         defaultSubject={selectedInvoice ? `Facture ${selectedInvoice.number}` : ""}
+        context={selectedInvoice ? {
+          clientName: getClientName(selectedInvoice.clientId),
+          invoiceNumber: selectedInvoice.number,
+          amount: selectedInvoice.amount,
+          dueDate: selectedInvoice.dueDate,
+          companyName: 'BMS'
+        } : undefined}
       />
 
       {/* Modal Visualisation */}
@@ -655,6 +715,36 @@ export default function InvoicesPage() {
           </div>
         </div>
       )}
+
+      {/* Export Preview Dialog */}
+      <ExportPreviewDialog
+        isOpen={showExportPreview}
+        onClose={() => setShowExportPreview(false)}
+        onExport={handleExportWithFormat}
+        title="Factures"
+        data={invoices.map(inv => ({
+          number: inv.number,
+          client: getClientName(inv.clientId),
+          date: new Date(inv.date).toLocaleDateString('fr-FR'),
+          dueDate: new Date(inv.dueDate).toLocaleDateString('fr-FR'),
+          amount: inv.amount,
+          status: getStatusLabel(inv.status)
+        }))}
+        columns={[
+          { key: 'number', label: 'N° Facture' },
+          { key: 'client', label: 'Client' },
+          { key: 'date', label: 'Date' },
+          { key: 'dueDate', label: 'Échéance' },
+          { key: 'amount', label: 'Montant', format: (val) => `${val.toLocaleString('fr-FR')} FCFA` },
+          { key: 'status', label: 'Statut' }
+        ]}
+        summary={[
+          { label: 'Total Factures', value: invoices.length },
+          { label: 'CA Réalisé', value: `${totalRevenue.toLocaleString('fr-FR')} FCFA` },
+          { label: 'Impayés', value: `${unpaidAmount.toLocaleString('fr-FR')} FCFA` },
+          { label: 'Taux Paiement', value: `${Math.round((totalRevenue / (totalRevenue + unpaidAmount)) * 100)}%` }
+        ]}
+      />
     </div>
   );
 }
