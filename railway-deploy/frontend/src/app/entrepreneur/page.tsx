@@ -174,7 +174,7 @@ export default function EntrepreneurDashboard() {
             <TrendingUp className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.kpiMonth?.revenue?.toLocaleString() || 0} FCFA</div>
+            <div className="text-2xl font-bold">{(data.kpiMonth?.revenue || 0).toLocaleString()} FCFA</div>
             <p className="text-xs text-green-600">Ce mois</p>
           </CardContent>
         </Card>
@@ -185,7 +185,7 @@ export default function EntrepreneurDashboard() {
             <TrendingDown className="w-4 h-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.kpiMonth?.expenses?.toLocaleString() || 0} FCFA</div>
+            <div className="text-2xl font-bold">{(data.kpiMonth?.expenses || 0).toLocaleString()} FCFA</div>
             <p className="text-xs text-red-600">Ce mois</p>
           </CardContent>
         </Card>
@@ -312,11 +312,11 @@ export default function EntrepreneurDashboard() {
                   </div>
                   <div>
                     <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-gray-600">{new Date(transaction.date).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-sm text-gray-600">{transaction.date ? new Date(transaction.date).toLocaleDateString('fr-FR') : '—'}</p>
                   </div>
                 </div>
                 <div className={`font-bold ${transaction.type === 'sale' ? 'text-green-600' : 'text-red-600'}`}>
-                  {transaction.type === 'sale' ? '+' : '-'}{transaction.amount.toLocaleString('fr-FR')} FCFA
+                  {transaction.type === 'sale' ? '+' : '-'}{(transaction.amount || 0).toLocaleString('fr-FR')} FCFA
                 </div>
               </div>
             ))}

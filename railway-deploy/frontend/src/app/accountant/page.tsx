@@ -301,7 +301,7 @@ export default function AccountantDashboardPage() {
               <tbody>
                 {safeData.recentActivity.entries.map((entry: any, idx: number) => (
                   <tr key={idx} className="border-b border-app-border">
-                    <td className="py-2">{entry.date ? entry.date.toLocaleDateString('fr-FR') : '—'}</td>
+                    <td className="py-2">{entry.date?.toLocaleDateString('fr-FR') || '—'}</td>
                     <td className="py-2">{entry.description}</td>
                     <td className="py-2">
                       <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">
