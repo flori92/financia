@@ -289,6 +289,27 @@ app.get('/api/v1/accounting/close/last', (req, res) => {
   });
 });
 
+app.post('/api/v1/accounting/closure/close', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Clôture effectuée avec succès',
+    closureId: 'closure_' + Date.now()
+  });
+});
+
+app.get('/api/v1/accounting/close', (req, res) => {
+  res.json([
+    {
+      id: 'closure_1',
+      startDate: '2025-10-01',
+      endDate: '2025-10-31',
+      status: 'completed',
+      closedAt: '2025-11-01T10:00:00Z',
+      resultAmount: 2500000
+    }
+  ]);
+});
+
 // Banking endpoints
 app.get('/api/v1/banking/transactions', (req, res) => {
   const { companyId } = req.query;
