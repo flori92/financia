@@ -27,9 +27,7 @@ export function middleware(request: NextRequest) {
     
     // Utiliser NextResponse.rewrite pour garder le domaine frontend
     return NextResponse.rewrite(url, {
-      headers,
-      // Important: ne pas suivre les redirections automatiquement
-      redirect: 'manual'
+      headers
     });
   }
   
