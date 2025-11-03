@@ -129,7 +129,7 @@ export const usePermissions = () => {
   };
   
   // Messages d'accès limité
-  const getAccessMessage = (module: string): string => {
+  const getAccessMessage = (module: string, action: Permission['action'] = 'read'): string => {
     if (canAccess(module)) return '';
     
     const messages: Record<UserRole, string> = {
@@ -168,9 +168,22 @@ export const ProtectedComponent: React.FC<ProtectedComponentProps> = ({
   children,
   fallback
 }) => {
-  const { canAccess } = usePermissions();
+  const { user } = useAuth();
   
-  if (!canAccess(module, action)) {
+  // Logique de permission inline pour éviter la référence circulaire
+  const canUserAccess = (): boolean => {
+    if (!user) return false;
+    
+    const userPermissions = PERMISSION_MATRIX[user.role];
+    if (!userPermissions) return false;
+    
+    const modulePermissions = userPermissions[module];
+    if (!modulePermissions) return false;
+    
+    return modulePermissions.includes(action as Permission['action']);
+  };
+  
+  if (!canUserAccess()) {
     return fallback || React.createElement('div', { className: 'text-gray-500 text-sm' }, 'Accès limité');
   }
   
@@ -179,9 +192,38 @@ export const ProtectedComponent: React.FC<ProtectedComponentProps> = ({
 
 // Hook pour vérifier et rediriger
 export const useRequireAuth = (module: string, action: string = 'read') => {
-  const { canAccess, getAccessMessage } = usePermissions();
+  const { user } = useAuth();
   
-  if (!canAccess(module, action)) {
-    throw new Error(getAccessMessage(module, action));
+  // Logique inline pour éviter la référence circulaire
+  const canUserAccess = (): boolean => {
+    if (!user) return false;
+    
+    const userPermissions = PERMISSION_MATRIX[user.role];
+    if (!userPermissions) return false;
+    
+    const modulePermissions = userPermissions[module];
+    if (!modulePermissions) return false;
+    
+    return modulePermissions.includes(action as Permission['action']);
+  };
+  
+  const getAccessMessage = (): string => {
+    if (!user) return 'Vous devez être connecté pour accéder à cette ressource';
+    
+    const userPermissions = PERMISSION_MATRIX[user.role];
+    if (!userPermissions) return `Rôle ${user.role} non reconnu`;
+    
+    const modulePermissions = userPermissions[module];
+    if (!modulePermissions) return `Module ${module} non accessible pour votre rôle`;
+    
+    if (!modulePermissions.includes(action as Permission['action'])) {
+      return `Vous n'avez pas la permission '${action}' sur le module ${module}`;
+    }
+    
+    return 'Accès autorisé';
+  };
+  
+  if (!canUserAccess()) {
+    throw new Error(getAccessMessage());
   }
 };
