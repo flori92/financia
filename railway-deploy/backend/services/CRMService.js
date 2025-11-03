@@ -107,6 +107,91 @@ class CRMService {
     return Math.round(ratio * 100);
   }
 
+  // Pipeline Opportunities - MODE 100% DYNAMIQUE SQLITE
+  async getPipelineOverview(companyId) {
+    const db = database;
+    
+    // Récupérer tous les stages du pipeline
+    const stages = await db.all(`
+      SELECT * FROM pipeline_stages 
+      WHERE company_id = ? 
+      ORDER BY order_number ASC
+    `, [companyId]);
+    
+    // Récupérer toutes les opportunités avec leurs contacts
+    const opportunities = await db.all(`
+      SELECT 
+        o.*,
+        c.first_name,
+        c.last_name,
+        c.company_name,
+        c.email,
+        c.phone
+      FROM opportunities o
+      LEFT JOIN contacts c ON o.contact_id = c.id
+      WHERE o.company_id = ?
+      ORDER BY o.created_at DESC
+    `, [companyId]);
+    
+    // Grouper les opportunités par stage
+    const opportunitiesByStage = {};
+    stages.forEach(stage => {
+      opportunitiesByStage[stage.id] = [];
+    });
+    
+    opportunities.forEach(opp => {
+      if (opportunitiesByStage[opp.stage_id]) {
+        opportunitiesByStage[opp.stage_id].push({
+          id: opp.id,
+          title: opp.title,
+          amount: opp.amount,
+          probability: opp.probability,
+          status: opp.status,
+          contact: opp.contact_id ? {
+            firstName: opp.first_name,
+            lastName: opp.last_name,
+            companyName: opp.company_name,
+            email: opp.email,
+            phone: opp.phone
+          } : undefined,
+          closeDate: opp.close_date,
+          description: opp.description,
+          assignedTo: opp.assigned_to,
+          createdAt: opp.created_at,
+          updatedAt: opp.updated_at
+        });
+      }
+    });
+    
+    // Ajouter les opportunités aux stages
+    const stagesWithOpportunities = stages.map(stage => ({
+      id: stage.id,
+      name: stage.name,
+      type: stage.type,
+      order: stage.order_number,
+      probability: stage.probability,
+      color: stage.color,
+      opportunities: opportunitiesByStage[stage.id] || []
+    }));
+    
+    // Calculer les statistiques
+    const allOpportunities = opportunities.filter(opp => opp.status === 'open');
+    const totalValue = allOpportunities.reduce((sum, opp) => sum + (opp.amount || 0), 0);
+    const averageDealSize = allOpportunities.length > 0 ? totalValue / allOpportunities.length : 0;
+    
+    // Taux de conversion (opportunités gagnées / total)
+    const wonOpportunities = opportunities.filter(opp => opp.status === 'won');
+    const conversionRate = opportunities.length > 0 ? (wonOpportunities.length / opportunities.length) * 100 : 0;
+    
+    return {
+      stages: stagesWithOpportunities,
+      opportunitiesByStage,
+      totalValue,
+      averageDealSize,
+      conversionRate
+    };
+  }
+
   // Déplacer une opportunité vers un autre stage
   async moveOpportunity(opportunityId, newStageId, companyId) {
     const db = database;
