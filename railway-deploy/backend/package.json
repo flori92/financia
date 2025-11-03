@@ -9,7 +9,8 @@
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
     "test:ai": "node src/ai/test-all-ai-ml.js",
-    "test:ocr": "node src/ai/test-ocr.js"
+    "test:ocr": "node src/ai/test-ocr.js",
+    "test:working": "node src/ai/test-working-features.js"
   },
   "dependencies": {
     "africastalking": "^0.7.7",
