@@ -3,6 +3,7 @@ const nextConfig = {
   output: 'standalone',
   experimental: {
     serverComponentsExternalPackages: ['@tensorflow/tfjs-node'],
+    externalDir: true, // allow importing tokens from ../bms
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app',
