@@ -1,5 +1,6 @@
 'use client';
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -309,7 +310,7 @@ export default function DirectDebitsPage() {
               <div>
                 <p className="text-sm text-gray-600">Mensuel</p>
                 <p className="text-xl font-bold text-rose-600">
-                  {statistics.monthlyAmount.toLocaleString()} FCFA
+                  {safeToLocaleString(statistics.monthlyAmount)} FCFA
                 </p>
               </div>
             </div>
@@ -347,7 +348,7 @@ export default function DirectDebitsPage() {
                   </div>
                 </td>
                 <td className="p-4 text-right font-mono font-semibold">
-                  {debit.amount.toLocaleString()} {debit.currency}
+                  {safeToLocaleString(debit.amount)} {debit.currency}
                 </td>
                 <td className="p-4">{getFrequencyLabel(debit.frequency)}</td>
                 <td className="p-4">

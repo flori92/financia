@@ -188,7 +188,7 @@ export default function SalesOrdersPage() {
                   <tr key={order.id} className="border-b hover:bg-gray-50">
                     <td className="p-3 font-medium">{order.orderNumber}</td>
                     <td className="p-3">{order.clientName}</td>
-                    <td className="p-3 font-bold">{order.totalAmount.toLocaleString()} FCFA</td>
+                    <td className="p-3 font-bold">{safeToLocaleString(order.totalAmount)} FCFA</td>
                     <td className="p-3">{getStatusBadge(order.status)}</td>
                     <td className="p-3 text-sm">{new Date(order.orderDate).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3 text-sm">

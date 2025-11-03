@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Bell, HelpCircle, Plus, Loader2 } from "lucide-react";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { CompanySelector } from "../shared/CompanySelector";
 
 type AlertItem = {

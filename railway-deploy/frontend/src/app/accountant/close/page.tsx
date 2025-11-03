@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { Lock, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function ClosePeriodPage() {

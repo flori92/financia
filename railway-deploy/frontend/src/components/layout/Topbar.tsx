@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Search, LogOut, User, Bell } from "lucide-react";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { useRouter } from "next/navigation";
 
 export function Topbar() {

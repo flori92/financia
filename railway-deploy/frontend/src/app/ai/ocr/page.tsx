@@ -1,10 +1,9 @@
 "use client";
 
 import { getBaseUrl } from "@/lib/api";
-
+import { formatCurrency, detectCurrency, type CurrencyCode } from "@/lib/currency";
 import { useState } from "react";
 import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info, PenTool } from "lucide-react";
-import { formatCurrency, detectCurrency, type CurrencyCode } from "@/lib/currency";
 import { CurrencyBadge } from "@/components/ui/currency-badge";
 
 type DocumentType = "invoice" | "receipt" | "bank_statement";

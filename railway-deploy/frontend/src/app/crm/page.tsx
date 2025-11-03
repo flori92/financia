@@ -60,7 +60,7 @@ export default function CRMDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Valeur pipeline</p>
-              <p className="text-2xl font-bold">{stats.totalValue.toLocaleString()} FCFA</p>
+              <p className="text-2xl font-bold">{safeToLocaleString(stats.totalValue)} FCFA</p>
             </div>
             <DollarSign className="h-8 w-8 text-yellow-500" />
           </div>

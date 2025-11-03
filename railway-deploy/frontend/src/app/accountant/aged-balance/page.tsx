@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { api } from "@/lib/api-service";
 import { BackendStatusAlert } from "@/components/backend-status-alert";
 import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";

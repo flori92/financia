@@ -156,7 +156,7 @@ export default function BIPage() {
               <div key={idx} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{geo.region}</span>
-                  <span className="text-gray-600">{geo.ca.toLocaleString()} FCFA ({geo.part}%)</span>
+                  <span className="text-gray-600">{safeToLocaleString(geo.ca)} FCFA ({geo.part}%)</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -185,7 +185,7 @@ export default function BIPage() {
                 {PRODUCT_ANALYSIS.map((prod, idx) => (
                   <tr key={idx} className="hover:bg-gray-50">
                     <td className="px-3 py-2 font-medium">{prod.produit}</td>
-                    <td className="px-3 py-2 text-right">{prod.ca.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right">{safeToLocaleString(prod.ca)}</td>
                     <td className="px-3 py-2 text-right text-green-600 font-medium">{prod.marge}%</td>
                     <td className="px-3 py-2 text-right">{prod.rotation}</td>
                   </tr>

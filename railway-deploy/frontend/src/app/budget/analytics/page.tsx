@@ -104,10 +104,10 @@ export default function BudgetAnalyticsPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-gray-600">
-                    {centre.charges.toLocaleString()} FCFA
+                    {safeToLocaleString(centre.charges)} FCFA
                   </span>
                   <span className={`font-semibold ${centre.resultat > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {centre.resultat > 0 ? '+' : ''}{centre.resultat.toLocaleString()} FCFA
+                    {centre.resultat > 0 ? '+' : ''}{safeToLocaleString(centre.resultat)} FCFA
                   </span>
                 </div>
               </div>
@@ -134,9 +134,9 @@ export default function BudgetAnalyticsPage() {
               {PROJET_DATA.map((projet, idx) => (
                 <tr key={idx} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">{projet.projet}</td>
-                  <td className="px-4 py-3 text-right">{projet.budget.toLocaleString()} FCFA</td>
-                  <td className="px-4 py-3 text-right font-medium">{projet.realise.toLocaleString()} FCFA</td>
-                  <td className="px-4 py-3 text-right text-green-600 font-medium">{projet.marge.toLocaleString()} FCFA</td>
+                  <td className="px-4 py-3 text-right">{safeToLocaleString(projet.budget)} FCFA</td>
+                  <td className="px-4 py-3 text-right font-medium">{safeToLocaleString(projet.realise)} FCFA</td>
+                  <td className="px-4 py-3 text-right text-green-600 font-medium">{safeToLocaleString(projet.marge)} FCFA</td>
                   <td className="px-4 py-3 text-right">{projet.taux.toFixed(1)}%</td>
                   <td className="px-4 py-3 text-center">
                     {projet.taux > 100 ? (

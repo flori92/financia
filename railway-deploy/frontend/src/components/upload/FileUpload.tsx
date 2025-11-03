@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Upload, X, FileText, Image as ImageIcon, CheckCircle } from "lucide-react";
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 interface FileUploadProps {
   label?: string;

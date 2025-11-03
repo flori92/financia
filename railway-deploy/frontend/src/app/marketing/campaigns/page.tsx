@@ -1,5 +1,6 @@
 'use client';
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

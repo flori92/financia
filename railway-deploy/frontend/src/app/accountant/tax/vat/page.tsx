@@ -1,5 +1,6 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { useState } from "react";
 import { Download, Upload, Send, Calculator, FileText, X, Info } from "lucide-react";
 

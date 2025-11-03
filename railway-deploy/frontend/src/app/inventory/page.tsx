@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { Package, AlertTriangle, Plus } from "lucide-react";
 
 export default function InventoryPage() {
@@ -76,7 +77,7 @@ export default function InventoryPage() {
                 <td className="py-3 font-medium">{product.name}</td>
                 <td className="py-3 text-sm text-slate-600">{product.warehouse}</td>
                 <td className="py-3 text-right font-semibold">{product.quantity}</td>
-                <td className="py-3 text-right">{product.unitPrice.toLocaleString()} FCFA</td>
+                <td className="py-3 text-right">{safeToLocaleString(product.unitPrice)} FCFA</td>
                 <td className="py-3">
                   {product.quantity < 50 ? (
                     <span className="px-2 py-1 text-xs rounded-full bg-rose-100 text-rose-700">

@@ -1,6 +1,7 @@
 "use client";
 
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 

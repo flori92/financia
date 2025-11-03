@@ -287,7 +287,7 @@ export default function SalesClientsPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">CA Total</span>
-                    <span className="font-bold">{client.totalRevenue.toLocaleString()} FCFA</span>
+                    <span className="font-bold">{safeToLocaleString(client.totalRevenue)} FCFA</span>
                   </div>
                 </div>
 

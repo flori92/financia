@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { CreditCard, Loader2, Plus, Download, AlertTriangle } from "lucide-react";
 
 type PaymentStatus = "submitted" | "validated" | "pending" | "failed";
@@ -46,9 +47,7 @@ const fallbackPayments: CustomerPayment[] = [
   },
 ];
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value) + " FCFA";
-}
+
 
 function statusBadge(status: PaymentStatus) {
   switch (status) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, Loader2, MessageCircle, FileText, TrendingUp, HelpCircle } from 'lucide-react';

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -37,8 +38,8 @@ export default function PayrollPage() {
                   <div className="text-sm text-slate-600">{p.month}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium">{p.netSalary.toLocaleString()} FCFA</div>
-                  <div className="text-sm text-slate-600">Brut: {p.grossSalary.toLocaleString()}</div>
+                  <div className="font-medium">{safeToLocaleString(p.netSalary)} FCFA</div>
+                  <div className="text-sm text-slate-600">Brut: {safeToLocaleString(p.grossSalary)}</div>
                 </div>
               </div>
             ))}

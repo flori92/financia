@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FolderKanban, Calendar, Clock, TrendingUp, Users, DollarSign, CheckCircle, Plus } from "lucide-react";
@@ -136,11 +137,11 @@ export default function ProjectsPage() {
               </div>
               <div>
                 <div className="text-slate-600">Budget</div>
-                <div className="font-semibold">{project.budget.toLocaleString()} FCFA</div>
+                <div className="font-semibold">{safeToLocaleString(project.budget)} FCFA</div>
               </div>
               <div>
                 <div className="text-slate-600">Dépensé</div>
-                <div className="font-semibold">{project.spent.toLocaleString()} FCFA</div>
+                <div className="font-semibold">{safeToLocaleString(project.spent)} FCFA</div>
               </div>
             </div>
           </div>

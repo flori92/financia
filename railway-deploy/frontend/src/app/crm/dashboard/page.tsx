@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { TrendingUp, Users, DollarSign, Target } from "lucide-react";
 import Link from "next/link";
 

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { ModernSidebar } from "@/components/layout/ModernSidebar";
 import { ModernTopbar } from "@/components/layout/ModernTopbar";
 import {

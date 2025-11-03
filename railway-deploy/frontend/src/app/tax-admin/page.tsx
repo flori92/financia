@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Users, TrendingUp, AlertCircle, CheckCircle, Clock, DollarSign, Target, Shield } from 'lucide-react';
 import { apiGet, getCompanyId } from '@/lib/api';
+import { formatCurrency } from "@/lib/format-utils";
 
 interface TaxAdminData {
   overview: {
@@ -193,7 +194,7 @@ export default function TaxAdminDashboard() {
                     <p className="text-sm text-gray-600">{decl.type} - {decl.period}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-bold">{decl.amount.toLocaleString()} FCFA</span>
+                    <span className="font-bold">{safeToLocaleString(decl.amount)} FCFA</span>
                     <span className={`px-2 py-1 rounded text-xs ${
                       decl.status === 'validated' ? 'bg-green-100 text-green-800' :
                       decl.status === 'pending' ? 'bg-orange-100 text-orange-800' :
@@ -261,7 +262,7 @@ export default function TaxAdminDashboard() {
                   <tr key={sector.name} className="border-b hover:bg-gray-50">
                     <td className="p-3 font-medium">{sector.name}</td>
                     <td className="p-3">{sector.companies}</td>
-                    <td className="p-3">{sector.revenue.toLocaleString()} FCFA</td>
+                    <td className="p-3">{safeToLocaleString(sector.revenue)} FCFA</td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
                         <div className="flex-1 bg-gray-200 rounded-full h-2">

@@ -1,4 +1,5 @@
 import { getCompanyId } from '@/lib/api';
+import { formatCurrency } from "@/lib/format-utils";
 
 /**
  * Hook pour obtenir l'ID de l'entreprise à utiliser

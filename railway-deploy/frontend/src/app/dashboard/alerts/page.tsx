@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, BellRing, SlidersHorizontal, AlertCircle, Info, FileText } from "lucide-react";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 type AlertData = {
   alerts: Array<{
@@ -153,13 +154,13 @@ export default function AlertsPage() {
             <div className="text-center">
               <p className="text-sm text-gray-500">Entrées (30j)</p>
               <p className="text-xl font-bold text-green-600">
-                {alertData.metrics.last30In !== undefined ? `${alertData.metrics.last30In.toLocaleString()} XOF` : 'N/A'}
+                {alertData.metrics.last30In !== undefined ? `${safeToLocaleString(alertData.metrics.last30In)} XOF` : 'N/A'}
               </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-500">Sorties (30j)</p>
               <p className="text-xl font-bold text-red-600">
-                {alertData.metrics.last30Out !== undefined ? `${alertData.metrics.last30Out.toLocaleString()} XOF` : 'N/A'}
+                {alertData.metrics.last30Out !== undefined ? `${safeToLocaleString(alertData.metrics.last30Out)} XOF` : 'N/A'}
               </p>
             </div>
           </div>

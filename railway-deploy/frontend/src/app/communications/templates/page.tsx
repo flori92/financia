@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Mail, MessageSquare, MessageCircle, Edit, Trash2 } from 'lucide-react';
 import { apiGet } from '@/lib/api';
+import { formatCurrency } from "@/lib/format-utils";
 
 interface Template {
   id: string;

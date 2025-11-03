@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Tabs } from "@/components/ui/tabs";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { apiGet, apiPatch, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 function nf(v: number) { return new Intl.NumberFormat("fr-FR").format(v) + " FCFA"; }
 function fd(s: any) { const d = s? new Date(s): null; return !d||isNaN(d.getTime())? "": d.toLocaleDateString("fr-FR"); }

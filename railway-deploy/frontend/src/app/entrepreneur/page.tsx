@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, FileText, Award, Bell, AlertTriangle, Target, Activity } from 'lucide-react';
 import { apiGet, getCompanyId } from '@/lib/api';
+import { formatCurrency } from "@/lib/format-utils";
 import { useEffectiveCompanyId, useSelectedClientName, isExpertClientMode } from '@/hooks/useCompanyId';
 import { usePermissions } from '@/hooks/usePermissions';
 
@@ -315,7 +316,7 @@ export default function EntrepreneurDashboard() {
                   </div>
                 </div>
                 <div className={`font-bold ${transaction.type === 'sale' ? 'text-green-600' : 'text-red-600'}`}>
-                  {transaction.type === 'sale' ? '+' : '-'}{transaction.amount.toLocaleString()} FCFA
+                  {transaction.type === 'sale' ? '+' : '-'}{safeToLocaleString(transaction.amount)} FCFA
                 </div>
               </div>
             ))}

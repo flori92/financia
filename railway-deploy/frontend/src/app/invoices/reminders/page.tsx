@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
 import { BellRing, Loader2, Mail, PhoneCall, AlertTriangle, CheckCircle2, Eye, Send } from "lucide-react";
 import { ReminderPreviewModal } from "@/components/invoices/reminder-preview-modal";
+import { formatCurrency } from "@/lib/format-utils";
 
 type ReminderSeverity = "critical" | "warning" | "info";
 
@@ -42,9 +43,7 @@ function severity(amount: number, daysLate: number): ReminderSeverity {
   return "info";
 }
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value) + " FCFA";
-}
+
 
 export default function RemindersPage() {
   const [reminders, setReminders] = useState<ReminderItem[]>([]);
@@ -148,7 +147,7 @@ export default function RemindersPage() {
 Ceci est un rappel amical concernant votre facture :
 
  Facture : Multiple factures
- Montant : ${item.total.toLocaleString()} FCFA
+ Montant : ${formatCurrency(item.total)}
  Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ En retard de : ${item.daysLate} jour(s)
 
@@ -167,7 +166,7 @@ L'équipe BMS`;
 Vos factures sont en retard de paiement :
 
  Factures : Multiple factures
- Montant : ${item.total.toLocaleString()} FCFA
+ Montant : ${formatCurrency(item.total)}
  Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ En retard de : ${item.daysLate} jour(s)
 
@@ -186,10 +185,10 @@ Service comptabilité BMS`;
 Nous vous informons que vos factures présentent un retard important :
 
  Factures : Multiple factures
- Montant dû : ${item.total.toLocaleString()} FCFA
+ Montant dû : ${formatCurrency(item.total)}
  Date d'échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ Retard : ${item.daysLate} jour(s)
- Pénalités de retard : ${penalty.toLocaleString()} FCFA
+ Pénalités de retard : ${formatCurrency(penalty)}
 
 Nous vous demandons de procéder au règlement dans les plus brefs délais pour éviter toute procédure de recouvrement supplémentaire.
 
@@ -207,9 +206,9 @@ MALGRÉ NOS RELANCES
 Nous vous mettons en demeure de régler votre dette :
 
  Factures : Multiple factures
- Montant principal : ${item.total.toLocaleString()} FCFA
- Pénalités de retard : ${penalty.toLocaleString()} FCFA
- TOTAL DÛ : ${totalDue.toLocaleString()} FCFA
+ Montant principal : ${formatCurrency(item.total)}
+ Pénalités de retard : ${formatCurrency(penalty)}
+ TOTAL DÛ : ${formatCurrency(totalDue)}
  Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
 ⏰ Retard : ${item.daysLate} jour(s)
 
@@ -221,7 +220,7 @@ Service contentieux BMS`;
         break;
     }
 
-    const smsMessage = `${subject} - Montant : ${item.total.toLocaleString()} FCFA - Retard : ${item.daysLate}j - ${invoiceUrl}`;
+    const smsMessage = `${subject} - Montant : ${formatCurrency(item.total)} - Retard : ${item.daysLate}j - ${invoiceUrl}`;
     const whatsappMessage = `${subject}\n\n${message.split('\n').slice(0, 8).join('\n')}\n\n ${invoiceUrl}`;
 
     return {

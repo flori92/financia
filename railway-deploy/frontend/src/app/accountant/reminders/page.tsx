@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { 
   Clock, 
   AlertTriangle, 
@@ -172,7 +173,7 @@ export default function RemindersPage() {
             Total relances
           </div>
           <div className="text-2xl font-semibold text-gray-900">{stats.total}</div>
-          <div className="text-xs text-gray-600">{stats.totalAmount.toLocaleString()} FCFA</div>
+          <div className="text-xs text-gray-600">{safeToLocaleString(stats.totalAmount)} FCFA</div>
         </div>
         
         <div className="bg-white p-4 rounded-lg border border-gray-200">

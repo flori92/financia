@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { 
   Settings, 
   Mail, 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Building2, ChevronDown, Check } from "lucide-react";
 import { getCompanyId, getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 type Company = {
   id: string;

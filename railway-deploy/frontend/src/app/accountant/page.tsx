@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
 import { api } from "@/lib/api-service";
 import { BackendStatusAlert } from "@/components/backend-status-alert";
+import { formatCurrency } from "@/lib/format-utils";
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock, FileText } from "lucide-react";
 
 export default function AccountantDashboardPage() {

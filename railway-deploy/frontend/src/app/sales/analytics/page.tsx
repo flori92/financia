@@ -128,7 +128,7 @@ export default function SalesAnalyticsPage() {
               {TOP_CLIENTS.map((client, idx) => (
                 <tr key={idx} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">{client.name}</td>
-                  <td className="px-4 py-3 text-right">{client.ca.toLocaleString()} FCFA</td>
+                  <td className="px-4 py-3 text-right">{safeToLocaleString(client.ca)} FCFA</td>
                   <td className="px-4 py-3 text-right">{client.commandes}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={`inline-flex items-center gap-1 ${client.evolution > 0 ? 'text-green-600' : 'text-red-600'}`}>

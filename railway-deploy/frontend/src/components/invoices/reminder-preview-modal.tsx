@@ -83,7 +83,7 @@ export function ReminderPreviewModal({ reminder, onClose, onSend, sending }: Rem
             <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
               <div className="text-sm font-medium text-gray-600">Montant total dû</div>
               <div className="text-lg font-semibold text-gray-900">
-                {reminder.totalDue.toLocaleString()} FCFA
+                {safeToLocaleString(reminder.totalDue)} FCFA
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Search, Filter, Upload, Camera, X, Info, Download } from "lucide-react";
@@ -236,11 +237,11 @@ export default function JournalPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Total débits</div>
-          <div className="text-2xl font-semibold text-green-600">{totalDebit.toLocaleString()} FCFA</div>
+          <div className="text-2xl font-semibold text-green-600">{safeToLocaleString(totalDebit)} FCFA</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Total crédits</div>
-          <div className="text-2xl font-semibold text-red-600">{totalCredit.toLocaleString()} FCFA</div>
+          <div className="text-2xl font-semibold text-red-600">{safeToLocaleString(totalCredit)} FCFA</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Écritures</div>

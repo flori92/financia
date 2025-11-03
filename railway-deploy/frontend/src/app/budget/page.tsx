@@ -1,5 +1,6 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import Link from "next/link";
 import { useState } from "react";
 import { Plus, TrendingUp, TrendingDown, Target, AlertTriangle, X, BarChart3, Map } from "lucide-react";

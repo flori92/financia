@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 
 export default function ApiTestPage() {
   const [results, setResults] = useState<any[]>([]);

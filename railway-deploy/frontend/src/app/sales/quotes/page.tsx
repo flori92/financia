@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -293,7 +294,7 @@ export default function QuotesPage() {
                   <tr key={quote.id} className="border-b hover:bg-gray-50">
                     <td className="p-3 font-medium">{quote.quoteNumber}</td>
                     <td className="p-3">{quote.clientName}</td>
-                    <td className="p-3 font-bold">{quote.totalAmount.toLocaleString()} FCFA</td>
+                    <td className="p-3 font-bold">{safeToLocaleString(quote.totalAmount)} FCFA</td>
                     <td className="p-3">{getStatusBadge(quote.status)}</td>
                     <td className="p-3 text-sm">{new Date(quote.validUntil).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3">
