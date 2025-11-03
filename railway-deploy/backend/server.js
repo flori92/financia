@@ -21,6 +21,7 @@ const MLForecastService = require('./src/ml-forecast/ml-forecast.service');
 const OCRController = require('./src/ai/ocr.controller');
 const IntelligentLLMController = require('./src/ai/intelligent-llm.controller');
 const intelligentLLMRoutes = require('./src/ai/intelligent-llm.routes');
+const FreeLLMController = require('./src/ai/free-llama.controller');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -2388,7 +2389,46 @@ app.get('/api/v1/ml-forecast/trend', async (req, res) => {
   }
 });
 
-// 🤖 ROUTES IA INTELLIGENTE - OpenAI GPT-4 avec contexte BMS
+// 🦙 ROUTES IA GRATUITE - Llama 3.2 (RECOMMANDÉ)
+const freeLLMController = new FreeLLMController();
+
+app.post('/api/v1/ai/free/chat', async (req, res) => {
+  await freeLLMController.chat(req, res);
+});
+
+app.post('/api/v1/ai/free/reports', async (req, res) => {
+  await freeLLMController.generateReport(req, res);
+});
+
+app.get('/api/v1/ai/free/suggestions', async (req, res) => {
+  await freeLLMController.getSuggestions(req, res);
+});
+
+app.get('/api/v1/ai/free/history', async (req, res) => {
+  await freeLLMController.getHistory(req, res);
+});
+
+app.delete('/api/v1/ai/free/history/delete', async (req, res) => {
+  await freeLLMController.deleteHistoryItem(req, res);
+});
+
+app.get('/api/v1/ai/free/stats', async (req, res) => {
+  await freeLLMController.getStats(req, res);
+});
+
+app.post('/api/v1/ai/free/feedback', async (req, res) => {
+  await freeLLMController.submitFeedback(req, res);
+});
+
+app.get('/api/v1/ai/free/models', async (req, res) => {
+  await freeLLMController.getModels(req, res);
+});
+
+app.post('/api/v1/ai/free/switch-model', async (req, res) => {
+  await freeLLMController.switchModel(req, res);
+});
+
+// 🤖 ROUTES IA INTELLIGENTE - OpenAI GPT-4 (PAYANT - OPTIONNEL)
 const llmController = new IntelligentLLMController();
 
 app.post('/api/v1/ai/chat', async (req, res) => {

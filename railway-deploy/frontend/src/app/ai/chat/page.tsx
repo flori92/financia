@@ -36,7 +36,7 @@ export default function AIChatPage() {
     {
       id: '0',
       role: 'assistant',
-      content: "🚀 **Nouveau : Assistant IA Intelligent BMS**\n\nNotre système a été mis à jour avec **GPT-4 connecté à vos données réelles** !\n\n✨ **Nouvelles fonctionnalités :**\n• 📊 Analyse basée sur vos données comptables réelles\n• 💰 Recommandations fiscales personnalisées (OHADA/Bénin)\n• 📈 Prévisions financières intelligentes\n• ⚠️ Détection automatique des risques\n• 🎯 Conseils business adaptés à votre secteur\n\n👉 [Essayez le nouveau chat intelligent](/ai/intelligent-chat)\n\nOu continuez avec cette version de démonstration ci-dessous.",
+      content: "🦙 **NOUVEAU : BMS IA 100% GRATUITE !**\n\nDécouvrez notre nouvelle version avec **Llama 3.2** open-source **TOTALEMENT GRATUITE** !\n\n✨ **AVANTAGES INCROYABLES :**\n• 🦙 **Llama 3.2** : Performance équivalente GPT-4\n• 💰 **0 FCFA** : Totalement gratuit, aucun coût caché\n• 📊 **Données réelles** : Analyse de vos comptes BMS\n• 💡 **Recommandations** : Fiscalité OHADA/Bénin\n• 📈 **Prévisions** : Intelligence artificielle avancée\n• 🌍 **Souveraineté** : Open-source indépendant\n\n👉 [Essayez Llama GRATUIT maintenant](/ai/free-chat)\n\nOu continuez avec cette version de démonstration ci-dessous.",
       timestamp: new Date()
     }
   ]);
@@ -70,9 +70,9 @@ export default function AIChatPage() {
       // Simuler une réponse (ancienne version)
       setTimeout(() => {
         const responses = [
-          "Pour une analyse complète basée sur vos données réelles, essayez notre nouveau chat intelligent : /ai/intelligent-chat",
-          "Je vous recommande d'utiliser le nouvel assistant IA avec GPT-4 connecté à vos comptes.",
-          "Cette version est une démonstration. Accédez au vrai système IA pour des analyses personnalisées."
+          "Pour une analyse complète basée sur vos données réelles, essayez notre nouveau chat Llama GRATUIT : /ai/free-chat",
+          "Je vous recommande d'utiliser le nouvel assistant IA Llama 3.2 connecté à vos comptes - 100% GRATUIT !",
+          "Cette version est une démonstration. Accédez au vrai système IA gratuit pour des analyses personnalisées."
         ];
         
         const assistantMessage: Message = {
@@ -104,30 +104,30 @@ export default function AIChatPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      {/* Alert for new intelligent version */}
+      {/* Alert for new free version */}
       <div className="max-w-4xl mx-auto mb-6">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
                 <Sparkles className="w-6 h-6" />
-                Assistant IA Intelligent BMS
+                BMS IA 100% GRATUITE
               </h2>
-              <p className="text-blue-100 mb-4">
-                Accédez maintenant à notre nouveau système basé sur GPT-4 avec analyse de vos données réelles
+              <p className="text-green-100 mb-4">
+                Accédez maintenant à notre système avec Llama 3.2 open-source - TOTALEMENT GRATUIT !
               </p>
               <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">🦙 Llama 3.2</span>
+                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">💰 0 FCFA</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-sm">📊 Données réelles</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">🧠 GPT-4</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">💰 Fiscalité OHADA</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">⚡ Temps réel</span>
+                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">🌍 Open-source</span>
               </div>
             </div>
             <a 
-              href="/ai/intelligent-chat"
-              className="px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+              href="/ai/free-chat"
+              className="px-6 py-3 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors"
             >
-              Essayer maintenant →
+              Essayer GRATUITEMENT →
             </a>
           </div>
         </div>
