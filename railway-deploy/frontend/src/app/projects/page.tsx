@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
+import { formatCurrency, safeToLocaleString } from "@/lib/format-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FolderKanban, Calendar, Clock, TrendingUp, Users, DollarSign, CheckCircle, Plus } from "lucide-react";
@@ -90,7 +90,7 @@ export default function ProjectsPage() {
             <DollarSign className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.totalBudget?.toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold">{formatCurrency(data?.totalBudget)}</div>
             <p className="text-xs text-green-600">Alloué</p>
           </CardContent>
         </Card>
