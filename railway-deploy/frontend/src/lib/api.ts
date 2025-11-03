@@ -30,12 +30,14 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
 }
 
 export function getBaseUrl() {
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  // Next.js injecte NEXT_PUBLIC_* au build time, accessible côté client
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   return 'http://localhost:3001';
 }
 
 function getToken() {
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_TOKEN) return process.env.NEXT_PUBLIC_API_TOKEN;
+  // Next.js injecte NEXT_PUBLIC_* au build time
+  if (process.env.NEXT_PUBLIC_API_TOKEN) return process.env.NEXT_PUBLIC_API_TOKEN;
   if (typeof window !== 'undefined') {
     const t = window.localStorage.getItem('bms_token') || window.localStorage.getItem('token') || '';
     return t || undefined;
@@ -47,8 +49,9 @@ export function getCompanyId() {
   // Pour le dashboard demo, utiliser un companyId fixe
   const demoCompanyId = '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
   
-  if (typeof process !== 'undefined' && (process as any).env?.NEXT_PUBLIC_COMPANY_ID) {
-    const cid = (process as any).env.NEXT_PUBLIC_COMPANY_ID as string;
+  // Next.js injecte NEXT_PUBLIC_* au build time
+  if (process.env.NEXT_PUBLIC_COMPANY_ID) {
+    const cid = process.env.NEXT_PUBLIC_COMPANY_ID;
     if (typeof window !== 'undefined') {
       try { window.localStorage.setItem('companyId', cid); } catch {}
     }
