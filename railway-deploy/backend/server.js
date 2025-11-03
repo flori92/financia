@@ -373,6 +373,63 @@ app.post('/api/v1/banking/import-csv', (req, res) => {
   });
 });
 
+app.post('/api/v1/banking/bulk-reconcile', (req, res) => {
+  const { transactionIds, companyId } = req.body;
+  const reconciled = transactionIds.length;
+  const failed = 0;
+  
+  res.json({
+    reconciled,
+    failed,
+    message: `${reconciled} transactions rapprochées`
+  });
+});
+
+app.post('/api/v1/banking/bulk-ignore', (req, res) => {
+  const { transactionIds, companyId } = req.body;
+  const ignored = transactionIds.length;
+  
+  res.json({
+    ignored,
+    message: `${ignored} transactions ignorées`
+  });
+});
+
+app.get('/api/v1/banking/history', (req, res) => {
+  const { companyId, limit = 50 } = req.query;
+  
+  const mockHistory = [
+    {
+      action: 'reconcile',
+      description: 'Rapprochement transaction bancaire',
+      transactionId: 'TX-001',
+      amount: 150000,
+      notes: 'Paiement facture F-2025-001',
+      user: 'admin@bms.com',
+      createdAt: new Date(Date.now() - 3600000).toISOString()
+    },
+    {
+      action: 'ignore',
+      description: 'Transaction ignorée',
+      transactionId: 'TX-005',
+      amount: -5000,
+      notes: 'Frais bancaires',
+      user: 'comptable@bms.com',
+      createdAt: new Date(Date.now() - 7200000).toISOString()
+    },
+    {
+      action: 'reconcile',
+      description: 'Lettrage automatique',
+      transactionId: 'TX-003',
+      amount: 250000,
+      user: 'system',
+      createdAt: new Date(Date.now() - 86400000).toISOString()
+    }
+  ];
+  
+  res.json(mockHistory.slice(0, parseInt(limit)));
+});
+
 // Tax endpoints
 app.get('/api/v1/tax/vat/return', (req, res) => {
   const { companyId, startDate, endDate } = req.query;

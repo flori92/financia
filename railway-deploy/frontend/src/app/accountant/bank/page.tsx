@@ -21,6 +21,10 @@ export default function BankReconciliationPage() {
   const [filters, setFilters] = useState({ startDate: '', endDate: '', minAmount: '', maxAmount: '', status: 'all' });
   const [showFilters, setShowFilters] = useState(false);
   const [uploadingCsv, setUploadingCsv] = useState(false);
+  const [selectedTxs, setSelectedTxs] = useState<string[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   useEffect(() => {
     // Récupérer companyId depuis localStorage si présent
@@ -205,6 +209,74 @@ export default function BankReconciliationPage() {
     show({ title: 'Export CSV téléchargé', variant: 'success' });
   };
 
+  const toggleSelection = (txId: string) => {
+    setSelectedTxs(prev => 
+      prev.includes(txId) ? prev.filter(id => id !== txId) : [...prev, txId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedTxs.length === filteredTransactions.length) {
+      setSelectedTxs([]);
+    } else {
+      setSelectedTxs(filteredTransactions.map(tx => tx.id));
+    }
+  };
+
+  const handleBulkReconcile = async () => {
+    if (selectedTxs.length === 0) return;
+    try {
+      const res = await fetch(`${getBaseUrl()}/api/v1/banking/bulk-reconcile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId, transactionIds: selectedTxs }),
+      });
+      if (!res.ok) throw new Error('Erreur rapprochement lot');
+      const data = await res.json();
+      setSelectedTxs([]);
+      await loadTransactions();
+      show({ 
+        title: `${data.reconciled} transactions rapprochées`, 
+        description: data.failed ? `${data.failed} échecs` : undefined,
+        variant: 'success' 
+      });
+    } catch (e) {
+      console.error(e);
+      show({ title: 'Échec rapprochement lot', variant: 'error' });
+    }
+  };
+
+  const handleBulkIgnore = async () => {
+    if (selectedTxs.length === 0) return;
+    try {
+      const res = await fetch(`${getBaseUrl()}/api/v1/banking/bulk-ignore`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId, transactionIds: selectedTxs }),
+      });
+      if (!res.ok) throw new Error('Erreur ignorer lot');
+      const data = await res.json();
+      setSelectedTxs([]);
+      await loadTransactions();
+      show({ title: `${data.ignored} transactions ignorées`, variant: 'success' });
+    } catch (e) {
+      console.error(e);
+      show({ title: 'Échec ignorer lot', variant: 'error' });
+    }
+  };
+
+  const loadHistory = async () => {
+    try {
+      const res = await fetch(`${getBaseUrl()}/api/v1/banking/history?companyId=${companyId}&limit=50`);
+      if (!res.ok) throw new Error('Erreur chargement historique');
+      const data = await res.json();
+      setHistory(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+      show({ title: 'Erreur chargement historique', variant: 'error' });
+    }
+  };
+
   const bankBalance = transactions.reduce((sum, t) => t.status !== 'ignored' ? sum + t.amount : sum, 0);
   const bookBalance = transactions.filter(t => t.status === 'reconciled').reduce((sum, t) => sum + t.amount, 0);
   const difference = Math.abs(bankBalance - bookBalance);
@@ -264,8 +336,44 @@ export default function BankReconciliationPage() {
             <CheckCircle className={`w-4 h-4 ${matching ? 'animate-spin' : ''}`} />
             Lettrage auto ({pendingCount})
           </button>
+          <button
+            onClick={() => { setShowHistory(true); loadHistory(); }}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            📋 Historique
+          </button>
         </div>
       </div>
+
+      {/* Barre actions par lot */}
+      {selectedTxs.length > 0 && (
+        <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-teal-600" />
+            <span className="font-medium">{selectedTxs.length} transaction(s) sélectionnée(s)</span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleBulkReconcile}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Rapprocher la sélection
+            </button>
+            <button
+              onClick={handleBulkIgnore}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            >
+              Ignorer la sélection
+            </button>
+            <button
+              onClick={() => setSelectedTxs([])}
+              className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Panneau de filtres */}
       {showFilters && (
@@ -382,6 +490,14 @@ export default function BankReconciliationPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
+                <th className="text-center py-3 px-2 font-medium text-gray-900">
+                  <input
+                    type="checkbox"
+                    checked={selectedTxs.length === filteredTransactions.length && filteredTransactions.length > 0}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                </th>
                 <th className="text-left py-3 px-4 font-medium text-gray-900">Date</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-900">Description</th>
                 <th className="text-right py-3 px-4 font-medium text-gray-900">Montant banque</th>
@@ -392,11 +508,19 @@ export default function BankReconciliationPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="text-center py-8 text-gray-500">Chargement...</td></tr>
+                <tr><td colSpan={7} className="text-center py-8 text-gray-500">Chargement...</td></tr>
               ) : filteredTransactions.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-8 text-gray-500">Aucune transaction correspondante</td></tr>
+                <tr><td colSpan={7} className="text-center py-8 text-gray-500">Aucune transaction correspondante</td></tr>
               ) : filteredTransactions.map((transaction) => (
                 <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-3 px-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedTxs.includes(transaction.id)}
+                      onChange={() => toggleSelection(transaction.id)}
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                  </td>
                   <td className="py-3 px-4 text-sm">{new Date(transaction.transactionDate || transaction.date).toLocaleDateString('fr-FR')}</td>
                   <td className="py-3 px-4">{transaction.label || transaction.description}</td>
                   <td className={`py-3 px-4 text-right font-medium ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -507,6 +631,57 @@ export default function BankReconciliationPage() {
             </div>
             <div className="p-4 border-t flex justify-end">
               <button onClick={() => setSuggestionsOpen(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Fermer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Historique */}
+      {showHistory && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-4xl shadow-xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">Historique des opérations</h3>
+              <button onClick={() => setShowHistory(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              {history.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">Aucun historique disponible</div>
+              ) : (
+                <div className="space-y-3">
+                  {history.map((entry, idx) => (
+                    <div key={idx} className="border rounded-lg p-3 hover:bg-gray-50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {entry.action === 'reconcile' && <CheckCircle className="w-4 h-4 text-green-600" />}
+                            {entry.action === 'ignore' && <X className="w-4 h-4 text-gray-600" />}
+                            {entry.action === 'unreconcile' && <AlertCircle className="w-4 h-4 text-orange-600" />}
+                            <span className="font-medium">{entry.description || entry.action}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Transaction: {entry.transactionId} · {new Intl.NumberFormat('fr-FR').format(entry.amount || 0)} FCFA
+                          </div>
+                          {entry.notes && (
+                            <div className="text-sm text-gray-500 mt-1">Note: {entry.notes}</div>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500 whitespace-nowrap ml-4">
+                          {new Date(entry.createdAt || entry.date).toLocaleString('fr-FR')}
+                        </div>
+                      </div>
+                      {entry.user && (
+                        <div className="text-xs text-gray-500 mt-2">Par: {entry.user}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t flex justify-end">
+              <button onClick={() => setShowHistory(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Fermer</button>
             </div>
           </div>
         </div>
