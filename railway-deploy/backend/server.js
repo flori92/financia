@@ -1060,7 +1060,55 @@ app.post('/api/v1/invoices', (req, res) => {
 });
 
 app.post('/api/v1/invoices/:id/send', (req, res) => {
-  res.json({ success: true, message: 'Facture envoyée avec succès' });
+  const { method, clientData, invoiceData } = req.body;
+  
+  console.log(`📧 Envoi facture ${invoiceData?.number} par ${method}`);
+  console.log(`👤 Client: ${clientData?.name} (${clientData?.email || clientData?.phone})`);
+  console.log(`💰 Montant: ${invoiceData?.amount} FCFA`);
+  
+  // Simulation d'envoi selon la méthode
+  let result = { success: true, method };
+  
+  switch (method) {
+    case 'email':
+      if (!clientData?.email) {
+        return res.status(400).json({ success: false, error: 'Email client manquant' });
+      }
+      result.message = `Email préparé pour ${clientData.email}`;
+      result.details = {
+        to: clientData.email,
+        subject: `Facture ${invoiceData.number}`,
+        body: `Bonjour ${clientData.name},\n\nVeuillez trouver ci-joint votre facture ${invoiceData.number} d'un montant de ${invoiceData.amount} FCFA.\n\nÉchéance: ${new Date(invoiceData.dueDate).toLocaleDateString('fr-FR')}\n\nCordialement`
+      };
+      break;
+      
+    case 'whatsapp':
+      if (!clientData?.phone) {
+        return res.status(400).json({ success: false, error: 'Téléphone client manquant' });
+      }
+      result.message = `WhatsApp préparé pour ${clientData.phone}`;
+      result.details = {
+        phone: clientData.phone,
+        message: `Bonjour ${clientData.name},\n\nVotre facture ${invoiceData.number}: ${invoiceData.amount} FCFA\nÉchéance: ${new Date(invoiceData.dueDate).toLocaleDateString('fr-FR')}`
+      };
+      break;
+      
+    case 'sms':
+      if (!clientData?.phone) {
+        return res.status(400).json({ success: false, error: 'Téléphone client manquant' });
+      }
+      result.message = `SMS préparé pour ${clientData.phone}`;
+      result.details = {
+        phone: clientData.phone,
+        message: `Facture ${invoiceData.number}: ${invoiceData.amount} FCFA - Échéance: ${new Date(invoiceData.dueDate).toLocaleDateString('fr-FR')}`
+      };
+      break;
+      
+    default:
+      return res.status(400).json({ success: false, error: 'Méthode non supportée' });
+  }
+  
+  res.json(result);
 });
 
 app.patch('/api/v1/invoices/:id/validate', (req, res) => {

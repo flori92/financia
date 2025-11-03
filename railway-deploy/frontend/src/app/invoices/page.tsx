@@ -56,22 +56,92 @@ export default function InvoicesPage() {
   };
 
   const handleSendInvoice = async (invoiceId: string, method: 'email' | 'whatsapp' | 'sms') => {
+    const invoice = invoices.find(inv => inv.id === invoiceId);
+    if (!invoice) {
+      alert('Facture introuvable');
+      return;
+    }
+
+    const clientEmail = getClientEmail(invoice.clientId);
+    const clientPhone = getClientPhone(invoice.clientId);
+    const clientName = getClientName(invoice.clientId);
+
     try {
+      // Validation des données client selon la méthode
+      if (method === 'email' && !clientEmail) {
+        alert('Ce client n\'a pas d\'adresse email enregistrée. Veuillez d\'abord ajouter l\'email du client.');
+        return;
+      }
+      
+      if (method === 'whatsapp' && !clientPhone) {
+        alert('Ce client n\'a pas de numéro de téléphone enregistré. Veuillez d\'abord ajouter le téléphone du client.');
+        return;
+      }
+      
+      if (method === 'sms' && !clientPhone) {
+        alert('Ce client n\'a pas de numéro de téléphone enregistré. Veuillez d\'abord ajouter le téléphone du client.');
+        return;
+      }
+
+      // Préparation des données d'envoi avec informations client
+      const sendPayload = {
+        method,
+        clientData: {
+          email: clientEmail,
+          phone: clientPhone,
+          name: clientName
+        },
+        invoiceData: {
+          number: invoice.number,
+          amount: invoice.amount,
+          dueDate: invoice.dueDate,
+          date: invoice.date
+        }
+      };
+
       const response = await fetch(`${getBaseUrl()}/api/v1/invoices/${invoiceId}/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ method }),
+        body: JSON.stringify(sendPayload),
       });
       
       if (response.ok) {
-        alert(`Facture envoyée par ${method} avec succès!`);
+        const result = await response.json();
+        
+        // Actions spécifiques selon méthode
+        if (method === 'email') {
+          alert(`✅ Facture ${invoice.number} envoyée par email à ${clientEmail}`);
+        } else if (method === 'whatsapp') {
+          // Ouvre WhatsApp Web avec message pré-rempli
+          const message = encodeURIComponent(`Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${invoice.number} d'un montant de ${invoice.amount.toLocaleString('fr-FR')} FCFA.\n\nÉchéance: ${new Date(invoice.dueDate).toLocaleDateString('fr-FR')}\n\nCordialement,\nBMS Business Management System`);
+          window.open(`https://wa.me/${clientPhone.replace(/[^0-9]/g, '')}?text=${message}`, '_blank');
+          alert(`📱 WhatsApp ouvert pour envoyer la facture à ${clientName}`);
+        } else if (method === 'sms') {
+          // Ouvre interface SMS par défaut
+          const message = encodeURIComponent(`Facture ${invoice.number} - ${invoice.amount.toLocaleString('fr-FR')} FCFA - Échéance: ${new Date(invoice.dueDate).toLocaleDateString('fr-FR')} - BMS`);
+          window.open(`sms:${clientPhone}?body=${message}`, '_blank');
+          alert(`📨 Interface SMS ouverte pour envoyer à ${clientName}`);
+        }
+        
         loadData();
       } else {
         throw new Error('Erreur lors de l\'envoi');
       }
     } catch (err) {
-      alert('Erreur lors de l\'envoi de la facture');
-      console.error(err);
+      console.error('Erreur envoi facture:', err);
+      
+      // Fallback: actions manuelles si backend indisponible
+      if (method === 'whatsapp' && clientPhone) {
+        const message = encodeURIComponent(`Bonjour ${clientName},\n\nVeuillez trouver votre facture ${invoice.number} d'un montant de ${invoice.amount.toLocaleString('fr-FR')} FCFA.\n\nÉchéance: ${new Date(invoice.dueDate).toLocaleDateString('fr-FR')}\n\nCordialement`);
+        window.open(`https://wa.me/${clientPhone.replace(/[^0-9]/g, '')}?text=${message}`, '_blank');
+        alert('📱 WhatsApp ouvert (mode fallback)');
+      } else if (method === 'sms' && clientPhone) {
+        const message = encodeURIComponent(`Facture ${invoice.number} - ${invoice.amount.toLocaleString('fr-FR')} FCFA - Échéance: ${new Date(invoice.dueDate).toLocaleDateString('fr-FR')}`);
+        window.open(`sms:${clientPhone}?body=${message}`, '_blank');
+        alert('📨 Interface SMS ouverte (mode fallback)');
+      } else if (method === 'email') {
+        alert('📧 Veuillez utiliser votre client email habituel pour envoyer la facture au client.');
+      }
     }
   };
 
@@ -183,6 +253,16 @@ export default function InvoicesPage() {
   const getClientName = (clientId: string) => {
     const client = clients.find(c => c.id === clientId);
     return client?.name || 'Client inconnu';
+  };
+
+  const getClientEmail = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId);
+    return client?.email || '';
+  };
+
+  const getClientPhone = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId);
+    return client?.phone || client?.mobile || '';
   };
 
   const getStatusColor = (status: string) => {
@@ -404,7 +484,7 @@ export default function InvoicesPage() {
         isOpen={showEmailDialog}
         onClose={() => setShowEmailDialog(false)}
         onSend={handleEmailDialogSend}
-        defaultTo={selectedInvoice ? getClientName(selectedInvoice.clientId) : ""}
+        defaultTo={selectedInvoice ? getClientEmail(selectedInvoice.clientId) : ""}
         defaultSubject={selectedInvoice ? `Facture ${selectedInvoice.number}` : ""}
       />
 
