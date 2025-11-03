@@ -12,6 +12,7 @@ const CRMService = require('./services/CRMService');
 const TreasuryOperationsService = require('./services/TreasuryOperationsService');
 const EmailService = require('./services/EmailService');
 const SMSService = require('./services/SMSService');
+const MobileMoneyService = require('./services/MobileMoneyService');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -1326,6 +1327,86 @@ app.get('/api/v1/communications/logs', async (req, res) => {
     const logs = await CommunicationService.getCommunicationLogs(companyId, { limit: parseInt(limit), offset: parseInt(offset) });
     res.json(logs);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// === MOBILE MONEY (KKIAPAY) ===
+
+// Status du service Mobile Money
+app.get('/api/v1/mobile-money/status', (req, res) => {
+  try {
+    const status = MobileMoneyService.getStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Initier un paiement Mobile Money
+app.post('/api/v1/mobile-money/initiate', async (req, res) => {
+  try {
+    const { amount, firstName, lastName, email, phone, reason, invoiceId } = req.body;
+    
+    if (!amount || !firstName || !lastName) {
+      return res.status(400).json({ error: 'Montant, prénom et nom requis' });
+    }
+
+    const result = await MobileMoneyService.initiatePayment({
+      amount: Number(amount),
+      firstName,
+      lastName,
+      email,
+      phone,
+      reason: reason || 'Paiement BMS',
+      invoiceId
+    });
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Vérifier une transaction Mobile Money
+app.get('/api/v1/mobile-money/verify/:transactionId', async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+    const result = await MobileMoneyService.verifyTransaction(transactionId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Rembourser une transaction
+app.post('/api/v1/mobile-money/refund/:transactionId', async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+    const result = await MobileMoneyService.refundTransaction(transactionId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Webhook KkiaPay pour notifications de paiement
+app.post('/api/v1/mobile-money/webhook', async (req, res) => {
+  try {
+    const signature = req.headers['x-kkiapay-signature'];
+    
+    if (!signature) {
+      return res.status(401).json({ error: 'Signature manquante' });
+    }
+
+    const result = await MobileMoneyService.handleWebhook(req.body, signature);
+    
+    // TODO: Mettre à jour le statut de la facture/paiement dans la base
+    console.log('📥 Webhook traité:', result);
+    
+    res.json({ success: true, message: 'Webhook traité' });
+  } catch (error) {
+    console.error('❌ Erreur webhook:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
