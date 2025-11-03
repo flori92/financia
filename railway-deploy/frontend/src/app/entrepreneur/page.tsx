@@ -316,7 +316,7 @@ export default function EntrepreneurDashboard() {
                   </div>
                 </div>
                 <div className={`font-bold ${transaction.type === 'sale' ? 'text-green-600' : 'text-red-600'}`}>
-                  {transaction.type === 'sale' ? '+' : '-'}{safeToLocaleString(transaction.amount)} FCFA
+                  {transaction.type === 'sale' ? '+' : '-'}{transaction.amount.toLocaleString('fr-FR')} FCFA
                 </div>
               </div>
             ))}

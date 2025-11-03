@@ -278,7 +278,7 @@ export default function BankPartnerDashboard() {
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
                       <p className="text-gray-600">Montant</p>
-                      <p className="font-medium">{safeToLocaleString(app.amount)} FCFA</p>
+                      <p className="font-medium">{app.amount.toLocaleString('fr-FR')} FCFA</p>
                     </div>
                     <div>
                       <p className="text-gray-600">Score</p>
@@ -366,9 +366,9 @@ export default function BankPartnerDashboard() {
                         <p className="text-sm text-gray-600">{loan.business}</p>
                       </div>
                     </td>
-                    <td className="p-3 font-medium">{safeToLocaleString(loan.amount)} FCFA</td>
-                    <td className="p-3 text-green-600">{safeToLocaleString(loan.repaid)} FCFA</td>
-                    <td className="p-3 text-orange-600">{safeToLocaleString(loan.remaining)} FCFA</td>
+                    <td className="p-3 font-medium">{loan.amount.toLocaleString('fr-FR')} FCFA</td>
+                    <td className="p-3 text-green-600">{loan.repaid.toLocaleString('fr-FR')} FCFA</td>
+                    <td className="p-3 text-orange-600">{loan.remaining.toLocaleString('fr-FR')} FCFA</td>
                     <td className="p-3 text-sm">{new Date(loan.dueDate).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${

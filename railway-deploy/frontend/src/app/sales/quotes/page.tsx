@@ -294,7 +294,7 @@ export default function QuotesPage() {
                   <tr key={quote.id} className="border-b hover:bg-gray-50">
                     <td className="p-3 font-medium">{quote.quoteNumber}</td>
                     <td className="p-3">{quote.clientName}</td>
-                    <td className="p-3 font-bold">{safeToLocaleString(quote.totalAmount)} FCFA</td>
+                    <td className="p-3 font-bold">{quote.totalAmount.toLocaleString('fr-FR')} FCFA</td>
                     <td className="p-3">{getStatusBadge(quote.status)}</td>
                     <td className="p-3 text-sm">{new Date(quote.validUntil).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3">
