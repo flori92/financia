@@ -19,8 +19,6 @@ const ProjectsService = require('./src/projects/projects.service');
 const MarketingService = require('./src/marketing/marketing.service');
 const MLForecastService = require('./src/ml-forecast/ml-forecast.service');
 const OCRController = require('./src/ai/ocr.controller');
-const IntelligentLLMController = require('./src/ai/intelligent-llm.controller');
-const intelligentLLMRoutes = require('./src/ai/intelligent-llm.routes');
 const FreeLLMController = require('./src/ai/free-llama.controller');
 
 const app = express();
@@ -2426,37 +2424,6 @@ app.get('/api/v1/ai/free/models', async (req, res) => {
 
 app.post('/api/v1/ai/free/switch-model', async (req, res) => {
   await freeLLMController.switchModel(req, res);
-});
-
-// 🤖 ROUTES IA INTELLIGENTE - OpenAI GPT-4 (PAYANT - OPTIONNEL)
-const llmController = new IntelligentLLMController();
-
-app.post('/api/v1/ai/chat', async (req, res) => {
-  await llmController.chat(req, res);
-});
-
-app.post('/api/v1/ai/reports', async (req, res) => {
-  await llmController.generateReport(req, res);
-});
-
-app.get('/api/v1/ai/suggestions', async (req, res) => {
-  await llmController.getSuggestions(req, res);
-});
-
-app.get('/api/v1/ai/history', async (req, res) => {
-  await llmController.getHistory(req, res);
-});
-
-app.delete('/api/v1/ai/history/delete', async (req, res) => {
-  await llmController.deleteHistoryItem(req, res);
-});
-
-app.get('/api/v1/ai/stats', async (req, res) => {
-  await llmController.getStats(req, res);
-});
-
-app.post('/api/v1/ai/feedback', async (req, res) => {
-  await llmController.submitFeedback(req, res);
 });
 
 // 404 handler - DOIT être à la fin après toutes les routes

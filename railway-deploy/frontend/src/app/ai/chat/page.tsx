@@ -36,7 +36,7 @@ export default function AIChatPage() {
     {
       id: '0',
       role: 'assistant',
-      content: "🦙 **NOUVEAU : BMS IA 100% GRATUITE !**\n\nDécouvrez notre nouvelle version avec **Llama 3.2** open-source **TOTALEMENT GRATUITE** !\n\n✨ **AVANTAGES INCROYABLES :**\n• 🦙 **Llama 3.2** : Performance équivalente GPT-4\n• 💰 **0 FCFA** : Totalement gratuit, aucun coût caché\n• 📊 **Données réelles** : Analyse de vos comptes BMS\n• 💡 **Recommandations** : Fiscalité OHADA/Bénin\n• 📈 **Prévisions** : Intelligence artificielle avancée\n• 🌍 **Souveraineté** : Open-source indépendant\n\n👉 [Essayez Llama GRATUIT maintenant](/ai/free-chat)\n\nOu continuez avec cette version de démonstration ci-dessous.",
+      content: "🦙 **BMS IA 100% GRATUITE !**\n\nDécouvrez notre système avec **Llama 3.2** open-source **TOTALEMENT GRATUITE** !\n\n✨ **AVANTAGES INCROYABLES :**\n• 🦙 **Llama 3.2** : Performance excellente\n• 💰 **0 FCFA** : Totalement gratuit, aucun coût caché\n• 📊 **Données réelles** : Analyse de vos comptes BMS\n• 💡 **Recommandations** : Fiscalité OHADA/Bénin\n• 📈 **Prévisions** : Intelligence artificielle avancée\n• 🌍 **Souveraineté** : Open-source indépendant\n\n👉 [Essayez Llama GRATUIT maintenant](/ai/free-chat)\n\nOu continuez avec cette version de démonstration ci-dessous.",
       timestamp: new Date()
     }
   ]);
@@ -121,6 +121,7 @@ export default function AIChatPage() {
                 <span className="px-3 py-1 bg-white/20 rounded-full text-sm">💰 0 FCFA</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-sm">📊 Données réelles</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-sm">🌍 Open-source</span>
+                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">⚡ Performance excellente</span>
               </div>
             </div>
             <a 
@@ -133,21 +134,19 @@ export default function AIChatPage() {
         </div>
       </div>
 
-      {/* Old Chat Interface */}
+      {/* Demo Interface */}
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <MessageCircle className="w-6 h-6" />
-                Chat IA (Version démo)
+                Version Démo
               </h1>
-              <p className="text-gray-300 mt-1">
-                Version de démonstration - Essayez le nouveau système intelligent ci-dessus
-              </p>
+              <p className="text-gray-300">Essayez la version gratuite pour des analyses réelles</p>
             </div>
-            <div className="px-3 py-1 bg-amber-500 text-white rounded-full text-sm">
-              Démo
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-gray-700 rounded-full text-sm">Démo</span>
             </div>
           </div>
         </div>
