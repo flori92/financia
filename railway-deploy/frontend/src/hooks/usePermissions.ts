@@ -165,12 +165,13 @@ export const ProtectedComponent: React.FC<ProtectedComponentProps> = ({
   module,
   action = 'read',
   children,
-  fallback = <div className="text-gray-500 text-sm">Accès limité</div>
+  fallback
 }) => {
   const { canAccess } = usePermissions();
+  const defaultFallback = <div className="text-gray-500 text-sm">Accès limité</div>;
   
   if (!canAccess(module, action)) {
-    return <>{fallback}</>;
+    return <>{fallback || defaultFallback}</>;
   }
   
   return <>{children}</>;
