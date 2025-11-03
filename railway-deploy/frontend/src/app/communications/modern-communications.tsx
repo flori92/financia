@@ -26,75 +26,9 @@ import {
   BarChart3,
   CheckCircle,
   AlertTriangle,
-  XCircle
+  XCircle,
+  FileText
 } from "lucide-react";
-
-interface CommunicationMessage {
-  id: string;
-  type: "email" | "sms" | "whatsapp";
-  recipient: string;
-  subject?: string;
-  content: string;
-  status: "sent" | "delivered" | "read" | "failed";
-  sentAt: string;
-  deliveredAt?: string;
-  readAt?: string;
-  cost?: number;
-  campaignId?: string;
-  templateId?: string;
-  metadata?: {
-    openRate?: number;
-    clickRate?: number;
-    responseRate?: number;
-  };
-}
-
-interface CommunicationCampaign {
-  id: string;
-  name: string;
-  type: "email" | "sms" | "whatsapp" | "multi";
-  status: "draft" | "active" | "completed" | "paused";
-  targetAudience: number;
-  sent: number;
-  delivered: number;
-  read: number;
-  openRate: number;
-  clickRate: number;
-  responseRate: number;
-  cost: number;
-  createdAt: string;
-  scheduledAt?: string;
-  completedAt?: string;
-  description?: string;
-}
-
-interface CommunicationMetrics {
-  totalMessages: number;
-  totalCost: number;
-  averageDeliveryTime: number;
-  successRate: number;
-  campaigns: CommunicationCampaign[];
-  messages: CommunicationMessage[];
-  channelBreakdown: Array<{
-    channel: string;
-    messages: number;
-    cost: number;
-    successRate: number;
-  }>;
-  performanceTrend: Array<{
-    date: string;
-    sent: number;
-    delivered: number;
-    read: number;
-    cost: number;
-  }>;
-  alerts: Array<{
-    type: "critical" | "warning" | "info";
-    title: string;
-    message: string;
-    campaignId?: string;
-  }>;
-}
 
 export default function ModernCommunicationsPage() {
   const [data, setData] = useState<CommunicationMetrics | null>(null);

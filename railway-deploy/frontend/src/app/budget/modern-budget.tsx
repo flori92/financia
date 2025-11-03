@@ -95,8 +95,8 @@ export default function ModernBudgetPage() {
       setData(metrics);
       
       // Alertes intelligentes basées sur les métriques
-      const criticalItems = metrics.budgetItems.filter(item => item.status === "critical");
-      const warningItems = metrics.budgetItems.filter(item => item.status === "warning");
+      const criticalItems = metrics.budgetItems.filter((item: any) => item.status === "critical");
+      const warningItems = metrics.budgetItems.filter((item: any) => item.status === "warning");
       
       if (criticalItems.length > 0) {
         showCritical(

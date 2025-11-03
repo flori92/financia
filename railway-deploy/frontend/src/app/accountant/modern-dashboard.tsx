@@ -25,47 +25,6 @@ import {
   BarChart3
 } from "lucide-react";
 
-interface AccountingMetrics {
-  kpiMonth: {
-    revenue: number;
-    expenses: number;
-    netIncome: number;
-    margin: number;
-  };
-  evolutionChart: Array<{
-    month: string;
-    revenue: number;
-    expenses: number;
-  }>;
-  topClients: Array<{
-    name: string;
-    amount: number;
-  }>;
-  topSuppliers: Array<{
-    name: string;
-    amount: number;
-  }>;
-  financialRatios: {
-    currentAssets: number;
-    currentLiabilities: number;
-    equity: number;
-    totalLiabilities: number;
-    liquidityRatio: number;
-    solvencyRatio: number;
-  };
-  alerts: Array<{
-    type: "danger" | "warning" | "info";
-    title: string;
-    message: string;
-  }>;
-  recentActivity: Array<{
-    date: string;
-    description: string;
-    amount: number;
-    type: string;
-  }>;
-}
-
 export default function ModernAccountantDashboard() {
   const [data, setData] = useState<AccountingMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -268,7 +227,7 @@ export default function ModernAccountantDashboard() {
             subtitle="Par chiffre d'affaires"
             height={300}
             formatY={formatCurrency}
-            onDataPointClick={(data) => showInfo("Client", `CA: ${formatCurrency(data.value)}`)}
+            onDataPointClick={(data) => showInfo("Client", `CA: ${formatCurrency(data?.value || 0)}`)}
           />
         </div>
 

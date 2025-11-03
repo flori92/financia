@@ -218,7 +218,7 @@ export default function ModernTreasuryPage() {
                 : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
             }`}
           >
-            <TrendingIcon className="w-4 h-4 inline mr-2" />
+            <TrendingUp className="w-4 h-4 inline mr-2" />
             Prévisions
           </button>
           <div className="flex items-center gap-4">
