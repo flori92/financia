@@ -67,7 +67,7 @@ export default function ContactDetailPage() {
             <DollarSign className="w-5 h-5 text-blue-600" />
             <div>
               <div className="text-sm text-blue-700">Valeur totale</div>
-              <div className="text-xl font-bold text-blue-900">{safeToLocaleString(contact.totalValue)} FCFA</div>
+              <div className="text-xl font-bold text-blue-900">{contact.totalValue.toLocaleString('fr-FR')} FCFA</div>
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function ContactDetailPage() {
                     <div className="text-sm text-slate-600">{opp.stage}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{safeToLocaleString(opp.value)} FCFA</div>
+                    <div className="font-semibold">{opp.value.toLocaleString('fr-FR')} FCFA</div>
                     <div className="text-sm text-slate-600">{opp.probability}%</div>
                   </div>
                 </div>
@@ -126,7 +126,7 @@ export default function ContactDetailPage() {
               <tr key={invoice.id} className="border-b border-app-border">
                 <td className="py-3 font-mono text-sm">{invoice.number}</td>
                 <td className="py-3">{invoice.date}</td>
-                <td className="py-3 text-right">{safeToLocaleString(invoice.amount)} FCFA</td>
+                <td className="py-3 text-right">{invoice.amount.toLocaleString('fr-FR')} FCFA</td>
                 <td className="py-3">
                   <span className={`px-2 py-1 text-xs rounded-full ${invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                     {invoice.status}
