@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, getCompanyId } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
 import { ProfessionalExporter } from "@/lib/export-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,12 +52,14 @@ export default function ProjectsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        const companyId = getCompanyId();
+        
         // Charger les KPIs depuis l'API
-        const dashboardResponse = await apiGet('/api/v1/projects/dashboard');
+        const dashboardResponse = await apiGet('/api/v1/projects/dashboard', { companyId });
         setData(dashboardResponse);
 
         // Charger les projets depuis l'API
-        const projectsResponse = await apiGet('/api/v1/projects');
+        const projectsResponse = await apiGet('/api/v1/projects', { companyId });
         setProjects(projectsResponse);
       } catch (error) {
         console.error("Erreur chargement données:", error);
@@ -168,8 +170,8 @@ export default function ProjectsPage() {
         project.status === 'active' ? 'Actif' : 
         project.status === 'planning' ? 'Planification' : 'En pause',
         `${project.progress}%`,
-        project.budget.toLocaleString('fr-FR') + ' FCFA',
-        project.spent.toLocaleString('fr-FR') + ' FCFA',
+        (project.budget || 0).toLocaleString('fr-FR') + ' FCFA',
+        (project.spent || 0).toLocaleString('fr-FR') + ' FCFA',
         project.manager,
         project.endDate
       ]),
@@ -333,11 +335,11 @@ export default function ProjectsPage() {
               </div>
               <div>
                 <div className="text-slate-600">Budget</div>
-                <div className="font-semibold">{project.budget.toLocaleString('fr-FR')} FCFA</div>
+                <div className="font-semibold">{(project.budget || 0).toLocaleString('fr-FR')} FCFA</div>
               </div>
               <div>
                 <div className="text-slate-600">Dépensé</div>
-                <div className="font-semibold">{project.spent.toLocaleString('fr-FR')} FCFA</div>
+                <div className="font-semibold">{(project.spent || 0).toLocaleString('fr-FR')} FCFA</div>
               </div>
               <div>
                 <div className="text-slate-600">Responsable</div>
@@ -410,11 +412,11 @@ export default function ProjectsPage() {
               </div>
               <div>
                 <label className="text-sm text-gray-600">Budget</label>
-                <div className="font-semibold">{selectedProject.budget.toLocaleString('fr-FR')} FCFA</div>
+                <div className="font-semibold">{(selectedProject.budget || 0).toLocaleString('fr-FR')} FCFA</div>
               </div>
               <div>
                 <label className="text-sm text-gray-600">Dépensé</label>
-                <div className="font-semibold">{selectedProject.spent.toLocaleString('fr-FR')} FCFA</div>
+                <div className="font-semibold">{(selectedProject.spent || 0).toLocaleString('fr-FR')} FCFA</div>
               </div>
               <div>
                 <label className="text-sm text-gray-600">Responsable</label>
