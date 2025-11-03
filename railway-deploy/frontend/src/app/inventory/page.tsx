@@ -97,18 +97,41 @@ export default function InventoryPage() {
   async function loadProducts() {
     setLoading(true);
     try {
-      // Simuler un chargement avec délai
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setProducts(mockProducts);
+      // Utiliser la vraie API avec le companyId
+      const companyId = localStorage.getItem('companyId') || 'demo-company';
+      const params = new URLSearchParams({ companyId });
+      
+      if (search) {
+        params.append('search', search);
+      }
+      if (filter.category) {
+        params.append('category', filter.category);
+      }
+      if (filter.status) {
+        params.append('status', filter.status);
+      }
+
+      const response = await fetch(`/api/inventory/products?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data || []);
+      } else {
+        // Fallback vers données mock si API non disponible
+        console.warn('API non disponible, utilisation des données mock');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setProducts(mockProducts);
+      }
     } catch (e) {
       console.error(e);
-      setProducts([]);
+      // Fallback vers données mock
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setProducts(mockProducts);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { loadProducts(); }, []);
+  useEffect(() => { loadProducts(); }, [search, filter]);
 
   const alertProducts = products.filter(p => p.status === 'low_stock' || p.status === 'out_of_stock');
   const totalValue = products.reduce((sum, p) => sum + (p.quantity * p.unitPrice), 0);

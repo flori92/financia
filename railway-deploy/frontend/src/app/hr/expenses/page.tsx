@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -66,7 +66,8 @@ const mockExpenses: Expense[] = [
 ];
 
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>(mockExpenses);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showNewExpense, setShowNewExpense] = useState(false);
   const [filter, setFilter] = useState<'all' | 'draft' | 'submitted' | 'approved' | 'rejected'>('all');
   const [newExpense, setNewExpense] = useState({
@@ -77,6 +78,41 @@ export default function ExpensesPage() {
     category: '',
     project: ''
   });
+
+  useEffect(() => {
+    loadExpenses();
+  }, [filter]);
+
+  const loadExpenses = async () => {
+    setLoading(true);
+    try {
+      // Utiliser la vraie API avec le companyId
+      const companyId = localStorage.getItem('companyId') || 'demo-company';
+      const params = new URLSearchParams({ companyId });
+      
+      if (filter !== 'all') {
+        params.append('status', filter);
+      }
+
+      const response = await fetch(`/api/hr/expenses?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setExpenses(data || []);
+      } else {
+        // Fallback vers données mock si API non disponible
+        console.warn('API non disponible, utilisation des données mock');
+        await new Promise(resolve => setTimeout(resolve, 400));
+        setExpenses(mockExpenses);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des notes de frais:", error);
+      // Fallback vers données mock
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setExpenses(mockExpenses);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {

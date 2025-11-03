@@ -126,12 +126,29 @@ export default function TimesheetPage() {
   const loadTimesheets = async () => {
     setLoading(true);
     try {
-      // Simuler un chargement avec délai
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setTimesheets(mockTimesheets);
+      // Utiliser la vraie API avec le companyId
+      const companyId = localStorage.getItem('companyId') || 'demo-company';
+      const params = new URLSearchParams({ companyId });
+      
+      if (filter.status) {
+        params.append('status', filter.status);
+      }
+
+      const response = await fetch(`/api/hr/timesheets?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTimesheets(data || []);
+      } else {
+        // Fallback vers données mock si API non disponible
+        console.warn('API non disponible, utilisation des données mock');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setTimesheets(mockTimesheets);
+      }
     } catch (error) {
       console.error("Erreur lors du chargement des CRA:", error);
-      setTimesheets([]);
+      // Fallback vers données mock
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setTimesheets(mockTimesheets);
     } finally {
       setLoading(false);
     }
