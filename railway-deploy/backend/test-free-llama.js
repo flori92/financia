@@ -175,7 +175,7 @@ class FreeLLMTester {
         case 'Modèles Disponibles':
           if (data.success && data.data?.available) {
             const count = data.data.available.length;
-            const allFree = data.data.available.every((m: any) => m.cost === 'GRATUIT');
+            const allFree = data.data.available.every(m => m.cost === 'GRATUIT');
             return `🦙 ${count} modèles disponibles | 💰 ${allFree ? '100% GRATUITS' : 'Certains payants'}`;
           }
           return 'Modèles indisponibles';
