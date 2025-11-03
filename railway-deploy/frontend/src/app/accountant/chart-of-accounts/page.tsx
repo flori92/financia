@@ -1,4 +1,5 @@
 "use client";
+// Page Plan Comptable - Fix Railway deployment issue
 import { getBaseUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState } from "react";
