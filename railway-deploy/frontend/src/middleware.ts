@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // SOLUTION FORTE : Proxy complet vers backend pour TOUTES les routes API
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  // SOLUTION FORTE : Proxy vers backend SAUF routes NextAuth locales
+  if (request.nextUrl.pathname.startsWith('/api/') && 
+      !request.nextUrl.pathname.startsWith('/api/auth/')) {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
     
     // Construire l'URL complète vers le backend
@@ -35,9 +36,9 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Matcher TOUTES les routes API commencent par /api/
+  // Matcher routes API SAUF NextAuth
   matcher: [
-    '/api/:path*',
+    '/api/((?!auth).*)',
     '/api/v1/:path*'
   ],
 };
