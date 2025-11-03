@@ -398,7 +398,7 @@ Sois ambitieux mais réaliste. Base ton plan sur les tendances observées et les
       };
 
     } catch (error) {
-      console.error('❌ Erreur plan d'affaires intégré:', error);
+      console.error('❌ Erreur plan d\'affaires intégré:', error);
       return {
         success: false,
         error: error.message
