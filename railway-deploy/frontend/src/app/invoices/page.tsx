@@ -1,5 +1,6 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
+import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react";
@@ -90,17 +91,43 @@ export default function InvoicesPage() {
   };
 
   const handleExport = () => {
-    const csv = [
-      ['Numéro', 'Client', 'Date', 'Échéance', 'Montant', 'Statut'].join(','),
-      ...invoices.map(inv => [inv.number, getClientName(inv.clientId), inv.date, inv.dueDate, inv.amount, inv.status].join(','))
-    ].join('\n');
+    if (!invoices || invoices.length === 0) {
+      triggerToast("error", "Aucune facture à exporter");
+      return;
+    }
+
+    // Données structurées pour l'export professionnel
+    const exportData = {
+      title: 'Liste des Factures',
+      headers: ['Numéro', 'Client', 'Date', 'Échéance', 'Montant', 'Statut'],
+      rows: invoices.map(inv => [
+        inv.number,
+        getClientName(inv.clientId),
+        inv.date,
+        inv.dueDate,
+        inv.amount.toLocaleString('fr-FR') + ' FCFA',
+        inv.status === 'paid' ? 'Payée' : inv.status === 'pending' ? 'En attente' : 'En retard'
+      ]),
+      metadata: {
+        date: new Date().toLocaleDateString('fr-FR'),
+        company: 'BMS Business Management System',
+        period: 'Toutes les factures',
+        author: 'Service Facturation'
+      }
+    };
+
+    // Choix du format d'export
+    const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
     
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'factures.csv';
-    a.click();
+    if (formatChoice) {
+      // Export Excel avec styles professionnels
+      ProfessionalExporter.exportExcel(exportData, 'factures');
+      triggerToast("success", "Factures exportées en Excel avec styles professionnels !");
+    } else {
+      // Export PDF pour impression
+      ProfessionalExporter.exportPDF(exportData, 'factures');
+      triggerToast("success", "Factures exportées en PDF pour impression !");
+    }
   };
 
   const getClientName = (clientId: string) => {

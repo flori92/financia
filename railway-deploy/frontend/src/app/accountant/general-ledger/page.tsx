@@ -1,6 +1,7 @@
 "use client";
 // Grand livre - MODE DYNAMIQUE avec API backend
 import { getBaseUrl } from "@/lib/api";
+import { ProfessionalExporter } from "@/lib/export-utils";
 import { useState, useEffect } from "react";
 import { Search, Filter, Download, Calendar, RefreshCw, AlertTriangle } from "lucide-react";
 
@@ -100,7 +101,7 @@ export default function GeneralLedgerPage() {
     }
   };
 
-  // Exporter les données en CSV/Excel
+  // Exporter les données avec formats professionnels
   const handleExport = async () => {
     if (!data || data.entries.length === 0) {
       triggerToast("error", "Aucune donnée à exporter");
@@ -108,35 +109,41 @@ export default function GeneralLedgerPage() {
     }
 
     try {
-      // Créer le contenu CSV
-      const headers = ['Date', 'N° Écriture', 'Compte', 'Description', 'Débit', 'Crédit', 'Solde'];
-      const csvContent = [
-        headers.join(','),
-        ...data.entries.map(entry => [
+      // Données structurées pour l'export professionnel
+      const exportData = {
+        title: 'Grand Livre Comptable',
+        headers: ['Date', 'N° Écriture', 'Compte', 'Description', 'Débit', 'Crédit', 'Solde'],
+        rows: data.entries.map(entry => [
           entry.date,
           entry.entryNumber,
           entry.account,
-          `"${entry.description}"`,
-          entry.debit,
-          entry.credit,
-          entry.balance
-        ].join(','))
-      ].join('\n');
+          entry.description,
+          entry.debit ? entry.debit.toLocaleString('fr-FR') + ' FCFA' : '',
+          entry.credit ? entry.credit.toLocaleString('fr-FR') + ' FCFA' : '',
+          entry.balance.toLocaleString('fr-FR') + ' FCFA'
+        ]),
+        metadata: {
+          date: new Date().toLocaleDateString('fr-FR'),
+          company: 'BMS Business Management System',
+          period: selectedAccount ? `Compte ${selectedAccount}` : 'Tous les comptes',
+          author: 'Service Comptabilité'
+        }
+      };
 
-      // Créer le blob et télécharger
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `grand-livre-${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      triggerToast("success", "Export CSV réussi");
+      // Choix du format d'export
+      const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
+      
+      if (formatChoice) {
+        // Export Excel avec styles professionnels
+        ProfessionalExporter.exportExcel(exportData, 'grand-livre');
+        triggerToast("success", "Export Excel généré avec styles professionnels !");
+      } else {
+        // Export PDF pour impression
+        ProfessionalExporter.exportPDF(exportData, 'grand-livre');
+        triggerToast("success", "Export PDF généré pour impression !");
+      }
     } catch (error) {
-      console.error('Erreur export:', error);
+      console.error("Export error:", error);
       triggerToast("error", "Erreur lors de l'export");
     }
   };

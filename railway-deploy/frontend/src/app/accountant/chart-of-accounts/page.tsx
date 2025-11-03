@@ -1,6 +1,7 @@
 "use client";
 // Page Plan Comptable - MODE DYNAMIQUE avec API backend
 import { getBaseUrl } from "@/lib/api";
+import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
@@ -114,27 +115,46 @@ export default function ChartOfAccountsPage() {
   const handleExport = async () => {
     setActiveAction({ type: "export" });
     try {
-      const companyId = "default-company"; // TODO: récupérer depuis contexte
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
-        { method: 'GET' }
-      );
+      if (!accounts || accounts.length === 0) {
+        triggerToast("error", "Aucune donnée à exporter");
+        return;
+      }
+
+      // Données structurées pour l'export professionnel
+      const exportData = {
+        title: 'Plan Comptable SYSCOHADA',
+        headers: ['Code Compte', 'Nom du Compte', 'Type', 'Classe', 'Solde'],
+        rows: accounts.map(account => [
+          account.code,
+          account.name,
+          account.type,
+          account.class,
+          account.balance ? account.balance.toLocaleString('fr-FR') + ' FCFA' : '0 FCFA'
+        ]),
+        metadata: {
+          date: new Date().toLocaleDateString('fr-FR'),
+          company: 'BMS Business Management System',
+          period: 'Plan comptable complet',
+          author: 'Service Comptabilité'
+        }
+      };
+
+      // Choix du format d'export
+      const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
       
-      if (!response.ok) throw new Error('Export failed');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `plan-comptable-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      triggerToast("success", "Plan comptable exporté avec succès !");
+      if (formatChoice) {
+        // Export Excel avec styles professionnels
+        ProfessionalExporter.exportExcel(exportData, 'plan-comptable');
+        triggerToast("success", "Plan comptable exporté en Excel avec styles professionnels !");
+      } else {
+        // Export PDF pour impression
+        ProfessionalExporter.exportPDF(exportData, 'plan-comptable');
+        triggerToast("success", "Plan comptable exporté en PDF pour impression !");
+      }
     } catch (error) {
-      triggerToast("info", "Erreur lors de l'export. Vérifiez que le backend est démarré.");
+      triggerToast("info", "Erreur lors de l'export. Veuillez réessayer.");
+    } finally {
+      setActiveAction(null);
     }
   };
 

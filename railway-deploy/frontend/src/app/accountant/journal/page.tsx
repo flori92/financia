@@ -1,5 +1,6 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
+import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -120,26 +121,45 @@ export default function JournalPage() {
 
   const handleExport = async () => {
     try {
-      const companyId = "default-company";
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
-        { method: 'GET' }
-      );
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'export');
+      if (!entries || entries.length === 0) {
+        triggerToast("error", "Aucune écriture à exporter");
+        return;
       }
 
-      const result = await response.json();
-      const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = result.filename || 'ecritures.csv';
-      link.click();
+      // Données structurées pour l'export professionnel
+      const exportData = {
+        title: 'Journal des Écritures Comptables',
+        headers: ['Date', 'N° Pièce', 'Compte', 'Libellé', 'Débit', 'Crédit'],
+        rows: entries.map(entry => [
+          entry.date,
+          entry.reference || entry.number,
+          entry.accountNumber || entry.account,
+          entry.description || entry.label,
+          entry.debit ? entry.debit.toLocaleString('fr-FR') + ' FCFA' : '',
+          entry.credit ? entry.credit.toLocaleString('fr-FR') + ' FCFA' : ''
+        ]),
+        metadata: {
+          date: new Date().toLocaleDateString('fr-FR'),
+          company: 'BMS Business Management System',
+          period: 'Toutes les écritures',
+          author: 'Service Comptabilité'
+        }
+      };
+
+      // Choix du format d'export
+      const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
       
-      triggerToast("success", "Export réalisé avec succès");
-    } catch (err) {
-      triggerToast("error", "Erreur lors de l'export");
+      if (formatChoice) {
+        // Export Excel avec styles professionnels
+        ProfessionalExporter.exportExcel(exportData, 'journal-ecritures');
+        triggerToast("success", "Journal exporté en Excel avec styles professionnels !");
+      } else {
+        // Export PDF pour impression
+        ProfessionalExporter.exportPDF(exportData, 'journal-ecritures');
+        triggerToast("success", "Journal exporté en PDF pour impression !");
+      }
+    } catch (error) {
+      triggerToast("error", "Erreur lors de l'export. Veuillez réessayer.");
     }
   };
 

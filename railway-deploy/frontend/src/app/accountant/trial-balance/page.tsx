@@ -1,6 +1,7 @@
 "use client";
 // Balance générale - MODE DYNAMIQUE avec API backend
 import { getBaseUrl } from "@/lib/api";
+import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Download, Printer, Calendar, RefreshCw, AlertCircle } from "lucide-react";
@@ -185,27 +186,50 @@ export default function TrialBalancePage() {
 
   const handleExportExcel = async () => {
     try {
-      const companyId = "default-company"; // TODO: récupérer depuis contexte
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/accounting/export/trial-balance?companyId=${companyId}`,
-        { method: 'GET' }
-      );
+      if (!data || data.items.length === 0) {
+        triggerToast("error", "Aucune donnée à exporter");
+        return;
+      }
+
+      // Données structurées pour l'export professionnel
+      const exportData = {
+        title: 'Balance de Vérification',
+        headers: ['Compte', 'Libellé', 'Débit', 'Crédit'],
+        rows: [
+          ...data.items.map(item => [
+            item.accountNumber,
+            item.name,
+            item.debit ? item.debit.toLocaleString('fr-FR') + ' FCFA' : '',
+            item.credit ? item.credit.toLocaleString('fr-FR') + ' FCFA' : ''
+          ]),
+          ['', '', '', ''],
+          ['', 'TOTAUX', '', ''],
+          ['', 'Total Débit', data.totalDebit.toLocaleString('fr-FR') + ' FCFA', ''],
+          ['', 'Total Crédit', '', data.totalCredit.toLocaleString('fr-FR') + ' FCFA'],
+          ['', 'Solde', (data.totalDebit - data.totalCredit).toLocaleString('fr-FR') + ' FCFA', '']
+        ],
+        metadata: {
+          date: selectedDate,
+          company: 'BMS Business Management System',
+          period: `Balance au ${selectedDate}`,
+          author: 'Service Comptabilité'
+        }
+      };
+
+      // Choix du format d'export
+      const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
       
-      if (!response.ok) throw new Error('Export failed');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `balance-verification-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      triggerToast("success", "Export CSV téléchargé avec succès !");
+      if (formatChoice) {
+        // Export Excel avec styles professionnels
+        ProfessionalExporter.exportExcel(exportData, 'balance-verification');
+        triggerToast("success", "Balance exportée en Excel avec styles professionnels !");
+      } else {
+        // Export PDF pour impression
+        ProfessionalExporter.exportPDF(exportData, 'balance-verification');
+        triggerToast("success", "Balance exportée en PDF pour impression !");
+      }
     } catch (error) {
-      triggerToast("info", "Erreur lors de l'export. Vérifiez que le backend est démarré.");
+      triggerToast("info", "Erreur lors de l'export. Veuillez réessayer.");
     }
   };
 
