@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,9 +65,18 @@ const mockMetrics: SalesMetrics = {
 };
 
 export default function SalesCyclePage() {
+  const router = useRouter();
   const [metrics, setMetrics] = useState<SalesMetrics>(mockMetrics);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
+
+  const handleViewAllQuotes = () => {
+    router.push('/sales/quotes');
+  };
+
+  const handleViewAllOrders = () => {
+    router.push('/sales/orders');
+  };
 
   useEffect(() => {
     loadSalesCycleMetrics();
@@ -329,7 +339,7 @@ export default function SalesCyclePage() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Devis récents</CardTitle>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleViewAllQuotes}>
                 <Eye className="w-4 h-4 mr-1" />
                 Voir tout
               </Button>
@@ -368,7 +378,7 @@ export default function SalesCyclePage() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Commandes récentes</CardTitle>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleViewAllOrders}>
                 <Eye className="w-4 h-4 mr-1" />
                 Voir tout
               </Button>

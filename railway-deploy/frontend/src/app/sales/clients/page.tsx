@@ -29,6 +29,19 @@ export default function SalesClientsPage() {
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedClient, setSelectedClient] = useState<SalesClient | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const handleViewClient = (client: SalesClient) => {
+    setSelectedClient(client);
+    setShowViewModal(true);
+  };
+
+  const handleEditClient = (client: SalesClient) => {
+    setSelectedClient(client);
+    setShowEditModal(true);
+  };
 
   useEffect(() => {
     loadClients();
@@ -309,11 +322,11 @@ export default function SalesClientsPage() {
                 </div>
 
                 <div className="flex gap-2 mt-4">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => handleViewClient(client)}>
                     <Eye className="w-4 h-4 mr-1" />
                     Voir
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => handleEditClient(client)}>
                     <Edit className="w-4 h-4 mr-1" />
                     Modifier
                   </Button>
@@ -323,6 +336,159 @@ export default function SalesClientsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal Visualisation */}
+      {showViewModal && selectedClient && (
+        <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Détails du client</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nom</Label>
+                  <div className="font-medium">{selectedClient.name}</div>
+                </div>
+                <div>
+                  <Label>Entreprise</Label>
+                  <div className="font-medium">{selectedClient.company || 'N/A'}</div>
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <div className="font-medium flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    {selectedClient.email}
+                  </div>
+                </div>
+                <div>
+                  <Label>Téléphone</Label>
+                  <div className="font-medium flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    {selectedClient.phone}
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <Label>Adresse</Label>
+                  <div className="font-medium flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    {selectedClient.address}
+                  </div>
+                </div>
+                <div>
+                  <Label>Type</Label>
+                  <div className="font-medium">
+                    {selectedClient.type === 'company' ? 'Entreprise' : 'Particulier'}
+                  </div>
+                </div>
+                <div>
+                  <Label>Statut</Label>
+                  <div className="font-medium">
+                    {selectedClient.status === 'active' ? 'Actif' :
+                     selectedClient.status === 'inactive' ? 'Inactif' : 'Prospect'}
+                  </div>
+                </div>
+                <div>
+                  <Label>Commandes totales</Label>
+                  <div className="font-bold">{selectedClient.totalOrders}</div>
+                </div>
+                <div>
+                  <Label>CA Total</Label>
+                  <div className="font-bold">{selectedClient.totalRevenue.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+                <div>
+                  <Label>Note</Label>
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < selectedClient.rating
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300'
+                        }`}
+                      />
+                    ))}
+                    <span className="ml-2">{selectedClient.rating}/5</span>
+                  </div>
+                </div>
+                <div>
+                  <Label>Date de création</Label>
+                  <div className="font-medium">
+                    {new Date(selectedClient.createdAt).toLocaleDateString('fr-FR')}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowViewModal(false)}>Fermer</Button>
+                <Button onClick={() => { setShowViewModal(false); handleEditClient(selectedClient); }}>
+                  Modifier
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Modal Édition */}
+      {showEditModal && selectedClient && (
+        <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Modifier le client</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nom</Label>
+                  <Input defaultValue={selectedClient.name} />
+                </div>
+                <div>
+                  <Label>Entreprise</Label>
+                  <Input defaultValue={selectedClient.company || ''} />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input type="email" defaultValue={selectedClient.email} />
+                </div>
+                <div>
+                  <Label>Téléphone</Label>
+                  <Input defaultValue={selectedClient.phone} />
+                </div>
+                <div className="col-span-2">
+                  <Label>Adresse</Label>
+                  <Input defaultValue={selectedClient.address} />
+                </div>
+                <div>
+                  <Label>Type</Label>
+                  <select defaultValue={selectedClient.type} className="w-full px-3 py-2 border rounded-lg">
+                    <option value="individual">Particulier</option>
+                    <option value="company">Entreprise</option>
+                  </select>
+                </div>
+                <div>
+                  <Label>Statut</Label>
+                  <select defaultValue={selectedClient.status} className="w-full px-3 py-2 border rounded-lg">
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                    <option value="prospect">Prospect</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowEditModal(false)}>Annuler</Button>
+                <Button onClick={() => {
+                  alert('Client mis à jour avec succès');
+                  setShowEditModal(false);
+                  loadClients();
+                }}>
+                  Enregistrer
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
