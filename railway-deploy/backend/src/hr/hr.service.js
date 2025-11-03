@@ -33,7 +33,7 @@ class HRService {
     }
   }
 
-  async getEmployees(companyId: string, status?: string) {
+  async getEmployees(companyId, status) {
     try {
       const mockEmployees = [
         {
@@ -90,7 +90,7 @@ class HRService {
     }
   }
 
-  async createEmployee(createEmployeeDto: any, companyId: string) {
+  async createEmployee(createEmployeeDto, companyId) {
     try {
       const employee = {
         id: Date.now().toString(),
@@ -107,7 +107,7 @@ class HRService {
     }
   }
 
-  async updateEmployee(id: string, updateEmployeeDto: any) {
+  async updateEmployee(id, updateEmployeeDto) {
     try {
       const employee = {
         id,
@@ -121,7 +121,7 @@ class HRService {
     }
   }
 
-  async getPayroll(companyId: string, month?: string) {
+  async getPayroll(companyId, month) {
     try {
       const currentMonth = month || new Date().toISOString().slice(0, 7);
       
@@ -163,7 +163,7 @@ class HRService {
     }
   }
 
-  async generatePayroll(generateDto: { month: string; employeeIds?: string[] }, companyId: string) {
+  async generatePayroll(generateDto, companyId) {
     try {
       const result = {
         success: true,
@@ -180,7 +180,7 @@ class HRService {
     }
   }
 
-  async getLeaves(companyId: string, status?: string) {
+  async getLeaves(companyId, status) {
     try {
       const mockLeaves = [
         {
@@ -234,7 +234,7 @@ class HRService {
     }
   }
 
-  async createLeave(createLeaveDto: any, companyId: string) {
+  async createLeave(createLeaveDto, companyId) {
     try {
       const leave = {
         id: Date.now().toString(),
@@ -251,7 +251,7 @@ class HRService {
     }
   }
 
-  async approveLeave(id: string, approveDto: { approved: boolean; comment?: string }) {
+  async approveLeave(id, approveDto) {
     try {
       const leave = {
         id,

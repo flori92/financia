@@ -32,7 +32,7 @@ class ProjectsService {
     }
   }
 
-  async getProjects(companyId: string, status?: string) {
+  async getProjects(companyId, status) {
     try {
       const mockProjects = [
         {
@@ -89,7 +89,7 @@ class ProjectsService {
     }
   }
 
-  async createProject(createProjectDto: any, companyId: string) {
+  async createProject(createProjectDto, companyId) {
     try {
       const project = {
         id: Date.now().toString(),
@@ -107,7 +107,7 @@ class ProjectsService {
     }
   }
 
-  async updateProject(id: string, updateProjectDto: any) {
+  async updateProject(id, updateProjectDto) {
     try {
       const project = {
         id,
@@ -121,7 +121,7 @@ class ProjectsService {
     }
   }
 
-  async getProjectTasks(projectId: string) {
+  async getProjectTasks(projectId, status) {
     try {
       const mockTasks = [
         {
@@ -165,13 +165,17 @@ class ProjectsService {
         }
       ];
 
+      if (status) {
+        return mockTasks.filter(task => task.status === status);
+      }
+
       return mockTasks;
     } catch (error) {
       throw new Error(`Erreur récupération tâches: ${error.message}`);
     }
   }
 
-  async createProjectTask(projectId: string, createTaskDto: any) {
+  async createProjectTask(projectId, createTaskDto) {
     try {
       const task = {
         id: Date.now().toString(),
