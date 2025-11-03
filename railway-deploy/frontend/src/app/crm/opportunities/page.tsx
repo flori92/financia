@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ProfessionalExporter } from "@/lib/export-utils";
 import Link from 'next/link';
 
 interface PipelineStage {
@@ -372,14 +373,32 @@ Analyse performance:
 
 Généré le: ${new Date().toLocaleString('fr-FR')}`;
 
-            // Télécharger le rapport
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `previsions-ventes-${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
+            // Export professionnel Excel formaté
+            ProfessionalExporter.exportExcel({
+              title: 'Rapport de Prévisions des Ventes',
+              headers: ['Mois', 'Revenus prévisionnels', 'Taux conversion', 'Objectif atteint', 'Statut'],
+              rows: [
+                ['Mois 1', forecast.monthlyRevenue[0].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'En cours'],
+                ['Mois 2', forecast.monthlyRevenue[1].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
+                ['Mois 3', forecast.monthlyRevenue[2].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
+                ['Mois 4', forecast.monthlyRevenue[3].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
+                ['Mois 5', forecast.monthlyRevenue[4].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
+                ['Mois 6', forecast.monthlyRevenue[5].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
+                ['', '', '', '', ''],
+                ['Résumé performance', '', '', '', ''],
+                ['Total projeté 6 mois', forecast.totalProjected.toLocaleString('fr-FR') + ' FCFA', '', '', ''],
+                ['Opportunités chaudes', '12', '', '', ''],
+                ['Pipeline actif', '45 opportunités', '', '', ''],
+                ['Valeur moyenne', '250,000 FCFA', '', '', ''],
+                ['Cycle vente moyen', '45 jours', '', '', '']
+              ],
+              metadata: {
+                date: new Date().toLocaleDateString('fr-FR'),
+                company: 'BMS Business Management System',
+                period: '6 prochain mois',
+                author: 'Service Commercial'
+              }
+            }, 'previsions-ventes');
 
             alert(`Prévisions générées !\nTotal projeté: ${forecast.totalProjected.toLocaleString('fr-FR')} FCFA\nTaux conversion: ${forecast.conversionRate}%\nObjectif: ${forecast.targetAchievement}%\n\nRapport exporté avec succès !`);
           }}

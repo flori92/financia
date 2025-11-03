@@ -1,4 +1,6 @@
 "use client";
+import { apiGet } from "@/lib/api";
+import { ProfessionalExporter } from "@/lib/export-utils";
 import { getBaseUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState } from "react";
@@ -121,37 +123,40 @@ export default function VATPage() {
       productLines: Math.floor(Math.random() * 50) + 10
     };
 
-    const content = `Rapport d'Import DEB/DES - Flux Douanes
-============================================
+    // Données structurées pour l'export
+    const exportData = {
+      title: 'Rapport d\'Import DEB/DES - Flux Douanes',
+      headers: ['Référence', 'Description', 'Valeur déclarée', 'Valeur douanière', 'TVA', 'Statut'],
+      rows: [
+        [mockData.debNumber, 'Déclaration d\'Échange de Biens', mockData.totalValue.toLocaleString('fr-FR') + ' FCFA', mockData.customsValue.toLocaleString('fr-FR') + ' FCFA', mockData.vatAmount.toLocaleString('fr-FR') + ' FCFA', 'Validé'],
+        [mockData.desNumber, 'Déclaration d\'Échange de Services', mockData.totalValue.toLocaleString('fr-FR') + ' FCFA', mockData.customsValue.toLocaleString('fr-FR') + ' FCFA', mockData.vatAmount.toLocaleString('fr-FR') + ' FCFA', 'Validé'],
+        ['', '', '', '', '', ''],
+        ['', 'Résumé', '', '', '', ''],
+        ['', 'Nombre de fournisseurs', mockData.supplierCount, '', '', ''],
+        ['', 'Nombre de lignes produits', mockData.productLines, '', '', ''],
+        ['', 'Valeur totale', mockData.totalValue.toLocaleString('fr-FR') + ' FCFA', '', '', ''],
+        ['', 'Montant TVA', mockData.vatAmount.toLocaleString('fr-FR') + ' FCFA', '', '', '']
+      ],
+      metadata: {
+        date: mockData.importDate,
+        company: 'BMS Business Management System',
+        period: `Import du ${mockData.importDate}`,
+        author: 'Service Comptabilité'
+      }
+    };
 
-Numéro DEB: ${mockData.debNumber}
-Numéro DES: ${mockData.desNumber}
-Date d'import: ${mockData.importDate}
-
-Valeurs déclarées:
-- Valeur totale: ${mockData.totalValue.toLocaleString('fr-FR')} FCFA
-- Valeur douanière: ${mockData.customsValue.toLocaleString('fr-FR')} FCFA
-- Montant TVA: ${mockData.vatAmount.toLocaleString('fr-FR')} FCFA
-
-Détail marchandise:
-- Nombre de fournisseurs: ${mockData.supplierCount}
-- Nombre de lignes produits: ${mockData.productLines}
-
-Import connecté aux flux douanes effectué avec succès!
-Données intégrées et disponibles pour déclaration TVA
-
-Généré le: ${new Date().toLocaleString('fr-FR')}`;
-
-    // Télécharger le rapport
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `import-deb-des-${mockData.importDate}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    triggerToast("success", `Import DEB/DES ${mockData.debNumber} effectué avec succès !`);
+    // Choix du format d'export
+    const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
+    
+    if (formatChoice) {
+      // Export Excel avec styles professionnels
+      ProfessionalExporter.exportExcel(exportData, 'import-deb-des');
+      triggerToast("success", `Import DEB/DES ${mockData.debNumber} effectué ! Rapport Excel généré avec styles professionnels.`);
+    } else {
+      // Export PDF pour impression
+      ProfessionalExporter.exportPDF(exportData, 'import-deb-des');
+      triggerToast("success", `Import DEB/DES ${mockData.debNumber} effectué ! Rapport PDF généré pour impression.`);
+    }
   };
 
   return (
