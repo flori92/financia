@@ -1,18 +1,22 @@
 "use client";
-// Page Plan Comptable - Fix Railway deployment issue
+// Page Plan Comptable - MODE DYNAMIQUE avec API backend
 import { getBaseUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
 
+interface Account {
+  code: string;
+  name: string;
+  type: string;
+  class: string;
+  balance?: number;
+}
+
 export default function ChartOfAccountsPage() {
-  const [accounts] = useState([
-    { code: "101000", name: "Capital social", type: "Capitaux propres", balance: 100000 },
-    { code: "411000", name: "Clients", type: "Actif circulant", balance: 45000 },
-    { code: "401000", name: "Fournisseurs", type: "Dettes", balance: -25000 },
-    { code: "701000", name: "Ventes de marchandises", type: "Produits", balance: -150000 },
-    { code: "607000", name: "Achats de marchandises", type: "Charges", balance: 80000 }
-  ]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "info"; message: string } | null>(null);
   const [activeAction, setActiveAction] = useState<{ type: "import" | "export" | "create" | "edit"; payload?: any } | null>(null);
@@ -21,6 +25,50 @@ export default function ChartOfAccountsPage() {
     setToast({ type, message });
     setTimeout(() => setToast(null), 2800);
   };
+
+  // Charger les données du plan comptable depuis l'API
+  const loadChartOfAccounts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7"; // TODO: depuis contexte
+      const response = await fetch(
+        `${getBaseUrl()}/api/v1/accounting/chart-of-accounts?companyId=${companyId}`,
+        { 
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setAccounts(data || []);
+    } catch (err) {
+      console.error('Erreur chargement plan comptable:', err);
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      // En cas d'erreur, afficher un plan comptable de base
+      setAccounts([
+        { code: '101000', name: 'Capital Social', type: 'equity', class: '1' },
+        { code: '401000', name: 'Fournisseurs', type: 'liability', class: '4' },
+        { code: '411000', name: 'Clients', type: 'asset', class: '4' },
+        { code: '601000', name: 'Achats marchandises', type: 'expense', class: '6' },
+        { code: '701000', name: 'Ventes marchandises', type: 'revenue', class: '7' }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Charger au montage du composant
+  useEffect(() => {
+    loadChartOfAccounts();
+  }, []);
 
   const handleImport = () => {
     setActiveAction({ type: "import" });
@@ -101,21 +149,52 @@ export default function ChartOfAccountsPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Rechercher un compte..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
-            />
+      {/* État de chargement */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D9488] mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement du plan comptable...</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-            <Filter className="w-4 h-4" />
-            Filtres
-          </button>
         </div>
+      )}
+
+      {/* État d'erreur */}
+      {error && !loading && (
+        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <X className="w-5 h-5 text-rose-600" />
+            <div>
+              <h3 className="text-rose-800 font-medium">Erreur de chargement</h3>
+              <p className="text-rose-700 text-sm">{error}</p>
+              <button
+                onClick={loadChartOfAccounts}
+                className="mt-2 text-sm text-rose-600 hover:text-rose-800 underline"
+              >
+                Réessayer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenu principal - seulement si pas en chargement */}
+      {!loading && !error && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Rechercher un compte..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
+              />
+            </div>
+            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              <Filter className="w-4 h-4" />
+              Filtres
+            </button>
+          </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -134,8 +213,11 @@ export default function ChartOfAccountsPage() {
                   <td className="py-3 px-4 font-mono text-sm">{account.code}</td>
                   <td className="py-3 px-4">{account.name}</td>
                   <td className="py-3 px-4 text-sm text-gray-600">{account.type}</td>
-                  <td className={`py-3 px-4 text-right font-medium ${account.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {new Intl.NumberFormat('fr-FR').format(Math.abs(account.balance))} FCFA
+                  <td className={`py-3 px-4 text-right font-medium ${account.balance !== undefined && account.balance >= 0 ? 'text-green-600' : account.balance !== undefined ? 'text-red-600' : 'text-gray-400'}`}>
+                    {account.balance !== undefined 
+                      ? `${new Intl.NumberFormat('fr-FR').format(Math.abs(account.balance))} FCFA`
+                      : '—'
+                    }
                   </td>
                   <td className="py-3 px-4 text-right">
                     <button
@@ -151,6 +233,7 @@ export default function ChartOfAccountsPage() {
           </table>
         </div>
       </div>
+      )}
       {toast && (
         <div
           className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
