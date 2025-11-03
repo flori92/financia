@@ -489,11 +489,23 @@ export default function ProjectsPage() {
             </div>
 
             <div className="flex gap-2 justify-end">
-              <Button variant="outline">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  handleEditProject(selectedProject);
+                }}
+              >
                 <Edit className="w-4 h-4 mr-2" />
                 Modifier
               </Button>
-              <Button className="bg-red-600 hover:bg-red-700">
+              <Button 
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  handleDeleteProject(selectedProject);
+                }}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Supprimer
               </Button>

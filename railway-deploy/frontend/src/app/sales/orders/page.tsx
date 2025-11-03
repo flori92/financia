@@ -213,7 +213,7 @@ export default function SalesOrdersPage() {
                   <tr key={order.id} className="border-b hover:bg-gray-50">
                     <td className="p-3 font-medium">{order.orderNumber}</td>
                     <td className="p-3">{order.clientName}</td>
-                    <td className="p-3 font-bold">{safeToLocaleString(order.totalAmount)} FCFA</td>
+                    <td className="p-3 font-bold">{order.totalAmount.toLocaleString('fr-FR')} FCFA</td>
                     <td className="p-3">{getStatusBadge(order.status)}</td>
                     <td className="p-3 text-sm">{new Date(order.orderDate).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3 text-sm">
@@ -252,6 +252,93 @@ export default function SalesOrdersPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal Visualisation */}
+      {showViewModal && selectedOrder && (
+        <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Détails de la commande {selectedOrder.orderNumber}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Client</Label>
+                  <div className="font-medium">{selectedOrder.clientName}</div>
+                </div>
+                <div>
+                  <Label>Statut</Label>
+                  <div>{getStatusBadge(selectedOrder.status)}</div>
+                </div>
+                <div>
+                  <Label>Montant total</Label>
+                  <div className="font-bold text-lg">{selectedOrder.totalAmount.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+                <div>
+                  <Label>Date de commande</Label>
+                  <div>{new Date(selectedOrder.orderDate).toLocaleDateString('fr-FR')}</div>
+                </div>
+                {selectedOrder.expectedDeliveryDate && (
+                  <div>
+                    <Label>Livraison prévue</Label>
+                    <div>{new Date(selectedOrder.expectedDeliveryDate).toLocaleDateString('fr-FR')}</div>
+                  </div>
+                )}
+                {selectedOrder.trackingNumber && (
+                  <div>
+                    <Label>Numéro de suivi</Label>
+                    <div className="font-mono">{selectedOrder.trackingNumber}</div>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowViewModal(false)}>Fermer</Button>
+                <Button onClick={() => { setShowViewModal(false); handleEditOrder(selectedOrder); }}>Modifier</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Modal Édition */}
+      {showEditModal && selectedOrder && (
+        <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Modifier la commande {selectedOrder.orderNumber}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Statut</Label>
+                <Select defaultValue={selectedOrder.status} onValueChange={(value) => handleUpdateOrderStatus(selectedOrder.id, value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">En attente</SelectItem>
+                    <SelectItem value="confirmed">Confirmée</SelectItem>
+                    <SelectItem value="processing">En traitement</SelectItem>
+                    <SelectItem value="shipped">Expédiée</SelectItem>
+                    <SelectItem value="delivered">Livrée</SelectItem>
+                    <SelectItem value="cancelled">Annulée</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Date de livraison prévue</Label>
+                <Input type="date" defaultValue={selectedOrder.expectedDeliveryDate} />
+              </div>
+              <div>
+                <Label>Numéro de suivi</Label>
+                <Input defaultValue={selectedOrder.trackingNumber} placeholder="TRK-XXXXXXXXX" />
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowEditModal(false)}>Fermer</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
