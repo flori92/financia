@@ -2443,6 +2443,27 @@ app.post('/api/v1/ai/free/forecast/comprehensive', async (req, res) => {
   await freeLLMController.forecastComprehensive(req, res);
 });
 
+// 📋 PRÉVISIONS BUDGÉTAIRES AVANCÉES - Llama GRATUIT
+app.post('/api/v1/ai/free/forecast/budget', async (req, res) => {
+  await freeLLMController.forecastBudget(req, res);
+});
+
+app.post('/api/v1/ai/free/forecast/expenses', async (req, res) => {
+  await freeLLMController.forecastExpenses(req, res);
+});
+
+app.post('/api/v1/ai/free/forecast/cash-flow-advanced', async (req, res) => {
+  await freeLLMController.forecastAdvancedCashFlow(req, res);
+});
+
+app.post('/api/v1/ai/free/forecast/chart-accounts', async (req, res) => {
+  await freeLLMController.forecastChartOfAccounts(req, res);
+});
+
+app.post('/api/v1/ai/free/business-plan', async (req, res) => {
+  await freeLLMController.generateBusinessPlan(req, res);
+});
+
 // 404 handler - DOIT être à la fin après toutes les routes
 app.use('*', (req, res) => {
   res.status(404).json({

@@ -1,10 +1,12 @@
 const FreeLLMService = require('./free-llama.service');
 const EnhancedForecastService = require('./enhanced-forecast.service');
+const BudgetForecastService = require('./budget-forecast.service');
 
 class FreeLLMController {
   constructor() {
     this.llmService = new FreeLLMService();
     this.forecastService = new EnhancedForecastService();
+    this.budgetService = new BudgetForecastService();
   }
 
   // Endpoint principal pour discuter avec Llama GRATUIT
@@ -438,6 +440,141 @@ class FreeLLMController {
       res.status(500).json({
         success: false,
         error: 'Erreur lors de la génération des prévisions complètes'
+      });
+    }
+  }
+
+  // 📋 Prévisions Budgétaires Complètes
+  async forecastBudget(req, res) {
+    try {
+      const { companyId, userId, months = 12 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`📋 Génération budget prévisionnel pour ${months} mois - entreprise ${companyId}`);
+
+      const result = await this.budgetService.generateBudgetForecast(companyId, userId, months);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur prévisions budgétaires:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération du budget prévisionnel'
+      });
+    }
+  }
+
+  // 💰 Prévisions Détaillées des Dépenses
+  async forecastExpenses(req, res) {
+    try {
+      const { companyId, userId, months = 6 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`💰 Génération prévisions dépenses pour ${months} mois - entreprise ${companyId}`);
+
+      const result = await this.budgetService.generateExpenseForecast(companyId, userId, months);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur prévisions dépenses:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération des prévisions de dépenses'
+      });
+    }
+  }
+
+  // 🏦 Prévisions Trésorerie Avancées
+  async forecastAdvancedCashFlow(req, res) {
+    try {
+      const { companyId, userId, months = 6 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`🏦 Génération trésorerie avancée pour ${months} mois - entreprise ${companyId}`);
+
+      const result = await this.budgetService.generateAdvancedCashFlowForecast(companyId, userId, months);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur prévisions trésorerie avancées:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération des prévisions de trésorerie avancées'
+      });
+    }
+  }
+
+  // 📊 Plans Comptables Prévisionnels
+  async forecastChartOfAccounts(req, res) {
+    try {
+      const { companyId, userId } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`📊 Génération plan comptable prévisionnel - entreprise ${companyId}`);
+
+      const result = await this.budgetService.generateChartOfAccountsForecast(companyId, userId);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur plan comptable prévisionnel:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération du plan comptable prévisionnel'
+      });
+    }
+  }
+
+  // 🎯 Plan d'Affaires Intégré
+  async generateBusinessPlan(req, res) {
+    try {
+      const { companyId, userId, years = 3 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`🎯 Génération plan d'affaires ${years} ans - entreprise ${companyId}`);
+
+      const result = await this.budgetService.generateIntegratedBusinessPlan(companyId, userId, years);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur plan d\'affaires intégré:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération du plan d\'affaires intégré'
       });
     }
   }
