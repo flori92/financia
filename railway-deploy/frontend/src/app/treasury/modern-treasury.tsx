@@ -6,6 +6,7 @@ import { ModernLayout } from "@/components/modern/ModernLayout";
 import { DashboardCard } from "@/components/modern/DashboardCard";
 import { SmartChart } from "@/components/modern/SmartChart";
 import { SmartAlert, useSmartAlert } from "@/components/modern/SmartAlert";
+import { TreasuryService, type TreasuryMetrics } from "@/services/treasury-service";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -78,64 +79,23 @@ export default function ModernTreasuryPage() {
   const loadTreasuryData = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Utiliser le vrai service API
+      const metrics = await TreasuryService.getTreasuryMetrics(undefined, selectedPeriod);
       
-      const mockData: TreasuryMetrics = {
-        totalBalance: 2500000,
-        totalInflow: 1800000,
-        totalOutflow: 1200000,
-        netCashFlow: 600000,
-        runway: 45,
-        criticalThreshold: 1000000,
-        warningThreshold: 2000000,
-        accounts: [
-          {
-            id: "1",
-            name: "Compte Principal",
-            bank: "ECOBANK",
-            balance: 1500000,
-            currency: "FCFA",
-            status: "Connecté",
-            lastUpdated: "2024-11-03T10:30:00Z",
-            trend: 5.2
-          },
-          {
-            id: "2", 
-            name: "Compte Secondaire",
-            bank: "UBA",
-            balance: 1000000,
-            currency: "FCFA",
-            status: "Manuel",
-            lastUpdated: "2024-11-03T09:15:00Z",
-            trend: -2.1
-          }
-        ],
-        forecast: [
-          { date: "Sem 1", inflow: 450000, outflow: 300000, balance: 2650000, confidence: 95 },
-          { date: "Sem 2", inflow: 380000, outflow: 350000, balance: 2680000, confidence: 90 },
-          { date: "Sem 3", inflow: 520000, outflow: 400000, balance: 2800000, confidence: 85 },
-          { date: "Sem 4", inflow: 450000, outflow: 380000, balance: 2870000, confidence: 80 }
-        ],
-        alerts: [
-          {
-            type: "warning",
-            title: "Runway faible",
-            message: "Votre trésorerie couvre seulement 45 jours d'exploitation",
-            action: {
-              label: "Voir les solutions",
-              onClick: () => showInfo("Solutions", "Optimisez vos encaissements et réduisez les dépenses")
-            }
-          }
-        ]
-      };
+      // Valider les données
+      const validation = TreasuryService.validateMetrics(metrics);
+      if (!validation.isValid) {
+        console.warn('Validation des métriques de trésorerie:', validation.errors);
+        showWarning("Données incomplètes", "Certaines métriques peuvent être incorrectes");
+      }
 
-      setData(mockData);
+      setData(metrics);
       
       // Alertes intelligentes basées sur les métriques
-      if (mockData.runway < 15) {
+      if (metrics.runway < 15) {
         showCritical(
           "Trésorerie Critique",
-          `Runway de ${mockData.runway} jours seulement. Action immédiate requise.`,
+          `Runway de ${metrics.runway} jours seulement. Action immédiate requise.`,
           [
             {
               label: "Plan d'urgence",
@@ -147,13 +107,13 @@ export default function ModernTreasuryPage() {
             }
           ]
         );
-      } else if (mockData.runway < 30) {
+      } else if (metrics.runway < 30) {
         showWarning(
           "Trésorerie Faible",
-          `Runway de ${mockData.runway} jours. Surveillez attentivement.`
+          `Runway de ${metrics.runway} jours. Surveillez attentivement.`
         );
       } else {
-        showSuccess("Trésorerie Saine", `Runway confortable de ${mockData.runway} jours`);
+        showSuccess("Trésorerie Saine", `Runway confortable de ${metrics.runway} jours`);
       }
     } catch (error) {
       showError("Erreur", "Impossible de charger les données de trésorerie");
@@ -164,8 +124,49 @@ export default function ModernTreasuryPage() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadTreasuryData();
-    setRefreshing(false);
+    try {
+      await loadTreasuryData();
+      showSuccess("Actualisé", "Les données de trésorerie ont été rafraîchies");
+    } catch (error) {
+      showError("Erreur", "Impossible de rafraîchir les données");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleTransfer = async () => {
+    try {
+      showInfo("Virement", "Formulaire de virement bancaire");
+      // TODO: Ouvrir un modal pour le virement
+    } catch (error) {
+      showError("Erreur", "Impossible d'ouvrir le formulaire de virement");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await TreasuryService.exportTreasuryData(undefined, selectedPeriod);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tresorerie-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showSuccess("Export réussi", "Les données de trésorerie ont été exportées");
+    } catch (error) {
+      showError("Erreur d'export", "Impossible d'exporter les données");
+    }
+  };
+
+  const handleReconcile = async () => {
+    try {
+      showInfo("Rapprochement", "Lancement du rapprochement bancaire automatique");
+      // TODO: Appeler l'API de rapprochement
+    } catch (error) {
+      showError("Erreur", "Impossible de lancer le rapprochement");
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -389,7 +390,7 @@ export default function ModernTreasuryPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <button
-              onClick={() => showInfo("Nouveau virement", "Formulaire de virement bancaire")}
+              onClick={handleTransfer}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Plus className="w-5 h-5 text-blue-600" />
@@ -397,7 +398,7 @@ export default function ModernTreasuryPage() {
             </button>
             
             <button
-              onClick={() => showInfo("Export", "Export des données de trésorerie")}
+              onClick={handleExport}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Download className="w-5 h-5 text-green-600" />
@@ -405,7 +406,7 @@ export default function ModernTreasuryPage() {
             </button>
             
             <button
-              onClick={() => showInfo("Rapprochement", "Rapprochement bancaire automatique")}
+              onClick={handleReconcile}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Activity className="w-5 h-5 text-purple-600" />

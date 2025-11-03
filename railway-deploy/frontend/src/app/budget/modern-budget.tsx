@@ -7,6 +7,7 @@ import { DashboardCard } from "@/components/modern/DashboardCard";
 import { SmartChart } from "@/components/modern/SmartChart";
 import { SmartTable } from "@/components/modern/SmartTable";
 import { SmartAlert, useSmartAlert } from "@/components/modern/SmartAlert";
+import { BudgetService, type BudgetMetrics } from "@/services/budget-service";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -81,100 +82,21 @@ export default function ModernBudgetPage() {
   const loadBudgetData = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Utiliser le vrai service API
+      const metrics = await BudgetService.getBudgetMetrics(undefined, selectedPeriod, selectedDepartment);
       
-      const mockData: BudgetMetrics = {
-        totalBudgeted: 5000000,
-        totalActual: 4800000,
-        overallVariance: 200000,
-        overallVariancePercent: 4.0,
-        period: selectedPeriod,
-        budgetItems: [
-          {
-            id: "1",
-            category: "Ventes",
-            budgeted: 2000000,
-            actual: 2200000,
-            variance: 200000,
-            variancePercent: 10.0,
-            type: "revenue",
-            department: "Commercial",
-            responsible: "Directeur Commercial",
-            status: "on-track",
-            lastUpdated: "2024-11-03T10:30:00Z"
-          },
-          {
-            id: "2",
-            category: "Marketing",
-            budgeted: 800000,
-            actual: 950000,
-            variance: -150000,
-            variancePercent: -18.75,
-            type: "expense",
-            department: "Marketing",
-            responsible: "Directeur Marketing",
-            status: "warning",
-            lastUpdated: "2024-11-03T09:15:00Z"
-          },
-          {
-            id: "3",
-            category: "Salaires",
-            budgeted: 1500000,
-            actual: 1450000,
-            variance: 50000,
-            variancePercent: 3.33,
-            type: "expense",
-            department: "RH",
-            responsible: "Directeur RH",
-            status: "on-track",
-            lastUpdated: "2024-11-02T16:45:00Z"
-          },
-          {
-            id: "4",
-            category: "Frais Généraux",
-            budgeted: 700000,
-            actual: 200000,
-            variance: 500000,
-            variancePercent: 71.43,
-            type: "expense",
-            department: "Admin",
-            responsible: "Directeur Admin",
-            status: "completed",
-            lastUpdated: "2024-11-01T14:20:00Z"
-          }
-        ],
-        departmentBreakdown: [
-          { name: "Commercial", budgeted: 2000000, actual: 2200000, variance: 200000 },
-          { name: "Marketing", budgeted: 800000, actual: 950000, variance: -150000 },
-          { name: "RH", budgeted: 1500000, actual: 1450000, variance: 50000 },
-          { name: "Admin", budgeted: 700000, actual: 200000, variance: 500000 }
-        ],
-        monthlyTrend: [
-          { month: "Août", budgeted: 4800000, actual: 4900000, variance: -100000 },
-          { month: "Sept", budgeted: 4900000, actual: 4850000, variance: 50000 },
-          { month: "Oct", budgeted: 4950000, actual: 4750000, variance: 200000 },
-          { month: "Nov", budgeted: 5000000, actual: 4800000, variance: 200000 }
-        ],
-        alerts: [
-          {
-            type: "warning",
-            title: "Dépassement Budget Marketing",
-            message: "Le budget marketing est dépassé de 18.75%",
-            itemId: "2"
-          },
-          {
-            type: "info",
-            title: "Performance Commerciale Excellente",
-            message: "Les ventes dépassent le budget de 10%"
-          }
-        ]
-      };
+      // Valider les données
+      const validation = BudgetService.validateMetrics(metrics);
+      if (!validation.isValid) {
+        console.warn('Validation des métriques budgétaires:', validation.errors);
+        showWarning("Données incomplètes", "Certaines métriques peuvent être incorrectes");
+      }
 
-      setData(mockData);
+      setData(metrics);
       
       // Alertes intelligentes basées sur les métriques
-      const criticalItems = mockData.budgetItems.filter(item => item.status === "critical");
-      const warningItems = mockData.budgetItems.filter(item => item.status === "warning");
+      const criticalItems = metrics.budgetItems.filter(item => item.status === "critical");
+      const warningItems = metrics.budgetItems.filter(item => item.status === "warning");
       
       if (criticalItems.length > 0) {
         showCritical(
@@ -204,8 +126,64 @@ export default function ModernBudgetPage() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadBudgetData();
-    setRefreshing(false);
+    try {
+      await loadBudgetData();
+      showSuccess("Actualisé", "Les données budgétaires ont été rafraîchies");
+    } catch (error) {
+      showError("Erreur", "Impossible de rafraîchir les données");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleCreateBudget = async () => {
+    try {
+      showInfo("Nouveau Budget", "Formulaire de création de catégorie budgétaire");
+      // TODO: Ouvrir un modal pour créer un budget
+    } catch (error) {
+      showError("Erreur", "Impossible d'ouvrir le formulaire de budget");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await BudgetService.exportBudgetData(undefined, selectedPeriod, selectedDepartment);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `budget-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showSuccess("Export réussi", "Les données budgétaires ont été exportées");
+    } catch (error) {
+      showError("Erreur d'export", "Impossible d'exporter les données");
+    }
+  };
+
+  const handleVarianceAnalysis = async () => {
+    try {
+      setShowVarianceAnalysis(!showVarianceAnalysis);
+      if (data) {
+        const analysis = BudgetService.analyzeVariance(data.budgetItems);
+        showInfo("Analyse des Écarts", 
+          `${analysis.recommendations.join('. ')}. Écart total: ${BudgetService.formatCurrency(analysis.totalVariance)}`
+        );
+      }
+    } catch (error) {
+      showError("Erreur", "Impossible d'analyser les écarts");
+    }
+  };
+
+  const handleForecast = async () => {
+    try {
+      showInfo("Prévisions IA", "Génération des prévisions budgétaires avec intelligence artificielle");
+      const forecast = await BudgetService.generateForecast();
+      showSuccess("Prévisions générées", `${forecast.length} mois de prévisions calculées`);
+    } catch (error) {
+      showError("Erreur", "Impossible de générer les prévisions");
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -511,9 +489,44 @@ export default function ModernBudgetPage() {
               <Download className="w-5 h-5 text-green-600" />
               <span className="text-sm font-medium">Exporter</span>
             </button>
+          </div>
+        </motion.div>
+
+        {/* Actions Rapides */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+        >
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <button
+              onClick={handleCreateBudget}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Plus className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium">Nouveau Budget</span>
+            </button>
             
             <button
-              onClick={() => showInfo("Prévisions", "Modèle prédictif des dépenses")}
+              onClick={handleVarianceAnalysis}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Activity className="w-5 h-5 text-purple-600" />
+              <span className="text-sm font-medium">Analyse des Écarts</span>
+            </button>
+            
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Download className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-medium">Exporter</span>
+            </button>
+            
+            <button
+              onClick={handleForecast}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Zap className="w-5 h-5 text-amber-600" />

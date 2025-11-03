@@ -7,6 +7,7 @@ import { DashboardCard } from "@/components/modern/DashboardCard";
 import { SmartChart } from "@/components/modern/SmartChart";
 import { SmartTable } from "@/components/modern/SmartTable";
 import { SmartAlert, useSmartAlert } from "@/components/modern/SmartAlert";
+import { CommunicationsService, type CommunicationMetrics } from "@/services/communications-service";
 import { 
   MessageSquare, 
   Mail, 
@@ -111,149 +112,41 @@ export default function ModernCommunicationsPage() {
   const loadCommunicationsData = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Utiliser le vrai service API
+      const metrics = await CommunicationsService.getCommunicationsMetrics(undefined, selectedPeriod, selectedChannel);
       
-      const mockData: CommunicationMetrics = {
-        totalMessages: 15420,
-        totalCost: 285000,
-        averageDeliveryTime: 2.3,
-        successRate: 94.5,
-        campaigns: [
-          {
-            id: "1",
-            name: "Newsletter Mensuelle",
-            type: "email",
-            status: "completed",
-            targetAudience: 5000,
-            sent: 5000,
-            delivered: 4850,
-            read: 2900,
-            openRate: 58.0,
-            clickRate: 12.5,
-            responseRate: 3.2,
-            cost: 45000,
-            createdAt: "2024-10-25T10:00:00Z",
-            completedAt: "2024-10-25T11:30:00Z",
-            description: "Informations mensuelles aux clients"
-          },
-          {
-            id: "2",
-            name: "Promotion Flash",
-            type: "sms",
-            status: "active",
-            targetAudience: 2000,
-            sent: 1800,
-            delivered: 1750,
-            read: 1400,
-            openRate: 77.8,
-            clickRate: 25.3,
-            responseRate: 8.5,
-            cost: 72000,
-            createdAt: "2024-11-01T09:00:00Z",
-            scheduledAt: "2024-11-01T10:00:00Z",
-            description: "Offre spéciale limitée"
-          },
-          {
-            id: "3",
-            name: "Rappels Paiements",
-            type: "whatsapp",
-            status: "active",
-            targetAudience: 500,
-            sent: 450,
-            delivered: 445,
-            read: 420,
-            openRate: 93.3,
-            clickRate: 15.2,
-            responseRate: 12.8,
-            cost: 35000,
-            createdAt: "2024-11-02T14:00:00Z",
-            description: "Rappels automatiques de paiements"
-          }
-        ],
-        messages: [
-          {
-            id: "1",
-            type: "email",
-            recipient: "client1@example.com",
-            subject: "Newsletter Novembre",
-            content: "Découvrez nos nouveautés...",
-            status: "read",
-            sentAt: "2024-11-03T10:30:00Z",
-            deliveredAt: "2024-11-03T10:31:00Z",
-            readAt: "2024-11-03T14:20:00Z",
-            cost: 15,
-            campaignId: "1",
-            metadata: {
-              openRate: 58.0,
-              clickRate: 12.5,
-              responseRate: 3.2
-            }
-          },
-          {
-            id: "2",
-            type: "sms",
-            recipient: "+22912345678",
-            content: "Promotion flash -20% aujourd'hui!",
-            status: "delivered",
-            sentAt: "2024-11-03T11:15:00Z",
-            deliveredAt: "2024-11-03T11:16:00Z",
-            cost: 40,
-            campaignId: "2"
-          }
-        ],
-        channelBreakdown: [
-          { channel: "Email", messages: 8500, cost: 127500, successRate: 95.2 },
-          { channel: "SMS", messages: 4200, cost: 105000, successRate: 93.8 },
-          { channel: "WhatsApp", messages: 2720, cost: 52500, successRate: 94.1 }
-        ],
-        performanceTrend: [
-          { date: "Lun", sent: 2200, delivered: 2100, read: 1800, cost: 42000 },
-          { date: "Mar", sent: 2400, delivered: 2280, read: 1950, cost: 45000 },
-          { date: "Mer", sent: 2100, delivered: 2000, read: 1700, cost: 38000 },
-          { date: "Jeu", sent: 2600, delivered: 2480, read: 2100, cost: 48000 },
-          { date: "Ven", sent: 2300, delivered: 2200, read: 1850, cost: 44000 },
-          { date: "Sam", sent: 1800, delivered: 1720, read: 1450, cost: 34000 },
-          { date: "Dim", sent: 2000, delivered: 1900, read: 1600, cost: 38000 }
-        ],
-        alerts: [
-          {
-            type: "warning",
-            title: "Taux d'ouverture faible",
-            message: "La campagne 'Newsletter Mensuelle' a un taux d'ouverture inférieur à la moyenne",
-            campaignId: "1"
-          },
-          {
-            type: "info",
-            title: "Performance SMS excellente",
-            message: "Les SMS ont un taux de lecture de 77.8% cette semaine"
-          }
-        ]
-      };
+      // Valider les données
+      const validation = CommunicationsService.validateMetrics(metrics);
+      if (!validation.isValid) {
+        console.warn('Validation des métriques de communications:', validation.errors);
+        showWarning("Données incomplètes", "Certaines métriques peuvent être incorrectes");
+      }
 
-      setData(mockData);
+      setData(metrics);
       
       // Alertes intelligentes basées sur les métriques
-      if (mockData.successRate < 90) {
+      if (metrics.successRate < 90) {
         showCritical(
           "Taux de livraison critique",
-          `Le taux de livraison est de ${mockData.successRate}% seulement`,
+          `Le taux de livraison est de ${metrics.successRate}% seulement`,
           [
             {
               label: "Analyser les échecs",
               onClick: () => showInfo("Analyse", "Diagnostic des problèmes de livraison")
+            },
+            {
+              label: "Optimiser les contacts",
+              onClick: () => showInfo("Optimisation", "Nettoyage de la base de contacts")
             }
           ]
         );
-      } else if (mockData.successRate < 95) {
+      } else if (metrics.successRate < 95) {
         showWarning(
-          "Performance à surveiller",
-          `Taux de livraison: ${mockData.successRate}%`
+          "Taux de livraison faible",
+          `Le taux de livraison est de ${metrics.successRate}% - optimisation recommandée`
         );
       } else {
-        showSuccess(
-          "Performance excellente",
-          `Taux de livraison: ${mockData.successRate}%`
-        );
+        showSuccess("Performance Excellente", `Taux de livraison de ${metrics.successRate}%`);
       }
     } catch (error) {
       showError("Erreur", "Impossible de charger les données de communication");
@@ -264,8 +157,71 @@ export default function ModernCommunicationsPage() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadCommunicationsData();
-    setRefreshing(false);
+    try {
+      await loadCommunicationsData();
+      showSuccess("Actualisé", "Les données de communication ont été rafraîchies");
+    } catch (error) {
+      showError("Erreur", "Impossible de rafraîchir les données");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleCreateCampaign = async () => {
+    try {
+      showInfo("Nouvelle Campagne", "Formulaire de création de campagne multi-canaux");
+      setShowCampaignBuilder(!showCampaignBuilder);
+    } catch (error) {
+      showError("Erreur", "Impossible d'ouvrir le formulaire de campagne");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await CommunicationsService.exportCommunicationsData(undefined, selectedPeriod, selectedChannel);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `communications-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showSuccess("Export réussi", "Les données de communication ont été exportées");
+    } catch (error) {
+      showError("Erreur d'export", "Impossible d'exporter les données");
+    }
+  };
+
+  const handleAIGeneration = async () => {
+    try {
+      showInfo("Génération IA", "Création de campagne avec intelligence artificielle");
+      const aiCampaign = await CommunicationsService.generateAICampaign(
+        "Campagne marketing promotionnelle pour les clients fidèles",
+        1000
+      );
+      showSuccess("IA générée", "Campagne créée avec succès par l'IA");
+    } catch (error) {
+      showError("Erreur IA", "Impossible de générer la campagne avec l'IA");
+    }
+  };
+
+  const handleTemplates = async () => {
+    try {
+      showInfo("Templates", "Bibliothèque de modèles de communication");
+      // TODO: Ouvrir la bibliothèque de templates
+    } catch (error) {
+      showError("Erreur", "Impossible d'accéder aux templates");
+    }
+  };
+
+  const handleAutomation = async () => {
+    try {
+      showInfo("Automatisation", "Configuration des scénarios de communication automatique");
+      // TODO: Ouvrir les paramètres d'automatisation
+    } catch (error) {
+      showError("Erreur", "Impossible d'accéder à l'automatisation");
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -574,23 +530,23 @@ export default function ModernCommunicationsPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <button
-              onClick={() => showInfo("Campagne IA", "Création de campagne avec IA")}
+              onClick={handleAIGeneration}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <Zap className="w-5 h-5 text-purple-600" />
+              <Mail className="w-5 h-5 text-blue-600" />
               <span className="text-sm font-medium">Campagne IA</span>
             </button>
             
             <button
-              onClick={() => showInfo("Templates", "Gestion des templates")}
+              onClick={handleTemplates}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <Mail className="w-5 h-5 text-blue-600" />
+              <FileText className="w-5 h-5 text-purple-600" />
               <span className="text-sm font-medium">Templates</span>
             </button>
             
             <button
-              onClick={() => showInfo("Automatisation", "Configuration des automatisations")}
+              onClick={handleAutomation}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <BarChart3 className="w-5 h-5 text-green-600" />

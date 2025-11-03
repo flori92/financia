@@ -7,6 +7,7 @@ import { DashboardCard } from "@/components/modern/DashboardCard";
 import { SmartChart } from "@/components/modern/SmartChart";
 import { SmartTable } from "@/components/modern/SmartTable";
 import { SmartAlert, useSmartAlert } from "@/components/modern/SmartAlert";
+import { AccountingService, type AccountingMetrics } from "@/services/accounting-service";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -80,67 +81,17 @@ export default function ModernAccountantDashboard() {
   const loadDashboard = async () => {
     setLoading(true);
     try {
-      // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Utiliser le vrai service API
+      const metrics = await AccountingService.getDashboardMetrics();
       
-      // Données mockées intelligentes
-      const mockData: AccountingMetrics = {
-        kpiMonth: {
-          revenue: 2500000,
-          expenses: 1800000,
-          netIncome: 700000,
-          margin: 28
-        },
-        evolutionChart: [
-          { month: "Jan", revenue: 1800000, expenses: 1500000 },
-          { month: "Fév", revenue: 2000000, expenses: 1600000 },
-          { month: "Mar", revenue: 2200000, expenses: 1700000 },
-          { month: "Avr", revenue: 2100000, expenses: 1650000 },
-          { month: "Mai", revenue: 2400000, expenses: 1750000 },
-          { month: "Jun", revenue: 2500000, expenses: 1800000 }
-        ],
-        topClients: [
-          { name: "Client A", amount: 450000 },
-          { name: "Client B", amount: 380000 },
-          { name: "Client C", amount: 320000 },
-          { name: "Client D", amount: 280000 },
-          { name: "Client E", amount: 220000 }
-        ],
-        topSuppliers: [
-          { name: "Fournisseur X", amount: 320000 },
-          { name: "Fournisseur Y", amount: 280000 },
-          { name: "Fournisseur Z", amount: 240000 },
-          { name: "Fournisseur W", amount: 180000 },
-          { name: "Fournisseur V", amount: 150000 }
-        ],
-        financialRatios: {
-          currentAssets: 3500000,
-          currentLiabilities: 1200000,
-          equity: 2800000,
-          totalLiabilities: 1500000,
-          liquidityRatio: 2.92,
-          solvencyRatio: 1.87
-        },
-        alerts: [
-          {
-            type: "warning",
-            title: "Factures en attente",
-            message: "3 factures nécessitent une validation"
-          },
-          {
-            type: "info",
-            title: "Clôture de période",
-            message: "La clôture du mois est disponible dans 5 jours"
-          }
-        ],
-        recentActivity: [
-          { date: "2024-11-03", description: "Facture FAC-2024-001", amount: 250000, type: "Vente" },
-          { date: "2024-11-02", description: "Paiement Fournisseur A", amount: -180000, type: "Dépense" },
-          { date: "2024-11-01", description: "Facture FAC-2024-002", amount: 320000, type: "Vente" }
-        ]
-      };
+      // Valider les données
+      const validation = AccountingService.validateMetrics(metrics);
+      if (!validation.isValid) {
+        console.warn('Validation des métriques:', validation.errors);
+        showWarning("Données incomplètes", "Certaines métriques peuvent être incorrectes");
+      }
 
-      setData(mockData);
+      setData(metrics);
       showInfo("Dashboard actualisé", "Les données ont été chargées avec succès");
     } catch (error) {
       showError("Erreur de chargement", "Impossible de charger les données du dashboard");
@@ -151,8 +102,32 @@ export default function ModernAccountantDashboard() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadDashboard();
-    setRefreshing(false);
+    try {
+      await AccountingService.refreshMetrics();
+      await loadDashboard();
+      showSuccess("Actualisé", "Les métriques ont été rafraîchies");
+    } catch (error) {
+      showError("Erreur", "Impossible de rafraîchir les métriques");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await AccountingService.exportDashboardData(undefined, selectedPeriod);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dashboard-comptable-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showSuccess("Export réussi", "Les données ont été exportées en CSV");
+    } catch (error) {
+      showError("Erreur d'export", "Impossible d'exporter les données");
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -367,6 +342,49 @@ export default function ModernAccountantDashboard() {
             formatY={formatCurrency}
             onDataPointClick={(data) => showInfo("Fournisseur", `Montant: ${formatCurrency(data.value)}`)}
           />
+        </motion.div>
+
+        {/* Actions Rapides */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+        >
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <button
+              onClick={() => showInfo("Nouvelle écriture", "Formulaire de saisie comptable")}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <FileText className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium">Nouvelle Écriture</span>
+            </button>
+            
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Download className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-medium">Exporter</span>
+            </button>
+            
+            <button
+              onClick={() => showInfo("Rapports", "Génération des rapports comptables")}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <BarChart3 className="w-5 h-5 text-purple-600" />
+              <span className="text-sm font-medium">Rapports</span>
+            </button>
+            
+            <button
+              onClick={() => showInfo("Paramètres", "Configuration du module comptable")}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Target className="w-5 h-5 text-amber-600" />
+              <span className="text-sm font-medium">Paramètres</span>
+            </button>
+          </div>
         </motion.div>
       </div>
     </ModernLayout>
