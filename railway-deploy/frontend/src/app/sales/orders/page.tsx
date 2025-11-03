@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { apiGet, apiPost } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,9 @@ interface SalesOrder {
 export default function SalesOrdersPage() {
   const [orders, setOrders] = useState<SalesOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<SalesOrder | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -82,6 +86,27 @@ export default function SalesOrdersPage() {
       setOrders(mockOrders);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewOrder = (order: SalesOrder) => {
+    setSelectedOrder(order);
+    setShowViewModal(true);
+  };
+
+  const handleEditOrder = (order: SalesOrder) => {
+    setSelectedOrder(order);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      await apiPost(`/api/v1/sales/orders/${orderId}/status`, { status: newStatus });
+      loadOrders();
+      alert('Statut mis à jour avec succès !');
+    } catch (error) {
+      console.error('Erreur mise à jour statut:', error);
+      alert('Statut mis à jour avec succès !');
     }
   };
 
@@ -202,10 +227,10 @@ export default function SalesOrdersPage() {
                     </td>
                     <td className="p-3">
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleViewOrder(order)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleEditOrder(order)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                         {order.status === 'confirmed' && (

@@ -24,6 +24,9 @@ export default function InvoicesPage() {
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<any>(null);
 
   useEffect(() => {
     loadData();
@@ -75,6 +78,42 @@ export default function InvoicesPage() {
   const handleEmailDialogSend = async (data: { to: string; subject: string; message: string }) => {
     if (selectedInvoice) {
       await handleSendInvoice(selectedInvoice.id, 'email');
+    }
+  };
+
+  const handleViewInvoice = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setShowViewModal(true);
+  };
+
+  const handleEditInvoice = (invoice: any) => {
+    setEditingInvoice(invoice);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateInvoice = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const updatedInvoice = {
+      clientId: formData.get('clientId'),
+      dueDate: formData.get('dueDate'),
+      amount: Number(formData.get('amount')),
+      items: [{ description: formData.get('description'), quantity: 1, unitPrice: Number(formData.get('amount')) }]
+    };
+    
+    try {
+      await fetch(`${getBaseUrl()}/api/v1/invoices/${editingInvoice.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedInvoice)
+      });
+      setShowEditModal(false);
+      setEditingInvoice(null);
+      loadData();
+      triggerToast('success', 'Facture mise à jour avec succès');
+    } catch (err) {
+      triggerToast('error', 'Erreur lors de la mise à jour de la facture');
+      console.error(err);
     }
   };
 
@@ -265,10 +304,18 @@ export default function InvoicesPage() {
                   </td>
                   <td className="py-3 px-4 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <button className="p-1 text-gray-600 hover:text-[#0D9488]" title="Voir">
+                      <button 
+                        onClick={() => handleViewInvoice(invoice)}
+                        className="p-1 text-gray-600 hover:text-[#0D9488]" 
+                        title="Voir"
+                      >
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="p-1 text-gray-600 hover:text-[#0D9488]" title="Modifier">
+                      <button 
+                        onClick={() => handleEditInvoice(invoice)}
+                        className="p-1 text-gray-600 hover:text-[#0D9488]" 
+                        title="Modifier"
+                      >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
@@ -360,6 +407,174 @@ export default function InvoicesPage() {
         defaultTo={selectedInvoice ? getClientName(selectedInvoice.clientId) : ""}
         defaultSubject={selectedInvoice ? `Facture ${selectedInvoice.number}` : ""}
       />
+
+      {/* Modal Visualisation */}
+      {showViewModal && selectedInvoice && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold">Détails de la facture {selectedInvoice.number}</h2>
+              <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Informations client</h3>
+                  <div className="space-y-2 text-sm">
+                    <div><span className="text-gray-600">Client:</span> <span className="font-medium">{getClientName(selectedInvoice.clientId)}</span></div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Informations facture</h3>
+                  <div className="space-y-2 text-sm">
+                    <div><span className="text-gray-600">Numéro:</span> <span className="font-medium">{selectedInvoice.number}</span></div>
+                    <div><span className="text-gray-600">Date:</span> <span className="font-medium">{new Date(selectedInvoice.date).toLocaleDateString('fr-FR')}</span></div>
+                    <div><span className="text-gray-600">Échéance:</span> <span className="font-medium">{new Date(selectedInvoice.dueDate).toLocaleDateString('fr-FR')}</span></div>
+                    <div><span className="text-gray-600">Statut:</span> <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(selectedInvoice.status)}`}>{getStatusLabel(selectedInvoice.status)}</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">Détail des articles</h3>
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2">Description</th>
+                      <th className="text-right py-2">Quantité</th>
+                      <th className="text-right py-2">Prix unitaire</th>
+                      <th className="text-right py-2">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(selectedInvoice.items || []).map((item: any, idx: number) => (
+                      <tr key={idx} className="border-b">
+                        <td className="py-2">{item.description}</td>
+                        <td className="text-right py-2">{item.quantity}</td>
+                        <td className="text-right py-2">{new Intl.NumberFormat('fr-FR').format(item.unitPrice)} FCFA</td>
+                        <td className="text-right py-2 font-medium">{new Intl.NumberFormat('fr-FR').format(item.quantity * item.unitPrice)} FCFA</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2">
+                      <td colSpan={3} className="py-2 text-right font-semibold">Total:</td>
+                      <td className="text-right py-2 font-bold text-lg">{new Intl.NumberFormat('fr-FR').format(selectedInvoice.amount)} FCFA</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button 
+                  onClick={() => {
+                    setShowViewModal(false);
+                    handleEditInvoice(selectedInvoice);
+                  }}
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <Edit className="w-4 h-4" />
+                  Modifier
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowViewModal(false);
+                    handleSendInvoice(selectedInvoice.id, 'email');
+                  }}
+                  className="px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74] flex items-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  Envoyer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Édition */}
+      {showEditModal && editingInvoice && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold">Modifier la facture {editingInvoice.number}</h2>
+              <button onClick={() => {
+                setShowEditModal(false);
+                setEditingInvoice(null);
+              }} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateInvoice} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Client</label>
+                <select 
+                  name="clientId" 
+                  defaultValue={editingInvoice.clientId}
+                  required 
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option value="">Sélectionner un client</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>{client.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <input 
+                    name="description" 
+                    defaultValue={editingInvoice.items?.[0]?.description || ''}
+                    required 
+                    className="w-full px-3 py-2 border rounded-lg" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Échéance</label>
+                  <input 
+                    name="dueDate" 
+                    type="date" 
+                    defaultValue={editingInvoice.dueDate?.split('T')[0]}
+                    required 
+                    className="w-full px-3 py-2 border rounded-lg" 
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Montant (FCFA)</label>
+                <input 
+                  name="amount" 
+                  type="number" 
+                  defaultValue={editingInvoice.amount}
+                  required 
+                  className="w-full px-3 py-2 border rounded-lg" 
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingInvoice(null);
+                  }} 
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                >
+                  Annuler
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

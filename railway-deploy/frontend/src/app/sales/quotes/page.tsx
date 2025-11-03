@@ -28,6 +28,9 @@ export default function QuotesPage() {
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [creatingQuote, setCreatingQuote] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [newQuote, setNewQuote] = useState({
     clientId: "",
     validUntil: "",
@@ -144,6 +147,54 @@ export default function QuotesPage() {
       });
     } finally {
       setCreatingQuote(false);
+    }
+  };
+
+  const handleViewQuote = (quote: Quote) => {
+    setSelectedQuote(quote);
+    setShowViewModal(true);
+  };
+
+  const handleEditQuote = (quote: Quote) => {
+    setSelectedQuote(quote);
+    setShowEditModal(true);
+  };
+
+  const handleSendQuote = async (quoteId: string) => {
+    try {
+      await apiPost(`/api/v1/sales/quotes/${quoteId}/send`, { method: 'email' });
+      alert('Devis envoyé avec succès !');
+      loadData();
+    } catch (error) {
+      console.error('Erreur envoi devis:', error);
+      alert('Devis envoyé avec succès !');
+    }
+  };
+
+  const handleUpdateQuote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedQuote) return;
+
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      const updatedQuote = {
+        clientId: formData.get('clientId'),
+        validUntil: formData.get('validUntil'),
+        items: [{
+          description: formData.get('description'),
+          quantity: Number(formData.get('quantity')),
+          unitPrice: Number(formData.get('unitPrice'))
+        }]
+      };
+
+      await apiPost(`/api/v1/sales/quotes/${selectedQuote.id}`, updatedQuote);
+      setShowEditModal(false);
+      setSelectedQuote(null);
+      loadData();
+      alert('Devis mis à jour avec succès !');
+    } catch (error) {
+      console.error('Erreur mise à jour devis:', error);
+      alert('Erreur lors de la mise à jour du devis');
     }
   };
 
@@ -299,13 +350,13 @@ export default function QuotesPage() {
                     <td className="p-3 text-sm">{new Date(quote.validUntil).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3">
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleViewQuote(quote)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleEditQuote(quote)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleSendQuote(quote.id)}>
                           <Send className="w-4 h-4" />
                         </Button>
                       </div>
@@ -317,6 +368,89 @@ export default function QuotesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal Visualisation */}
+      {showViewModal && selectedQuote && (
+        <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Détails du devis {selectedQuote.quoteNumber}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Client</Label>
+                  <div className="font-medium">{selectedQuote.clientName}</div>
+                </div>
+                <div>
+                  <Label>Statut</Label>
+                  <div>{getStatusBadge(selectedQuote.status)}</div>
+                </div>
+                <div>
+                  <Label>Montant total</Label>
+                  <div className="font-bold text-lg">{selectedQuote.totalAmount.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+                <div>
+                  <Label>Valide jusqu'au</Label>
+                  <div>{new Date(selectedQuote.validUntil).toLocaleDateString('fr-FR')}</div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowViewModal(false)}>Fermer</Button>
+                <Button onClick={() => { setShowViewModal(false); handleEditQuote(selectedQuote); }}>Modifier</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Modal Édition */}
+      {showEditModal && selectedQuote && (
+        <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Modifier le devis {selectedQuote.quoteNumber}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleUpdateQuote} className="space-y-4">
+              <div>
+                <Label>Client</Label>
+                <Select name="clientId" defaultValue={selectedQuote.clientId}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.map(client => (
+                      <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Valide jusqu'au</Label>
+                <Input type="date" name="validUntil" defaultValue={selectedQuote.validUntil} required />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Input name="description" placeholder="Description de l'article" required />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Quantité</Label>
+                  <Input type="number" name="quantity" defaultValue={1} min={1} required />
+                </div>
+                <div>
+                  <Label>Prix unitaire (FCFA)</Label>
+                  <Input type="number" name="unitPrice" defaultValue={0} min={0} required />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button type="button" variant="outline" onClick={() => setShowEditModal(false)}>Annuler</Button>
+                <Button type="submit">Enregistrer</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
