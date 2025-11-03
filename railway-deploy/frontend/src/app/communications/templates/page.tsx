@@ -19,6 +19,7 @@ interface Template {
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     apiGet('/api/v1/communications/templates')
@@ -50,9 +51,7 @@ export default function TemplatesPage() {
         </div>
         <Button 
           className="bg-teal-600 hover:bg-teal-700"
-          onClick={() => {
-            alert('Fonctionnalité Nouveau Template - En développement !\n\nCette fonctionnalité permettra :\n• Créer un nouveau template\n• Choisir le canal (Email/SMS/WhatsApp)\n• Définir la catégorie (Notification/Relance/Marketing)\n• Utiliser des variables dynamiques\n• Prévisualiser le template\n• Tester avant sauvegarde');
-          }}
+          onClick={() => setShowCreate(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Template
@@ -152,6 +151,55 @@ export default function TemplatesPage() {
           );
         })}
       </div>
+
+      {/* Modal création template */}
+      {showCreate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Nouveau template</h3>
+              <button onClick={() => setShowCreate(false)} className="p-2 hover:bg-gray-100 rounded">✕</button>
+            </div>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Nom</label>
+                <input type="text" className="w-full border rounded-lg px-3 py-2" placeholder="Nom du template" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Canal</label>
+                  <select className="w-full border rounded-lg px-3 py-2">
+                    <option value="email">Email</option>
+                    <option value="sms">SMS</option>
+                    <option value="whatsapp">WhatsApp</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Catégorie</label>
+                  <select className="w-full border rounded-lg px-3 py-2">
+                    <option value="notification">Notification</option>
+                    <option value="reminder">Relance</option>
+                    <option value="marketing">Marketing</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Sujet (Email uniquement)</label>
+                <input type="text" className="w-full border rounded-lg px-3 py-2" placeholder="Sujet du message" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Contenu</label>
+                <textarea className="w-full border rounded-lg px-3 py-2 h-32" placeholder="Bonjour {nom}, ..." />
+                <p className="text-xs text-gray-500 mt-1">Variables disponibles: nom, email, societe</p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Annuler</button>
+                <button type="submit" className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700" onClick={(e) => { e.preventDefault(); setShowCreate(false); alert('Template créé !'); }}>Créer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

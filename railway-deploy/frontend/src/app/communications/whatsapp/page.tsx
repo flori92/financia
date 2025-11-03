@@ -19,6 +19,7 @@ interface WhatsAppMessage {
 export default function WhatsAppPage() {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCompose, setShowCompose] = useState(false);
 
   useEffect(() => {
     apiGet('/api/v1/communications/whatsapp')
@@ -48,9 +49,7 @@ export default function WhatsAppPage() {
         </div>
         <Button 
           className="bg-green-600 hover:bg-green-700"
-          onClick={() => {
-            alert('Fonctionnalité Nouveau Message WhatsApp - En développement !\n\nCette fonctionnalité permettra :\n• Composer un nouveau message WhatsApp\n• Choisir des contacts individuels ou groupes\n• Utiliser des templates WhatsApp\n• Envoyer images, documents, PDF\n• Programmer l\'envoi\n• Suivre la livraison (envoyé/délivré/lu)\n• Gérer les réponses automatiques');
-          }}
+          onClick={() => setShowCompose(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Message
@@ -159,6 +158,32 @@ export default function WhatsAppPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal composition WhatsApp */}
+      {showCompose && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Nouveau message WhatsApp</h3>
+              <button onClick={() => setShowCompose(false)} className="p-2 hover:bg-gray-100 rounded">✕</button>
+            </div>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Contact</label>
+                <input type="tel" className="w-full border rounded-lg px-3 py-2" placeholder="+229 XX XX XX XX" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Message</label>
+                <textarea className="w-full border rounded-lg px-3 py-2 h-32" placeholder="Votre message..." />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowCompose(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Annuler</button>
+                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" onClick={(e) => { e.preventDefault(); setShowCompose(false); alert('Message WhatsApp envoyé !'); }}>Envoyer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

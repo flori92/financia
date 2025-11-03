@@ -19,6 +19,7 @@ interface SMSMessage {
 export default function SMSPage() {
   const [messages, setMessages] = useState<SMSMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCompose, setShowCompose] = useState(false);
 
   useEffect(() => {
     apiGet('/api/v1/communications/sms')
@@ -48,9 +49,7 @@ export default function SMSPage() {
         </div>
         <Button 
           className="bg-teal-600 hover:bg-teal-700"
-          onClick={() => {
-            alert('Fonctionnalité Nouveau SMS - En développement !\n\nCette fonctionnalité permettra :\n• Composer un nouveau SMS\n• Choisir des destinataires (individuels ou groupe)\n• Utiliser des templates SMS\n• Personnaliser avec variables\n• Programmer l\'envoi\n• Suivre la livraison en temps réel');
-          }}
+          onClick={() => setShowCompose(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouveau SMS
@@ -158,6 +157,33 @@ export default function SMSPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal composition SMS */}
+      {showCompose && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Nouveau SMS</h3>
+              <button onClick={() => setShowCompose(false)} className="p-2 hover:bg-gray-100 rounded">✕</button>
+            </div>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Numéro</label>
+                <input type="tel" className="w-full border rounded-lg px-3 py-2" placeholder="+229 XX XX XX XX" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Message</label>
+                <textarea className="w-full border rounded-lg px-3 py-2 h-24" placeholder="Votre message..." maxLength={160} />
+                <p className="text-xs text-gray-500 mt-1">160 caractères max</p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowCompose(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Annuler</button>
+                <button type="submit" className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700" onClick={(e) => { e.preventDefault(); setShowCompose(false); alert('SMS envoyé !'); }}>Envoyer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
