@@ -10,6 +10,8 @@ const AccountingService = require('./services/AccountingService');
 const CommunicationService = require('./services/CommunicationService');
 const CRMService = require('./services/CRMService');
 const TreasuryOperationsService = require('./services/TreasuryOperationsService');
+const EmailService = require('./services/EmailService');
+const SMSService = require('./services/SMSService');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -1185,6 +1187,97 @@ app.post('/api/v1/communications/sms', async (req, res) => {
   try {
     const sms = await CommunicationService.sendSMS(req.body);
     res.json(sms);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// === ENDPOINTS EMAIL/SMS (NOUVEAUX) ===
+app.post('/api/v1/communications/email/send', async (req, res) => {
+  try {
+    const { to, subject, html, text, from } = req.body;
+    
+    if (!to || !subject || (!html && !text)) {
+      return res.status(400).json({ error: 'Destinataire, sujet et contenu requis' });
+    }
+
+    const result = await EmailService.send({ to, subject, html, text, from });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/email/invoice', async (req, res) => {
+  try {
+    const { to, invoiceNumber, amount, pdfUrl, customerName } = req.body;
+    const result = await EmailService.sendInvoice({ to, invoiceNumber, amount, pdfUrl, customerName });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/email/reminder', async (req, res) => {
+  try {
+    const { to, invoiceNumber, amount, daysOverdue, customerName } = req.body;
+    const result = await EmailService.sendPaymentReminder({ to, invoiceNumber, amount, daysOverdue, customerName });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/sms/send', async (req, res) => {
+  try {
+    const { to, message, from } = req.body;
+    
+    if (!to || !message) {
+      return res.status(400).json({ error: 'Destinataire et message requis' });
+    }
+
+    const result = await SMSService.send({ to, message, from });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/sms/invoice', async (req, res) => {
+  try {
+    const { to, invoiceNumber, amount, customerName } = req.body;
+    const result = await SMSService.sendInvoiceNotification({ to, invoiceNumber, amount, customerName });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/sms/payment-confirmation', async (req, res) => {
+  try {
+    const { to, invoiceNumber, amount, customerName } = req.body;
+    const result = await SMSService.sendPaymentConfirmation({ to, invoiceNumber, amount, customerName });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/sms/reminder', async (req, res) => {
+  try {
+    const { to, invoiceNumber, amount, daysOverdue, customerName } = req.body;
+    const result = await SMSService.sendPaymentReminder({ to, invoiceNumber, amount, daysOverdue, customerName });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/communications/sms/otp', async (req, res) => {
+  try {
+    const { to, code, expiresInMinutes } = req.body;
+    const result = await SMSService.sendOTP({ to, code, expiresInMinutes });
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
