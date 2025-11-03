@@ -1,15 +1,19 @@
-const { Module } = require('@nestjs/common');
-const { TypeOrmModule } = require('@nestjs/typeorm');
-const { HRController } = require('./hr.controller');
-const { HRService } = require('./hr.service');
+const HRController = require('./hr.controller');
+const HRService = require('./hr.service');
 const { HREmployee, HRPayroll, HRLeave } = require('./hr.entity');
 
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([HREmployee, HRPayroll, HRLeave])
-  ],
-  controllers: [HRController],
-  providers: [HRService],
-  exports: [HRService]
-})
-export class HRModule {}
+class HRModule {
+  static getControllers() {
+    return [HRController];
+  }
+
+  static getServices() {
+    return [HRService];
+  }
+
+  static getEntities() {
+    return [HREmployee, HRPayroll, HRLeave];
+  }
+}
+
+module.exports = HRModule;

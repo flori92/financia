@@ -1,18 +1,9 @@
-const { Injectable } = require('@nestjs/common');
-const { Repository } = require('typeorm');
+class SalesService {
+  constructor() {
+    // Pas d'injection dans cette version simple
+  }
 
-@Injectable()
-export class SalesService {
-  constructor(
-    @InjectRepository(SalesQuote)
-    private quotesRepository: Repository<SalesQuote>,
-    @InjectRepository(SalesOrder)
-    private ordersRepository: Repository<SalesOrder>,
-    @InjectRepository(SalesClient)
-    private clientsRepository: Repository<SalesClient>,
-  ) {}
-
-  async getDashboardMetrics(companyId: string) {
+  async getDashboardMetrics(companyId) {
     try {
       // Simuler les données KPIs
       const mockData = {
@@ -40,7 +31,7 @@ export class SalesService {
     }
   }
 
-  async getQuotes(companyId: string, status?: string) {
+  async getQuotes(companyId, status) {
     try {
       // Simuler les données devis
       const mockQuotes = [
@@ -99,7 +90,7 @@ export class SalesService {
     }
   }
 
-  async createQuote(createQuoteDto: any, companyId: string) {
+  async createQuote(createQuoteDto, companyId) {
     try {
       const quote = {
         id: Date.now().toString(),
@@ -130,7 +121,7 @@ export class SalesService {
     }
   }
 
-  async updateQuote(id: string, updateQuoteDto: any) {
+  async updateQuote(id, updateQuoteDto) {
     try {
       const quote = {
         id,
@@ -144,7 +135,7 @@ export class SalesService {
     }
   }
 
-  async sendQuote(id: string, sendDto: { email: string; message?: string }) {
+  async sendQuote(id, sendDto) {
     try {
       // Simuler envoi email
       const result = {
@@ -161,7 +152,7 @@ export class SalesService {
     }
   }
 
-  async getOrders(companyId: string, status?: string) {
+  async getOrders(companyId, status) {
     try {
       const mockOrders = [
         {
@@ -224,7 +215,7 @@ export class SalesService {
     }
   }
 
-  async createOrder(createOrderDto: any, companyId: string) {
+  async createOrder(createOrderDto, companyId) {
     try {
       const order = {
         id: Date.now().toString(),
@@ -256,7 +247,7 @@ export class SalesService {
     }
   }
 
-  async updateOrder(id: string, updateOrderDto: any) {
+  async updateOrder(id, updateOrderDto) {
     try {
       const order = {
         id,
@@ -270,7 +261,7 @@ export class SalesService {
     }
   }
 
-  async getClients(companyId: string, status?: string) {
+  async getClients(companyId, status) {
     try {
       const mockClients = [
         {
@@ -328,7 +319,7 @@ export class SalesService {
     }
   }
 
-  async createClient(createClientDto: any, companyId: string) {
+  async createClient(createClientDto, companyId) {
     try {
       const client = {
         id: Date.now().toString(),
@@ -348,7 +339,7 @@ export class SalesService {
     }
   }
 
-  async updateClient(id: string, updateClientDto: any) {
+  async updateClient(id, updateClientDto) {
     try {
       const client = {
         id,
@@ -362,3 +353,5 @@ export class SalesService {
     }
   }
 }
+
+module.exports = SalesService;

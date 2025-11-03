@@ -1,16 +1,9 @@
-const { Injectable } = require('@nestjs/common');
-const { Repository } = require('typeorm');
+class ProjectsService {
+  constructor() {
+    // Pas d'injection dans cette version simple
+  }
 
-@Injectable()
-export class ProjectsService {
-  constructor(
-    @InjectRepository(Project)
-    private projectsRepository: Repository<Project>,
-    @InjectRepository(ProjectTask)
-    private tasksRepository: Repository<ProjectTask>,
-  ) {}
-
-  async getDashboardMetrics(companyId: string) {
+  async getDashboardMetrics(companyId) {
     try {
       const mockData = {
         totalProjects: 12,
@@ -196,3 +189,5 @@ export class ProjectsService {
     }
   }
 }
+
+module.exports = ProjectsService;

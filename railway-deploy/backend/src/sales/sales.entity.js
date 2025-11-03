@@ -1,153 +1,193 @@
-const { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } = require('typeorm');
+const { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } = require('typeorm');
 
 @Entity('sales_quotes')
-export class SalesQuote {
+class SalesQuote {
+  constructor() {
+    this.id = '';
+    this.quoteNumber = '';
+    this.clientId = '';
+    this.clientName = '';
+    this.totalAmount = 0;
+    this.status = 'draft';
+    this.validUntil = '';
+    this.items = [];
+    this.companyId = '';
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  quoteNumber: string;
+  quoteNumber;
 
   @Column()
-  clientId: string;
+  clientId;
 
   @Column()
-  clientName: string;
+  clientName;
 
   @Column('decimal')
-  totalAmount: number;
+  totalAmount;
 
   @Column({
     type: 'enum',
     enum: ['draft', 'sent', 'accepted', 'rejected', 'expired'],
     default: 'draft'
   })
-  status: string;
+  status;
 
   @Column()
-  validUntil: string;
+  validUntil;
 
   @Column('json')
-  items: Array<{
-    description: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-  }>;
+  items;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
 
 @Entity('sales_orders')
-export class SalesOrder {
+class SalesOrder {
+  constructor() {
+    this.id = '';
+    this.orderNumber = '';
+    this.clientId = '';
+    this.clientName = '';
+    this.totalAmount = 0;
+    this.status = 'pending';
+    this.orderDate = '';
+    this.expectedDeliveryDate = '';
+    this.trackingNumber = '';
+    this.items = [];
+    this.companyId = '';
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  orderNumber: string;
+  orderNumber;
 
   @Column()
-  clientId: string;
+  clientId;
 
   @Column()
-  clientName: string;
+  clientName;
 
   @Column('decimal')
-  totalAmount: number;
+  totalAmount;
 
   @Column({
     type: 'enum',
     enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
   })
-  status: string;
+  status;
 
   @Column()
-  orderDate: string;
+  orderDate;
 
   @Column({ nullable: true })
-  expectedDeliveryDate: string;
+  expectedDeliveryDate;
 
   @Column({ nullable: true })
-  trackingNumber: string;
+  trackingNumber;
 
   @Column('json')
-  items: Array<{
-    description: string;
-    quantity: number;
-    unitPrice: number;
-    total: number;
-  }>;
+  items;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
 
 @Entity('sales_clients')
-export class SalesClient {
+class SalesClient {
+  constructor() {
+    this.id = '';
+    this.name = '';
+    this.company = '';
+    this.email = '';
+    this.phone = '';
+    this.address = '';
+    this.type = 'individual';
+    this.status = 'prospect';
+    this.totalOrders = 0;
+    this.totalRevenue = 0;
+    this.lastOrderDate = '';
+    this.rating = 0;
+    this.companyId = '';
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  name: string;
+  name;
 
   @Column({ nullable: true })
-  company: string;
+  company;
 
   @Column()
-  email: string;
+  email;
 
   @Column()
-  phone: string;
+  phone;
 
   @Column()
-  address: string;
+  address;
 
   @Column({
     type: 'enum',
     enum: ['individual', 'company'],
     default: 'individual'
   })
-  type: string;
+  type;
 
   @Column({
     type: 'enum',
     enum: ['active', 'inactive', 'prospect'],
     default: 'prospect'
   })
-  status: string;
+  status;
 
   @Column({ default: 0 })
-  totalOrders: number;
+  totalOrders;
 
   @Column('decimal', { default: 0 })
-  totalRevenue: number;
+  totalRevenue;
 
   @Column({ nullable: true })
-  lastOrderDate: string;
+  lastOrderDate;
 
   @Column({ default: 0 })
-  rating: number;
+  rating;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
+
+module.exports = { SalesQuote, SalesOrder, SalesClient };

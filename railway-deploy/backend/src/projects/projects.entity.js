@@ -1,107 +1,107 @@
-const { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } = require('typeorm');
+const { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } = require('typeorm');
 
 @Entity('projects')
-export class Project {
+class Project {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  name: string;
+  name;
 
   @Column()
-  description: string;
+  description;
 
   @Column()
-  client: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['planning', 'active', 'completed', 'on_hold', 'cancelled'],
-    default: 'planning'
-  })
-  status: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['low', 'medium', 'high', 'critical'],
-    default: 'medium'
-  })
-  priority: string;
+  clientId;
 
   @Column()
-  startDate: string;
-
-  @Column()
-  endDate: string;
+  clientName;
 
   @Column('decimal')
-  budget: number;
+  budget;
 
-  @Column({ default: 0 })
-  progress: number;
-
-  @Column()
-  projectManager: string;
-
-  @Column({ default: 0 })
-  teamSize: number;
+  @Column('decimal', { default: 0 })
+  spent;
 
   @Column()
-  companyId: string;
+  startDate;
+
+  @Column()
+  endDate;
+
+  @Column({
+    type: 'enum',
+    enum: ['planning', 'active', 'on_hold', 'completed', 'cancelled'],
+    default: 'planning'
+  })
+  status;
+
+  @Column({ default: 0 })
+  progress;
+
+  @Column()
+  projectManager;
+
+  @Column('json')
+  teamMembers;
+
+  @Column()
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
 
 @Entity('project_tasks')
-export class ProjectTask {
+class ProjectTask {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  projectId: string;
+  projectId;
 
   @Column()
-  title: string;
+  title;
 
   @Column()
-  description: string;
+  description;
 
   @Column()
-  assigneeId: string;
-
-  @Column()
-  assigneeName: string;
+  assignedTo;
 
   @Column({
     type: 'enum',
-    enum: ['pending', 'in_progress', 'completed', 'cancelled'],
-    default: 'pending'
+    enum: ['todo', 'in_progress', 'review', 'completed'],
+    default: 'todo'
   })
-  status: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['low', 'medium', 'high', 'critical'],
-    default: 'medium'
-  })
-  priority: string;
+  status;
 
   @Column()
-  dueDate: string;
+  priority;
 
   @Column()
-  estimatedHours: number;
+  dueDate;
 
   @Column({ default: 0 })
-  actualHours: number;
+  estimatedHours;
+
+  @Column({ default: 0 })
+  actualHours;
+
+  @Column({ nullable: true })
+  completedAt;
+
+  @Column()
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
+
+module.exports = { Project, ProjectTask };

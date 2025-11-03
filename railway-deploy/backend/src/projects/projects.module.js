@@ -1,15 +1,19 @@
-const { Module } = require('@nestjs/common');
-const { TypeOrmModule } = require('@nestjs/typeorm');
-const { ProjectsController } = require('./projects.controller');
-const { ProjectsService } = require('./projects.service');
+const ProjectsController = require('./projects.controller');
+const ProjectsService = require('./projects.service');
 const { Project, ProjectTask } = require('./projects.entity');
 
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([Project, ProjectTask])
-  ],
-  controllers: [ProjectsController],
-  providers: [ProjectsService],
-  exports: [ProjectsService]
-})
-export class ProjectsModule {}
+class ProjectsModule {
+  static getControllers() {
+    return [ProjectsController];
+  }
+
+  static getServices() {
+    return [ProjectsService];
+  }
+
+  static getEntities() {
+    return [Project, ProjectTask];
+  }
+}
+
+module.exports = ProjectsModule;

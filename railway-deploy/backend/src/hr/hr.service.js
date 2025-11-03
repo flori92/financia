@@ -1,18 +1,9 @@
-const { Injectable } = require('@nestjs/common');
-const { Repository } = require('typeorm');
+class HRService {
+  constructor() {
+    // Pas d'injection dans cette version simple
+  }
 
-@Injectable()
-export class HRService {
-  constructor(
-    @InjectRepository(HREmployee)
-    private employeesRepository: Repository<HREmployee>,
-    @InjectRepository(HRPayroll)
-    private payrollRepository: Repository<HRPayroll>,
-    @InjectRepository(HRLeave)
-    private leavesRepository: Repository<HRLeave>,
-  ) {}
-
-  async getDashboardMetrics(companyId: string) {
+  async getDashboardMetrics(companyId) {
     try {
       const mockData = {
         totalEmployees: 45,
@@ -275,3 +266,5 @@ export class HRService {
     }
   }
 }
+
+module.exports = HRService;

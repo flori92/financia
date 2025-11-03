@@ -1,149 +1,147 @@
-const { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } = require('typeorm');
+const { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } = require('typeorm');
 
 @Entity('hr_employees')
-export class HREmployee {
+class HREmployee {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  firstName: string;
+  firstName;
 
   @Column()
-  lastName: string;
+  lastName;
 
   @Column()
-  email: string;
+  email;
 
   @Column()
-  phone: string;
+  phone;
 
   @Column()
-  position: string;
+  position;
 
   @Column()
-  department: string;
+  department;
 
   @Column('decimal')
-  salary: number;
+  salary;
 
   @Column()
-  hireDate: string;
+  hireDate;
 
   @Column({
     type: 'enum',
     enum: ['active', 'inactive', 'on_leave'],
     default: 'active'
   })
-  status: string;
+  status;
 
   @Column({
     type: 'enum',
     enum: ['CDI', 'CDD', 'Stage', 'Freelance'],
     default: 'CDI'
   })
-  contractType: string;
+  contractType;
 
   @Column()
-  address: string;
+  address;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
 
 @Entity('hr_payroll')
-export class HRPayroll {
+class HRPayroll {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  employeeId: string;
+  employeeId;
 
   @Column()
-  month: string;
+  month;
 
   @Column('decimal')
-  grossSalary: number;
+  grossSalary;
 
   @Column('decimal')
-  netSalary: number;
+  netSalary;
 
   @Column('decimal')
-  totalDeductions: number;
+  totalDeductions;
 
   @Column('json')
-  deductions: {
-    socialSecurity: number;
-    taxes: number;
-    other: number;
-  };
+  deductions;
 
   @Column()
-  status: string;
+  status;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
 
 @Entity('hr_leaves')
-export class HRLeave {
+class HRLeave {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  employeeId: string;
+  employeeId;
 
   @Column({
     type: 'enum',
     enum: ['annual', 'sick', 'personal', 'maternity', 'paternity']
   })
-  type: string;
+  type;
 
   @Column()
-  startDate: string;
+  startDate;
 
   @Column()
-  endDate: string;
+  endDate;
 
   @Column()
-  daysCount: number;
+  daysCount;
 
   @Column()
-  reason: string;
+  reason;
 
   @Column({
     type: 'enum',
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   })
-  status: string;
+  status;
 
   @Column({ nullable: true })
-  managerComment: string;
+  managerComment;
 
   @Column()
-  requestedAt: string;
+  requestedAt;
 
   @Column({ nullable: true })
-  processedAt: string;
+  processedAt;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
+
+module.exports = { HREmployee, HRPayroll, HRLeave };

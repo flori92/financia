@@ -1,85 +1,119 @@
 const salesService = require('./sales.service');
-const { ApiOperation, ApiResponse, ApiTags } = require('@nestjs/swagger');
 
-@ApiTags('Sales')
-@Controller('sales')
-export class SalesController {
-  constructor(private readonly salesService: SalesService) {}
-
-  @Get('dashboard')
-  @ApiOperation({ summary: 'Get sales dashboard KPIs' })
-  @ApiResponse({ status: 200, description: 'Sales dashboard data retrieved successfully' })
-  async getSalesDashboard(@Query('companyId') companyId: string) {
-    return this.salesService.getDashboardMetrics(companyId);
+class SalesController {
+  constructor(salesService) {
+    this.salesService = salesService;
   }
 
-  @Get('quotes')
-  @ApiOperation({ summary: 'Get all quotes' })
-  @ApiResponse({ status: 200, description: 'Quotes retrieved successfully' })
-  async getQuotes(@Query('companyId') companyId: string, @Query('status') status?: string) {
-    return this.salesService.getQuotes(companyId, status);
+  async getSalesDashboard(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.salesService.getDashboardMetrics(companyId);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post('quotes')
-  @ApiOperation({ summary: 'Create new quote' })
-  @ApiResponse({ status: 201, description: 'Quote created successfully' })
-  async createQuote(@Body() createQuoteDto: any, @Query('companyId') companyId: string) {
-    return this.salesService.createQuote(createQuoteDto, companyId);
+  async getQuotes(req, res) {
+    try {
+      const { companyId, status } = req.query;
+      const result = await this.salesService.getQuotes(companyId, status);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Put('quotes/:id')
-  @ApiOperation({ summary: 'Update quote' })
-  @ApiResponse({ status: 200, description: 'Quote updated successfully' })
-  async updateQuote(@Param('id') id: string, @Body() updateQuoteDto: any) {
-    return this.salesService.updateQuote(id, updateQuoteDto);
+  async createQuote(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.salesService.createQuote(req.body, companyId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post('quotes/:id/send')
-  @ApiOperation({ summary: 'Send quote to client' })
-  @ApiResponse({ status: 200, description: 'Quote sent successfully' })
-  async sendQuote(@Param('id') id: string, @Body() sendDto: { email: string; message?: string }) {
-    return this.salesService.sendQuote(id, sendDto);
+  async updateQuote(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.salesService.updateQuote(id, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Get('orders')
-  @ApiOperation({ summary: 'Get all sales orders' })
-  @ApiResponse({ status: 200, description: 'Sales orders retrieved successfully' })
-  async getOrders(@Query('companyId') companyId: string, @Query('status') status?: string) {
-    return this.salesService.getOrders(companyId, status);
+  async sendQuote(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.salesService.sendQuote(id, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post('orders')
-  @ApiOperation({ summary: 'Create new sales order' })
-  @ApiResponse({ status: 201, description: 'Sales order created successfully' })
-  async createOrder(@Body() createOrderDto: any, @Query('companyId') companyId: string) {
-    return this.salesService.createOrder(createOrderDto, companyId);
+  async getOrders(req, res) {
+    try {
+      const { companyId, status } = req.query;
+      const result = await this.salesService.getOrders(companyId, status);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Put('orders/:id')
-  @ApiOperation({ summary: 'Update sales order' })
-  @ApiResponse({ status: 200, description: 'Sales order updated successfully' })
-  async updateOrder(@Param('id') id: string, @Body() updateOrderDto: any) {
-    return this.salesService.updateOrder(id, updateOrderDto);
+  async createOrder(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.salesService.createOrder(req.body, companyId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Get('clients')
-  @ApiOperation({ summary: 'Get all sales clients' })
-  @ApiResponse({ status: 200, description: 'Sales clients retrieved successfully' })
-  async getClients(@Query('companyId') companyId: string, @Query('status') status?: string) {
-    return this.salesService.getClients(companyId, status);
+  async updateOrder(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.salesService.updateOrder(id, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post('clients')
-  @ApiOperation({ summary: 'Create new sales client' })
-  @ApiResponse({ status: 201, description: 'Sales client created successfully' })
-  async createClient(@Body() createClientDto: any, @Query('companyId') companyId: string) {
-    return this.salesService.createClient(createClientDto, companyId);
+  async getClients(req, res) {
+    try {
+      const { companyId, status } = req.query;
+      const result = await this.salesService.getClients(companyId, status);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Put('clients/:id')
-  @ApiOperation({ summary: 'Update sales client' })
-  @ApiResponse({ status: 200, description: 'Sales client updated successfully' })
-  async updateClient(@Param('id') id: string, @Body() updateClientDto: any) {
-    return this.salesService.updateClient(id, updateClientDto);
+  async createClient(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.salesService.createClient(req.body, companyId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async updateClient(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.salesService.updateClient(id, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 }
+
+module.exports = SalesController;

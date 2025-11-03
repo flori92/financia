@@ -1,50 +1,80 @@
 const projectsService = require('./projects.service');
-const { ApiOperation, ApiResponse, ApiTags } = require('@nestjs/swagger');
 
-@ApiTags('Projects')
-@Controller('projects')
-export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
-
-  @Get('dashboard')
-  @ApiOperation({ summary: 'Get projects dashboard KPIs' })
-  @ApiResponse({ status: 200, description: 'Projects dashboard data retrieved successfully' })
-  async getProjectsDashboard(@Query('companyId') companyId: string) {
-    return this.projectsService.getDashboardMetrics(companyId);
+class ProjectsController {
+  constructor(projectsService) {
+    this.projectsService = projectsService;
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all projects' })
-  @ApiResponse({ status: 200, description: 'Projects retrieved successfully' })
-  async getProjects(@Query('companyId') companyId: string, @Query('status') status?: string) {
-    return this.projectsService.getProjects(companyId, status);
+  async getProjectsDashboard(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.projectsService.getDashboardMetrics(companyId);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post()
-  @ApiOperation({ summary: 'Create new project' })
-  @ApiResponse({ status: 201, description: 'Project created successfully' })
-  async createProject(@Body() createProjectDto: any, @Query('companyId') companyId: string) {
-    return this.projectsService.createProject(createProjectDto, companyId);
+  async getProjects(req, res) {
+    try {
+      const { companyId, status } = req.query;
+      const result = await this.projectsService.getProjects(companyId, status);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Put(':id')
-  @ApiOperation({ summary: 'Update project' })
-  @ApiResponse({ status: 200, description: 'Project updated successfully' })
-  async updateProject(@Param('id') id: string, @Body() updateProjectDto: any) {
-    return this.projectsService.updateProject(id, updateProjectDto);
+  async createProject(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.projectsService.createProject(req.body, companyId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Get(':id/tasks')
-  @ApiOperation({ summary: 'Get project tasks' })
-  @ApiResponse({ status: 200, description: 'Project tasks retrieved successfully' })
-  async getProjectTasks(@Param('id') projectId: string) {
-    return this.projectsService.getProjectTasks(projectId);
+  async updateProject(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.projectsService.updateProject(id, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post(':id/tasks')
-  @ApiOperation({ summary: 'Create project task' })
-  @ApiResponse({ status: 201, description: 'Project task created successfully' })
-  async createProjectTask(@Param('id') projectId: string, @Body() createTaskDto: any) {
-    return this.projectsService.createProjectTask(projectId, createTaskDto);
+  async getProjectTasks(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.query;
+      const result = await this.projectsService.getProjectTasks(id, status);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async createProjectTask(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.projectsService.createProjectTask(id, req.body);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async updateProjectTask(req, res) {
+    try {
+      const { taskId } = req.params;
+      const result = await this.projectsService.updateProjectTask(taskId, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 }
+
+module.exports = ProjectsController;

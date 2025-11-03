@@ -1,71 +1,99 @@
 const hrService = require('./hr.service');
-const { ApiOperation, ApiResponse, ApiTags } = require('@nestjs/swagger');
 
-@ApiTags('HR')
-@Controller('hr')
-export class HRController {
-  constructor(private readonly hrService: HRService) {}
-
-  @Get('dashboard')
-  @ApiOperation({ summary: 'Get HR dashboard KPIs' })
-  @ApiResponse({ status: 200, description: 'HR dashboard data retrieved successfully' })
-  async getHRDashboard(@Query('companyId') companyId: string) {
-    return this.hrService.getDashboardMetrics(companyId);
+class HRController {
+  constructor(hrService) {
+    this.hrService = hrService;
   }
 
-  @Get('employees')
-  @ApiOperation({ summary: 'Get all employees' })
-  @ApiResponse({ status: 200, description: 'Employees retrieved successfully' })
-  async getEmployees(@Query('companyId') companyId: string, @Query('status') status?: string) {
-    return this.hrService.getEmployees(companyId, status);
+  async getHRDashboard(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.hrService.getDashboardMetrics(companyId);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post('employees')
-  @ApiOperation({ summary: 'Create new employee' })
-  @ApiResponse({ status: 201, description: 'Employee created successfully' })
-  async createEmployee(@Body() createEmployeeDto: any, @Query('companyId') companyId: string) {
-    return this.hrService.createEmployee(createEmployeeDto, companyId);
+  async getEmployees(req, res) {
+    try {
+      const { companyId, status } = req.query;
+      const result = await this.hrService.getEmployees(companyId, status);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Put('employees/:id')
-  @ApiOperation({ summary: 'Update employee' })
-  @ApiResponse({ status: 200, description: 'Employee updated successfully' })
-  async updateEmployee(@Param('id') id: string, @Body() updateEmployeeDto: any) {
-    return this.hrService.updateEmployee(id, updateEmployeeDto);
+  async createEmployee(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.hrService.createEmployee(req.body, companyId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Get('payroll')
-  @ApiOperation({ summary: 'Get payroll calculations' })
-  @ApiResponse({ status: 200, description: 'Payroll data retrieved successfully' })
-  async getPayroll(@Query('companyId') companyId: string, @Query('month') month?: string) {
-    return this.hrService.getPayroll(companyId, month);
+  async updateEmployee(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.hrService.updateEmployee(id, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post('payroll/generate')
-  @ApiOperation({ summary: 'Generate payroll slips' })
-  @ApiResponse({ status: 201, description: 'Payroll generated successfully' })
-  async generatePayroll(@Body() generateDto: { month: string; employeeIds?: string[] }, @Query('companyId') companyId: string) {
-    return this.hrService.generatePayroll(generateDto, companyId);
+  async getPayroll(req, res) {
+    try {
+      const { companyId, month } = req.query;
+      const result = await this.hrService.getPayroll(companyId, month);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Get('leaves')
-  @ApiOperation({ summary: 'Get all leave requests' })
-  @ApiResponse({ status: 200, description: 'Leave requests retrieved successfully' })
-  async getLeaves(@Query('companyId') companyId: string, @Query('status') status?: string) {
-    return this.hrService.getLeaves(companyId, status);
+  async generatePayroll(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.hrService.generatePayroll(req.body, companyId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Post('leaves')
-  @ApiOperation({ summary: 'Create leave request' })
-  @ApiResponse({ status: 201, description: 'Leave request created successfully' })
-  async createLeave(@Body() createLeaveDto: any, @Query('companyId') companyId: string) {
-    return this.hrService.createLeave(createLeaveDto, companyId);
+  async getLeaves(req, res) {
+    try {
+      const { companyId, status } = req.query;
+      const result = await this.hrService.getLeaves(companyId, status);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
-  @Put('leaves/:id/approve')
-  @ApiOperation({ summary: 'Approve leave request' })
-  @ApiResponse({ status: 200, description: 'Leave request approved successfully' })
-  async approveLeave(@Param('id') id: string, @Body() approveDto: { approved: boolean; comment?: string }) {
-    return this.hrService.approveLeave(id, approveDto);
+  async createLeave(req, res) {
+    try {
+      const { companyId } = req.query;
+      const result = await this.hrService.createLeave(req.body, companyId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async approveLeave(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await this.hrService.approveLeave(id, req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 }
+
+module.exports = HRController;

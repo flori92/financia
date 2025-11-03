@@ -1,105 +1,143 @@
-const { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } = require('typeorm');
+const { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } = require('typeorm');
 
 @Entity('marketing_campaigns')
-export class MarketingCampaign {
+class MarketingCampaign {
+  constructor() {
+    this.id = '';
+    this.name = '';
+    this.type = '';
+    this.status = 'draft';
+    this.startDate = '';
+    this.endDate = '';
+    this.budget = 0;
+    this.spent = 0;
+    this.leads = 0;
+    this.conversions = 0;
+    this.roi = 0;
+    this.channels = [];
+    this.description = '';
+    this.companyId = '';
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  name: string;
+  name;
 
   @Column()
-  type: string;
+  type;
 
   @Column({
     type: 'enum',
     enum: ['draft', 'active', 'paused', 'completed', 'cancelled'],
     default: 'draft'
   })
-  status: string;
+  status;
 
   @Column()
-  startDate: string;
+  startDate;
 
   @Column()
-  endDate: string;
+  endDate;
 
   @Column('decimal')
-  budget: number;
+  budget;
 
   @Column('decimal', { default: 0 })
-  spent: number;
+  spent;
 
   @Column({ default: 0 })
-  leads: number;
+  leads;
 
   @Column({ default: 0 })
-  conversions: number;
+  conversions;
 
   @Column({ default: 0 })
-  roi: number;
+  roi;
 
   @Column('json')
-  channels: string[];
+  channels;
 
   @Column()
-  description: string;
+  description;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
 
 @Entity('marketing_leads')
-export class MarketingLead {
+class MarketingLead {
+  constructor() {
+    this.id = '';
+    this.firstName = '';
+    this.lastName = '';
+    this.email = '';
+    this.phone = '';
+    this.company = '';
+    this.source = '';
+    this.status = 'new';
+    this.score = 50;
+    this.assignedTo = '';
+    this.createdAt = '';
+    this.lastContact = '';
+    this.companyId = '';
+    this.updatedAt = new Date();
+  }
+
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id;
 
   @Column()
-  firstName: string;
+  firstName;
 
   @Column()
-  lastName: string;
+  lastName;
 
   @Column()
-  email: string;
+  email;
 
   @Column()
-  phone: string;
+  phone;
 
   @Column({ nullable: true })
-  company: string;
+  company;
 
   @Column()
-  source: string;
+  source;
 
   @Column({
     type: 'enum',
     enum: ['new', 'contacted', 'qualified', 'converted', 'lost'],
     default: 'new'
   })
-  status: string;
+  status;
 
   @Column({ default: 50 })
-  score: number;
+  score;
 
   @Column({ nullable: true })
-  assignedTo: string;
+  assignedTo;
 
   @Column()
-  createdAt: string;
+  createdAt;
 
   @Column({ nullable: true })
-  lastContact: string;
+  lastContact;
 
   @Column()
-  companyId: string;
+  companyId;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt;
 }
+
+module.exports = { MarketingCampaign, MarketingLead };

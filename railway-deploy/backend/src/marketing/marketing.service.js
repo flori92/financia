@@ -1,16 +1,9 @@
-const { Injectable } = require('@nestjs/common');
-const { Repository } = require('typeorm');
+class MarketingService {
+  constructor() {
+    // Pas d'injection dans cette version simple
+  }
 
-@Injectable()
-export class MarketingService {
-  constructor(
-    @InjectRepository(MarketingCampaign)
-    private campaignsRepository: Repository<MarketingCampaign>,
-    @InjectRepository(MarketingLead)
-    private leadsRepository: Repository<MarketingLead>,
-  ) {}
-
-  async getDashboardMetrics(companyId: string) {
+  async getDashboardMetrics(companyId) {
     try {
       const mockData = {
         totalCampaigns: 24,
@@ -40,7 +33,7 @@ export class MarketingService {
     }
   }
 
-  async getCampaigns(companyId: string, status?: string) {
+  async getCampaigns(companyId, status) {
     try {
       const mockCampaigns = [
         {
@@ -100,7 +93,7 @@ export class MarketingService {
     }
   }
 
-  async createCampaign(createCampaignDto: any, companyId: string) {
+  async createCampaign(createCampaignDto, companyId) {
     try {
       const campaign = {
         id: Date.now().toString(),
@@ -121,7 +114,7 @@ export class MarketingService {
     }
   }
 
-  async updateCampaign(id: string, updateCampaignDto: any) {
+  async updateCampaign(id, updateCampaignDto) {
     try {
       const campaign = {
         id,
@@ -135,7 +128,7 @@ export class MarketingService {
     }
   }
 
-  async getLeads(companyId: string, status?: string) {
+  async getLeads(companyId, status) {
     try {
       const mockLeads = [
         {
@@ -192,7 +185,7 @@ export class MarketingService {
     }
   }
 
-  async createLead(createLeadDto: any, companyId: string) {
+  async createLead(createLeadDto, companyId) {
     try {
       const lead = {
         id: Date.now().toString(),
@@ -210,7 +203,7 @@ export class MarketingService {
     }
   }
 
-  async getAnalytics(companyId: string, period?: string) {
+  async getAnalytics(companyId, period) {
     try {
       const currentPeriod = period || 'last_30_days';
       
@@ -242,3 +235,5 @@ export class MarketingService {
     }
   }
 }
+
+module.exports = MarketingService;
