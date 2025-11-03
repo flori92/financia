@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { apiGet, getCompanyId } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, DollarSign, Calendar, FileText, Clock, UserCheck, TrendingUp, AlertCircle, Plus } from "lucide-react";
@@ -27,7 +28,8 @@ export default function HRPage() {
   const loadHRData = async () => {
     try {
       // Charger les données RH depuis l'API
-      const response = await apiGet('/api/v1/hr/dashboard');
+      const companyId = getCompanyId();
+      const response = await apiGet('/api/v1/hr/dashboard', { companyId });
       setData(response);
     } catch (error) {
       console.error("Erreur chargement données RH:", error);
