@@ -40,6 +40,7 @@ export default function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    console.log(`Toast ${type}: ${message}`); // Debug log
     if (type === "error") {
       alert(`❌ Erreur: ${message}`);
     } else if (type === "success") {
@@ -131,31 +132,44 @@ export default function ProjectsPage() {
   }, []);
 
   const handleCreateProject = () => {
-    const newProject: Project = {
-      id: Date.now().toString(),
-      name: `Nouveau Projet ${projects.length + 1}`,
-      status: 'planning',
-      progress: 0,
-      budget: 5000000,
-      spent: 0,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      manager: 'À assigner',
-      team: [],
-      description: 'Description du nouveau projet'
-    };
+    console.log('handleCreateProject called'); // Debug log
+    try {
+      const newProject: Project = {
+        id: Date.now().toString(),
+        name: `Nouveau Projet ${projects.length + 1}`,
+        status: 'planning',
+        progress: 0,
+        budget: 5000000,
+        spent: 0,
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        manager: 'À assigner',
+        team: [],
+        description: 'Description du nouveau projet'
+      };
 
-    setProjects([...projects, newProject]);
-    setShowCreateModal(false);
-    triggerToast("success", `Projet "${newProject.name}" créé avec succès !`);
+      setProjects([...projects, newProject]);
+      setShowCreateModal(false);
+      triggerToast("success", `Projet "${newProject.name}" créé avec succès !`);
+    } catch (error) {
+      console.error("Erreur création projet:", error);
+      triggerToast("error", "Erreur lors de la création du projet");
+    }
   };
 
   const handleViewProject = (project: Project) => {
-    setSelectedProject(project);
-    setShowDetailsModal(true);
+    console.log('handleViewProject called with:', project.name); // Debug log
+    try {
+      setSelectedProject(project);
+      setShowDetailsModal(true);
+    } catch (error) {
+      console.error("Erreur affichage projet:", error);
+      triggerToast("error", "Erreur lors de l'affichage du projet");
+    }
   };
 
   const handleExportProjects = () => {
+    console.log('handleExportProjects called'); // Debug log
     if (!projects || projects.length === 0) {
       triggerToast("error", "Aucun projet à exporter");
       return;
@@ -183,14 +197,13 @@ export default function ProjectsPage() {
       }
     };
 
-    const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
-    
-    if (formatChoice) {
+    try {
+      // Export direct en Excel par défaut (plus user-friendly)
       ProfessionalExporter.exportExcel(exportData, 'projets');
-      triggerToast("success", "Projets exportés en Excel avec styles professionnels !");
-    } else {
-      ProfessionalExporter.exportPDF(exportData, 'projets');
-      triggerToast("success", "Projets exportés en PDF pour impression !");
+      triggerToast("success", "Projets exportés en Excel avec succès !");
+    } catch (error) {
+      console.error("Erreur export:", error);
+      triggerToast("error", "Erreur lors de l'export des projets");
     }
   };
 
@@ -352,7 +365,14 @@ export default function ProjectsPage() {
 
       {/* Modal création projet */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowCreateModal(false);
+            }
+          }}
+        >
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">Nouveau Projet</h2>
             <p className="text-gray-600 mb-4">
@@ -375,7 +395,14 @@ export default function ProjectsPage() {
 
       {/* Modal détails projet */}
       {showDetailsModal && selectedProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowDetailsModal(false);
+            }
+          }}
+        >
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <div>
