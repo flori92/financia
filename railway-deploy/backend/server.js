@@ -18,6 +18,7 @@ const HRService = require('./src/hr/hr.service');
 const ProjectsService = require('./src/projects/projects.service');
 const MarketingService = require('./src/marketing/marketing.service');
 const MLForecastService = require('./src/ml-forecast/ml-forecast.service');
+const OCRController = require('./src/ai/ocr.controller');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -467,25 +468,33 @@ app.get('/api/v1/tax/generate-ca3-pdf', (req, res) => {
   res.send('%PDF-1.4');
 });
 
-// AI endpoints
+// ========== AI ENDPOINTS (OCR Hybride Google Vision + OCR Space) ==========
+const ocrController = new OCRController();
+const ocrUpload = ocrController.getUploadMiddleware();
+
+// POST /api/v1/ai/ocr/:type - Extraction OCR avec stratégie hybride
+// Params: type = invoice|receipt|bank_statement
+// Body: multipart/form-data avec file
+app.post('/api/v1/ai/ocr/:type', ocrUpload, async (req, res) => {
+  await ocrController.extractDocument(req, res);
+});
+
+// GET /api/v1/ai/ocr/stats - Statistiques d'utilisation OCR
+app.get('/api/v1/ai/ocr/stats', async (req, res) => {
+  await ocrController.getStats(req, res);
+});
+
+// POST /api/v1/ai/ocr/test - Tester configuration OCR
+app.post('/api/v1/ai/ocr/test', async (req, res) => {
+  await ocrController.testConfiguration(req, res);
+});
+
+// POST /api/v1/ai/chat - Chat IA (placeholder)
 app.post('/api/v1/ai/chat', (req, res) => {
   const { message } = req.body;
   res.json({
     response: `Réponse IA à: ${message}`,
     timestamp: new Date().toISOString()
-  });
-});
-
-app.post('/api/v1/ai/ocr/:type', (req, res) => {
-  const { type } = req.params;
-  res.json({
-    extractedData: {
-      type,
-      amount: 1500000,
-      date: '2025-11-01',
-      vendor: 'Fournisseur Demo'
-    },
-    confidence: 0.95
   });
 });
 
