@@ -345,6 +345,104 @@ app.get('/api/v1/accounting/balance-sheet', async (req, res) => {
   }
 });
 
+app.get('/api/v1/budget/summary', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+    const isDynamic = await database.isDynamicMode();
+    
+    if (isDynamic) {
+      // Données dynamiques depuis la base
+      const budgetItems = await database.all(`
+        SELECT 
+          category,
+          SUM(budgeted_amount) as budgeted,
+          SUM(actual_amount) as actual,
+          CASE 
+            WHEN SUM(budgeted_amount) = 0 THEN 0
+            ELSE ROUND(((SUM(actual_amount) - SUM(budgeted_amount)) / SUM(budgeted_amount)) * 100, 1)
+          END as variance_percentage,
+          type
+        FROM budget_items 
+        WHERE company_id = ? 
+        GROUP BY category, type
+        ORDER BY category
+      `, [companyId]);
+      
+      const totalBudgeted = budgetItems.reduce((sum, item) => sum + (item.budgeted || 0), 0);
+      const totalActual = budgetItems.reduce((sum, item) => sum + (item.actual || 0), 0);
+      const overallVariance = totalBudgeted > 0 ? 
+        Math.round(((totalActual - totalBudgeted) / totalBudgeted) * 100 * 10) / 10 : 0;
+      
+      res.json({
+        budgetItems: budgetItems.map(item => ({
+          category: item.category,
+          budgeted: item.budgeted || 0,
+          actual: item.actual || 0,
+          variance: item.variance_percentage || 0,
+          type: item.type
+        })),
+        totalBudgeted,
+        totalActual,
+        overallVariance,
+        period: 'Données réelles'
+      });
+    } else {
+      // Mode démonstration
+      const mockBudgetData = [
+        { 
+          category: "Chiffre d'affaires", 
+          budgeted: 12000000, 
+          actual: 8500000, 
+          variance: -29.2,
+          type: "revenue"
+        },
+        { 
+          category: "Charges de personnel", 
+          budgeted: 4800000, 
+          actual: 4950000, 
+          variance: 3.1,
+          type: "expense"
+        },
+        { 
+          category: "Charges externes", 
+          budgeted: 2400000, 
+          actual: 2100000, 
+          variance: -12.5,
+          type: "expense"
+        },
+        { 
+          category: "Achats de marchandises", 
+          budgeted: 6000000, 
+          actual: 5800000, 
+          variance: -3.3,
+          type: "expense"
+        },
+        { 
+          category: "Frais financiers", 
+          budgeted: 800000, 
+          actual: 920000, 
+          variance: 15.0,
+          type: "expense"
+        }
+      ];
+      
+      const totalBudgeted = mockBudgetData.reduce((sum, item) => sum + item.budgeted, 0);
+      const totalActual = mockBudgetData.reduce((sum, item) => sum + item.actual, 0);
+      const overallVariance = Math.round(((totalActual - totalBudgeted) / totalBudgeted) * 100 * 10) / 10;
+      
+      res.json({
+        budgetItems: mockBudgetData,
+        totalBudgeted,
+        totalActual,
+        overallVariance,
+        period: 'Données de démonstration'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/v1/accounting/general-ledger', async (req, res) => {
   try {
     const { companyId } = req.query;
