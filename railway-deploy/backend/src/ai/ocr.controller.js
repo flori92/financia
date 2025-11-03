@@ -105,6 +105,38 @@ class OCRController {
         });
       }
 
+      // Si un fichier est fourni, tester l'extraction
+      if (req.file) {
+        try {
+          const result = await this.ocrService.extractDocument(
+            req.file.buffer,
+            'invoice', // type par défaut pour test
+            req.file.originalname
+          );
+          
+          return res.json({
+            success: true,
+            message: 'Configuration OCR valide et extraction testée',
+            config,
+            testResult: {
+              provider: result.provider,
+              confidence: result.confidence,
+              extractedFields: Object.keys(result.data || {}).length
+            },
+            stats: this.ocrService.getStats()
+          });
+        } catch (extractError) {
+          return res.json({
+            success: true,
+            message: 'Configuration OCR valide mais extraction testée en erreur',
+            config,
+            testError: extractError.message,
+            stats: this.ocrService.getStats()
+          });
+        }
+      }
+
+      // Test sans fichier - seulement configuration
       res.json({
         success: true,
         message: 'Configuration OCR valide',
