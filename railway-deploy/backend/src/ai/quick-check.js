@@ -21,7 +21,7 @@ const tests = [
 ];
 
 async function quickCheck() {
-  console.log('🚀 Quick Check IA/ML - État déploiement\n');
+  console.log('🚀 Quick Check IA/ML - État déploiement v3.0');
   
   let passed = 0;
   let failed = 0;
