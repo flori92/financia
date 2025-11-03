@@ -472,21 +472,21 @@ app.get('/api/v1/tax/generate-ca3-pdf', (req, res) => {
 const ocrController = new OCRController();
 const ocrUpload = ocrController.getUploadMiddleware();
 
-// POST /api/v1/ai/ocr/:type - Extraction OCR avec stratégie hybride
-// Params: type = invoice|receipt|bank_statement
-// Body: multipart/form-data avec file
-app.post('/api/v1/ai/ocr/:type', ocrUpload, async (req, res) => {
-  await ocrController.extractDocument(req, res);
-});
-
 // GET /api/v1/ai/ocr/stats - Statistiques d'utilisation OCR
 app.get('/api/v1/ai/ocr/stats', async (req, res) => {
   await ocrController.getStats(req, res);
 });
 
-// POST /api/v1/ai/ocr/test - Tester configuration OCR
+// POST /api/v1/ai/ocr/test - Tester configuration OCR (AVANT /:type pour éviter conflit)
 app.post('/api/v1/ai/ocr/test', async (req, res) => {
   await ocrController.testConfiguration(req, res);
+});
+
+// POST /api/v1/ai/ocr/:type - Extraction OCR avec stratégie hybride
+// Params: type = invoice|receipt|bank_statement
+// Body: multipart/form-data avec file
+app.post('/api/v1/ai/ocr/:type', ocrUpload, async (req, res) => {
+  await ocrController.extractDocument(req, res);
 });
 
 // POST /api/v1/ai/chat - Chat IA (placeholder)
