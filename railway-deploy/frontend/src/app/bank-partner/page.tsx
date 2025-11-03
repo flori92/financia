@@ -213,7 +213,7 @@ export default function BankPartnerDashboard() {
             <Users className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.portfolio.activeClients?.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{(data?.portfolio.activeClients || 0).toLocaleString('fr-FR')}</div>
             <p className="text-xs text-gray-600 mt-1">+{data?.portfolio.newClients} ce mois</p>
           </CardContent>
         </Card>
@@ -225,7 +225,7 @@ export default function BankPartnerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data?.portfolio.activeLoans}</div>
-            <p className="text-xs text-green-600 mt-1">{data?.portfolio.totalLoanAmount?.toLocaleString()} FCFA</p>
+            <p className="text-xs text-green-600 mt-1">{(data?.portfolio.totalLoanAmount || 0).toLocaleString('fr-FR')} FCFA</p>
           </CardContent>
         </Card>
 

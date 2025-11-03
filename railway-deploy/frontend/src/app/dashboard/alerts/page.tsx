@@ -148,7 +148,7 @@ export default function AlertsPage() {
             <div className="text-center">
               <p className="text-sm text-gray-500">Net (90j)</p>
               <p className={`text-xl font-bold ${alertData.metrics.last90Net && alertData.metrics.last90Net < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {alertData.metrics.last90Net !== undefined ? `${Math.abs(alertData.metrics.last90Net).toLocaleString()} XOF` : 'N/A'}
+                {alertData.metrics.last90Net !== undefined ? `${Math.abs(alertData.metrics.last90Net).toLocaleString('fr-FR')} XOF` : 'N/A'}
               </p>
             </div>
             <div className="text-center">

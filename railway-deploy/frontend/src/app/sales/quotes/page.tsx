@@ -316,7 +316,7 @@ export default function QuotesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {quotes.reduce((sum, q) => sum + q.totalAmount, 0).toLocaleString()} FCFA
+              {quotes.reduce((sum, q) => sum + (q.totalAmount || 0), 0).toLocaleString('fr-FR')} FCFA
             </div>
           </CardContent>
         </Card>

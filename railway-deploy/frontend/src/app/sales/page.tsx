@@ -72,7 +72,7 @@ export default function SalesPage() {
             <DollarSign className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.totalRevenue?.toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold">{(data?.totalRevenue || 0).toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-green-600">En progression</p>
           </CardContent>
         </Card>
@@ -83,7 +83,7 @@ export default function SalesPage() {
             <TrendingUp className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.monthlyRevenue?.toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold">{(data?.monthlyRevenue || 0).toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-blue-600">Ce mois</p>
           </CardContent>
         </Card>
@@ -216,7 +216,7 @@ export default function SalesPage() {
               <p className="text-sm text-gray-600">Taux de conversion</p>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{data?.averageOrderValue?.toLocaleString()} FCFA</div>
+              <div className="text-2xl font-bold text-green-600">{(data?.averageOrderValue || 0).toLocaleString('fr-FR')} FCFA</div>
               <p className="text-sm text-gray-600">Panier moyen</p>
             </div>
             <div className="text-center p-4 bg-purple-50 rounded-lg">

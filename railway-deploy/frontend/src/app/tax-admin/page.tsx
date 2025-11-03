@@ -141,7 +141,7 @@ export default function TaxAdminDashboard() {
             <Users className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.overview.activeCompanies?.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{(data?.overview.activeCompanies || 0).toLocaleString('fr-FR')}</div>
             <p className="text-xs text-gray-600 mt-1">+{data?.overview.newCompanies} ce mois</p>
           </CardContent>
         </Card>
@@ -163,7 +163,7 @@ export default function TaxAdminDashboard() {
             <TrendingUp className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.overview.monthlyRevenue?.toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold">{(data?.overview.monthlyRevenue || 0).toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-green-600 mt-1">+{data?.overview.revenueGrowth}% vs mois dernier</p>
           </CardContent>
         </Card>

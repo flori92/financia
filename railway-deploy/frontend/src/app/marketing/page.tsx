@@ -197,7 +197,7 @@ export default function MarketingPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600">Suivi budgétaire marketing</p>
-              <div className="mt-2 text-xs text-red-600">{data?.monthlyBudget?.toLocaleString()} FCFA/mois</div>
+              <div className="mt-2 text-xs text-red-600">{(data?.monthlyBudget || 0).toLocaleString('fr-FR')} FCFA/mois</div>
             </CardContent>
           </Card>
         </Link>

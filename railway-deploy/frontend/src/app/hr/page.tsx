@@ -84,7 +84,7 @@ export default function HRPage() {
             <DollarSign className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.monthlyPayroll?.toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold">{(data?.monthlyPayroll || 0).toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-green-600">Mensuelle</p>
           </CardContent>
         </Card>

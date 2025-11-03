@@ -168,7 +168,7 @@ export default function OrdersPage() {
                     <div className="text-sm text-slate-600">{o.supplierName}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">{Number(o.totalAmount || 0).toLocaleString()} FCFA</div>
+                    <div className="font-medium">{Number(o.totalAmount || 0).toLocaleString('fr-FR')} FCFA</div>
                     <div className="text-xs text-amber-600">{o.status || 'draft'}</div>
                   </div>
                 </div>

@@ -68,7 +68,7 @@ export default function CampaignsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {campaigns.reduce((sum, c) => sum + (c.recipients || 0), 0).toLocaleString()}
+              {campaigns.reduce((sum, c) => sum + (c.recipients || 0), 0).toLocaleString('fr-FR')}
             </div>
           </CardContent>
         </Card>
@@ -132,10 +132,10 @@ export default function CampaignsPage() {
                         {campaign.type === 'email' ? 'Email' : 'SMS'}
                       </span>
                     </td>
-                    <td className="p-3">{(campaign.recipients || 0).toLocaleString()}</td>
-                    <td className="p-3">{(campaign.sent || 0).toLocaleString()}</td>
-                    <td className="p-3">{(campaign.opened || 0).toLocaleString()} ({campaign.openRate}%)</td>
-                    <td className="p-3">{(campaign.clicked || 0).toLocaleString()} ({campaign.clickRate}%)</td>
+                    <td className="p-3">{(campaign.recipients || 0).toLocaleString('fr-FR')}</td>
+                    <td className="p-3">{(campaign.sent || 0).toLocaleString('fr-FR')}</td>
+                    <td className="p-3">{(campaign.opened || 0).toLocaleString('fr-FR')} ({campaign.openRate}%)</td>
+                    <td className="p-3">{(campaign.clicked || 0).toLocaleString('fr-FR')} ({campaign.clickRate}%)</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${
                         campaign.status === 'active' ? 'bg-green-100 text-green-800' :

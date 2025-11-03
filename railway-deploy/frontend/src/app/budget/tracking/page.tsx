@@ -107,10 +107,12 @@ export default function BudgetTrackingPage() {
               {BUDGET_DATA.map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">{item.categorie}</td>
-                  <td className="px-4 py-3 text-right">{item.budget.toLocaleString('fr-FR')} FCFA</td>
-                  <td className="px-4 py-3 text-right font-medium">{item.realise.toLocaleString('fr-FR')} FCFA</td>
-                  <td className={`px-4 py-3 text-right font-medium ${item.ecart > 0 ? 'text-red-600' : item.ecart < 0 ? 'text-green-600' : 'text-gray-600'}`}>
-                    {item.ecart > 0 ? '+' : ''}{item.ecart.toLocaleString('fr-FR')} FCFA
+                  <td className="px-4 py-3 text-right">{(item.budget || 0).toLocaleString('fr-FR')} FCFA</td>
+                  <td className="px-4 py-3 text-right font-medium">{(item.realise || 0).toLocaleString('fr-FR')} FCFA</td>
+                  <td className={`px-4 py-3 text-right font-medium ${
+                    item.ecart > 0 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    {item.ecart > 0 ? '+' : ''}{(item.ecart || 0).toLocaleString('fr-FR')} FCFA
                   </td>
                   <td className="px-4 py-3 text-right">{item.taux}%</td>
                   <td className="px-4 py-3 text-center">

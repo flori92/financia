@@ -258,7 +258,7 @@ export default function SalesClientsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {clients.reduce((sum, c) => sum + c.totalRevenue, 0).toLocaleString()} FCFA
+              {clients.reduce((sum, c) => sum + (c.totalRevenue || 0), 0).toLocaleString('fr-FR')} FCFA
             </div>
           </CardContent>
         </Card>

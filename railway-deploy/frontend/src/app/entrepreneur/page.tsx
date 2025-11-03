@@ -174,7 +174,7 @@ export default function EntrepreneurDashboard() {
             <TrendingUp className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(data.kpiMonth?.revenue || 0).toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold">{(data.kpiMonth?.revenue || 0).toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-green-600">Ce mois</p>
           </CardContent>
         </Card>
@@ -185,7 +185,7 @@ export default function EntrepreneurDashboard() {
             <TrendingDown className="w-4 h-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(data.kpiMonth?.expenses || 0).toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold">{(data.kpiMonth?.expenses || 0).toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-red-600">Ce mois</p>
           </CardContent>
         </Card>
@@ -197,7 +197,7 @@ export default function EntrepreneurDashboard() {
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${data.kpiMonth?.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {Math.abs(data.kpiMonth?.netIncome || 0).toLocaleString()} FCFA
+              {Math.abs(data.kpiMonth?.netIncome || 0).toLocaleString('fr-FR')} FCFA
             </div>
             <p className="text-xs text-gray-600">
               {data.kpiMonth?.netIncome >= 0 ? 'Bénéfice' : 'Perte'}
@@ -247,7 +247,7 @@ export default function EntrepreneurDashboard() {
             </CardHeader>
             <CardContent>
               <div className={`text-2xl font-bold ${data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {Math.abs(data.treasuryMetrics.net || 0).toLocaleString()} FCFA
+                {Math.abs(data.treasuryMetrics.net || 0).toLocaleString('fr-FR')} FCFA
               </div>
               <p className="text-xs text-gray-600">
                 {data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'Déficit' : 'Excédent'}

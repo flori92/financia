@@ -172,7 +172,7 @@ export default function ContactsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {contact.lifetimeValue?.toLocaleString() || 0} FCFA
+                      {(contact.lifetimeValue || 0).toLocaleString('fr-FR')} FCFA
                     </td>
                   </tr>
                 ))}

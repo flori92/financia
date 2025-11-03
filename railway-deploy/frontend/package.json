@@ -6,7 +6,9 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check-undefined": "node scripts/check-undefined-patterns.js",
+    "pre-commit": "npm run check-undefined && npm run build"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
