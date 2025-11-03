@@ -1,6 +1,7 @@
 // Hook de gestion des permissions par profil BMS
 import React from 'react';
-import { useAuth, UserRole } from './useAuth';
+import { useAuth } from './useAuth';
+import { UserRole } from '../types/auth';
 
 interface Permission {
   module: string;

@@ -1,15 +1,6 @@
 // Hook d'authentification pour BMS
 import { useState, useEffect } from 'react';
-
-export type UserRole = 'expert-comptable' | 'entrepreneur' | 'bank' | 'fiscal';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  companyId?: string;
-}
+import { UserRole, User } from '../types/auth';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
