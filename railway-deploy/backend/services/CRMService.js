@@ -2,435 +2,230 @@ const moment = require('moment');
 const database = require('../database');
 
 class CRMService {
-  // Pipeline Opportunities
+  // Pipeline Opportunities - MODE 100% DYNAMIQUE SQLITE
   async getPipelineOverview(companyId) {
-    const isDynamic = await database.isDynamicMode();
+    const db = database;
     
-    if (isDynamic) {
-      // Mode dynamique avec données réelles
-      const stages = [
-        {
-          id: 'lead',
-          name: 'Lead',
-          type: 'lead',
-          order: 1,
-          probability: 10,
-          opportunities: [
-            {
-              id: 'opp_1',
-              title: 'Projet ERP pour Entreprise A',
-              amount: 2500000,
-              probability: 10,
-              status: 'open',
-              contact: {
-                firstName: 'Jean',
-                lastName: 'Dupont',
-                companyName: 'Entreprise A'
-              },
-              closeDate: moment().add(30, 'days').toISOString()
-            },
-            {
-              id: 'opp_2',
-              title: 'Site E-commerce B2B',
-              amount: 800000,
-              probability: 10,
-              status: 'open',
-              contact: {
-                firstName: 'Marie',
-                lastName: 'Martin',
-                companyName: 'Société B'
-              },
-              closeDate: moment().add(45, 'days').toISOString()
-            }
-          ]
-        },
-        {
-          id: 'qualified',
-          name: 'Qualifié',
-          type: 'qualified',
-          order: 2,
-          probability: 25,
-          opportunities: [
-            {
-              id: 'opp_3',
-              title: 'Application Mobile FinTech',
-              amount: 1500000,
-              probability: 25,
-              status: 'open',
-              contact: {
-                firstName: 'Ahmed',
-                lastName: 'Bello',
-                companyName: 'FinTech Plus'
-              },
-              closeDate: moment().add(60, 'days').toISOString()
-            }
-          ]
-        },
-        {
-          id: 'proposal',
-          name: 'Proposition',
-          type: 'proposal',
-          order: 3,
-          probability: 50,
-          opportunities: [
-            {
-              id: 'opp_4',
-              title: 'Système de Gestion Hospitalière',
-              amount: 3200000,
-              probability: 50,
-              status: 'open',
-              contact: {
-                firstName: 'Dr.',
-                lastName: 'Koffi',
-                companyName: 'Clinique Santé'
-              },
-              closeDate: moment().add(90, 'days').toISOString()
-            }
-          ]
-        },
-        {
-          id: 'negotiation',
-          name: 'Négociation',
-          type: 'negotiation',
-          order: 4,
-          probability: 75,
-          opportunities: [
-            {
-              id: 'opp_5',
-              title: 'Platforme Logistique',
-              amount: 1800000,
-              probability: 75,
-              status: 'open',
-              contact: {
-                firstName: 'Paul',
-                lastName: 'Kouadio',
-                companyName: 'Logistics Pro'
-              },
-              closeDate: moment().add(15, 'days').toISOString()
-            }
-          ]
-        },
-        {
-          id: 'closing',
-          name: 'Clôture',
-          type: 'closing',
-          order: 5,
-          probability: 90,
-          opportunities: [
-            {
-              id: 'opp_6',
-              title: 'Solution Banking Digitale',
-              amount: 4500000,
-              probability: 90,
-              status: 'open',
-              contact: {
-                firstName: 'Yves',
-                lastName: 'Touré',
-                companyName: 'Digital Bank'
-              },
-              closeDate: moment().add(7, 'days').toISOString()
-            }
-          ]
-        },
-        {
-          id: 'won',
-          name: 'Gagné',
-          type: 'won',
-          order: 6,
-          probability: 100,
-          opportunities: [
-            {
-              id: 'opp_7',
-              title: 'CRM pour Cabinet d\'Avocats',
-              amount: 950000,
-              probability: 100,
-              status: 'won',
-              contact: {
-                firstName: 'Maître',
-                lastName: 'Sangaré',
-                companyName: 'Cabinet Juridique'
-              },
-              closeDate: moment().subtract(5, 'days').toISOString()
-            }
-          ]
-        },
-        {
-          id: 'lost',
-          name: 'Perdu',
-          type: 'lost',
-          order: 7,
-          probability: 0,
-          opportunities: [
-            {
-              id: 'opp_8',
-              title: 'Site Web Restaurant',
-              amount: 350000,
-              probability: 0,
-              status: 'lost',
-              contact: {
-                firstName: 'Chef',
-                lastName: 'Moussa',
-                companyName: 'Restaurant Le Gourmet'
-              },
-              closeDate: moment().subtract(20, 'days').toISOString()
-            }
-          ]
-        }
-      ];
-
-      // Calculer les statistiques
-      const allOpportunities = stages.flatMap(stage => stage.opportunities);
-      const totalValue = allOpportunities.reduce((sum, opp) => sum + opp.amount, 0);
-      const averageDealSize = allOpportunities.length > 0 ? totalValue / allOpportunities.length : 0;
-      const wonCount = allOpportunities.filter(opp => opp.status === 'won').length;
-      const conversionRate = allOpportunities.length > 0 ? (wonCount / allOpportunities.length) * 100 : 0;
-
-      // Grouper par étape
-      const opportunitiesByStage = {};
-      stages.forEach(stage => {
-        opportunitiesByStage[stage.id] = stage.opportunities;
-      });
-
-      return {
-        stages,
-        opportunitiesByStage,
-        totalValue,
-        averageDealSize,
-        conversionRate
-      };
-    } else {
-      // Mode statique
-      return {
-        stages: [],
-        opportunitiesByStage: {},
-        totalValue: 0,
-        averageDealSize: 0,
-        conversionRate: 0
-      };
-    }
+    // Récupérer tous les stages du pipeline
+    const stages = await db.all(`
+      SELECT * FROM pipeline_stages 
+      WHERE company_id = ? 
+      ORDER BY order_number ASC
+    `, [companyId]);
+    
+    // Récupérer toutes les opportunités avec leurs contacts
+    const opportunities = await db.all(`
+      SELECT 
+        o.*,
+        c.first_name,
+        c.last_name,
+        c.company_name,
+        c.email,
+        c.phone
+      FROM opportunities o
+      LEFT JOIN contacts c ON o.contact_id = c.id
+      WHERE o.company_id = ?
+      ORDER BY o.created_at DESC
+    `, [companyId]);
+    
+    // Grouper les opportunités par stage
+    const opportunitiesByStage = {};
+    stages.forEach(stage => {
+      opportunitiesByStage[stage.id] = [];
+    });
+    
+    opportunities.forEach(opp => {
+      if (opportunitiesByStage[opp.stage_id]) {
+        opportunitiesByStage[opp.stage_id].push({
+          id: opp.id,
+          title: opp.title,
+          amount: opp.amount,
+          probability: opp.probability,
+          status: opp.status,
+          contact: opp.contact_id ? {
+            firstName: opp.first_name,
+            lastName: opp.last_name,
+            companyName: opp.company_name,
+            email: opp.email,
+            phone: opp.phone
+          } : undefined,
+          closeDate: opp.close_date,
+          description: opp.description,
+          assignedTo: opp.assigned_to,
+          createdAt: opp.created_at,
+          updatedAt: opp.updated_at
+        });
+      }
+    });
+    
+    // Ajouter les opportunités aux stages
+    const stagesWithOpportunities = stages.map(stage => ({
+      id: stage.id,
+      name: stage.name,
+      type: stage.type,
+      order: stage.order_number,
+      probability: stage.probability,
+      color: stage.color,
+      opportunities: opportunitiesByStage[stage.id] || []
+    }));
+    
+    // Calculer les statistiques
+    const allOpportunities = opportunities.filter(opp => opp.status === 'open');
+    const totalValue = allOpportunities.reduce((sum, opp) => sum + (opp.amount || 0), 0);
+    const averageDealSize = allOpportunities.length > 0 ? totalValue / allOpportunities.length : 0;
+    
+    // Taux de conversion (opportunités gagnées / total)
+    const wonOpportunities = opportunities.filter(opp => opp.status === 'won');
+    const conversionRate = opportunities.length > 0 ? (wonOpportunities.length / opportunities.length) * 100 : 0;
+    
+    return {
+      stages: stagesWithOpportunities,
+      opportunitiesByStage,
+      totalValue,
+      averageDealSize,
+      conversionRate
+    };
   }
 
-  // Déplacer une opportunité
+  // Déplacer une opportunité vers un autre stage
   async moveOpportunity(opportunityId, newStageId, companyId) {
-    const isDynamic = await database.isDynamicMode();
+    const db = database;
     
-    if (isDynamic) {
-      // Simuler le déplacement
-      return {
-        success: true,
-        message: `Opportunité ${opportunityId} déplacée vers ${newStageId}`,
-        opportunityId,
-        previousStage: 'qualified',
-        newStageId,
-        movedAt: new Date().toISOString()
-      };
-    } else {
-      return {
-        success: false,
-        message: 'Mode statique - déplacement non disponible'
-      };
+    // Vérifier que l'opportunité appartient à la compagnie
+    const opportunity = await db.get(
+      'SELECT id FROM opportunities WHERE id = ? AND company_id = ?',
+      [opportunityId, companyId]
+    );
+    
+    if (!opportunity) {
+      throw new Error('Opportunité non trouvée');
     }
+    
+    // Vérifier que le stage appartient à la compagnie
+    const stage = await db.get(
+      'SELECT id, probability FROM pipeline_stages WHERE id = ? AND company_id = ?',
+      [newStageId, companyId]
+    );
+    
+    if (!stage) {
+      throw new Error('Stage de pipeline non trouvé');
+    }
+    
+    // Mettre à jour l'opportunité
+    await db.run(`
+      UPDATE opportunities 
+      SET stage_id = ?, probability = ?, updated_at = ?
+      WHERE id = ? AND company_id = ?
+    `, [newStageId, stage.probability, new Date().toISOString(), opportunityId, companyId]);
+    
+    return { success: true, message: 'Opportunité déplacée avec succès' };
   }
 
-  // Créer une opportunité
-  async createOpportunity(opportunityData) {
-    const isDynamic = await database.isDynamicMode();
+  // Créer une nouvelle opportunité
+  async createOpportunity(opportunityData, companyId) {
+    const db = database;
     
-    if (isDynamic) {
-      const newOpportunity = {
-        id: `opp_${Date.now()}`,
-        ...opportunityData,
-        status: 'open',
-        createdAt: new Date().toISOString()
-      };
-
-      return newOpportunity;
-    } else {
-      return {
-        success: false,
-        message: 'Mode statique - création non disponible'
-      };
-    }
+    const opportunity = {
+      id: require('uuid').v4(),
+      ...opportunityData,
+      company_id: companyId,
+      status: opportunityData.status || 'open',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    await db.run(`
+      INSERT INTO opportunities (
+        id, company_id, title, description, amount, probability, status,
+        stage_id, contact_id, assigned_to, close_date, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      opportunity.id, opportunity.company_id, opportunity.title, opportunity.description,
+      opportunity.amount, opportunity.probability, opportunity.status,
+      opportunity.stage_id, opportunity.contact_id, opportunity.assigned_to,
+      opportunity.close_date, opportunity.created_at, opportunity.updated_at
+    ]);
+    
+    return opportunity;
   }
 
   // Mettre à jour une opportunité
-  async updateOpportunity(opportunityId, updateData) {
-    const isDynamic = await database.isDynamicMode();
+  async updateOpportunity(id, updateData, companyId) {
+    const db = database;
     
-    if (isDynamic) {
-      return {
-        id: opportunityId,
-        ...updateData,
-        updatedAt: new Date().toISOString()
-      };
-    } else {
-      return {
-        success: false,
-        message: 'Mode statique - mise à jour non disponible'
-      };
-    }
+    const setClause = [];
+    const params = [];
+    
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] !== undefined) {
+        setClause.push(`${key} = ?`);
+        params.push(updateData[key]);
+      }
+    });
+    
+    if (setClause.length === 0) return null;
+    
+    setClause.push('updated_at = ?');
+    params.push(new Date().toISOString());
+    params.push(id, companyId);
+    
+    await db.run(`
+      UPDATE opportunities 
+      SET ${setClause.join(', ')}
+      WHERE id = ? AND company_id = ?
+    `, params);
+    
+    return await db.get('SELECT * FROM opportunities WHERE id = ? AND company_id = ?', [id, companyId]);
   }
 
-  // Supprimer une opportunité
-  async deleteOpportunity(opportunityId) {
-    const isDynamic = await database.isDynamicMode();
-    
-    if (isDynamic) {
-      return {
-        success: true,
-        message: 'Opportunité supprimée avec succès',
-        deletedAt: new Date().toISOString()
-      };
-    } else {
-      return {
-        success: false,
-        message: 'Mode statique - suppression non disponible'
-      };
-    }
+  // Supprimer une opportunité (soft delete)
+  async deleteOpportunity(id, companyId) {
+    const db = database;
+    await db.run(
+      'UPDATE opportunities SET status = ?, updated_at = ? WHERE id = ? AND company_id = ?',
+      ['archived', new Date().toISOString(), id, companyId]
+    );
   }
 
-  // Statistiques CRM
-  async getCRMStats(companyId) {
-    const pipeline = await this.getPipelineOverview(companyId);
-    const allOpportunities = pipeline.stages.flatMap(stage => stage.opportunities);
+  // Obtenir les statistiques des opportunités
+  async getOpportunitiesStats(companyId) {
+    const db = database;
+    
+    const results = await db.all(`
+      SELECT 
+        status,
+        COUNT(*) as count,
+        SUM(amount) as total_value
+      FROM opportunities 
+      WHERE company_id = ? AND status != 'archived'
+      GROUP BY status
+    `, [companyId]);
     
     const stats = {
-      totalOpportunities: allOpportunities.length,
-      totalValue: pipeline.totalValue,
-      averageDealSize: pipeline.averageDealSize,
-      conversionRate: pipeline.conversionRate,
-      byStatus: {
-        open: allOpportunities.filter(opp => opp.status === 'open').length,
-        won: allOpportunities.filter(opp => opp.status === 'won').length,
-        lost: allOpportunities.filter(opp => opp.status === 'lost').length,
-        abandoned: allOpportunities.filter(opp => opp.status === 'abandoned').length
-      },
-      byStage: Object.keys(pipeline.opportunitiesByStage).map(stageId => ({
-        stageId,
-        stageName: pipeline.stages.find(s => s.id === stageId)?.name || stageId,
-        count: pipeline.opportunitiesByStage[stageId].length,
-        totalValue: pipeline.opportunitiesByStage[stageId].reduce((sum, opp) => sum + opp.amount, 0)
-      })),
-      monthlyForecast: this.calculateMonthlyForecast(allOpportunities)
+      total: 0,
+      open: 0,
+      won: 0,
+      lost: 0,
+      total_value: 0,
+      won_value: 0
     };
-
+    
+    results.forEach(result => {
+      stats[result.status] = result.count;
+      stats.total += result.count;
+      stats.total_value += result.total_value || 0;
+      
+      if (result.status === 'won') {
+        stats.won_value = result.total_value || 0;
+      }
+    });
+    
     return stats;
   }
 
-  // Calculer les prévisions mensuelles
-  calculateMonthlyForecast(opportunities) {
-    const forecast = {};
-    const currentMonth = moment().startOf('month');
-    
-    // Calculer pour les 6 prochains mois
-    for (let i = 0; i < 6; i++) {
-      const month = currentMonth.clone().add(i, 'months');
-      const monthKey = month.format('YYYY-MM');
-      
-      const monthOpportunities = opportunities.filter(opp => {
-        if (!opp.closeDate) return false;
-        const closeMonth = moment(opp.closeDate).startOf('month');
-        return closeMonth.isSame(month);
-      });
-
-      forecast[monthKey] = {
-        month: month.format('MMMM YYYY'),
-        count: monthOpportunities.length,
-        weightedValue: monthOpportunities.reduce((sum, opp) => 
-          sum + (opp.amount * opp.probability / 100), 0
-        ),
-        totalValue: monthOpportunities.reduce((sum, opp) => sum + opp.amount, 0)
-      };
-    }
-
-    return forecast;
-  }
-
-  // Get CRM Statistics
-  async getCRMStats(companyId) {
-    try {
-      if (this.isDynamic) {
-        // Mode dynamique - calculer depuis la base de données
-        const stats = await this.calculateCRMStats(companyId);
-        return stats;
-      } else {
-        // Mode statique - retourner données mock
-        return {
-          totalContacts: 150,
-          activeCustomers: 80,
-          activeSuppliers: 45,
-          totalOpportunities: 25,
-          pipelineValue: 12500000,
-          conversionRate: 18.5,
-          monthlyGrowth: 12.3,
-          topPerformers: [
-            { name: 'Jean Dupont', opportunities: 8, value: 3200000 },
-            { name: 'Marie Koné', opportunities: 6, value: 2800000 },
-            { name: 'Ahmed Bello', opportunities: 5, value: 2100000 }
-          ],
-          recentActivity: [
-            { type: 'opportunity_won', value: 1500000, date: '2025-11-01' },
-            { type: 'contact_added', name: 'Nouveau Client', date: '2025-11-01' },
-            { type: 'opportunity_created', title: 'Projet ERP', value: 2500000, date: '2025-10-31' }
-          ]
-        };
-      }
-    } catch (error) {
-      throw new Error(`Erreur lors de la récupération des statistiques CRM: ${error.message}`);
-    }
-  }
-
-  // Get Pipeline Stages
-  async getPipelineStages(companyId) {
-    try {
-      if (this.isDynamic) {
-        // Mode dynamique - récupérer depuis la base de données
-        const stages = await this.getPipelineStagesFromDB(companyId);
-        return stages;
-      } else {
-        // Mode statique - retourner données mock
-        return [
-          { id: 'lead', name: 'Lead', type: 'lead', order: 1, probability: 10, color: '#94a3b8' },
-          { id: 'qualified', name: 'Qualifié', type: 'qualified', order: 2, probability: 25, color: '#3b82f6' },
-          { id: 'proposal', name: 'Proposition', type: 'proposal', order: 3, probability: 50, color: '#8b5cf6' },
-          { id: 'negotiation', name: 'Négociation', type: 'negotiation', order: 4, probability: 75, color: '#f59e0b' },
-          { id: 'closing', name: 'Clôture', type: 'closing', order: 5, probability: 90, color: '#ef4444' },
-          { id: 'won', name: 'Gagné', type: 'won', order: 6, probability: 100, color: '#10b981' },
-          { id: 'lost', name: 'Perdu', type: 'lost', order: 7, probability: 0, color: '#6b7280' }
-        ];
-      }
-    } catch (error) {
-      throw new Error(`Erreur lors de la récupération des étapes du pipeline: ${error.message}`);
-    }
-  }
-
-  // Helper methods for dynamic mode
-  async calculateCRMStats(companyId) {
-    // Implémentation pour le calcul dynamique des stats
-    return {
-      totalContacts: 150,
-      activeCustomers: 80,
-      activeSuppliers: 45,
-      totalOpportunities: 25,
-      pipelineValue: 12500000,
-      conversionRate: 18.5,
-      monthlyGrowth: 12.3
-    };
-  }
-
-  async getPipelineStagesFromDB(companyId) {
-    // Implémentation pour la récupération dynamique des stages
-    return [
-      { id: 'lead', name: 'Lead', type: 'lead', order: 1, probability: 10 },
-      { id: 'qualified', name: 'Qualifié', type: 'qualified', order: 2, probability: 25 },
-      { id: 'proposal', name: 'Proposition', type: 'proposal', order: 3, probability: 50 }
-    ];
-  }
-
-  // ===== GESTION DES CONTACTS =====
+  // ===== GESTION DES CONTACTS (DÉJÀ IMPLEMENTÉE) =====
   
   async createContact(contactData, companyId) {
-    // Mode dynamique uniquement - insertion en base de données SQLite
     const db = database;
     
     // Convertir camelCase vers snake_case pour la base de données
@@ -495,7 +290,6 @@ class CRMService {
 
   async findAllContacts(companyId, options = {}) {
     const { page = 1, limit = 20, search, type, status } = options;
-    // Mode dynamique uniquement - base de données SQLite
     const db = database;
     
     let whereClause = 'WHERE company_id = ?';
@@ -568,7 +362,6 @@ class CRMService {
   }
 
   async findContactById(id, companyId) {
-    // Mode dynamique uniquement - base de données SQLite
     const db = database;
     const contact = await db.get(
       'SELECT * FROM contacts WHERE id = ? AND company_id = ?',
@@ -606,7 +399,6 @@ class CRMService {
   }
 
   async updateContact(id, updateData, companyId) {
-    // Mode dynamique uniquement - base de données SQLite
     const db = database;
     
     // Convertir camelCase vers snake_case pour la base de données
@@ -643,7 +435,6 @@ class CRMService {
   }
 
   async deleteContact(id, companyId) {
-    // Mode dynamique uniquement - base de données SQLite
     const db = database;
     await db.run(
       'UPDATE contacts SET status = ?, updated_at = ? WHERE id = ? AND company_id = ?',
@@ -652,7 +443,6 @@ class CRMService {
   }
 
   async getContactsStats(companyId) {
-    // Mode dynamique uniquement - base de données SQLite
     const db = database;
     
     const results = await db.all(`

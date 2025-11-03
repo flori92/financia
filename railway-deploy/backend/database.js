@@ -135,6 +135,40 @@ class Database {
         FOREIGN KEY (company_id) REFERENCES companies(id)
       )`,
 
+      // Pipeline Stages
+      `CREATE TABLE IF NOT EXISTS pipeline_stages (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        order_number INTEGER NOT NULL,
+        probability INTEGER NOT NULL,
+        color TEXT DEFAULT '#3B82F6',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (company_id) REFERENCES companies(id)
+      )`,
+
+      // Opportunities
+      `CREATE TABLE IF NOT EXISTS opportunities (
+        id TEXT PRIMARY KEY,
+        company_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        amount REAL NOT NULL,
+        probability INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'open',
+        stage_id TEXT,
+        contact_id TEXT,
+        assigned_to TEXT, -- User ID
+        close_date DATE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (company_id) REFERENCES companies(id),
+        FOREIGN KEY (stage_id) REFERENCES pipeline_stages(id),
+        FOREIGN KEY (contact_id) REFERENCES contacts(id)
+      )`,
+
       // Employees
       `CREATE TABLE IF NOT EXISTS employees (
         id TEXT PRIMARY KEY,
@@ -412,13 +446,13 @@ class Database {
           position, website, address_line1, address_line2, city, postal_code, country,
           tax_id, vat_number, notes, tags, scoring, status, created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         contact.id, companyId, contact.type, contact.company_name, contact.first_name, contact.last_name,
         contact.email, contact.phone, contact.mobile, contact.position, contact.website,
         contact.address_line1, contact.address_line2, contact.city, contact.postal_code, contact.country,
         contact.tax_id, contact.vat_number, contact.notes, contact.tags, contact.scoring,
-        'active', new Date().toISOString(), new Date().toISOString()
+        contact.status, new Date().toISOString(), new Date().toISOString()
       ]);
     }
 
@@ -444,6 +478,130 @@ class Database {
         ('demo_enabled', 'true', 'Activer les données de démo'),
         ('auto_calculate', 'true', 'Calculer automatiquement les métriques')
     `);
+
+    // Insérer stages du pipeline CRM
+    const pipelineStages = [
+      {
+        id: 'stage_lead',
+        name: 'Lead',
+        type: 'lead',
+        order_number: 1,
+        probability: 10,
+        color: '#3B82F6'
+      },
+      {
+        id: 'stage_qualified',
+        name: 'Qualifié',
+        type: 'qualified',
+        order_number: 2,
+        probability: 25,
+        color: '#10B981'
+      },
+      {
+        id: 'stage_proposal',
+        name: 'Proposition',
+        type: 'proposal',
+        order_number: 3,
+        probability: 50,
+        color: '#F59E0B'
+      },
+      {
+        id: 'stage_negotiation',
+        name: 'Négociation',
+        type: 'negotiation',
+        order_number: 4,
+        probability: 75,
+        color: '#F97316'
+      },
+      {
+        id: 'stage_closing',
+        name: 'Clôture',
+        type: 'closing',
+        order_number: 5,
+        probability: 90,
+        color: '#8B5CF6'
+      },
+      {
+        id: 'stage_won',
+        name: 'Gagné',
+        type: 'won',
+        order_number: 6,
+        probability: 100,
+        color: '#059669'
+      },
+      {
+        id: 'stage_lost',
+        name: 'Perdu',
+        type: 'lost',
+        order_number: 7,
+        probability: 0,
+        color: '#DC2626'
+      }
+    ];
+
+    for (const stage of pipelineStages) {
+      await this.run(`
+        INSERT INTO pipeline_stages (
+          id, company_id, name, type, order_number, probability, color, created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        stage.id, companyId, stage.name, stage.type, stage.order_number,
+        stage.probability, stage.color, new Date().toISOString(), new Date().toISOString()
+      ]);
+    }
+
+    // Insérer opportunités exemples
+    const opportunities = [
+      {
+        id: 'opp_1',
+        title: 'Projet ERP pour Entreprise ABC',
+        description: 'Implémentation complète du système ERP pour la gestion comptable et CRM',
+        amount: 2500000,
+        probability: 25,
+        status: 'open',
+        stage_id: 'stage_qualified',
+        contact_id: 'contact_1',
+        close_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      },
+      {
+        id: 'opp_2',
+        title: 'Site E-commerce B2B',
+        description: 'Développement plateforme e-commerce pour vente professionnelle',
+        amount: 800000,
+        probability: 50,
+        status: 'open',
+        stage_id: 'stage_proposal',
+        contact_id: 'contact_2',
+        close_date: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      },
+      {
+        id: 'opp_3',
+        title: 'Application Mobile Fournisseur',
+        description: 'App mobile pour gestion des commandes fournisseurs',
+        amount: 1500000,
+        probability: 75,
+        status: 'open',
+        stage_id: 'stage_negotiation',
+        contact_id: 'contact_3',
+        close_date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      }
+    ];
+
+    for (const opportunity of opportunities) {
+      await this.run(`
+        INSERT INTO opportunities (
+          id, company_id, title, description, amount, probability, status,
+          stage_id, contact_id, close_date, created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        opportunity.id, companyId, opportunity.title, opportunity.description,
+        opportunity.amount, opportunity.probability, opportunity.status,
+        opportunity.stage_id, opportunity.contact_id, opportunity.close_date,
+        new Date().toISOString(), new Date().toISOString()
+      ]);
+    }
 
     console.log('📊 Données initiales insérées avec succès');
   }
