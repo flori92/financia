@@ -1,8 +1,10 @@
 const FreeLLMService = require('./free-llama.service');
+const EnhancedForecastService = require('./enhanced-forecast.service');
 
 class FreeLLMController {
   constructor() {
     this.llmService = new FreeLLMService();
+    this.forecastService = new EnhancedForecastService();
   }
 
   // Endpoint principal pour discuter avec Llama GRATUIT
@@ -328,6 +330,114 @@ class FreeLLMController {
       res.status(500).json({
         success: false,
         error: 'Erreur lors du changement de modèle'
+      });
+    }
+  }
+
+  // 📈 Prévisions de Chiffre d'Affaires
+  async forecastRevenue(req, res) {
+    try {
+      const { companyId, userId, months = 6 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`📈 Génération prévisions CA pour ${months} mois - entreprise ${companyId}`);
+
+      const result = await this.forecastService.generateRevenueForecast(companyId, userId, months);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur prévisions CA:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération des prévisions de CA'
+      });
+    }
+  }
+
+  // 💰 Prévisions de Bénéfices et Rentabilité
+  async forecastProfit(req, res) {
+    try {
+      const { companyId, userId, months = 6 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`💰 Génération prévisions bénéfices pour ${months} mois - entreprise ${companyId}`);
+
+      const result = await this.forecastService.generateProfitForecast(companyId, userId, months);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur prévisions bénéfices:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération des prévisions de bénéfices'
+      });
+    }
+  }
+
+  // 🌊 Prévisions de Trésorerie
+  async forecastCashFlow(req, res) {
+    try {
+      const { companyId, userId, months = 3 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`🌊 Génération prévisions trésorerie pour ${months} mois - entreprise ${companyId}`);
+
+      const result = await this.forecastService.generateCashFlowForecast(companyId, userId, months);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur prévisions trésorerie:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération des prévisions de trésorerie'
+      });
+    }
+  }
+
+  // 📊 Prévisions Complètes (CA + Bénéfices + Trésorerie)
+  async forecastComprehensive(req, res) {
+    try {
+      const { companyId, userId, months = 6 } = req.body;
+
+      if (!companyId || !userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Paramètres requis: companyId, userId'
+        });
+      }
+
+      console.log(`📊 Génération prévisions complètes pour ${months} mois - entreprise ${companyId}`);
+
+      const result = await this.forecastService.generateComprehensiveForecast(companyId, userId, months);
+
+      res.json(result);
+
+    } catch (error) {
+      console.error('❌ Erreur prévisions complètes:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération des prévisions complètes'
       });
     }
   }

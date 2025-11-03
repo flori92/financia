@@ -2426,6 +2426,23 @@ app.post('/api/v1/ai/free/switch-model', async (req, res) => {
   await freeLLMController.switchModel(req, res);
 });
 
+// 📈 PRÉVISIONS AVANCÉES - Llama GRATUIT
+app.post('/api/v1/ai/free/forecast/revenue', async (req, res) => {
+  await freeLLMController.forecastRevenue(req, res);
+});
+
+app.post('/api/v1/ai/free/forecast/profit', async (req, res) => {
+  await freeLLMController.forecastProfit(req, res);
+});
+
+app.post('/api/v1/ai/free/forecast/cash-flow', async (req, res) => {
+  await freeLLMController.forecastCashFlow(req, res);
+});
+
+app.post('/api/v1/ai/free/forecast/comprehensive', async (req, res) => {
+  await freeLLMController.forecastComprehensive(req, res);
+});
+
 // 404 handler - DOIT être à la fin après toutes les routes
 app.use('*', (req, res) => {
   res.status(404).json({
