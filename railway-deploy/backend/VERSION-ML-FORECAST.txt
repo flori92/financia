@@ -1,0 +1,11 @@
+BMS Backend v2.0.0 - ML Forecast Complete
+- MLForecastService with 5 models
+- All ML Forecast endpoints available
+- /api/v1/ml-forecast/dashboard
+- /api/v1/ml-forecast/predict  
+- /api/v1/ml-forecast/models/performance
+- /api/v1/ml-forecast/auto-select
+- /api/v1/ml-forecast/anomalies
+- /api/v1/ml-forecast/trend
+- /api/v1/ml-forecast/train
+Deployed: 2025-11-03T13:55:00Z
