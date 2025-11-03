@@ -98,10 +98,11 @@ class OCRController {
       };
 
       if (!config.googleVision && !config.ocrSpace) {
-        return res.status(400).json({
-          success: false,
-          error: 'Aucune clé API configurée',
-          config
+        return res.json({
+          success: true,
+          warning: 'Aucune clé API configurée - Mode démo',
+          config,
+          message: 'OCR endpoint disponible, configuration des clés API requise pour extraction'
         });
       }
 
