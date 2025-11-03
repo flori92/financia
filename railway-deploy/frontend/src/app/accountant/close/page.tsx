@@ -24,8 +24,8 @@ export default function ClosePeriodPage() {
     const cid = getCompanyId();
     if (!cid) return;
     try {
-      const data = await apiGet('/api/v1/accounting/closure', { companyId: cid });
-      setClosures(data || []);
+      const data = await apiGet('/api/v1/accounting/close', { companyId: cid });
+      setClosures(Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : []));
     } catch (e: any) {
       console.error(e);
     }
@@ -124,6 +124,8 @@ export default function ClosePeriodPage() {
     const safeValue = Number.isFinite(value) ? value : 0;
     return safeValue.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
+
+  const closuresList = Array.isArray(closures) ? closures : [];
 
   return (
     <div className="space-y-6">
@@ -244,7 +246,7 @@ export default function ClosePeriodPage() {
       {/* Historique */}
       <div className="card p-4">
         <h3 className="text-lg font-semibold mb-3">Historique des clôtures</h3>
-        {closures.length === 0 ? (
+        {closuresList.length === 0 ? (
           <div className="text-sm text-slate-500">Aucune clôture enregistrée</div>
         ) : (
           <div className="overflow-x-auto">
@@ -258,7 +260,7 @@ export default function ClosePeriodPage() {
                 </tr>
               </thead>
               <tbody>
-                {closures.map((closure: any) => (
+                {closuresList.map((closure: any) => (
                   <tr key={closure.id} className="border-b border-app-border">
                     <td className="py-2">
                       {new Date(closure.startDate).toLocaleDateString('fr-FR')} → {new Date(closure.endDate).toLocaleDateString('fr-FR')}
