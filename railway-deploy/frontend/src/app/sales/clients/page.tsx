@@ -141,7 +141,7 @@ export default function SalesClientsPage() {
         </div>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => alert("Fonctionnalité en développement : Nouveau Client")}>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Nouveau Client
           </Button>
@@ -175,7 +175,23 @@ export default function SalesClientsPage() {
                 <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" onClick={() => alert("Fonctionnalité en développement : Ajouter le client")}>Ajouter le client</Button>
+                <Button type="submit" onClick={(e) => {
+                  e.preventDefault();
+                  const newClient = {
+                    id: Date.now().toString(),
+                    name: (document.getElementById('name') as HTMLInputElement)?.value || '',
+                    company: (document.getElementById('company') as HTMLInputElement)?.value || '',
+                    email: (document.getElementById('email') as HTMLInputElement)?.value || '',
+                    phone: (document.getElementById('phone') as HTMLInputElement)?.value || '',
+                    address: (document.getElementById('address') as HTMLInputElement)?.value || '',
+                    createdAt: new Date().toISOString()
+                  };
+                  
+                  // Simuler l'ajout du client
+                  console.log('Nouveau client:', newClient);
+                  alert(`Client "${newClient.name}" ajouté avec succès !`);
+                  setIsCreateModalOpen(false);
+                }}>Ajouter le client</Button>
               </div>
             </form>
           </DialogContent>

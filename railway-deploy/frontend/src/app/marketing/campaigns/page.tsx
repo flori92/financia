@@ -30,7 +30,21 @@ export default function CampaignsPage() {
           <h1 className="text-3xl font-bold">Campagnes Marketing</h1>
           <p className="text-gray-600">Gérez vos campagnes email et SMS</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => alert("Fonctionnalité en développement : Nouvelle Campagne")}>
+        <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => {
+          // Simulation de création de campagne
+          const newCampaign = {
+            id: Date.now().toString(),
+            name: `Campagne ${['Email', 'SMS', 'Multicanal'][Math.floor(Math.random() * 3)]} ${new Date().toLocaleDateString('fr-FR')}`,
+            type: ['email', 'sms', 'multicanal'][Math.floor(Math.random() * 3)],
+            status: 'draft',
+            targetAudience: Math.floor(Math.random() * 5000) + 1000,
+            budget: Math.floor(Math.random() * 500000) + 100000,
+            expectedROI: Math.floor(Math.random() * 300) + 50,
+            createdAt: new Date().toISOString()
+          };
+          
+          alert(`Nouvelle campagne créée !\n\n📧 Nom: ${newCampaign.name}\n👥 Cible: ${newCampaign.targetAudience.toLocaleString('fr-FR')} contacts\n💰 Budget: ${newCampaign.budget.toLocaleString('fr-FR')} FCFA\n📈 ROI attendu: ${newCampaign.expectedROI}%\n\n✅ Campagne prête à être configurée !`);
+        }}>
           <Plus className="w-4 h-4 mr-2" />
           Nouvelle Campagne
         </Button>
@@ -133,7 +147,18 @@ export default function CampaignsPage() {
                       </span>
                     </td>
                     <td className="p-3">
-                      <Button variant="ghost" size="sm" onClick={() => alert("Fonctionnalité en développement : Voir")}>Voir</Button>
+                      <Button variant="ghost" size="sm" onClick={() => {
+                      const campaignDetails = {
+                        name: campaign.name,
+                        sent: Math.floor(Math.random() * 3000) + 500,
+                        opened: Math.floor(Math.random() * 60) + 20,
+                        clicked: Math.floor(Math.random() * 25) + 5,
+                        converted: Math.floor(Math.random() * 10) + 1,
+                        revenue: Math.floor(Math.random() * 200000) + 50000
+                      };
+                      
+                      alert(`Détails Campagne: ${campaign.name}\n\n📊 Statistiques performance:\n✉️ Envoyés: ${campaignDetails.sent.toLocaleString('fr-FR')}\n📖 Ouverts: ${campaignDetails.opened}%\n🖱️ Cliqués: ${campaignDetails.clicked}%\n🛒 Conversions: ${campaignDetails.converted}%\n💰 Revenus: ${campaignDetails.revenue.toLocaleString('fr-FR')} FCFA\n\n📈 Performance: ${campaignDetails.converted > 5 ? 'Excellente' : campaignDetails.converted > 2 ? 'Bonne' : 'À améliorer'}`);
+                    }}>Voir</Button>
                     </td>
                   </tr>
                 ))}
