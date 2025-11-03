@@ -1,7 +1,2 @@
-# Ignorer les dossiers Python pour forcer déploiement backend Node.js
-bms-ai-analytics/
-bms-llm-service/
-railway-services/
-
-# Garder uniquement le backend Node.js
-!backend/
+# Configuration Railway pour déploiement backend Node.js
+# Garder tous les services - chaque service Railway a sa propre source
