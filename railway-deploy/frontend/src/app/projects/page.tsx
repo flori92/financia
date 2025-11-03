@@ -38,6 +38,7 @@ export default function ProjectsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
   const triggerToast = (type: "success" | "info" | "error", message: string) => {
     console.log(`Toast ${type}: ${message}`); // Debug log
@@ -165,6 +166,30 @@ export default function ProjectsPage() {
     } catch (error) {
       console.error("Erreur affichage projet:", error);
       triggerToast("error", "Erreur lors de l'affichage du projet");
+    }
+  };
+
+  const handleEditProject = (project: Project) => {
+    console.log('handleEditProject called with:', project.name); // Debug log
+    triggerToast("info", `Édition du projet "${project.name}" - Fonctionnalité à venir`);
+    // TODO: Implémenter l'édition de projet
+  };
+
+  const handleDeleteProject = (project: Project) => {
+    console.log('handleDeleteProject called with:', project.name); // Debug log
+    setProjectToDelete(project);
+  };
+
+  const confirmDeleteProject = () => {
+    if (!projectToDelete) return;
+    
+    try {
+      setProjects(projects.filter(p => p.id !== projectToDelete.id));
+      triggerToast("success", `Projet "${projectToDelete.name}" supprimé avec succès !`);
+      setProjectToDelete(null);
+    } catch (error) {
+      console.error("Erreur suppression projet:", error);
+      triggerToast("error", "Erreur lors de la suppression du projet");
     }
   };
 
@@ -326,10 +351,18 @@ export default function ProjectsPage() {
                   >
                     <Eye className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleEditProject(project)}
+                  >
                     <Edit className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleDeleteProject(project)}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -462,6 +495,39 @@ export default function ProjectsPage() {
               </Button>
               <Button className="bg-red-600 hover:bg-red-700">
                 <Trash2 className="w-4 h-4 mr-2" />
+                Supprimer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal confirmation suppression */}
+      {projectToDelete && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setProjectToDelete(null);
+            }
+          }}
+        >
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Confirmer la suppression</h2>
+            <p className="text-gray-600 mb-6">
+              Êtes-vous sûr de vouloir supprimer le projet "{projectToDelete.name}" ? Cette action est irréversible.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setProjectToDelete(null)}
+              >
+                Annuler
+              </Button>
+              <Button 
+                className="bg-red-600 hover:bg-red-700"
+                onClick={confirmDeleteProject}
+              >
                 Supprimer
               </Button>
             </div>
