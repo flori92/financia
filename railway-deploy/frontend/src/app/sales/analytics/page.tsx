@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { apiGet } from "@/lib/api";
 import { useCompanyId } from '@/hooks/useCompanyId';
+import { formatCurrency } from "@/lib/format-utils";
 
 import { TrendingUp, TrendingDown, ShoppingCart, Users, DollarSign, Target } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -149,7 +150,7 @@ export default function SalesAnalyticsPage() {
               {TOP_CLIENTS.map((client, idx) => (
                 <tr key={idx} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">{client.name}</td>
-                  <td className="px-4 py-3 text-right">{safeToLocaleString(client.ca)} FCFA</td>
+                  <td className="px-4 py-3 text-right">{formatCurrency(client.ca)}</td>
                   <td className="px-4 py-3 text-right">{client.commandes}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={`inline-flex items-center gap-1 ${client.evolution > 0 ? 'text-green-600' : 'text-red-600'}`}>

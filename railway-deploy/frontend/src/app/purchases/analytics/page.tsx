@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { apiGet } from "@/lib/api";
 import { useCompanyId } from '@/hooks/useCompanyId';
+import { formatCurrency } from "@/lib/format-utils";
 
 import { TrendingUp, TrendingDown, Package, Users, DollarSign } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
@@ -154,7 +155,7 @@ export default function PurchasesAnalyticsPage() {
               {TOP_SUPPLIERS.map((supplier, idx) => (
                 <tr key={idx} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">{supplier.name}</td>
-                  <td className="px-4 py-3 text-right">{safeToLocaleString(supplier.montant)} FCFA</td>
+                  <td className="px-4 py-3 text-right">{formatCurrency(supplier.montant)}</td>
                   <td className="px-4 py-3 text-right">{supplier.commandes}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={`inline-flex items-center gap-1 ${supplier.evolution > 0 ? 'text-green-600' : 'text-red-600'}`}>
