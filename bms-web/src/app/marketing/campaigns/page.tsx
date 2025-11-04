@@ -10,7 +10,7 @@ export default function CampaignsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/marketing/campaigns')
+    fetch('https://bms-production-d9e9.up.railway.app/api/v1/marketing/campaigns')
       .then(res => res.json())
       .then(data => {
         setCampaigns(data);

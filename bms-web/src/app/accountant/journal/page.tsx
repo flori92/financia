@@ -80,7 +80,7 @@ export default function JournalPage() {
     };
     
     try {
-      await fetch('http://localhost:3001/api/v1/accounting/journal-entries', {
+      await fetch('https://bms-production-d9e9.up.railway.app/api/v1/accounting/journal-entries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry)
@@ -120,7 +120,7 @@ export default function JournalPage() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `http://localhost:3001/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
+        `https://bms-production-d9e9.up.railway.app/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
         { method: 'GET' }
       );
       

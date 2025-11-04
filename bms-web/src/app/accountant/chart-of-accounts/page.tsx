@@ -28,8 +28,9 @@ export default function ChartOfAccountsPage() {
     setActiveAction({ type: "export" });
     try {
       const companyId = "default-company"; // TODO: récupérer depuis contexte
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
       const response = await fetch(
-        `http://localhost:3001/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
+        `${apiUrl}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
         { method: 'GET' }
       );
       

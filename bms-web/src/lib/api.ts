@@ -29,9 +29,9 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
   return res.text();
 }
 
-function getBaseUrl() {
+export function getBaseUrl() {
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  return 'https://bms-backend-production.up.railway.app';
+  return 'https://bms-production-d9e9.up.railway.app';
 }
 
 function getToken() {

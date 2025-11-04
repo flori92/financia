@@ -20,7 +20,7 @@ export default function WhatsAppPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/communications/whatsapp')
+    fetch('https://bms-production-d9e9.up.railway.app/api/v1/communications/whatsapp')
       .then(r => r.json())
       .then(data => {
         setMessages(data);

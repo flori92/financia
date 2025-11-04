@@ -26,7 +26,7 @@ export default function TrialBalancePage() {
     try {
       const companyId = "default-company"; // TODO: récupérer depuis contexte
       const response = await fetch(
-        `http://localhost:3001/api/v1/accounting/export/trial-balance?companyId=${companyId}`,
+        `https://bms-production-d9e9.up.railway.app/api/v1/accounting/export/trial-balance?companyId=${companyId}`,
         { method: 'GET' }
       );
       

@@ -33,7 +33,7 @@ export default function BankReconciliationPage() {
 
   const loadTransactions = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/api/v1/banking/transactions?companyId=${companyId}`);
+      const res = await fetch(`https://bms-production-d9e9.up.railway.app/api/v1/banking/transactions?companyId=${companyId}`);
       if (!res.ok) throw new Error("Erreur chargement transactions");
       const data = await res.json();
       setTransactions(Array.isArray(data) ? data : []);
@@ -61,7 +61,7 @@ export default function BankReconciliationPage() {
     if (matching) return;
     setMatching(true);
     try {
-      const res = await fetch('http://localhost:3001/api/v1/banking/auto-match', {
+      const res = await fetch('https://bms-production-d9e9.up.railway.app/api/v1/banking/auto-match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ companyId, threshold, limit }),
@@ -113,7 +113,7 @@ export default function BankReconciliationPage() {
     setSuggestionsLoading(true);
     setSuggestions([]);
     try {
-      const res = await fetch(`http://localhost:3001/api/v1/banking/transactions/${tx.id}/entry-suggest?companyId=${companyId}`);
+      const res = await fetch(`https://bms-production-d9e9.up.railway.app/api/v1/banking/transactions/${tx.id}/entry-suggest?companyId=${companyId}`);
       if (!res.ok) throw new Error('Erreur récupération suggestions');
       const data = await res.json();
       setSuggestions(Array.isArray(data) ? data : []);
@@ -128,7 +128,7 @@ export default function BankReconciliationPage() {
   const reconcileWithEntry = async (journalEntryId: string) => {
     if (!selectedTx) return;
     try {
-      const res = await fetch('http://localhost:3001/api/v1/banking/reconcile-entry', {
+      const res = await fetch('https://bms-production-d9e9.up.railway.app/api/v1/banking/reconcile-entry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

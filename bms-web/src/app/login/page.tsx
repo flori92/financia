@@ -96,7 +96,8 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/v1/auth/login", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

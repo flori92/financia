@@ -10,7 +10,7 @@ export default function TicketsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/support/tickets')
+    fetch('https://bms-production-d9e9.up.railway.app/api/v1/support/tickets')
       .then(res => res.json())
       .then(data => {
         setTickets(data);
