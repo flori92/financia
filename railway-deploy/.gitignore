@@ -4,9 +4,12 @@ dist
 build
 *.log
 *.pid
+# Environment variables
 .env
 .env.local
 .env.development
+# Google Cloud credentials (remplacer avec vos vraies credentials)
+google-credentials.json
 .DS_Store
 coverage
 .cache

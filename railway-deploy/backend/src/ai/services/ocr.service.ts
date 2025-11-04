@@ -1,20 +1,32 @@
 import { Injectable, HttpException, Logger } from '@nestjs/common';
 import Tesseract from 'tesseract.js';
 import axios from 'axios';
+import { GoogleVisionService } from './google-vision.service';
 
 @Injectable()
 export class OcrService {
   private readonly logger = new Logger(OcrService.name);
 
+  constructor(
+    private readonly googleVisionService: GoogleVisionService,
+  ) {}
+
   /**
-   * Extraction OCR réelle avec Tesseract.js
-   * Extrait le texte brut puis parse les données de facture
+   * Extraction OCR avec cascade: Google Vision → OCR.space → Tesseract.js → Simulation
    */
   async extractInvoiceData(fileBuffer: Buffer): Promise<any> {
     this.logger.log(`🚀 Début extraction OCR - Taille fichier: ${fileBuffer.length} bytes`);
     
     try {
-      // Essayer OCR.space API (gratuit et fiable)
+      // 1️⃣ Priorité 1: Google Cloud Vision (plus précis)
+      this.logger.log('🔍 Tentative extraction avec Google Cloud Vision...');
+      const googleResult = await this.extractWithGoogleVision(fileBuffer);
+      if (googleResult) {
+        this.logger.log('✅ Google Vision a réussi - retourne résultats');
+        return googleResult;
+      }
+
+      // 2️⃣ Priorité 2: OCR.space API (gratuit et fiable)
       this.logger.log('📡 Tentative extraction OCR avec OCR.space API...');
       const ocrSpaceResult = await this.extractWithOCRSpace(fileBuffer);
       if (ocrSpaceResult) {
@@ -22,7 +34,7 @@ export class OcrService {
         return ocrSpaceResult;
       }
 
-      // Si OCR.space échoue, essayer Tesseract.js
+      // 3️⃣ Priorité 3: Tesseract.js (fallback local)
       this.logger.log('🔄 Fallback sur Tesseract.js...');
       const tesseractResult = await this.extractWithTesseract(fileBuffer);
       this.logger.log('✅ Tesseract.js a réussi - retourne résultats');
@@ -31,10 +43,60 @@ export class OcrService {
     } catch (error) {
       this.logger.warn('❌ OCR réel indisponible, utilisation mode simulation:', error.message);
       
-      // Fallback final: Mode simulation avec données mockées
+      // 4️⃣ Fallback final: Mode simulation avec données mockées
       const simulationResult = this.getMockInvoiceData();
       this.logger.log('🧪 Mode simulation utilisé - retourne données mockées');
       return simulationResult;
+    }
+  }
+
+  /**
+   * Extraction avec Google Cloud Vision (plus précis)
+   */
+  private async extractWithGoogleVision(fileBuffer: Buffer): Promise<any> {
+    try {
+      this.logger.log(`🔍 Tentative Google Vision avec fichier de ${fileBuffer.length} bytes`);
+      
+      // Classification du document pour extraction optimisée
+      const documentType = await this.googleVisionService.classifyDocument(fileBuffer);
+      this.logger.log(`🏷️ Document classifié comme: ${documentType}`);
+      
+      // Extraction structurée selon le type
+      const structuredData = await this.googleVisionService.extractStructuredData(
+        fileBuffer, 
+        documentType
+      );
+      
+      if (structuredData) {
+        this.logger.log(`✅ Google Vision: Extraction réussie pour ${documentType}`);
+        return {
+          ...structuredData,
+          documentType,
+          extractedAt: new Date().toISOString(),
+          ocrEngine: 'google-vision',
+        };
+      }
+      
+      // Fallback: extraction texte simple
+      const textResult = await this.googleVisionService.extractText(fileBuffer);
+      if (textResult.text) {
+        this.logger.log(`✅ Google Vision: Texte extrait avec confiance: ${textResult.confidence}`);
+        const parsedData = this.parseInvoiceText(textResult.text);
+        
+        return {
+          ...parsedData,
+          confidence: textResult.confidence,
+          rawText: textResult.text,
+          extractedAt: new Date().toISOString(),
+          ocrEngine: 'google-vision',
+        };
+      }
+      
+      this.logger.warn('❌ Google Vision: Aucun texte extrait');
+      return null;
+    } catch (error) {
+      this.logger.warn('❌ Google Vision API indisponible:', error.message);
+      return null;
     }
   }
 
