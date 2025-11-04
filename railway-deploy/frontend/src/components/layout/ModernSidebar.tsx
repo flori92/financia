@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { apiGet, getCompanyId } from "@/lib/api";
 import {
   LayoutDashboard, BookOpen, Wallet, ShoppingCart, ShoppingBag, Target,
   TrendingUp, Percent, BarChart3, Plug, Settings, ChevronDown, Pin,
@@ -172,7 +173,7 @@ const getMenuItems = (remindersCount: number): SidebarItem[] => [
     submenu: [
       { label: "Emails", href: "/communications/emails", icon: Send, badge: "SMTP", badgeColor: "blue" },
       { label: "SMS", href: "/communications/sms", icon: Smartphone, badge: "SMS", badgeColor: "emerald" },
-      { label: "WhatsApp", href: "/communications/whatsapp", icon: Smartphone, badge: "API", badgeColor: "green" },
+      { label: "WhatsApp", href: "/communications/whatsapp", icon: Smartphone, badge: "API", badgeColor: "emerald" },
       { label: "Templates", href: "/communications/templates", icon: FileText, badge: "", badgeColor: "orange" }
     ]
   },
@@ -208,17 +209,15 @@ export function ModernSidebar() {
     // Récupérer le nombre de relances depuis l'API
     const fetchRemindersCount = async () => {
       try {
-        const companyId = localStorage.getItem('company_id') || '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
-        const response = await fetch(`/api/v1/accounting/aged-balance?companyId=${companyId}&type=receivables`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data?.items) {
-            // Compter les relances (montants > 0)
-            const count = data.items.filter((item: any) => 
-              (item.total || 0) > 0 || (item.over90 || 0) > 0
-            ).length;
-            setRemindersCount(count);
-          }
+        const companyId = getCompanyId();
+        const data = await apiGet('/api/v1/accounting/aged-balance', { companyId, type: 'receivables' });
+        const items = Array.isArray(data) ? data : data?.items;
+        if (Array.isArray(items)) {
+          // Compter les relances (montants > 0)
+          const count = items.filter((item: any) =>
+            (item.total || 0) > 0 || (item.over90 || 0) > 0
+          ).length;
+          setRemindersCount(count);
         }
       } catch (error) {
         console.error('Erreur lors de la récupération du nombre de relances:', error);
