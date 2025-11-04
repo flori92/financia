@@ -77,6 +77,8 @@ export class AccountingController {
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'startDate', required: true })
   @ApiQuery({ name: 'endDate', required: true })
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   async getTrialBalance(
     @Query('companyId') companyId: string,
     @Query('startDate') startDate: string,
@@ -90,6 +92,8 @@ export class AccountingController {
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'startDate', required: true })
   @ApiQuery({ name: 'endDate', required: true })
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   async getProfitLoss(
     @Query('companyId') companyId: string,
     @Query('startDate') startDate: string,
@@ -102,6 +106,8 @@ export class AccountingController {
   @ApiOperation({ summary: 'Bilan' })
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'date', required: true })
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   async getBalanceSheet(
     @Query('companyId') companyId: string,
     @Query('date') date: string,
@@ -320,6 +326,8 @@ export class AccountingController {
     status: 200,
     description: 'Grand livre généré',
   })
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   async generateGeneralLedger(
     @Query('companyId') companyId: string,
     @Query('accountNumber') accountNumber?: string,
@@ -411,6 +419,8 @@ export class AccountingController {
     status: 200,
     description: 'Balance âgée avec ventilation par tranches d\'ancienneté',
   })
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   async getAgedBalance(
     @Query('companyId') companyId: string,
     @Query('type') type: 'receivables' | 'payables',
