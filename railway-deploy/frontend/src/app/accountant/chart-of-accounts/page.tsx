@@ -5,6 +5,7 @@ import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
+import { useCompanyId } from '@/hooks/useCompanyId';
 
 interface Account {
   code: string;
@@ -15,6 +16,7 @@ interface Account {
 }
 
 export default function ChartOfAccountsPage() {
+  const companyId = useCompanyId();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,8 +34,6 @@ export default function ChartOfAccountsPage() {
     try {
       setLoading(true);
       setError(null);
-      
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7"; // TODO: depuis contexte
       const response = await fetch(
         `${getBaseUrl()}/api/v1/accounting/chart-of-accounts?companyId=${companyId}`,
         { 

@@ -1,6 +1,7 @@
 'use client';
 import { getBaseUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -75,7 +76,7 @@ export default function DirectDebitsPage() {
     notes: '',
   });
 
-  const companyId = 'default-company';
+  const companyId = useCompanyId();
 
   useEffect(() => {
     loadData();
