@@ -44,9 +44,6 @@ export class User {
   @Column({ default: 'user' })
   role: string; // Kept for backward compatibility
 
-  @Column({ nullable: true, name: 'profile' })
-  profile: string; // ✅ Profil principal pour redirection
-
   @Column({
     type: 'simple-array',
     nullable: true,

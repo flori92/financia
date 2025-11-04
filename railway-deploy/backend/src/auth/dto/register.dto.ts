@@ -44,15 +44,6 @@ export class RegisterDto {
   uxLevel?: 'simple' | 'intermediate' | 'expert';
 
   @ApiProperty({ 
-    example: 'entrepreneur', 
-    enum: UserProfile,
-    default: UserProfile.ENTREPRENEUR 
-  })
-  @IsOptional()
-  @IsIn(Object.values(UserProfile))
-  profile?: UserProfile;
-
-  @ApiProperty({ 
     example: ['entrepreneur', 'manager'], 
     enum: UserProfile,
     required: false,

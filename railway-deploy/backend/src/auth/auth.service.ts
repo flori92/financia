@@ -27,8 +27,8 @@ export class AuthService {
     // Créer l'utilisateur (le mot de passe sera hashé automatiquement)
     const user = this.userRepository.create({
       ...registerDto,
-      profiles: registerDto.profiles || [registerDto.profile || UserProfile.ENTREPRENEUR], // 🆕 Profils multiples
-      primaryProfile: registerDto.profile || UserProfile.ENTREPRENEUR, // 🆕 Profil principal
+      profiles: registerDto.profiles || [UserProfile.ENTREPRENEUR], // 🆕 Profils multiples
+      primaryProfile: registerDto.profiles?.[0] || UserProfile.ENTREPRENEUR, // 🆕 Profil principal (premier profil)
     });
 
     const savedUser = await this.userRepository.save(user);
