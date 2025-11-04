@@ -224,3 +224,5 @@ export class LeaveRequest {
     return labels[this.status];
   }
 }
+
+export { LeaveRequest };

@@ -236,3 +236,5 @@ export class PayrollRecord {
     );
   }
 }
+
+export { PayrollRecord };

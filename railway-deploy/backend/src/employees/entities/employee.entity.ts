@@ -209,3 +209,5 @@ export class Employee {
     return this.userId !== null && this.isActive;
   }
 }
+
+export { Employee };
