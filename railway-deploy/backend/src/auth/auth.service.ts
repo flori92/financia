@@ -50,6 +50,15 @@ export class AuthService {
 
     if (user && (await user.validatePassword(password))) {
       const { password, ...result } = user;
+      
+      // 🆕 Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
+      if (!result.profiles || result.profiles.length === 0) {
+        result.profiles = [result.profile || 'entrepreneur'];
+      }
+      if (!result.primaryProfile) {
+        result.primaryProfile = result.profile || result.profiles[0] || 'entrepreneur';
+      }
+      
       return result;
     }
 
@@ -90,6 +99,14 @@ export class AuthService {
         throw new UnauthorizedException('Utilisateur non trouvé');
       }
 
+      // 🆕 Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
+      if (!user.profiles || user.profiles.length === 0) {
+        user.profiles = [user.profile || 'entrepreneur'];
+      }
+      if (!user.primaryProfile) {
+        user.primaryProfile = user.profile || user.profiles[0] || 'entrepreneur';
+      }
+
       return this.generateTokens(user);
     } catch (error) {
       throw new UnauthorizedException('Token invalide');
@@ -97,13 +114,21 @@ export class AuthService {
   }
 
   private async generateTokens(user: any) {
+    // Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
+    if (!user.profiles || user.profiles.length === 0) {
+      user.profiles = [user.profile || 'entrepreneur'];
+    }
+    if (!user.primaryProfile) {
+      user.primaryProfile = user.profile || user.profiles[0] || 'entrepreneur';
+    }
+
     const payload = {
       email: user.email,
       sub: user.id,
       role: user.role,
       companyId: user.companyId,
-      profiles: user.profiles, // 🆕 Profils multiples
-      primaryProfile: user.primaryProfile, // 🆕 Profil principal pour redirection
+      profiles: user.profiles,    // Profils multiples
+      primaryProfile: user.primaryProfile, // Profil principal pour redirection
     };
 
     return {
