@@ -1,5 +1,6 @@
 # BMS ERP - Backend Only (Railway)
-FROM node:20-alpine
+# Utilisation de Debian au lieu d'Alpine pour compatibilité TensorFlow
+FROM node:20-slim
 
 WORKDIR /app
 
