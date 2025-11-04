@@ -125,14 +125,14 @@ export class PurchasesService {
     const suppliers = await this.getSuppliers(companyId);
     
     const totalOrders = orders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
-    const pendingOrders = orders.filter(o => o.status === 'pending').length;
+    const pendingOrders = orders.filter(o => o.status === 'draft' || o.status === 'submitted').length;
     const activeSuppliers = suppliers.filter(s => s.status === 'active').length;
     
     return {
       totalOrders,
       totalOrdersCount: orders.length,
       pendingOrders,
-      completedOrders: orders.filter(o => o.status === 'completed').length,
+      completedOrders: orders.filter(o => o.status === 'received').length,
       totalReceipts: receipts.length,
       activeSuppliers,
       totalSuppliers: suppliers.length

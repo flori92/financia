@@ -1,4 +1,5 @@
-import { IsString, IsOptional, MaxLength, IsEmail, IsEnum } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsEmail, IsEnum, IsNumber, Min, IsBoolean } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export enum SupplierStatus {
   ACTIVE = 'active',
@@ -37,7 +38,8 @@ export class CreateSupplierDto {
   @IsOptional()
   postalCode?: string;
 
-  @IsPhone()
+  @IsString()
+  @MaxLength(20)
   @IsOptional()
   phone?: string;
 
@@ -69,7 +71,8 @@ export class CreateSupplierDto {
   @IsOptional()
   contactPerson?: string;
 
-  @IsPhone()
+  @IsString()
+  @MaxLength(20)
   @IsOptional()
   contactPhone?: string;
 
@@ -82,6 +85,7 @@ export class CreateSupplierDto {
   @IsOptional()
   website?: string;
 
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
   @IsOptional()
   paymentTerms?: number; // en jours

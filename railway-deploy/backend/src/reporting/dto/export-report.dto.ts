@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, ValidateNested, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsEnum, ValidateNested, IsObject, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum ReportType {
@@ -59,7 +59,6 @@ export class ExportReportDto {
   @IsOptional()
   filters?: ReportFilters;
 
-  @IsString()
   @IsOptional()
   title?: string;
 

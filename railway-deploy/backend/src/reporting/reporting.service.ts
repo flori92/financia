@@ -48,7 +48,7 @@ export class ReportingService {
         return this.analytics.getProductAnalysis(companyId, filters);
       default:
         return { 
-          error: 'Type d\\'analyse non supporté',
+          error: "Type d'analyse non supporté",
           supportedTypes: ['sales_analysis', 'expense_analysis', 'customer_analysis', 'product_analysis']
         };
     }

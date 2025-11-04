@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength, IsArray, ValidateNested, IsEnum } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsArray, ValidateNested, IsEnum, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum WarehouseType {
@@ -21,7 +21,9 @@ class WarehouseLocation {
   @IsOptional()
   type?: string;
 
+  @Type(() => Number)
   @IsNumber()
+  @Min(0)
   @IsOptional()
   capacity?: number;
 }
@@ -65,7 +67,9 @@ export class CreateWarehouseDto {
   @IsOptional()
   type?: WarehouseType;
 
+  @Type(() => Number)
   @IsNumber()
+  @Min(0)
   @IsOptional()
   totalCapacity?: number;
 

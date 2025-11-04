@@ -1,4 +1,5 @@
-import { IsString, IsNumber, IsOptional, IsEnum, Min, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum, Min, MaxLength, IsDecimal } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum ProductStatus {
   IN_STOCK = 'in_stock',
@@ -32,11 +33,13 @@ export class CreateProductDto {
   @Min(0)
   unitPrice: number;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()
   minQuantity?: number;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()
@@ -51,6 +54,7 @@ export class CreateProductDto {
   @IsOptional()
   unit?: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()

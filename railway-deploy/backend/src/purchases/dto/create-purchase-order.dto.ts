@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsArray, ValidateNested, Min, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum, IsArray, ValidateNested, Min, MaxLength, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum PurchaseOrderStatus {
@@ -46,6 +46,7 @@ class PurchaseOrderItem {
   @IsString()
   @MaxLength(255)
   @IsOptional()
+  @IsDateString()
   expectedDeliveryDate?: string;
 }
 
@@ -88,16 +89,19 @@ export class CreatePurchaseOrderDto {
   @IsOptional()
   currency?: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()
   shippingCost?: number;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()
   taxAmount?: number;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()
@@ -106,5 +110,6 @@ export class CreatePurchaseOrderDto {
   @IsString()
   @MaxLength(10)
   @IsOptional()
+  @IsDateString()
   expectedDeliveryDate?: string;
 }
