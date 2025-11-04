@@ -1,15 +1,15 @@
 [phases.setup]
-nixPkgs = ["nodejs_18", "postgresql"]
+nixPkgs = ["nodejs_20", "postgresql"]
 
 [phases.install]
-cmds = ["npm ci"]
+cmds = ["npm ci --legacy-peer-deps"]
 
 [phases.build]
 cmds = ["npm run build"]
 
 [start]
-cmd = "npm run start:prod"
+cmd = "node server.js"
 
 [variables]
 NODE_ENV = "production"
-PORT = "3001"
+PORT = "8080"
