@@ -5,10 +5,13 @@ WORKDIR /app
 
 # Copie et installation backend
 COPY backend/package*.json ./
-RUN npm ci --only=production --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Copie du code backend
 COPY backend/ .
+
+# Build de l'application NestJS
+RUN npm run build
 
 # Port exposé (Railway détecte automatiquement)
 EXPOSE 8080
