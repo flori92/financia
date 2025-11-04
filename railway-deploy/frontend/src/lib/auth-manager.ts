@@ -230,6 +230,16 @@ class AuthManager {
       'Accept': 'application/json',
     };
 
+    // D'abord essayer depuis localStorage (priorité pour compatibilité)
+    if (typeof window !== 'undefined') {
+      const token = window.localStorage.getItem('bms_token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        return headers;
+      }
+    }
+
+    // Fallback: essayer depuis l'état
     if (this.state.tokens?.access_token) {
       headers['Authorization'] = `Bearer ${this.state.tokens.access_token}`;
     }
