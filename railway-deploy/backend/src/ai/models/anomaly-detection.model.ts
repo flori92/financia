@@ -63,7 +63,7 @@ export class AnomalyDetectionModel {
 
         // Calculer le seuil d'anomalie
         const predictions = this.model.predict(normalizedFeatures) as tf.Tensor;
-        const scores = predictions.dataSync();
+        const scores = new Float32Array(predictions.dataSync());
         this.threshold = this.calculateThreshold(scores);
     }
 
