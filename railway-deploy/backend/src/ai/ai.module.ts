@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
 import { AIController } from './ai.controller';
 import { AIService } from './ai.service';
 import { OcrService } from './services/ocr.service';
@@ -28,6 +29,10 @@ import { NotificationGateway } from '../notifications/gateways/notification.gate
       BankTransaction,
       TransactionAnomaly,
     ]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'default-secret',
+      signOptions: { expiresIn: '24h' },
+    }),
   ],
   controllers: [AIController],
   providers: [
