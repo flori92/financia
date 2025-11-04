@@ -3,9 +3,10 @@
  * Résout les problèmes 401 et standardise la gestion des erreurs
  */
 
-import React, { useState, useCallback, useRef } from 'react';
-import { apiClient, type ApiResponse } from '@/lib/api-client';
-import { authManager } from '@/lib/auth-manager';
+import * as React from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { apiClient, type ApiResponse } from '../lib/api-client';
+import { authManager } from '../lib/auth-manager';
 
 interface UseApiOptions {
   onSuccess?: (data: any) => void;
@@ -78,7 +79,7 @@ export function useApiWithErrorHandling<T = any>(options: UseApiOptions = {}) {
       }
 
       setState({
-        data: response.data,
+        data: response.data || null,
         isLoading: false,
         error: null,
         isSuccess: true,
@@ -230,7 +231,7 @@ export function useQuery<T = any>(
       return {
         success: true,
         data: result,
-        error: null,
+        error: undefined,
         meta: {
           timestamp: new Date().toISOString(),
           requestId: 'query_' + Date.now(),
@@ -259,7 +260,7 @@ export function useMutation<T = any>(options: UseApiOptions = {}) {
         return {
           success: true,
           data,
-          error: null,
+          error: undefined,
           meta: {
             timestamp: new Date().toISOString(),
             requestId: 'mutation_' + Date.now(),
