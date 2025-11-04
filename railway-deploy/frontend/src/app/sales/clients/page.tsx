@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost, apiDelete } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,6 +107,72 @@ export default function SalesClientsPage() {
     }
   };
 
+  // Handler pour créer un client
+  const handleCreateClient = async (clientData: Omit<SalesClient, 'id' | 'createdAt' | 'totalOrders' | 'totalRevenue' | 'lastOrderDate'>) => {
+    try {
+      const newClient = await apiPost('/sales/clients', clientData);
+      await loadClients();
+      console.log("Client créé avec succès:", newClient);
+      return newClient;
+    } catch (error: any) {
+      console.error("Erreur création client:", error);
+      throw error;
+    }
+  };
+
+  // Handler pour supprimer un client
+  const handleDeleteClient = async (clientId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
+      return;
+    }
+    
+    try {
+      await apiDelete(`/sales/clients/${clientId}`);
+      await loadClients();
+      console.log("Client supprimé avec succès");
+    } catch (error: any) {
+      console.error("Erreur suppression client:", error);
+      alert(`Erreur lors de la suppression: ${error.message || 'Erreur inconnue'}`);
+    }
+  };
+
+  // Handler pour mettre à jour un client
+  const handleUpdateClient = async (clientId: string, updates: Partial<SalesClient>) => {
+    try {
+      const updatedClient = await apiPost(`/sales/clients/${clientId}`, updates);
+      await loadClients();
+      console.log("Client mis à jour avec succès:", updatedClient);
+      return updatedClient;
+    } catch (error: any) {
+      console.error("Erreur mise à jour client:", error);
+      throw error;
+    }
+  };
+
+  // Handler pour soumettre le formulaire de création
+  const handleSubmitClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const clientData = {
+        name: (document.getElementById('name') as HTMLInputElement)?.value || '',
+        company: (document.getElementById('company') as HTMLInputElement)?.value || '',
+        email: (document.getElementById('email') as HTMLInputElement)?.value || '',
+        phone: (document.getElementById('phone') as HTMLInputElement)?.value || '',
+        address: (document.getElementById('address') as HTMLInputElement)?.value || '',
+        type: ((document.getElementById('type') as HTMLSelectElement)?.value || 'individual') as 'individual' | 'company',
+        status: ((document.getElementById('status') as HTMLSelectElement)?.value || 'prospect') as 'active' | 'inactive' | 'prospect',
+        rating: 0
+      };
+      
+      await handleCreateClient(clientData);
+      setIsCreateModalOpen(false);
+      alert(`Client "${clientData.name}" créé avec succès !`);
+    } catch (error: any) {
+      alert(`Erreur lors de la création: ${error.message || 'Erreur inconnue'}`);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       active: { color: "bg-green-100 text-green-800", label: "Actif" },
@@ -189,23 +255,7 @@ export default function SalesClientsPage() {
                 <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" onClick={(e) => {
-                  e.preventDefault();
-                  const newClient = {
-                    id: Date.now().toString(),
-                    name: (document.getElementById('name') as HTMLInputElement)?.value || '',
-                    company: (document.getElementById('company') as HTMLInputElement)?.value || '',
-                    email: (document.getElementById('email') as HTMLInputElement)?.value || '',
-                    phone: (document.getElementById('phone') as HTMLInputElement)?.value || '',
-                    address: (document.getElementById('address') as HTMLInputElement)?.value || '',
-                    createdAt: new Date().toISOString()
-                  };
-                  
-                  // Simuler l'ajout du client
-                  console.log('Nouveau client:', newClient);
-                  alert(`Client "${newClient.name}" ajouté avec succès !`);
-                  setIsCreateModalOpen(false);
-                }}>Ajouter le client</Button>
+                <Button type="submit" onClick={handleSubmitClient}>Ajouter le client</Button>
               </div>
             </form>
           </DialogContent>

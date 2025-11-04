@@ -4,8 +4,6 @@ import { formatCurrency } from "@/lib/format-utils";
 import { useCompanyId } from '@/hooks/useCompanyId';
 
 import React, { useState, useEffect } from 'react';
-
-import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProtectedPage } from '@/components/auth/ProtectedPage';
 import {
   Plus,

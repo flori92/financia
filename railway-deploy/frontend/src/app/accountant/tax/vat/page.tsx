@@ -6,9 +6,6 @@ import { formatCurrency } from "@/lib/format-utils";
 import { useCompanyId } from "@/hooks/useCompanyId";
 import { useState } from "react";
 import { Download, Upload, Send, Calculator, FileText, X, Info } from "lucide-react";
-
-
-import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProtectedPage } from '@/components/auth/ProtectedPage';
 function VATPageContent() {
   const companyId = useCompanyId();

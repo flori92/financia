@@ -1,12 +1,9 @@
 "use client";
 // Rapprochement Bancaire - MODE DYNAMIQUE avec API backend
-import { apiGet, apiPost, getCompanyId } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, Link2, X, Filter, FileDown, FileUp } from "lucide-react";
-import { useToast } from "@/components/providers/ToastProvider";
-
-
 import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProtectedPage } from '@/components/auth/ProtectedPage';
 function BankReconciliationPageContent() {
@@ -24,7 +21,6 @@ function BankReconciliationPageContent() {
     setTimeout(() => setToast(null), 2600);
   };
   const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
-  const companyId = companyId;
   const { show } = useToast();
   const [matching, setMatching] = useState(false);
   const [threshold, setThreshold] = useState<number>(0.8);

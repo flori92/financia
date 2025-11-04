@@ -5,9 +5,6 @@ import { ProfessionalExporter } from "@/lib/export-utils";
 import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { Search, Filter, Download, Calendar, RefreshCw, AlertTriangle } from "lucide-react";
-
-
-import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface LedgerEntry {
   date: string;
