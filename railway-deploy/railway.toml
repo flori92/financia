@@ -2,7 +2,8 @@
 builder = "DOCKERFILE"
 
 [deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 100
+# Healthcheck désactivé temporairement pour voir les logs d'erreur
+# healthcheckPath = "/health"
+# healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
