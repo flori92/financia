@@ -41,8 +41,7 @@ function ProfitLossPageContent() {
       setLoading(true);
       setError(null);
       
-      const companyId = companyId;
-      if (!companyId) {
+            if (!companyId) {
         throw new Error('Aucune société sélectionnée');
       }
       

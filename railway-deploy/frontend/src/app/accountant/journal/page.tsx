@@ -48,11 +48,10 @@ function JournalPageContent() {
     const handleCompanyChange = () => loadData();
     window.addEventListener('bms-company-changed', handleCompanyChange);
     return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
-  }, []);
+  }, [companyId]);
 
   const loadData = async () => {
     try {
-      const companyId = companyId;
       if (!companyId) {
         console.error("Aucune société sélectionnée");
         setEntries([]);
