@@ -1,6 +1,6 @@
 "use client";
 // Utilisateurs - MODE DYNAMIQUE avec API backend
-import { getBaseUrl } from "@/lib/api";
+import { apiGet, apiPost, apiDelete } from "@/lib/api";
 import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { UserCog, Plus, Mail, Shield, Edit, Trash2, RefreshCw, AlertTriangle } from "lucide-react";
@@ -45,21 +45,8 @@ function UsersPageContent() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/settings/users?companyId=${companyId}`,
-        { 
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
-      
-      const apiData = await response.json();
+      // Appel API réel avec apiGet
+      const apiData = await apiGet('/settings/users', { companyId });
       
       // Transformer les données API au format attendu
       const transformedData: UsersData = {
@@ -70,9 +57,9 @@ function UsersPageContent() {
       };
       
       setData(transformedData);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erreur chargement utilisateurs:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      setError(err.message || 'Erreur inconnue');
       
       // En cas d'erreur, afficher des données de démonstration
       const mockUsers: User[] = [
@@ -86,7 +73,7 @@ function UsersPageContent() {
         users: mockUsers,
         totalUsers: mockUsers.length,
         activeUsers: mockUsers.filter(u => u.status === 'active').length,
-        period: 'Données de démonstration'
+        period: 'Utilisateurs de démonstration'
       });
     } finally {
       setLoading(false);
@@ -103,29 +90,23 @@ function UsersPageContent() {
     setCreatingUser(true);
     
     try {
-      // Simuler la création (remplacer par appel API réel)
-      const newUser: User = {
-        id: Date.now().toString(),
+      // Appel API réel pour créer l'utilisateur
+      const newUser = await apiPost('/settings/users', {
         ...formData,
-        status: "active",
-        createdAt: new Date().toISOString().split('T')[0]
-      };
+        companyId: companyId
+      });
       
-      if (data) {
-        const updatedUsers = [...data.users, newUser];
-        setData({
-          ...data,
-          users: updatedUsers,
-          totalUsers: updatedUsers.length,
-          activeUsers: updatedUsers.filter(u => u.status === 'active').length
-        });
-      }
+      // Recharger la liste des utilisateurs
+      await loadUsers();
       
       setFormData({ name: "", email: "", role: "user" });
       setShowForm(false);
-    } catch (error) {
+      
+      // Succès
+      console.log("Utilisateur créé avec succès:", newUser);
+    } catch (error: any) {
       console.error("Erreur création utilisateur:", error);
-      alert("Erreur lors de la création de l'utilisateur");
+      alert(`Erreur lors de la création: ${error.message || 'Erreur inconnue'}`);
     } finally {
       setCreatingUser(false);
     }
@@ -137,19 +118,46 @@ function UsersPageContent() {
     }
     
     try {
-      // Simuler la suppression (remplacer par appel API réel)
-      if (data) {
-        const updatedUsers = data.users.filter(u => u.id !== userId);
-        setData({
-          ...data,
-          users: updatedUsers,
-          totalUsers: updatedUsers.length,
-          activeUsers: updatedUsers.filter(u => u.status === 'active').length
-        });
-      }
-    } catch (error) {
+      // Appel API réel pour supprimer l'utilisateur
+      await apiDelete(`/settings/users/${userId}?companyId=${companyId}`);
+      
+      // Recharger la liste des utilisateurs
+      await loadUsers();
+      
+      // Succès
+      console.log("Utilisateur supprimé avec succès");
+    } catch (error: any) {
       console.error("Erreur suppression utilisateur:", error);
-      alert("Erreur lors de la suppression de l'utilisateur");
+      alert(`Erreur lors de la suppression: ${error.message || 'Erreur inconnue'}`);
+    }
+  };
+
+  // Handler pour rafraîchir la liste
+  const handleRefresh = async () => {
+    await loadUsers();
+  };
+
+  // Handler pour basculer le statut d'un utilisateur
+  const handleToggleStatus = async (userId: string) => {
+    try {
+      await apiPost(`/settings/users/${userId}/toggle-status`);
+      await loadUsers();
+      console.log("Statut utilisateur basculé avec succès");
+    } catch (error: any) {
+      console.error("Erreur basculement statut:", error);
+      alert(`Erreur lors du basculement: ${error.message || 'Erreur inconnue'}`);
+    }
+  };
+
+  // Handler pour éditer un utilisateur
+  const handleEditUser = async (userId: string, updates: Partial<User>) => {
+    try {
+      await apiPost(`/settings/users/${userId}`, updates);
+      await loadUsers();
+      console.log("Utilisateur modifié avec succès");
+    } catch (error: any) {
+      console.error("Erreur modification utilisateur:", error);
+      alert(`Erreur lors de la modification: ${error.message || 'Erreur inconnue'}`);
     }
   };
 
@@ -192,7 +200,7 @@ function UsersPageContent() {
               <h3 className="text-rose-800 font-medium">Erreur de chargement</h3>
               <p className="text-rose-700 text-sm">{error}</p>
               <button
-                onClick={loadUsers}
+                onClick={handleRefresh}
                 className="mt-2 text-sm text-rose-600 hover:text-rose-800 underline"
               >
                 Réessayer
@@ -215,7 +223,7 @@ function UsersPageContent() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={loadUsers}
+            onClick={handleRefresh}
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
             <RefreshCw className="w-4 h-4" />
