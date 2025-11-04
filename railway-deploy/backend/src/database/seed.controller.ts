@@ -41,33 +41,29 @@ export class SeedController {
   @Post('fix-user-profiles')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ 
-    summary: '🔧 FIX: Mettre à jour les primaryProfile des utilisateurs existants',
-    description: 'Corrige les utilisateurs qui ont NULL dans primaryProfile en le définissant selon leur role'
+    summary: '🔧 FIX: Créer colonne primaryProfile et mettre à jour les utilisateurs',
+    description: 'Ajoute la colonne primary_profile si manquante puis définit les profils selon les roles'
   })
-  @ApiResponse({ status: 200, description: 'primaryProfile mis à jour avec succès' })
+  @ApiResponse({ status: 200, description: 'primaryProfile créé et mis à jour avec succès' })
   async fixUserProfiles() {
     try {
-      console.log('🔄 Début mise à jour des primaryProfile...');
+      console.log('🔄 Début migration primaryProfile...');
       
-      // Récupérer les utilisateurs avec primaryProfile NULL
-      const usersWithoutProfile = await this.dataSource.query(`
-        SELECT id, email, role FROM users WHERE primary_profile IS NULL;
+      // ÉTAPE 1: Créer la colonne si elle n'existe pas
+      console.log('📦 Création de la colonne primary_profile si nécessaire...');
+      await this.dataSource.query(`
+        ALTER TABLE users 
+        ADD COLUMN IF NOT EXISTS primary_profile VARCHAR(50);
       `);
+      console.log('✅ Colonne primary_profile créée ou déjà existante');
       
-      console.log(`📊 ${usersWithoutProfile.length} utilisateur(s) sans primaryProfile trouvé(s)`);
+      // ÉTAPE 2: Récupérer tous les utilisateurs
+      const allUsers = await this.dataSource.query(`
+        SELECT id, email, role, primary_profile FROM users;
+      `);
+      console.log(`📊 ${allUsers.length} utilisateur(s) total trouvé(s)`);
       
-      if (usersWithoutProfile.length === 0) {
-        return {
-          success: true,
-          message: '✅ Tous les utilisateurs ont déjà un primaryProfile !',
-          details: {
-            updatedUsers: 0,
-            alreadySet: true
-          }
-        };
-      }
-      
-      // Mettre à jour les profils selon le rôle
+      // ÉTAPE 3: Mettre à jour les profils selon le rôle
       await this.dataSource.query(`
         UPDATE users 
         SET primary_profile = CASE 
@@ -80,17 +76,26 @@ export class SeedController {
           WHEN role = 'user' THEN 'entrepreneur'
           ELSE 'entrepreneur'
         END
-        WHERE primary_profile IS NULL;
+        WHERE primary_profile IS NULL OR primary_profile = '';
       `);
       
       console.log('✅ primaryProfile mis à jour pour tous les utilisateurs');
       
+      // ÉTAPE 4: Vérifier les résultats
+      const updatedUsers = await this.dataSource.query(`
+        SELECT email, role, primary_profile FROM users;
+      `);
+      
       return {
         success: true,
-        message: `✅ ${usersWithoutProfile.length} utilisateur(s) mis à jour avec succès !`,
+        message: `✅ Migration réussie ! ${allUsers.length} utilisateur(s) traité(s)`,
         details: {
-          updatedUsers: usersWithoutProfile.length,
-          users: usersWithoutProfile.map(u => ({ email: u.email, role: u.role })),
+          totalUsers: allUsers.length,
+          users: updatedUsers.map(u => ({ 
+            email: u.email, 
+            role: u.role, 
+            primaryProfile: u.primary_profile 
+          })),
           mapping: {
             admin: 'admin',
             tax_admin: 'tax_admin',
@@ -103,11 +108,12 @@ export class SeedController {
         }
       };
     } catch (error) {
-      console.error('❌ Erreur lors de la mise à jour des primaryProfile:', error);
+      console.error('❌ Erreur lors de la migration primaryProfile:', error);
       return {
         success: false,
-        message: '❌ Erreur lors de la mise à jour',
-        error: error.message
+        message: '❌ Erreur lors de la migration',
+        error: error.message,
+        stack: error.stack
       };
     }
   }
