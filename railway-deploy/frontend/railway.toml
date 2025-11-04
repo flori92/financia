@@ -77,7 +77,7 @@ metrics = "/metrics"
 [performance]
 build_timeout = 300
 deploy_timeout = 180
-healthcheck_timeout = 100
+healthcheck_timeout = 180
 memory_limit = "512MB"
 cpu_limit = "1.0"
 
