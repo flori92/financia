@@ -3,10 +3,12 @@ import { apiGet } from "@/lib/api";
 import { ProfessionalExporter } from "@/lib/export-utils";
 import { getBaseUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from "@/hooks/useCompanyId";
 import { useState } from "react";
 import { Download, Upload, Send, Calculator, FileText, X, Info } from "lucide-react";
 
 export default function VATPage() {
+  const companyId = useCompanyId();
   const [vatData] = useState({
     period: "2025-01",
     collectee: 125000,
@@ -20,18 +22,17 @@ export default function VATPage() {
     { account: "445620", description: "TVA déductible achats", base: 225000, rate: 20, amount: -45000 }
   ]);
 
-  const [toast, setToast] = useState<{ type: "success" | "info" | "warning" | "error"; message: string } | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ type: "success" | "info" | "warning" | "error"; message: string } | null>(null);
   const [showTransmitModal, setShowTransmitModal] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   const triggerToast = (type: "success" | "info" | "warning" | "error", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 2800);
+    setToastMessage({ type, message });
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   const handleRecalculate = async () => {
     try {
-      const companyId = "default-company"; // TODO: récupérer depuis contexte
       const response = await fetch(
         `${getBaseUrl()}/api/v1/tax/vat/recalculate`,
         {
@@ -281,17 +282,17 @@ export default function VATPage() {
         </div>
       </div>
 
-      {toast && (
+      {toastMessage && (
         <div
           className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
-            toast.type === "success"
+            toastMessage.type === "success"
               ? "bg-emerald-600 text-white"
-              : toast.type === "warning"
+              : toastMessage.type === "warning"
                 ? "bg-amber-500 text-white"
                 : "bg-slate-900 text-white"
           }`}
         >
-          {toast.message}
+          {toastMessage.message}
         </div>
       )}
 
