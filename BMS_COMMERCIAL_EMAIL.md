@@ -41,6 +41,7 @@ BMS s'adapte à VOTRE rôle, pas l'inverse. Un utilisateur peut cumuler plusieur
 | **👑 Administrateur** | Gestion système, sécurité | IT Managers |
 | **👥 RH Manager** | Paie, congés, performance | DRH |
 | **✅ Manager** | Projets, équipes, productivité | Managers d'équipes |
+| **👨‍💼 Employé** | Suivi tâches, congés, pointage | Collaborateurs |
 
 **✅ EXCLUSIVITÉ BMS :** Vous pouvez être à la fois **Entrepreneur + Manager**, **Expert Comptable + Admin**, ou toute autre combinaison !
 
