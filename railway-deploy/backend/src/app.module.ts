@@ -89,11 +89,11 @@ import { AppController } from './app.controller';
         // Fallback variables individuelles
         return {
           type: 'postgres',
-          host: config.get('DATABASE_HOST', config.get('DB_HOST', 'localhost')),
-          port: config.get('DATABASE_PORT', config.get('DB_PORT', 5432)),
-          username: config.get('DATABASE_USER', config.get('DB_USER', 'postgres')),
-          password: config.get('DATABASE_PASSWORD', config.get('DB_PASSWORD', 'postgres')),
-          database: config.get('DATABASE_NAME', config.get('DB_NAME', 'bms')),
+          host: config.get('DATABASE_HOST') || config.get('DB_HOST') || 'localhost',
+          port: parseInt(config.get('DATABASE_PORT')) || parseInt(config.get('DB_PORT')) || 5432,
+          username: config.get('DATABASE_USER') || config.get('DB_USER') || 'postgres',
+          password: config.get('DATABASE_PASSWORD') || config.get('DB_PASSWORD') || 'postgres',
+          database: config.get('DATABASE_NAME') || config.get('DB_NAME') || 'bms',
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: true, // ✅ ACTIVÉ pour création automatique des tables
           logging: config.get('NODE_ENV') === 'development',
