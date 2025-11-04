@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { apiGet, apiPost, apiDelete } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,6 +91,7 @@ const mockProducts: Product[] = [
 ];
 
 export default function InventoryPage() {
+  const companyId = useCompanyId();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -120,36 +123,20 @@ export default function InventoryPage() {
     }
   };
 
-  async function loadProducts() {
+  const loadProducts = async () => {
     setLoading(true);
     try {
-      // Utiliser la vraie API avec le companyId
-      const companyId = localStorage.getItem('companyId') || 'demo-company';
-      const params = new URLSearchParams({ companyId });
-      
-      if (search) {
-        params.append('search', search);
-      }
-      if (filter.category) {
-        params.append('category', filter.category);
-      }
-      if (filter.status) {
-        params.append('status', filter.status);
-      }
-
-      const response = await fetch(`/api/inventory/products?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProducts(data || []);
-      } else {
-        // Fallback vers données mock si API non disponible
-        console.warn('API non disponible, utilisation des données mock');
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setProducts(mockProducts);
-      }
-    } catch (e) {
-      console.error(e);
-      // Fallback vers données mock
+      const data = await apiGet('/inventory/products', {
+        companyId,
+        ...(search && { search }),
+        ...(filter.category && { category: filter.category }),
+        ...(filter.status && { status: filter.status }),
+      });
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Erreur chargement produits:', error);
+      // Fallback vers données mock si API non disponible
+      console.warn('API non disponible, utilisation des données mock');
       await new Promise(resolve => setTimeout(resolve, 500));
       setProducts(mockProducts);
     } finally {
@@ -157,7 +144,7 @@ export default function InventoryPage() {
     }
   }
 
-  useEffect(() => { loadProducts(); }, [search, filter]);
+  useEffect(() => { loadProducts(); }, [search, filter, companyId]);
 
   const alertProducts = products.filter(p => p.status === 'low_stock' || p.status === 'out_of_stock');
   const totalValue = products.reduce((sum, p) => sum + (p.quantity * p.unitPrice), 0);

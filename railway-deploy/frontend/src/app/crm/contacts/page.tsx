@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiGet, apiPost, apiDelete } from '@/lib/api';
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { Plus, Search, Filter, Mail, Phone } from 'lucide-react';
 
 export default function ContactsPage() {
+  const companyId = useCompanyId();
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState({ type: '', status: '' });
@@ -16,29 +19,53 @@ export default function ContactsPage() {
 
   useEffect(() => {
     fetchContacts();
-  }, [search, filter, page]);
+  }, [search, filter, page, companyId]);
 
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
+      const data = await apiGet('/crm/contacts', {
+        companyId,
         search,
         page: page.toString(),
         limit: '20',
         ...(filter.type && { type: filter.type }),
         ...(filter.status && { status: filter.status }),
       });
-
-      const res = await fetch(`/api/crm/contacts?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        setContacts(data.contacts || []);
-        setTotal(data.total || 0);
-      }
+      setContacts(data.contacts || []);
+      setTotal(data.total || 0);
     } catch (error) {
       console.error('Failed to fetch contacts:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handler pour créer un contact
+  const handleCreateContact = async (contactData: any) => {
+    try {
+      const newContact = await apiPost('/crm/contacts', { ...contactData, companyId });
+      await fetchContacts();
+      return newContact;
+    } catch (error: any) {
+      console.error("Erreur création contact:", error);
+      throw error;
+    }
+  };
+
+  // Handler pour supprimer un contact
+  const handleDeleteContact = async (contactId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce contact ?")) {
+      return;
+    }
+    
+    try {
+      await apiDelete(`/crm/contacts/${contactId}`, { companyId });
+      await fetchContacts();
+      console.log("Contact supprimé avec succès");
+    } catch (error: any) {
+      console.error("Erreur suppression contact:", error);
+      alert(`Erreur lors de la suppression: ${error.message || 'Erreur inconnue'}`);
     }
   };
 

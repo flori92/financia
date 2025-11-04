@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost, apiDelete } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { formatCurrency } from "@/lib/format-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,18 +9,47 @@ import { Plus } from "lucide-react";
 import SupplierModal from "@/components/purchases/supplier-modal";
 
 export default function SuppliersPage() {
+  const companyId = useCompanyId();
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadSuppliers();
-  }, []);
+  }, [companyId]);
 
   const loadSuppliers = () => {
-    apiGet("/api/v1/purchases/suppliers")
+    apiGet("/purchases/suppliers", { companyId })
       .then(setSuppliers)
       .catch(console.error)
       .finally(() => setLoading(false));
+  };
+
+  // Handler pour créer un fournisseur
+  const handleCreateSupplier = async (supplierData: any) => {
+    try {
+      const newSupplier = await apiPost("/purchases/suppliers", { ...supplierData, companyId });
+      await loadSuppliers();
+      return newSupplier;
+    } catch (error: any) {
+      console.error("Erreur création fournisseur:", error);
+      throw error;
+    }
+  };
+
+  // Handler pour supprimer un fournisseur
+  const handleDeleteSupplier = async (supplierId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce fournisseur ?")) {
+      return;
+    }
+    
+    try {
+      await apiDelete(`/purchases/suppliers/${supplierId}`, { companyId });
+      await loadSuppliers();
+      console.log("Fournisseur supprimé avec succès");
+    } catch (error: any) {
+      console.error("Erreur suppression fournisseur:", error);
+      alert(`Erreur lors de la suppression: ${error.message || 'Erreur inconnue'}`);
+    }
   };
 
   const handleSupplierCreated = (newSupplier: any) => {
