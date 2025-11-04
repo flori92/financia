@@ -46,20 +46,22 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ 
+      where: { email },
+      select: ['id', 'email', 'phone', 'firstName', 'lastName', 'isActive', 'createdAt', 'updatedAt', 'profiles', 'primaryProfile'] // Exclure 'profile'
+    });
 
     if (user && (await user.validatePassword(password))) {
-      const { password, ...result } = user;
-      
       // 🆕 Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
-      if (!result.profiles || result.profiles.length === 0) {
-        result.profiles = [result.profile || 'entrepreneur'];
+      if (!user.profiles || user.profiles.length === 0) {
+        // Pour les anciens utilisateurs, utiliser des valeurs par défaut
+        user.profiles = ['entrepreneur'];
       }
-      if (!result.primaryProfile) {
-        result.primaryProfile = result.profile || result.profiles[0] || 'entrepreneur';
+      if (!user.primaryProfile) {
+        user.primaryProfile = user.profiles[0] || 'entrepreneur';
       }
       
-      return result;
+      return user;
     }
 
     return null;
@@ -93,6 +95,7 @@ export class AuthService {
       const payload = this.jwtService.verify(refreshToken);
       const user = await this.userRepository.findOne({
         where: { id: payload.sub },
+        select: ['id', 'email', 'phone', 'firstName', 'lastName', 'isActive', 'createdAt', 'updatedAt', 'profiles', 'primaryProfile', 'role', 'companyId'] // Exclure 'profile'
       });
 
       if (!user) {
@@ -101,10 +104,10 @@ export class AuthService {
 
       // 🆕 Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
       if (!user.profiles || user.profiles.length === 0) {
-        user.profiles = [user.profile || 'entrepreneur'];
+        user.profiles = ['entrepreneur'];
       }
       if (!user.primaryProfile) {
-        user.primaryProfile = user.profile || user.profiles[0] || 'entrepreneur';
+        user.primaryProfile = user.profiles[0] || 'entrepreneur';
       }
 
       return this.generateTokens(user);
@@ -116,10 +119,10 @@ export class AuthService {
   private async generateTokens(user: any) {
     // Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
     if (!user.profiles || user.profiles.length === 0) {
-      user.profiles = [user.profile || 'entrepreneur'];
+      user.profiles = ['entrepreneur'];
     }
     if (!user.primaryProfile) {
-      user.primaryProfile = user.profile || user.profiles[0] || 'entrepreneur';
+      user.primaryProfile = user.profiles[0] || 'entrepreneur';
     }
 
     const payload = {
