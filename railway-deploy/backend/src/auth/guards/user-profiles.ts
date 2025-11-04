@@ -13,6 +13,56 @@ export enum UserProfile {
 }
 
 // Définition des modules par profil avec typage explicite
+const ALL_MODULES_EXCEPT_ADMIN = [
+  'accounting.dashboard',
+  'accounting.chart-of-accounts',
+  'accounting.journal',
+  'accounting.trial-balance',
+  'accounting.profit-loss',
+  'accounting.balance-sheet',
+  'accounting.aged-balance',
+  'accounting.vat',
+  'accounting.closure',
+  'accounting.bank',
+  'accounting.automation',
+  'dashboard.overview',
+  'treasury.overview',
+  'treasury.forecast',
+  'treasury.alerts',
+  'formalization.nif',
+  'employees.list',
+  'employees.timesheets',
+  'employees.leave',
+  'employees.payroll',
+  'employees.transfers',
+  'employees.documents',
+  'banking.transactions',
+  'banking.reconciliation',
+  'banking.transfers',
+  'banking.statement-import',
+  'tax.vat-declarations',
+  'tax.corporate-tax',
+  'tax.annual-returns',
+  'tax.audit-logs',
+  'hr.employees',
+  'hr.timesheets',
+  'hr.leave-management',
+  'hr.payroll',
+  'hr.transfers',
+  'hr.documents',
+  'hr.analytics',
+  'manager.team',
+  'manager.timesheets',
+  'manager.leave-approval',
+  'manager.team-analytics',
+  'manager.reports',
+  'employee.profile',
+  'employee.timesheets',
+  'employee.leave-requests',
+  'employee.payslips',
+  'employee.documents'
+];
+
 const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
   [UserProfile.EXPERT_COMPTABLE]: [
     'accounting.dashboard',
@@ -86,10 +136,7 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'employee.payslips',
     'employee.documents'
   ],
-  [UserProfile.ADMIN]: [
-    // Admin a accès à tous les modules des autres profils
-    ...Object.values(PROFILE_MODULES_BASE).flat()
-  ]
+  [UserProfile.ADMIN]: ALL_MODULES_EXCEPT_ADMIN
 };
 
 export const PROFILE_MODULES: Record<UserProfile, string[]> = PROFILE_MODULES_BASE;
