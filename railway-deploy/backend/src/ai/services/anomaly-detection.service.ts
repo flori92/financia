@@ -181,7 +181,7 @@ export class AnomalyDetectionService {
     private determineAnomalyType(
         transaction: BankTransaction,
         anomalyScore: number
-    ): string {
+    ): 'critical' | 'suspicious' | 'unusual' {
         if (anomalyScore > 0.9) {
             return 'critical';
         } else if (anomalyScore > 0.7) {
