@@ -13,12 +13,14 @@ import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiResponse } from '@nestj
 import { AIService } from './ai.service';
 import { GoogleVisionService } from './services/google-vision.service';
 import { GoogleVisionFallbackService } from './services/google-vision-fallback.service';
+import { DocumentAIService } from './services/document-ai.service';
 
 @ApiTags('ai')
 @Controller('ai')
 export class AIController {
   constructor(
     private readonly aiService: AIService,
+    private readonly documentAIService: DocumentAIService,
     private readonly googleVisionService: GoogleVisionService,
     private readonly googleVisionFallbackService: GoogleVisionFallbackService,
   ) {}
@@ -86,6 +88,39 @@ export class AIController {
   @ApiOperation({ summary: 'Assistant virtuel conversationnel' })
   async chat(@Body() message: { content: string; context?: any }) {
     return this.aiService.chatResponse(message.content, message.context);
+  }
+
+  @Post('document-ai/extract')
+  @ApiOperation({ summary: 'Extraction document avec Google Document AI (le plus puissant)' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async extractWithDocumentAI(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Aucun fichier fourni');
+    }
+    
+    // Détecter le type MIME
+    const isPDF = file.buffer.length > 4 && file.buffer[0] === 0x25 && file.buffer[1] === 0x50;
+    const mimeType = isPDF ? 'application/pdf' : 'image/jpeg';
+    
+    try {
+      const result = await this.documentAIService.extractDocumentData(file.buffer, mimeType);
+      if (result) {
+        return {
+          ...result,
+          status: 'success',
+          message: 'Document AI extraction réussie',
+        };
+      }
+    } catch (error) {
+      console.warn('Document AI indisponible:', error.message);
+      return {
+        status: 'error',
+        message: 'Document AI non disponible',
+        error: error.message,
+        engine: 'google-document-ai',
+      };
+    }
   }
 
   @Post('google-vision/extract-text')
@@ -156,15 +191,22 @@ export class AIController {
     return {
       status: 'operational',
       service: 'OCR',
-      version: '2.0.0',
+      version: '3.0.0',
       capabilities: ['invoice', 'receipt', 'bank_statement', 'identity_document'],
       engines: [
-        { name: 'Google Cloud Vision', status: 'active', priority: 1 },
-        { name: 'OCR.space API', status: 'active', priority: 2 },
-        { name: 'Tesseract.js', status: 'active', priority: 3 },
-        { name: 'Simulation', status: 'active', priority: 4 },
+        { name: 'Google Document AI', status: 'active', priority: 1, description: 'Le plus puissant pour documents structurés' },
+        { name: 'Google Cloud Vision', status: 'active', priority: 2, description: 'Extraction texte et classification' },
+        { name: 'OCR.space API', status: 'active', priority: 3, description: 'Gratuit et fiable' },
+        { name: 'Tesseract.js', status: 'active', priority: 4, description: 'Fallback local' },
+        { name: 'Simulation', status: 'active', priority: 5, description: 'Fallback final' },
       ],
-      message: 'Service OCR multi-moteurs opérationnel (Google Vision + OCR.space + Tesseract.js)',
+      message: 'Service OCR multi-moteurs avancé (Document AI + Google Vision + OCR.space + Tesseract.js)',
+      endpoints: [
+        'POST /api/v1/ai/ocr/invoice - Cascade complète',
+        'POST /api/v1/ai/document-ai/extract - Document AI direct',
+        'POST /api/v1/ai/google-vision/extract-text - Google Vision direct',
+        'GET /api/v1/ai/ocr/status - Statut des moteurs',
+      ],
     };
   }
 }

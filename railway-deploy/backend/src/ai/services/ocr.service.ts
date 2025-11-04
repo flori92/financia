@@ -1,6 +1,7 @@
 import { Injectable, HttpException, Logger } from '@nestjs/common';
 import Tesseract from 'tesseract.js';
 import axios from 'axios';
+import { DocumentAIService } from './document-ai.service';
 import { GoogleVisionService } from './google-vision.service';
 
 @Injectable()
@@ -8,17 +9,26 @@ export class OcrService {
   private readonly logger = new Logger(OcrService.name);
 
   constructor(
+    private readonly documentAIService: DocumentAIService,
     private readonly googleVisionService: GoogleVisionService,
   ) {}
 
   /**
-   * Extraction OCR avec cascade: Google Vision → OCR.space → Tesseract.js → Simulation
+   * Extraction OCR avec cascade: Document AI → Google Vision → OCR.space → Tesseract.js → Simulation
    */
   async extractInvoiceData(fileBuffer: Buffer): Promise<any> {
     this.logger.log(`🚀 Début extraction OCR - Taille fichier: ${fileBuffer.length} bytes`);
     
     try {
-      // 1️⃣ Priorité 1: Google Cloud Vision (plus précis)
+      // 1️⃣ Priorité 1: Google Document AI (le plus puissant pour documents structurés)
+      this.logger.log('📄 Tentative extraction avec Google Document AI...');
+      const documentAiResult = await this.extractWithDocumentAI(fileBuffer);
+      if (documentAiResult) {
+        this.logger.log('✅ Document AI a réussi - retourne résultats structurés');
+        return documentAiResult;
+      }
+
+      // 2️⃣ Priorité 2: Google Cloud Vision (plus précis)
       this.logger.log('🔍 Tentative extraction avec Google Cloud Vision...');
       const googleResult = await this.extractWithGoogleVision(fileBuffer);
       if (googleResult) {
@@ -26,7 +36,7 @@ export class OcrService {
         return googleResult;
       }
 
-      // 2️⃣ Priorité 2: OCR.space API (gratuit et fiable)
+      // 3️⃣ Priorité 3: OCR.space API (gratuit et fiable)
       this.logger.log('📡 Tentative extraction OCR avec OCR.space API...');
       const ocrSpaceResult = await this.extractWithOCRSpace(fileBuffer);
       if (ocrSpaceResult) {
@@ -34,7 +44,7 @@ export class OcrService {
         return ocrSpaceResult;
       }
 
-      // 3️⃣ Priorité 3: Tesseract.js (fallback local)
+      // 4️⃣ Priorité 4: Tesseract.js (fallback local)
       this.logger.log('🔄 Fallback sur Tesseract.js...');
       const tesseractResult = await this.extractWithTesseract(fileBuffer);
       this.logger.log('✅ Tesseract.js a réussi - retourne résultats');
@@ -43,10 +53,58 @@ export class OcrService {
     } catch (error) {
       this.logger.warn('❌ OCR réel indisponible, utilisation mode simulation:', error.message);
       
-      // 4️⃣ Fallback final: Mode simulation avec données mockées
+      // 5️⃣ Fallback final: Mode simulation avec données mockées
       const simulationResult = this.getMockInvoiceData();
       this.logger.log('🧪 Mode simulation utilisé - retourne données mockées');
       return simulationResult;
+    }
+  }
+
+  /**
+   * Extraction avec Google Document AI (le plus puissant)
+   */
+  private async extractWithDocumentAI(fileBuffer: Buffer): Promise<any> {
+    try {
+      this.logger.log(`📄 Tentative Document AI avec fichier de ${fileBuffer.length} bytes`);
+      
+      // Détecter le type MIME (PDF ou image)
+      const isPDF = fileBuffer.length > 4 && fileBuffer[0] === 0x25 && fileBuffer[1] === 0x50;
+      const mimeType = isPDF ? 'application/pdf' : 'image/jpeg';
+      
+      // Extraction avec Document AI
+      const documentAiResult = await this.documentAIService.extractDocumentData(fileBuffer, mimeType);
+      
+      if (documentAiResult) {
+        this.logger.log(`✅ Document AI: Extraction réussie pour ${documentAiResult.documentType}`);
+        
+        // Formatter les résultats pour être compatibles avec l'interface existante
+        return {
+          invoiceNumber: documentAiResult.structuredData?.invoiceNumber || 'N/A',
+          date: documentAiResult.structuredData?.date || new Date().toISOString().split('T')[0],
+          dueDate: documentAiResult.structuredData?.dueDate || new Date().toISOString().split('T')[0],
+          supplierName: documentAiResult.structuredData?.supplierName || 'Fournisseur',
+          supplierAddress: 'Adresse extraite par Document AI',
+          supplierVat: documentAiResult.structuredData?.supplierVat || 'N/A',
+          customerName: documentAiResult.structuredData?.customerName || 'Client',
+          subtotal: documentAiResult.structuredData?.subtotal || 0,
+          vatAmount: documentAiResult.structuredData?.vatAmount || 0,
+          total: documentAiResult.structuredData?.total || 0,
+          currency: documentAiResult.structuredData?.currency || 'FCFA',
+          confidence: documentAiResult.confidence,
+          rawText: documentAiResult.text,
+          documentType: documentAiResult.documentType,
+          extractedAt: new Date().toISOString(),
+          ocrEngine: 'google-document-ai',
+          entities: documentAiResult.entities,
+          pages: documentAiResult.pages,
+        };
+      }
+      
+      this.logger.warn('❌ Document AI: Aucune donnée extraite');
+      return null;
+    } catch (error) {
+      this.logger.warn('❌ Document AI API indisponible:', error.message);
+      return null;
     }
   }
 
