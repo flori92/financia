@@ -118,11 +118,22 @@ export default function LoginPage() {
         // Déterminer la redirection selon le profil depuis le JWT
         const userRole = data.user?.role || 'user';
         const userProfile = data.user?.profile || 'entrepreneur';
+        const userProfiles = data.user?.profiles || [userProfile];
+        const userPrimaryProfile = data.user?.primaryProfile || userProfile;
+        
+        // Si l'utilisateur a plusieurs profils, rediriger vers la page de sélection
+        if (userProfiles.length > 1) {
+          window.localStorage.setItem("user_data", JSON.stringify(data.user));
+          window.localStorage.setItem("user_role", userRole);
+          window.localStorage.setItem("user_profile", userProfile);
+          router.push('/profile-selection');
+          return;
+        }
         
         let redirectTo = '/dashboard';
         
-        // Redirection selon le profil
-        switch (userProfile) {
+        // Redirection selon le profil principal
+        switch (userPrimaryProfile) {
           case 'expert_comptable':
           case 'accountant':
             redirectTo = '/accountant';
@@ -146,6 +157,7 @@ export default function LoginPage() {
             redirectTo = '/dashboard';
         }
         
+        window.localStorage.setItem("user_data", JSON.stringify(data.user));
         window.localStorage.setItem("user_role", userRole);
         window.localStorage.setItem("user_profile", userProfile);
         
