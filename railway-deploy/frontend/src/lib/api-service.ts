@@ -55,9 +55,19 @@ async function apiCall<T>(
   }
 
   try {
+    // Ajouter les headers d'authentification depuis localStorage
+    const authHeaders: Record<string, string> = {};
+    if (typeof window !== 'undefined') {
+      const token = window.localStorage.getItem('bms_token');
+      if (token) {
+        authHeaders['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...options.headers,
       },
       signal: AbortSignal.timeout(10000),
