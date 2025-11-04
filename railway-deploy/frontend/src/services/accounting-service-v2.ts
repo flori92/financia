@@ -4,7 +4,7 @@
  */
 
 import * as React from 'react';
-import { apiClient, type ApiResponse } from '@/lib/api-client';
+import { apiClient, type ApiResponse } from '../lib/api-client';
 
 // Types pour la comptabilité
 export interface DashboardMetrics {
@@ -108,7 +108,7 @@ export class AccountingServiceV2 {
     companyId: string,
     periodData: Partial<AccountingPeriod>
   ): Promise<AccountingPeriod> {
-    const response = await apiClient.post<AccountingPeriod>(`/api/v1/accounting/periods`, periodData, { companyId });
+    const response = await apiClient.post<AccountingPeriod>(`/api/v1/accounting/periods`, periodData, { params: { companyId } });
     
     if (!response.success || !response.data) {
       throw new Error(response.error?.message || 'Erreur lors de la création de la période');
@@ -173,7 +173,7 @@ export class AccountingServiceV2 {
     format: 'pdf' | 'excel' | 'csv',
     options?: any
   ): Promise<Blob> {
-    const response = await apiClient.post<Blob>(`/api/v1/accounting/export/${reportType}`, options, { companyId, format });
+    const response = await apiClient.post<Blob>(`/api/v1/accounting/export/${reportType}`, options, { params: { companyId, format } });
     
     if (!response.success || !response.data) {
       throw new Error(response.error?.message || 'Erreur lors de l\'export');
@@ -187,8 +187,7 @@ export class AccountingServiceV2 {
 // import { useApiWithErrorHandling, useQuery, useMutation } from '@/hooks/useApiWithErrorHandling';
 
 // Simplifié pour éviter les imports circulaires
-import * as React from 'react';
-import { apiClient, type ApiResponse } from '@/lib/api-client';
+// Les imports React et apiClient sont déjà déclarés en haut du fichier
 
 interface UseQueryResult<T> {
   data: T | null;
@@ -307,7 +306,7 @@ export function useAccountingPeriods(companyId: string) {
   const createPeriod = React.useCallback(async (
     periodData: Partial<AccountingPeriod>
   ): Promise<AccountingPeriod> => {
-    const response = await apiClient.post<AccountingPeriod>(`/api/v1/accounting/periods`, periodData, { companyId });
+    const response = await apiClient.post<AccountingPeriod>(`/api/v1/accounting/periods`, periodData, { params: { companyId } });
     
     if (!response.success || !response.data) {
       throw new Error(response.error?.message || 'Erreur lors de la création de la période');
@@ -343,7 +342,7 @@ export function useAccountingReports(companyId: string) {
     setIsExporting(true);
     
     try {
-      const response = await apiClient.post<Blob>(`/api/v1/accounting/export/${reportType}`, options, { companyId, format });
+      const response = await apiClient.post<Blob>(`/api/v1/accounting/export/${reportType}`, options, { params: { companyId, format } });
       
       if (!response.success || !response.data) {
         throw new Error(response.error?.message || 'Erreur lors de l\'export');
