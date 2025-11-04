@@ -51,6 +51,9 @@ import { RevenueModule } from './revenue/revenue.module';
 import { ControllingModule } from './controlling/controlling.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 
+// HR & Payroll Modules
+import { EmployeeModule } from './employees/employee.module';
+
 // Controllers
 import { HealthController } from './health/health.controller';
 import { AppController } from './app.controller';
@@ -164,6 +167,9 @@ import { AppController } from './app.controller';
     QuotesModule,
     RevenueModule,
     ControllingModule,
+    
+    // HR & Payroll
+    EmployeeModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
