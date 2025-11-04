@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { apiGet } from "@/lib/api";
 import { useCompanyId } from '@/hooks/useCompanyId';
+import { formatCurrency } from "@/lib/format-utils";
 import { Database, Filter, Download, RefreshCw, BarChart3, PieChart, LineChart } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Line, Area } from "recharts";
 
@@ -200,7 +201,7 @@ export default function BIPage() {
                 {PRODUCT_ANALYSIS.map((prod, idx) => (
                   <tr key={idx} className="hover:bg-gray-50">
                     <td className="px-3 py-2 font-medium">{prod.produit}</td>
-                    <td className="px-3 py-2 text-right">{safeToLocaleString(prod.ca)}</td>
+                    <td className="px-3 py-2 text-right">{formatCurrency(prod.ca)}</td>
                     <td className="px-3 py-2 text-right text-green-600 font-medium">{prod.marge}%</td>
                     <td className="px-3 py-2 text-right">{prod.rotation}</td>
                   </tr>
