@@ -27,7 +27,9 @@ export class AuthService {
     // Créer l'utilisateur (le mot de passe sera hashé automatiquement)
     const user = this.userRepository.create({
       ...registerDto,
-      profile: registerDto.profile || UserProfile.ENTREPRENEUR, // ✅ Profile par défaut
+      profile: registerDto.profile || UserProfile.ENTREPRENEUR, // ✅ Profile principal
+      profiles: registerDto.profiles || [registerDto.profile || UserProfile.ENTREPRENEUR], // 🆕 Profils multiples
+      primaryProfile: registerDto.profile || UserProfile.ENTREPRENEUR, // 🆕 Profil principal
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -72,6 +74,9 @@ export class AuthService {
         lastName: user.lastName,
         role: user.role,
         uxLevel: user.uxLevel,
+        profile: user.profile,
+        profiles: user.profiles, // 🆕 Profils multiples
+        primaryProfile: user.primaryProfile, // 🆕 Profil principal
       },
     };
   }
@@ -99,7 +104,9 @@ export class AuthService {
       sub: user.id,
       role: user.role,
       companyId: user.companyId,
-      profile: user.profile, // ✅ AJOUTER profile
+      profile: user.profile, // ✅ Profile principal
+      profiles: user.profiles, // 🆕 Profils multiples
+      primaryProfile: user.primaryProfile || user.profile, // 🆕 Profil principal pour redirection
     };
 
     return {

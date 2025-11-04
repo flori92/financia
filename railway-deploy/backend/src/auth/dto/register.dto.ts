@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsIn,
+  Array,
 } from 'class-validator';
 import { UserProfile } from '../guards/user-profiles';
 
@@ -50,4 +51,15 @@ export class RegisterDto {
   @IsOptional()
   @IsIn(Object.values(UserProfile))
   profile?: UserProfile;
+
+  @ApiProperty({ 
+    example: ['entrepreneur', 'manager'], 
+    enum: UserProfile,
+    required: false,
+    description: 'Profils multiples pour l\'utilisateur'
+  })
+  @IsOptional()
+  @Array()
+  @IsIn(Object.values(UserProfile), { each: true })
+  profiles?: UserProfile[];
 }

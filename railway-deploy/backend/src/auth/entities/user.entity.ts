@@ -45,7 +45,21 @@ export class User {
   role: string; // Kept for backward compatibility
 
   @Column({ nullable: true, name: 'profile' })
-  profile: string; // ✅ AJOUTER profile pour nouvelle architecture
+  profile: string; // ✅ Profil principal pour redirection
+
+  @Column({
+    type: 'simple-array',
+    nullable: true,
+    name: 'profiles'
+  })
+  profiles: string[]; // 🆕 Tableau de profils multiples
+
+  @Column({ 
+    nullable: true, 
+    name: 'primary_profile',
+    default: 'entrepreneur'
+  })
+  primaryProfile: string; // 🆕 Profil principal pour redirection initiale
 
   @ManyToMany(() => Role, { eager: true })
   @JoinTable({
