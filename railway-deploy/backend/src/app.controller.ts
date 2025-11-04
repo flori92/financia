@@ -1,5 +1,5 @@
 import { Controller, Get, Redirect } from '@nestjs/common';
-import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
@@ -8,6 +8,19 @@ export class AppController {
   @Redirect('/api/docs', 302)
   getRoot() {
     // Redirection automatique vers Swagger
+  }
+
+  @Get('health')
+  @ApiOperation({ summary: 'Health check endpoint' })
+  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  getHealth() {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      service: 'BMS ERP Backend',
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+    };
   }
 
   @Get('welcome')

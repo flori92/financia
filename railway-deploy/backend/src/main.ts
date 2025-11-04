@@ -20,7 +20,7 @@ async function bootstrap() {
     crossOriginEmbedderPolicy: false,
   }));
 
-  // CORS - Autorise mobile et web
+  // CORS - Autorise mobile, web et Railway
   app.enableCors({
     origin: [
       'http://localhost:3000', // Web admin
@@ -28,6 +28,8 @@ async function bootstrap() {
       'capacitor://localhost', // Capacitor mobile
       'ionic://localhost',
       /^https:\/\/.*\.bms\.com$/, // Production
+      /^https:\/\/.*\.up\.railway\.app$/, // Railway frontend
+      'https://bms-frontend-production.up.railway.app', // Frontend Railway
     ],
     credentials: true,
   });
@@ -61,7 +63,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 8080;
   await app.listen(port);
 
   console.log(`
