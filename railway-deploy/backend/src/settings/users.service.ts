@@ -40,8 +40,12 @@ export class UsersService {
       throw new ConflictException('Un utilisateur avec cet email existe déjà');
     }
 
+    // Auto-calculer le primaryProfile si non fourni
+    const primaryProfile = createUserDto.primaryProfile || this.getRoleToPrimaryProfileMapping(createUserDto.role);
+
     const user = this.usersRepository.create({
       ...createUserDto,
+      primaryProfile,
       isActive: true
     });
 
@@ -50,6 +54,23 @@ export class UsersService {
     // Retourner sans le mot de passe
     const { password, ...result } = savedUser;
     return result;
+  }
+
+  /**
+   * Mapping automatique role → primaryProfile
+   */
+  private getRoleToPrimaryProfileMapping(role: string): string {
+    const mapping = {
+      'admin': 'admin',
+      'tax_admin': 'tax_admin',
+      'accountant': 'accountant',
+      'expert_comptable': 'expert_comptable',
+      'bank_admin': 'bank_admin',
+      'hr_manager': 'hr_manager',
+      'manager': 'manager',
+      'user': 'entrepreneur'
+    };
+    return mapping[role] || 'entrepreneur';
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
@@ -62,6 +83,11 @@ export class UsersService {
     // Si un nouveau mot de passe est fourni, le hasher
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    // Si le role change et que primaryProfile n'est pas fourni, le recalculer
+    if (updateUserDto.role && !updateUserDto.primaryProfile) {
+      updateUserDto.primaryProfile = this.getRoleToPrimaryProfileMapping(updateUserDto.role) as any;
     }
 
     await this.usersRepository.update(id, updateUserDto);

@@ -3,6 +3,8 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SimpleTestSeedService } from './seeds/simple-test.seed';
+import { runDevSeed } from './seeds/dev.seed';
+import * as bcrypt from 'bcrypt';
 
 @ApiTags('Database Seeds')
 @Controller('database')
@@ -188,6 +190,90 @@ export class SeedController {
       return {
         success: false,
         message: '❌ Erreur lors de la synchronisation',
+        error: error.message,
+        stack: error.stack
+      };
+    }
+  }
+
+  @Post('seed-users')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ 
+    summary: '🌱 SEED: Créer/Mettre à jour les utilisateurs de développement',
+    description: 'Exécute le seed dev.seed.ts avec les utilisateurs ayant les bons rôles (admin, tax_admin, accountant, entrepreneur)'
+  })
+  @ApiResponse({ status: 200, description: 'Utilisateurs seed créés/mis à jour avec succès' })
+  async seedUsers() {
+    try {
+      console.log('🌱 Début seed des utilisateurs...');
+      
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      
+      // Admin
+      await this.dataSource.query(`
+        INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+        VALUES ('admin@bms.bj', $1, 'Admin', 'BMS', 'admin', 'admin', '+22997000001', true, true)
+        ON CONFLICT (email) DO UPDATE 
+        SET role = 'admin', primary_profile = 'admin', password = $1;
+      `, [hashedPassword]);
+      
+      // Tax Admin
+      await this.dataSource.query(`
+        INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+        VALUES ('taxadmin@dgi.bj', $1, 'Tax', 'Admin', 'tax_admin', 'tax_admin', '+22997000002', true, true)
+        ON CONFLICT (email) DO UPDATE 
+        SET role = 'tax_admin', primary_profile = 'tax_admin', password = $1;
+      `, [hashedPassword]);
+      
+      // Accountant (Expert-Comptable)
+      await this.dataSource.query(`
+        INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+        VALUES ('comptable@cabinet.bj', $1, 'Jean', 'Comptable', 'accountant', 'accountant', '+22997000003', true, true)
+        ON CONFLICT (email) DO UPDATE 
+        SET role = 'accountant', primary_profile = 'accountant', password = $1;
+      `, [hashedPassword]);
+      
+      // Entrepreneur
+      await this.dataSource.query(`
+        INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+        VALUES ('entrepreneur@test.bj', $1, 'Marie', 'Entrepreneur', 'user', 'entrepreneur', '+22997000004', true, true)
+        ON CONFLICT (email) DO UPDATE 
+        SET role = 'user', primary_profile = 'entrepreneur', password = $1;
+      `, [hashedPassword]);
+      
+      // Vérifier les utilisateurs créés
+      const users = await this.dataSource.query(`
+        SELECT id, email, role, primary_profile, first_name, last_name FROM users 
+        WHERE email IN ('admin@bms.bj', 'taxadmin@dgi.bj', 'comptable@cabinet.bj', 'entrepreneur@test.bj')
+        ORDER BY email;
+      `);
+      
+      console.log('✅ Seed des utilisateurs terminé');
+      
+      return {
+        success: true,
+        message: '✅ 4 utilisateurs seed créés/mis à jour avec succès !',
+        details: {
+          totalUsers: users.length,
+          users: users.map(u => ({
+            id: u.id,
+            email: u.email,
+            firstName: u.first_name,
+            lastName: u.last_name,
+            role: u.role,
+            primaryProfile: u.primary_profile
+          })),
+          credentials: {
+            password: 'password123',
+            note: 'Tous les utilisateurs seed utilisent ce mot de passe'
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ Erreur lors du seed des utilisateurs:', error);
+      return {
+        success: false,
+        message: '❌ Erreur lors du seed',
         error: error.message,
         stack: error.stack
       };

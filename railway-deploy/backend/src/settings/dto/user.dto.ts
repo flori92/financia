@@ -3,9 +3,24 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'cl
 
 export enum UserRole {
   ADMIN = 'admin',
+  TAX_ADMIN = 'tax_admin',
   ACCOUNTANT = 'accountant',
+  EXPERT_COMPTABLE = 'expert_comptable',
+  BANK_ADMIN = 'bank_admin',
+  HR_MANAGER = 'hr_manager',
   MANAGER = 'manager',
   USER = 'user'
+}
+
+export enum UserProfile {
+  ADMIN = 'admin',
+  TAX_ADMIN = 'tax_admin',
+  ACCOUNTANT = 'accountant',
+  EXPERT_COMPTABLE = 'expert_comptable',
+  BANK_ADMIN = 'bank_admin',
+  HR_MANAGER = 'hr_manager',
+  ENTREPRENEUR = 'entrepreneur',
+  MANAGER = 'manager'
 }
 
 export enum UserStatus {
@@ -49,6 +64,15 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiPropertyOptional({ 
+    description: 'Primary profile (auto-set based on role if not provided)', 
+    enum: UserProfile, 
+    example: UserProfile.ENTREPRENEUR 
+  })
+  @IsOptional()
+  @IsEnum(UserProfile)
+  primaryProfile?: UserProfile;
 }
 
 export class UpdateUserDto {
@@ -86,6 +110,15 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiPropertyOptional({ 
+    description: 'Primary profile (auto-updated based on role if not provided)', 
+    enum: UserProfile, 
+    example: UserProfile.ACCOUNTANT 
+  })
+  @IsOptional()
+  @IsEnum(UserProfile)
+  primaryProfile?: UserProfile;
 }
 
 export class UserResponseDto {
