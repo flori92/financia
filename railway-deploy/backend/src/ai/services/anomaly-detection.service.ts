@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-// import * as tf from '@tensorflow/tfjs-node'; // TODO: Install TensorFlow
+import * as tf from '@tensorflow/tfjs-node'; // ✅ ACTIVÉ
 import { NotificationGateway } from '../../notifications/gateways/notification.gateway';
 import { BankTransaction } from '../../banking/entities/bank-transaction.entity';
 import { AnomalyDetectionModel } from '../models/anomaly-detection.model';

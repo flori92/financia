@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OcrService } from './services/ocr.service';
 import { OllamaRAGService } from './services/ollama-rag.service';
-// import { AnomalyDetectionService } from './services/anomaly-detection.service';
+import { AnomalyDetectionService } from './services/anomaly-detection.service';
 
 @Injectable()
 export class AIService {
@@ -10,7 +10,7 @@ export class AIService {
   constructor(
     private readonly ocrService: OcrService,
     private readonly ollamaRAGService: OllamaRAGService,
-    // private readonly anomalyDetection: AnomalyDetectionService,
+    private readonly anomalyDetection: AnomalyDetectionService,
   ) {}
 
   async processDocument(file: Express.Multer.File) {
@@ -18,8 +18,12 @@ export class AIService {
   }
 
   async analyzeData(data: any) {
-    // TODO: Implement full anomaly detection
-    return { status: 'not_implemented', message: 'Anomaly detection coming soon' };
+    // ✅ ACTIVÉ: Détection d'anomalies avec TensorFlow
+    const { companyId, accountId } = data;
+    if (!companyId || !accountId) {
+      return { status: 'error', message: 'companyId et accountId requis' };
+    }
+    return this.anomalyDetection.detectAnomalies(companyId, accountId);
   }
 
   async getPrediction(data: any) {

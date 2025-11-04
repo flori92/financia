@@ -9,7 +9,10 @@ import { JournalEntryLine } from '../accounting/entities/journal-entry-line.enti
 import { Account } from '../accounting/entities/account.entity';
 import { Company } from '../companies/entities/company.entity';
 import { User } from '../auth/entities/user.entity';
-// import { AnomalyDetectionService } from './services/anomaly-detection.service';
+import { BankTransaction } from '../banking/entities/bank-transaction.entity';
+import { TransactionAnomaly } from './entities/transaction-anomaly.entity';
+import { AnomalyDetectionService } from './services/anomaly-detection.service';
+import { NotificationGateway } from '../notifications/gateways/notification.gateway';
 
 @Module({
   imports: [
@@ -19,6 +22,8 @@ import { User } from '../auth/entities/user.entity';
       Account,
       Company,
       User,
+      BankTransaction,
+      TransactionAnomaly,
     ]),
   ],
   controllers: [AIController],
@@ -26,8 +31,9 @@ import { User } from '../auth/entities/user.entity';
     AIService,
     OcrService,
     OllamaRAGService,
-    // AnomalyDetectionService, // Temporarily disabled (TensorFlow deps)
+    AnomalyDetectionService, // ✅ ACTIVÉ avec TensorFlow
+    NotificationGateway,
   ],
-  exports: [AIService],
+  exports: [AIService, AnomalyDetectionService],
 })
 export class AIModule {}
