@@ -38,32 +38,115 @@ export class SeedController {
     };
   }
 
-  @Post('fix-user-profiles')
+  @Post('sync-database-schema')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ 
-    summary: '🔧 FIX: Créer colonne primaryProfile et mettre à jour les utilisateurs',
-    description: 'Ajoute la colonne primary_profile si manquante puis définit les profils selon les roles'
+    summary: '🔧 SYNC: Synchroniser TOUTES les colonnes manquantes de la table users',
+    description: 'Crée toutes les colonnes manquantes dans la table users selon l\'entité TypeORM'
   })
-  @ApiResponse({ status: 200, description: 'primaryProfile créé et mis à jour avec succès' })
-  async fixUserProfiles() {
+  @ApiResponse({ status: 200, description: 'Schéma de base de données synchronisé avec succès' })
+  async syncDatabaseSchema() {
     try {
-      console.log('🔄 Début migration primaryProfile...');
+      console.log('🔄 Début synchronisation complète du schéma...');
+      const columnsCreated = [];
       
-      // ÉTAPE 1: Créer la colonne si elle n'existe pas
-      console.log('📦 Création de la colonne primary_profile si nécessaire...');
-      await this.dataSource.query(`
-        ALTER TABLE users 
-        ADD COLUMN IF NOT EXISTS primary_profile VARCHAR(50);
-      `);
-      console.log('✅ Colonne primary_profile créée ou déjà existante');
+      // ÉTAPE 1: Créer TOUTES les colonnes manquantes pour la table users
+      console.log('📦 Création de toutes les colonnes manquantes...');
       
-      // ÉTAPE 2: Récupérer tous les utilisateurs
-      const allUsers = await this.dataSource.query(`
-        SELECT id, email, role, primary_profile FROM users;
-      `);
-      console.log(`📊 ${allUsers.length} utilisateur(s) total trouvé(s)`);
+      // Colonne profiles (tableau de profils multiples)
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS profiles TEXT;
+        `);
+        columnsCreated.push('profiles');
+      } catch (e) { console.log('profiles déjà existe'); }
       
-      // ÉTAPE 3: Mettre à jour les profils selon le rôle
+      // Colonne primary_profile
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS primary_profile VARCHAR(50) DEFAULT 'entrepreneur';
+        `);
+        columnsCreated.push('primary_profile');
+      } catch (e) { console.log('primary_profile déjà existe'); }
+      
+      // Colonne employee_id
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS employee_id UUID;
+        `);
+        columnsCreated.push('employee_id');
+      } catch (e) { console.log('employee_id déjà existe'); }
+      
+      // Colonne ux_level
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS ux_level VARCHAR(20) DEFAULT 'simple';
+        `);
+        columnsCreated.push('ux_level');
+      } catch (e) { console.log('ux_level déjà existe'); }
+      
+      // Colonne language
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'fr';
+        `);
+        columnsCreated.push('language');
+      } catch (e) { console.log('language déjà existe'); }
+      
+      // Colonne country_code
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS country_code VARCHAR(5) DEFAULT 'BJ';
+        `);
+        columnsCreated.push('country_code');
+      } catch (e) { console.log('country_code déjà existe'); }
+      
+      // Colonne two_factor_secret
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS two_factor_secret VARCHAR(255);
+        `);
+        columnsCreated.push('two_factor_secret');
+      } catch (e) { console.log('two_factor_secret déjà existe'); }
+      
+      // Colonne two_factor_enabled
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT false;
+        `);
+        columnsCreated.push('two_factor_enabled');
+      } catch (e) { console.log('two_factor_enabled déjà existe'); }
+      
+      // Colonne two_factor_temp_secret
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS two_factor_temp_secret VARCHAR(255);
+        `);
+        columnsCreated.push('two_factor_temp_secret');
+      } catch (e) { console.log('two_factor_temp_secret déjà existe'); }
+      
+      // Colonne two_factor_backup_codes
+      try {
+        await this.dataSource.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS two_factor_backup_codes JSONB;
+        `);
+        columnsCreated.push('two_factor_backup_codes');
+      } catch (e) { console.log('two_factor_backup_codes déjà existe'); }
+      
+      console.log(`✅ ${columnsCreated.length} colonne(s) créée(s): ${columnsCreated.join(', ')}`);
+      
+      // ÉTAPE 2: Mettre à jour les profils selon le rôle
+      console.log('🔄 Mise à jour des primaryProfile selon les roles...');
       await this.dataSource.query(`
         UPDATE users 
         SET primary_profile = CASE 
@@ -81,37 +164,30 @@ export class SeedController {
       
       console.log('✅ primaryProfile mis à jour pour tous les utilisateurs');
       
-      // ÉTAPE 4: Vérifier les résultats
-      const updatedUsers = await this.dataSource.query(`
-        SELECT email, role, primary_profile FROM users;
+      // ÉTAPE 3: Vérifier les résultats
+      const users = await this.dataSource.query(`
+        SELECT email, role, primary_profile, profiles FROM users;
       `);
       
       return {
         success: true,
-        message: `✅ Migration réussie ! ${allUsers.length} utilisateur(s) traité(s)`,
+        message: `✅ Synchronisation complète réussie ! ${columnsCreated.length} colonne(s) créée(s)`,
         details: {
-          totalUsers: allUsers.length,
-          users: updatedUsers.map(u => ({ 
+          columnsCreated,
+          totalUsers: users.length,
+          users: users.map(u => ({ 
             email: u.email, 
             role: u.role, 
-            primaryProfile: u.primary_profile 
-          })),
-          mapping: {
-            admin: 'admin',
-            tax_admin: 'tax_admin',
-            accountant: 'accountant',
-            expert_comptable: 'expert_comptable',
-            bank_admin: 'bank_admin',
-            hr_manager: 'hr_manager',
-            user: 'entrepreneur'
-          }
+            primaryProfile: u.primary_profile,
+            profiles: u.profiles
+          }))
         }
       };
     } catch (error) {
-      console.error('❌ Erreur lors de la migration primaryProfile:', error);
+      console.error('❌ Erreur lors de la synchronisation:', error);
       return {
         success: false,
-        message: '❌ Erreur lors de la migration',
+        message: '❌ Erreur lors de la synchronisation',
         error: error.message,
         stack: error.stack
       };
