@@ -16,6 +16,7 @@ import { LeaveRequest, LeaveType, LeaveStatus } from './entities/leave-request.e
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
 
 @ApiTags('Leave Requests / Congés')
 @Controller('leave-requests')
@@ -24,7 +25,7 @@ export class LeaveRequestController {
   constructor(private readonly leaveRequestService: LeaveRequestService) {}
 
   @Post()
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Créer une nouvelle demande de congé' })
   @ApiResponse({ status: 201, description: 'Demande de congé créée avec succès', type: LeaveRequest })
   @ApiResponse({ status: 400, description: 'Données invalides ou solde insuffisant' })
@@ -122,7 +123,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Mettre à jour une demande de congé' })
   @ApiResponse({ status: 200, description: 'Demande de congé mise à jour', type: LeaveRequest })
   @ApiResponse({ status: 400, description: 'Demande ne peut plus être modifiée' })
@@ -144,7 +145,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id/submit')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Soumettre une demande de congé pour validation' })
   @ApiResponse({ status: 200, description: 'Demande de congé soumise avec succès' })
   @ApiResponse({ status: 400, description: 'Demande ne peut plus être soumise' })
@@ -227,7 +228,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id/cancel')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Annuler une demande de congé' })
   @ApiResponse({ status: 200, description: 'Demande de congé annulée avec succès' })
   @ApiResponse({ status: 400, description: 'Demande ne peut plus être annulée' })
@@ -260,7 +261,7 @@ export class LeaveRequestController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Supprimer une demande de congé' })
   @ApiResponse({ status: 200, description: 'Demande de congé supprimée avec succès' })
   @ApiResponse({ status: 400, description: 'Demande ne peut plus être supprimée' })

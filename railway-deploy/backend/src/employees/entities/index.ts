@@ -14,4 +14,4 @@ export { WorkLocation } from './timesheet-line.entity';
 export { LeaveType, LeaveStatus } from './leave-request.entity';
 export { PayrollStatus, PayrollFrequency } from './payroll-record.entity';
 export { TransferStatus, TransferType, PaymentProvider } from './bank-transfer.entity';
-export { DocumentType, DocumentStatus, AccessLevel, DocumentCategory } from './document-vault.entity';
+export { DocumentType, DocumentStatus, AccessLevel } from './document-vault.entity';

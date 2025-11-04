@@ -16,6 +16,7 @@ import { Timesheet, TimesheetStatus, TimesheetPeriod } from './entities/timeshee
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
 
 @ApiTags('Timesheets / CRA')
 @Controller('timesheets')
@@ -24,7 +25,7 @@ export class TimesheetController {
   constructor(private readonly timesheetService: TimesheetService) {}
 
   @Post()
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Créer un nouveau CRA' })
   @ApiResponse({ status: 201, description: 'CRA créé avec succès', type: Timesheet })
   @ApiResponse({ status: 400, description: 'Données invalides ou doublon de période' })
@@ -118,7 +119,7 @@ export class TimesheetController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Mettre à jour un CRA' })
   @ApiResponse({ status: 200, description: 'CRA mis à jour', type: Timesheet })
   @ApiResponse({ status: 400, description: 'CRA ne peut plus être modifié' })
@@ -140,7 +141,7 @@ export class TimesheetController {
   }
 
   @Patch(':id/submit')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Soumettre un CRA pour validation' })
   @ApiResponse({ status: 200, description: 'CRA soumis avec succès' })
   @ApiResponse({ status: 400, description: 'CRA ne peut plus être soumis' })
@@ -202,7 +203,7 @@ export class TimesheetController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Supprimer un CRA' })
   @ApiResponse({ status: 200, description: 'CRA supprimé avec succès' })
   @ApiResponse({ status: 400, description: 'CRA ne peut plus être supprimé' })
