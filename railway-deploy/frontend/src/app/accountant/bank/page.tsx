@@ -21,7 +21,6 @@ function BankReconciliationPageContent() {
     setTimeout(() => setToast(null), 2600);
   };
   const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
-  const { show } = useToast();
   const [matching, setMatching] = useState(false);
   const [threshold, setThreshold] = useState<number>(0.8);
   const [limit, setLimit] = useState<number>(100);
