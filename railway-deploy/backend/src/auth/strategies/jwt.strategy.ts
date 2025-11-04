@@ -19,7 +19,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: payload.email,
       role: payload.role,
       companyId: payload.companyId,  // ✅ AJOUTER companyId
-      profile: payload.profile,      // ✅ AJOUTER profile
+      profiles: payload.profiles,    // 🆕 Profils multiples
+      primaryProfile: payload.primaryProfile, // 🆕 Profil principal
     };
   }
 }

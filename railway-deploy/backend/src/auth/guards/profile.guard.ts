@@ -28,11 +28,11 @@ export class ProfileGuard implements CanActivate {
     }
 
     // ✅ LOGIQUE CORRECTE - Vérifier le profil principal de l'utilisateur
-    const hasProfile = requiredProfiles.includes(user.profile);
+    const hasProfile = requiredProfiles.includes(user.primaryProfile);
 
     if (!hasProfile) {
       throw new ForbiddenException(
-        `Accès refusé. Profils requis: ${requiredProfiles.join(', ')}. Votre profil: ${user.profile || 'aucun'}`,
+        `Accès refusé. Profils requis: ${requiredProfiles.join(', ')}. Votre profil: ${user.primaryProfile || 'aucun'}`,
       );
     }
 
