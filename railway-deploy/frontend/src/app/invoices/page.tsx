@@ -1,5 +1,6 @@
 "use client";
-import { getBaseUrl } from "@/lib/api";
+import { getBaseUrl, apiGet, apiPost, apiDelete } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
@@ -8,6 +9,7 @@ import { ProfessionalEmailDialog } from "@/components/shared/ProfessionalEmailDi
 import { ExportPreviewDialog } from "@/components/shared/ExportPreviewDialog";
 
 export default function InvoicesPage() {
+  const companyId = useCompanyId();
   const triggerToast = (type: "success" | "info" | "error", message: string) => {
     // Simuler un toast avec alert pour l'instant
     if (type === "error") {
@@ -38,14 +40,8 @@ export default function InvoicesPage() {
   const loadData = async () => {
     try {
       const [invoicesRes, clientsRes] = await Promise.all([
-        fetch(`${getBaseUrl()}/api/v1/invoices`).then(r => {
-          if (!r.ok) return [];
-          return r.json();
-        }).catch(() => []),
-        fetch(`${getBaseUrl()}/api/v1/crm/contacts`).then(r => {
-          if (!r.ok) return [];
-          return r.json();
-        }).catch(() => [])
+        apiGet('/invoices', { companyId }).catch(() => []),
+        apiGet('/crm/contacts', { companyId }).catch(() => [])
       ]);
       setInvoices(Array.isArray(invoicesRes) ? invoicesRes : []);
       setClients(Array.isArray(clientsRes) ? clientsRes : []);
