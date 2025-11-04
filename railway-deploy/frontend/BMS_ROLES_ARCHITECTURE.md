@@ -10,8 +10,12 @@
 
 ### **🎯 Principe de Base**
 - **ROLE_EMPLOYEE**: Rôle de base pour TOUS les personnels de l'entreprise
-- **Rôles cumulables**: Manager, RH peuvent cumuler avec ROLE_EMPLOYEE
-- **Rôles spécialisés**: Expert Comptable, Entrepreneur, Fiscal, Banque (non cumulables)
+- **Rôles cumulables**: Manager, RH, Expert Comptable, Entrepreneur peuvent cumuler avec ROLE_EMPLOYEE
+- **Rôles externes uniquement**: Fiscal, Banque (non cumulables avec Employee)
+
+**🔄 Logique de Cumul**:
+- **Interne entreprise**: Employee + Manager + RH + Expert Comptable + Entrepreneur (cumul possible)
+- **Externe**: Fiscal Admin + Banque (accès spécialisé uniquement)
 
 ---
 
@@ -46,7 +50,9 @@
 #### Accès Cumulé
 - ✅ Les Managers ont aussi accès à cet espace
 - ✅ Les RH ont aussi accès à cet espace
-- ❌ Expert Comptable, Entrepreneur, Fiscal, Banque: accès spécialisé uniquement
+- ✅ Les Experts Comptables (internes) ont aussi accès à cet espace
+- ✅ Les Entrepreneurs (internes) ont aussi accès à cet espace
+- ❌ Administration Fiscale et Banque: accès spécialisé uniquement (externes)
 
 ---
 
@@ -110,9 +116,10 @@
 
 ---
 
-### 4. 📊 **ROLE_EXPERT_COMPTABLE (Spécialisé)**
+### 4. 📊 **ROLE_EXPERT_COMPTABLE (Cumulable avec Employee si interne)**
 **Route**: `/expert-comptable`  
-**Non cumulable**: Accès comptabilité uniquement
+**Cumul possible**: ROLE_EMPLOYEE + ROLE_EXPERT_COMPTABLE (si expert comptable interne à l'entreprise)
+**Accès externe**: ROLE_EXPERT_COMPTABLE uniquement (si cabinet externe)
 
 #### Fonctionnalités Exclusives
 - ✅ **Expertise Comptable Avancée**
@@ -130,9 +137,10 @@
 
 ---
 
-### 5. 💼 **ROLE_ENTREPRENEUR (Spécialisé)**
+### 5. 💼 **ROLE_ENTREPRENEUR (Cumulable avec Employee si interne)**
 **Route**: `/entrepreneur`  
-**Non cumulable**: Vue stratégique uniquement
+**Cumul possible**: ROLE_EMPLOYEE + ROLE_ENTREPRENEUR (si entrepreneur fait partie de l'entreprise)
+**Accès externe**: ROLE_ENTREPRENEUR uniquement (si consultant externe)
 
 #### Fonctionnalités Stratégiques
 - ✅ **Tableau de Bord Stratégique**
@@ -198,17 +206,24 @@
 | Employee       | ✅       | ❌      | ❌ | ❌               | ❌           | ❌     | ❌     |
 | Manager        | ✅       | ✅      | ❌ | ❌               | ❌           | ❌     | ❌     |
 | HR             | ✅       | ❌      | ✅ | ❌               | ❌           | ❌     | ❌     |
-| Expert Comptable | ❌     | ❌      | ❌ | ✅               | ❌           | ❌     | ❌     |
-| Entrepreneur   | ❌       | ❌      | ❌ | ❌               | ✅           | ❌     | ❌     |
+| Expert Comptable | ✅     | ❌      | ❌ | ✅               | ❌           | ❌     | ❌     |
+| Entrepreneur   | ✅       | ❌      | ❌ | ❌               | ✅           | ❌     | ❌     |
 | Fiscal Admin   | ❌       | ❌      | ❌ | ❌               | ❌           | ✅     | ❌     |
 | Bank           | ❌       | ❌      | ❌ | ❌               | ❌           | ❌     | ✅     |
+
+**📝 Notes**:
+- **Expert Comptable**: Cumul Employee possible si interne à l'entreprise
+- **Entrepreneur**: Cumul Employee possible si fait partie de l'entreprise
+- **Fiscal/Banque**: Rôles externes uniquement, pas de cumul avec Employee
 
 ### **Exemples Concrets**
 - **Alice (Développeur)**: ROLE_EMPLOYEE → Accès `/employee-space`
 - **Bob (Tech Lead)**: ROLE_EMPLOYEE + ROLE_MANAGER → Accès `/employee-space` + `/manager-space`
 - **Carol (DRH)**: ROLE_EMPLOYEE + ROLE_HR → Accès `/employee-space` + `/hr-space`
-- **David (Expert Comptable)**: ROLE_EXPERT_COMPTABLE → Accès `/expert-comptable` uniquement
-- **Eva (Entrepreneur)**: ROLE_ENTREPRENEUR → Accès `/entrepreneur` uniquement
+- **David (Expert Comptable interne)**: ROLE_EMPLOYEE + ROLE_EXPERT_COMPTABLE → Accès `/employee-space` + `/expert-comptable`
+- **David (Expert Comptable externe)**: ROLE_EXPERT_COMPTABLE → Accès `/expert-comptable` uniquement
+- **Eva (Entrepreneur interne)**: ROLE_EMPLOYEE + ROLE_ENTREPRENEUR → Accès `/employee-space` + `/entrepreneur`
+- **Eva (Entrepreneur externe)**: ROLE_ENTREPRENEUR → Accès `/entrepreneur` uniquement
 
 ---
 
@@ -339,6 +354,26 @@ interface Permission {
 4. Génère les bulletins de paie du mois
 5. Gère les politiques RH
 6. Suit les processus de recrutement
+```
+
+### **Scénario 4: Expert Comptable Interne**
+```
+1. David se connecte → ROLE_EMPLOYEE + ROLE_EXPERT_COMPTABLE
+2. Accède à son espace employee (conges, bulletins, etc.)
+3. Accède à /expert-comptable
+4. Produit les états financiers
+5. Fournit les conseils stratégiques
+6. Gère l'automatisation comptable
+```
+
+### **Scénario 5: Entrepreneur Interne**
+```
+1. Eva se connecte → ROLE_EMPLOYEE + ROLE_ENTREPRENEUR
+2. Accède à son espace employee (gestion personnelle)
+3. Accède à /entrepreneur
+4. Consulte les KPI stratégiques
+5. Analyse les insights business
+6. Prend les décisions stratégiques
 ```
 
 ---
