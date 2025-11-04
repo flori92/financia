@@ -20,36 +20,36 @@ export async function runDevSeed(dataSource: DataSource) {
     
     // Admin
     const [admin] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
-      VALUES ('admin@bms.bj', $1, 'Admin', 'BMS', 'admin', '+22997000001', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'admin'
+      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+      VALUES ('admin@bms.bj', $1, 'Admin', 'BMS', 'admin', 'admin', '+22997000001', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'admin', primary_profile = 'admin'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Admin created:', admin.id);
 
     // Tax Admin
     const [taxAdmin] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
-      VALUES ('taxadmin@dgi.bj', $1, 'Tax', 'Admin', 'tax_admin', '+22997000002', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'tax_admin'
+      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+      VALUES ('taxadmin@dgi.bj', $1, 'Tax', 'Admin', 'tax_admin', 'tax_admin', '+22997000002', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'tax_admin', primary_profile = 'tax_admin'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Tax Admin created:', taxAdmin.id);
 
     // Accountant
     const [accountant] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
-      VALUES ('comptable@cabinet.bj', $1, 'Jean', 'Comptable', 'accountant', '+22997000003', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'accountant'
+      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+      VALUES ('comptable@cabinet.bj', $1, 'Jean', 'Comptable', 'accountant', 'accountant', '+22997000003', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'accountant', primary_profile = 'accountant'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Accountant created:', accountant.id);
 
     // Entrepreneur
     const [entrepreneur] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
-      VALUES ('entrepreneur@test.bj', $1, 'Marie', 'Entrepreneur', 'user', '+22997000004', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'user'
+      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
+      VALUES ('entrepreneur@test.bj', $1, 'Marie', 'Entrepreneur', 'user', 'entrepreneur', '+22997000004', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'user', primary_profile = 'entrepreneur'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Entrepreneur created:', entrepreneur.id);
