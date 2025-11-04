@@ -1,5 +1,6 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
+import { fetchGetWithAuth, fetchPostWithAuth } from "@/lib/fetch-with-auth";
 import { formatCurrency } from "@/lib/format-utils";
 
 import { useState, useEffect } from "react";
@@ -27,7 +28,7 @@ export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch(`${getBaseUrl()}/api/v1/companies`)
+    fetchGetWithAuth(`${getBaseUrl()}/api/v1/companies`)
       .then(res => res.json())
       .then(setCompanies);
   }, []);
@@ -37,11 +38,7 @@ export default function CompaniesPage() {
     const formData = new FormData(e.currentTarget);
     const newCompany = Object.fromEntries(formData);
     
-    fetch(`${getBaseUrl()}/api/v1/companies`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCompany)
-    })
+    fetchPostWithAuth(`${getBaseUrl()}/api/v1/companies`, newCompany)
       .then(res => res.json())
       .then(company => {
         setCompanies([...companies, company]);

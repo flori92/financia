@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Building2, ChevronDown, Check } from "lucide-react";
 import { getCompanyId, getBaseUrl } from "@/lib/api";
+import { fetchGetWithAuth } from "@/lib/fetch-with-auth";
 import { formatCurrency } from "@/lib/format-utils";
 
 type Company = {
@@ -39,7 +40,7 @@ export function CompanySelector({ onCompanyChange }: CompanySelectorProps) {
   const loadCompanies = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${getBaseUrl()}/api/v1/companies`);
+      const response = await fetchGetWithAuth(`${getBaseUrl()}/api/v1/companies`);
       if (response.ok) {
         const data = await response.json();
         

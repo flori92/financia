@@ -1,5 +1,6 @@
 "use client";
 import { getBaseUrl } from "@/lib/api";
+import { fetchPostWithAuth } from "@/lib/fetch-with-auth";
 import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect, useMemo, useRef } from "react";
@@ -87,11 +88,7 @@ function JournalPageContent() {
     };
     
     try {
-      await fetch(`${getBaseUrl()}/api/v1/accounting/journal-entries`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry)
-      });
+      await fetchPostWithAuth(`${getBaseUrl()}/api/v1/accounting/journal-entries`, entry);
       setShowAddForm(false);
       loadData();
       triggerToast("success", "Écriture ajoutée avec succès");

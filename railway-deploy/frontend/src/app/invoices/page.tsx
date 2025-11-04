@@ -1,5 +1,6 @@
 "use client";
-import { getBaseUrl, apiGet, apiPost, apiDelete } from "@/lib/api";
+import { getBaseUrl } from "@/lib/api";
+import { fetchPostWithAuth, fetchPutWithAuth } from "@/lib/fetch-with-auth";
 import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
@@ -98,11 +99,7 @@ export default function InvoicesPage() {
         }
       };
 
-      const response = await fetch(`${getBaseUrl()}/api/v1/invoices/${invoiceId}/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sendPayload),
-      });
+      const response = await fetchPostWithAuth(`${getBaseUrl()}/api/v1/invoices/${invoiceId}/send`, sendPayload);
       
       if (response.ok) {
         const result = await response.json();
@@ -180,13 +177,8 @@ export default function InvoicesPage() {
     };
     
     try {
-      await fetch(`${getBaseUrl()}/api/v1/invoices/${editingInvoice.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedInvoice)
-      });
+      await fetchPutWithAuth(`${getBaseUrl()}/api/v1/invoices/${editingInvoice.id}`, updatedInvoice);
       setShowEditModal(false);
-      setEditingInvoice(null);
       loadData();
       triggerToast('success', 'Facture mise à jour avec succès');
     } catch (err) {
@@ -206,15 +198,12 @@ export default function InvoicesPage() {
     };
     
     try {
-      await fetch(`${getBaseUrl()}/api/v1/invoices`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(invoice)
-      });
+      await fetchPostWithAuth(`${getBaseUrl()}/api/v1/invoices`, invoice);
       setShowAddForm(false);
       loadData();
+      triggerToast("success", "Facture créée avec succès");
     } catch (err) {
-      alert('Erreur lors de l\'ajout de la facture');
+      triggerToast("error", "Erreur lors de la création de la facture");
     }
   };
 
