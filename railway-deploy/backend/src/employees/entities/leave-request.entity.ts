@@ -32,7 +32,7 @@ export enum LeaveStatus {
 }
 
 @Entity('hr_leave_requests')
-export class LeaveRequest {
+class LeaveRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -224,3 +224,5 @@ export class LeaveRequest {
     return labels[this.status];
   }
 }
+
+export { LeaveRequest };

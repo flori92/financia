@@ -27,7 +27,7 @@ export enum PayrollFrequency {
 }
 
 @Entity('hr_payroll_records')
-export class PayrollRecord {
+class PayrollRecord {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -236,3 +236,5 @@ export class PayrollRecord {
     );
   }
 }
+
+export { PayrollRecord };

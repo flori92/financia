@@ -27,7 +27,7 @@ export enum TimesheetPeriod {
 }
 
 @Entity('hr_timesheets')
-export class Timesheet {
+class Timesheet {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -146,3 +146,5 @@ export class Timesheet {
     }
   }
 }
+
+export { Timesheet };

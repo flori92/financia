@@ -24,7 +24,7 @@ export enum WorkLocation {
 }
 
 @Entity('hr_timesheet_lines')
-export class TimesheetLine {
+class TimesheetLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -130,3 +130,5 @@ export class TimesheetLine {
     return `${this.workedHours}h`;
   }
 }
+
+export { TimesheetLine };
