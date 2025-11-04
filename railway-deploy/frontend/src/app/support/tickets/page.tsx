@@ -1,5 +1,6 @@
 'use client';
-import { getBaseUrl } from "@/lib/api";
+import { apiGet, apiPost, apiDelete } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { formatCurrency } from "@/lib/format-utils";
 
 import { useState, useEffect } from 'react';
@@ -8,18 +9,24 @@ import { Button } from '@/components/ui/button';
 import { Plus, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 export default function TicketsPage() {
+  const companyId = useCompanyId();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${getBaseUrl()}/api/v1/support/tickets`)
-      .then(res => res.json())
-      .then(data => {
-        setTickets(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    loadTickets();
+  }, [companyId]);
+
+  const loadTickets = async () => {
+    try {
+      const data = await apiGet('/support/tickets', { companyId });
+      setTickets(data);
+    } catch (error) {
+      console.error('Erreur chargement tickets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) return <div className="p-8">Chargement...</div>;
 

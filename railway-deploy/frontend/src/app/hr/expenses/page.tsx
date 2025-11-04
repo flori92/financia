@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { apiGet, apiPost, apiDelete } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +68,7 @@ const mockExpenses: Expense[] = [
 ];
 
 export default function ExpensesPage() {
+  const companyId = useCompanyId();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewExpense, setShowNewExpense] = useState(false);
@@ -81,7 +84,7 @@ export default function ExpensesPage() {
 
   useEffect(() => {
     loadExpenses();
-  }, [filter]);
+  }, [filter, companyId]);
 
   const handleViewReceipt = (receiptUrl: string) => {
     window.open(receiptUrl, '_blank');
@@ -90,27 +93,15 @@ export default function ExpensesPage() {
   const loadExpenses = async () => {
     setLoading(true);
     try {
-      // Utiliser la vraie API avec le companyId
-      const companyId = localStorage.getItem('companyId') || 'demo-company';
-      const params = new URLSearchParams({ companyId });
-      
-      if (filter !== 'all') {
-        params.append('status', filter);
-      }
-
-      const response = await fetch(`/api/hr/expenses?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setExpenses(data || []);
-      } else {
-        // Fallback vers données mock si API non disponible
-        console.warn('API non disponible, utilisation des données mock');
-        await new Promise(resolve => setTimeout(resolve, 400));
-        setExpenses(mockExpenses);
-      }
+      const data = await apiGet('/hr/expenses', {
+        companyId,
+        ...(filter !== 'all' && { status: filter }),
+      });
+      setExpenses(data || []);
     } catch (error) {
-      console.error("Erreur lors du chargement des notes de frais:", error);
-      // Fallback vers données mock
+      console.error('Erreur chargement dépenses:', error);
+      // Fallback vers données mock si API non disponible
+      console.warn('API non disponible, utilisation des données mock');
       await new Promise(resolve => setTimeout(resolve, 400));
       setExpenses(mockExpenses);
     } finally {

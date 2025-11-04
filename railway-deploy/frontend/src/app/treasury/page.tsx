@@ -1,6 +1,7 @@
 "use client";
 // Trésorerie - MODE DYNAMIQUE avec API backend
-import { apiGet, apiPost, getCompanyId } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Plus, TrendingUp, TrendingDown, Wallet, AlertTriangle, Download, X, RefreshCw } from "lucide-react";
@@ -32,6 +33,7 @@ interface TreasuryData {
 }
 
 export default function TreasuryPage() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<TreasuryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +60,6 @@ export default function TreasuryPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = getCompanyId();
       if (!companyId) {
         throw new Error('Aucune société sélectionnée');
       }
