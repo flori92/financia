@@ -1,104 +1,326 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Building2, BookOpen, Wallet, ShoppingCart, BarChart3, Shield, Zap, CheckCircle2 } from "lucide-react";
+import { 
+  Building2, 
+  BookOpen, 
+  Wallet, 
+  ShoppingCart, 
+  BarChart3, 
+  Shield, 
+  Zap, 
+  CheckCircle2,
+  Users,
+  TrendingUp,
+  Calculator,
+  Briefcase,
+  GraduationCap,
+  Crown,
+  Building,
+  UserCheck,
+  ChevronRight,
+  Star,
+  ArrowRight
+} from "lucide-react";
 
 export default function Page() {
   const router = useRouter();
 
+  const profiles = [
+    {
+      name: "Expert Comptable",
+      description: "Gestion comptable avancée, audit, conseil fiscal",
+      icon: Calculator,
+      color: "from-blue-600 to-blue-800",
+      features: ["Comptabilité OHADA", "Audit financier", "Conseil fiscal", "Reporting expert"],
+      gradient: "from-blue-500/20 to-blue-600/20",
+      borderColor: "border-blue-500/30"
+    },
+    {
+      name: "Entrepreneur",
+      description: "Pilotage d'entreprise, décisions stratégiques",
+      icon: Briefcase,
+      color: "from-emerald-600 to-emerald-800",
+      features: ["Dashboard stratégique", "KPIs temps réel", "Prévisions", "Business Intelligence"],
+      gradient: "from-emerald-500/20 to-emerald-600/20",
+      borderColor: "border-emerald-500/30"
+    },
+    {
+      name: "Banque",
+      description: "Opérations bancaires, conformité réglementaire",
+      icon: Building,
+      color: "from-purple-600 to-purple-800",
+      features: ["API bancaires", "Conformité", "Risk Management", "Transactions sécurisées"],
+      gradient: "from-purple-500/20 to-purple-600/20",
+      borderColor: "border-purple-500/30"
+    },
+    {
+      name: "Administration Fiscale",
+      description: "Gestion fiscale, déclarations, contrôles",
+      icon: Crown,
+      color: "from-amber-600 to-amber-800",
+      features: ["Télédéclarations", "Contrôles fiscaux", "Optimisation", "Conformité"],
+      gradient: "from-amber-500/20 to-amber-600/20",
+      borderColor: "border-amber-500/30"
+    },
+    {
+      name: "RH Manager",
+      description: "Gestion RH, paie, talent management",
+      icon: Users,
+      color: "from-rose-600 to-rose-800",
+      features: ["Paie automatisée", "Talent acquisition", "Performance", "Engagement"],
+      gradient: "from-rose-500/20 to-rose-600/20",
+      borderColor: "border-rose-500/30"
+    },
+    {
+      name: "Manager",
+      description: "Management d'équipe, productivité",
+      icon: UserCheck,
+      color: "from-indigo-600 to-indigo-800",
+      features: ["Team management", "Productivité", "Objectifs", "Collaboration"],
+      gradient: "from-indigo-500/20 to-indigo-600/20",
+      borderColor: "border-indigo-500/30"
+    }
+  ];
+
+  const coreModules = [
+    {
+      icon: BookOpen,
+      title: "Comptabilité OHADA",
+      description: "Plan comptable SYSCOHADA, écritures automatiques, lettrage intelligent",
+      color: "text-blue-400"
+    },
+    {
+      icon: Wallet,
+      title: "Trésorerie",
+      description: "Multi-banques, rapprochement automatique, prévisionnel en temps réel",
+      color: "text-emerald-400"
+    },
+    {
+      icon: ShoppingCart,
+      title: "Facturation",
+      description: "Facturation électronique, relances automatiques, suivi des paiements",
+      color: "text-purple-400"
+    },
+    {
+      icon: BarChart3,
+      title: "Reporting & Analytics",
+      description: "Tableaux de bord personnalisés, KPIs en temps réel, analyses avancées",
+      color: "text-amber-400"
+    }
+  ];
+
+  const aiFeatures = [
+    "OCR + IA pour saisie automatique des documents",
+    "Prédictions financières et anomalies detection",
+    "Assistant IA pour conseils comptables",
+    "Automatisation intelligente des tâches",
+    "Chatbot pour support 24/7",
+    "Machine Learning pour optimisation fiscale"
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F3D3A] via-[#0D9488] to-[#0F3D3A]">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-4 mb-8">
-            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
-              <Building2 className="w-12 h-12 text-white" strokeWidth={1.5} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-emerald-600/10"></div>
+        <div className="relative max-w-7xl mx-auto px-6 py-20">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-4 mb-8">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center shadow-2xl">
+                <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
+              </div>
+              <div className="text-left">
+                <h1 className="text-7xl font-bold text-white tracking-tight mb-2">BMS ERP</h1>
+                <p className="text-xl text-blue-400 font-medium">Business Management System</p>
+              </div>
             </div>
-            <h1 className="text-6xl font-bold text-white tracking-tight">BMS ERP</h1>
+            
+            <h2 className="text-5xl font-bold text-white mb-6">
+              Solution <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Multi-Profils</span>
+            </h2>
+            <p className="text-xl text-slate-300 max-w-4xl mx-auto mb-12 leading-relaxed">
+              Plateforme ERP moderne avec architecture adaptative par profil. 
+              Chaque rôle dispose d'interfaces et fonctionnalités spécialisées pour une expérience utilisateur optimale.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+              <button
+                onClick={() => router.push('/login')}
+                className="group inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-emerald-600 text-white text-lg font-semibold px-10 py-5 rounded-xl hover:from-blue-700 hover:to-emerald-700 transition-all shadow-2xl hover:shadow-3xl hover:scale-105"
+              >
+                Se connecter
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button
+                onClick={() => router.push('/register')}
+                className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-white/20 transition-all border border-white/20"
+              >
+                Essai gratuit
+                <Star className="w-5 h-5 text-yellow-400" />
+              </button>
+            </div>
+            
+            <p className="text-slate-400 mt-6">
+              Accédez à votre espace personnalisé selon votre profil professionnel
+            </p>
           </div>
-          <h2 className="text-4xl font-semibold text-white mb-6">
-            Solution Comptable Intégrée
+        </div>
+      </div>
+
+      {/* Profiles Section */}
+      <div className="max-w-7xl mx-auto px-6 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Portails <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Spécialisés</span>
           </h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto mb-12">
-            Gérez votre comptabilité, trésorerie, facturation et fiscalité avec une solution moderne et complète
-          </p>
-          <button
-            onClick={() => router.push('/login')}
-            className="inline-flex items-center gap-2 bg-white text-[#0F3D3A] text-lg font-semibold px-10 py-5 rounded-xl hover:bg-white/90 transition-all shadow-2xl hover:shadow-3xl hover:scale-105"
-          >
-            Se connecter
-          </button>
-          <p className="text-sm text-white/60 mt-4">
-            Accédez à votre espace de gestion
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+            Chaque profil dispose d'un portail dédié avec des fonctionnalités adaptées à ses besoins spécifiques
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
-            <BookOpen className="w-12 h-12 text-white mb-4" strokeWidth={1.5} />
-            <h3 className="text-xl font-semibold mb-2 text-white">Comptabilité</h3>
-            <p className="text-white/80 text-sm">
-              Plan comptable SYSCOHADA, écritures automatiques, lettrage intelligent
-            </p>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
-            <Wallet className="w-12 h-12 text-white mb-4" strokeWidth={1.5} />
-            <h3 className="text-xl font-semibold mb-2 text-white">Trésorerie</h3>
-            <p className="text-white/80 text-sm">
-              Multi-banques, rapprochement automatique, prévisionnel en temps réel
-            </p>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
-            <ShoppingCart className="w-12 h-12 text-white mb-4" strokeWidth={1.5} />
-            <h3 className="text-xl font-semibold mb-2 text-white">Facturation</h3>
-            <p className="text-white/80 text-sm">
-              Facturation électronique, relances automatiques, suivi des paiements
-            </p>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
-            <BarChart3 className="w-12 h-12 text-white mb-4" strokeWidth={1.5} />
-            <h3 className="text-xl font-semibold mb-2 text-white">Reporting</h3>
-            <p className="text-white/80 text-sm">
-              Tableaux de bord personnalisés, KPIs en temps réel, analyses avancées
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {profiles.map((profile, index) => (
+            <div 
+              key={index}
+              className={`group relative bg-gradient-to-br ${profile.gradient} rounded-2xl p-8 border ${profile.borderColor} hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer`}
+              onClick={() => router.push('/login')}
+            >
+              <div className="absolute top-4 right-4">
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${profile.color} flex items-center justify-center`}>
+                  <profile.icon className="w-6 h-6 text-white" strokeWidth={1.5} />
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold text-white mb-3 pr-16">{profile.name}</h3>
+              <p className="text-slate-300 mb-6 leading-relaxed">{profile.description}</p>
+              
+              <div className="space-y-3">
+                {profile.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-slate-200 text-sm">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 flex items-center gap-2 text-blue-400 group-hover:text-blue-300 transition-colors">
+                <span className="text-sm font-medium">Accéder au portail</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-10 border border-white/20">
-          <h3 className="text-2xl font-semibold text-white mb-8 text-center">Fonctionnalités avancées</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: CheckCircle2, text: "OCR + IA pour saisie automatique" },
-              { icon: CheckCircle2, text: "API bancaire temps réel" },
-              { icon: CheckCircle2, text: "Lettrage automatique" },
-              { icon: CheckCircle2, text: "Multi-devises & multi-entités" },
-              { icon: CheckCircle2, text: "Conformité RGPD & ISO 27001" },
-              { icon: CheckCircle2, text: "Télédéclarations fiscales" }
-            ].map((feature, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <feature.icon className="w-5 h-5 text-green-400 flex-shrink-0" strokeWidth={1.5} />
-                <span className="text-white/90 text-sm">{feature.text}</span>
+      {/* Core Modules Section */}
+      <div className="bg-slate-800/50 backdrop-blur-sm py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Modules <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Intégrés</span>
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Fonctionnalités complètes pour la gestion de votre entreprise
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {coreModules.map((module, index) => (
+              <div 
+                key={index}
+                className="bg-slate-900/50 rounded-xl p-8 border border-slate-700 hover:border-slate-600 transition-all duration-300 hover:shadow-xl"
+              >
+                <module.icon className={`w-12 h-12 ${module.color} mb-6`} strokeWidth={1.5} />
+                <h3 className="text-xl font-bold text-white mb-3">{module.title}</h3>
+                <p className="text-slate-400 leading-relaxed">{module.description}</p>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        <div className="mt-16 text-center">
-          <div className="flex items-center justify-center gap-8 text-white/60 text-sm">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" strokeWidth={1.5} />
-              <span>ISO 27001</span>
+      {/* AI Features Section */}
+      <div className="max-w-7xl mx-auto px-6 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Intelligence <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Artificielle</span>
+          </h2>
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+            Fonctionnalités IA avancées pour automatiser et optimiser vos processus
+          </p>
+        </div>
+
+        <div className="bg-gradient-to-br from-blue-600/10 to-emerald-600/10 rounded-3xl p-12 border border-blue-500/20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {aiFeatures.map((feature, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-5 h-5 text-white" strokeWidth={1.5} />
+                </div>
+                <span className="text-slate-200 font-medium">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-emerald-600 py-20">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Prêt à transformer votre gestion ?
+          </h2>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            Rejoignez les centaines d'entreprises qui font confiance à BMS ERP pour leur gestion quotidienne
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <button
+              onClick={() => router.push('/register')}
+              className="group inline-flex items-center gap-3 bg-white text-blue-600 text-lg font-semibold px-10 py-5 rounded-xl hover:bg-blue-50 transition-all shadow-2xl hover:scale-105"
+            >
+              Commencer l'essai gratuit
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button
+              onClick={() => router.push('/demo')}
+              className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-white/30 transition-all border border-white/30"
+            >
+              Demander une démo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="bg-slate-900 border-t border-slate-800 py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-white" strokeWidth={1.5} />
+              </div>
+              <span className="text-white font-bold text-xl">BMS ERP</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" strokeWidth={1.5} />
-              <span>RGPD</span>
+            
+            <div className="flex items-center gap-8 text-slate-400 text-sm">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4" strokeWidth={1.5} />
+                <span>ISO 27001</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4" strokeWidth={1.5} />
+                <span>RGPD</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4" strokeWidth={1.5} />
+                <span>SOC 2</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" strokeWidth={1.5} />
-              <span>SOC 2</span>
-            </div>
+          </div>
+          
+          <div className="mt-8 pt-8 border-t border-slate-800 text-center text-slate-400 text-sm">
+            <p>© 2024 BMS ERP. Tous droits réservés. Solution de gestion d'entreprise multi-profils.</p>
           </div>
         </div>
       </div>
