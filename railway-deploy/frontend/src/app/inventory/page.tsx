@@ -22,74 +22,6 @@ interface Product {
   supplier?: string;
 }
 
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Ordinateur Portable Dell XPS',
-    sku: 'DELL-XPS-001',
-    category: 'Informatique',
-    quantity: 25,
-    minQuantity: 10,
-    unitPrice: 850000,
-    location: 'Entrepôt A - Allée 3',
-    status: 'in_stock',
-    lastUpdated: '2025-11-03T10:30:00Z',
-    supplier: 'Dell Technologies'
-  },
-  {
-    id: '2',
-    name: 'Clavier USB Logitech',
-    sku: 'LOGI-KB-002',
-    category: 'Accessoires',
-    quantity: 8,
-    minQuantity: 20,
-    unitPrice: 15000,
-    location: 'Entrepôt B - Allée 1',
-    status: 'low_stock',
-    lastUpdated: '2025-11-02T15:45:00Z',
-    supplier: 'Logitech'
-  },
-  {
-    id: '3',
-    name: 'Moniteur 24 pouces LG',
-    sku: 'LG-MON-024',
-    category: 'Informatique',
-    quantity: 0,
-    minQuantity: 5,
-    unitPrice: 125000,
-    location: 'Entrepôt A - Allée 2',
-    status: 'out_of_stock',
-    lastUpdated: '2025-11-01T09:20:00Z',
-    supplier: 'LG Electronics'
-  },
-  {
-    id: '4',
-    name: 'Papier A4 - Ramette 500',
-    sku: 'PAP-A4-500',
-    category: 'Bureautique',
-    quantity: 150,
-    minQuantity: 50,
-    unitPrice: 5000,
-    location: 'Entrepôt C - Allée 4',
-    status: 'in_stock',
-    lastUpdated: '2025-11-03T08:15:00Z',
-    supplier: 'Office Supply Co'
-  },
-  {
-    id: '5',
-    name: 'Cartouche d\'encre HP',
-    sku: 'HP-CART-061',
-    category: 'Consommables',
-    quantity: 3,
-    minQuantity: 10,
-    unitPrice: 25000,
-    location: 'Entrepôt B - Allée 3',
-    status: 'low_stock',
-    lastUpdated: '2025-11-02T14:30:00Z',
-    supplier: 'HP Inc'
-  }
-];
-
 export default function InventoryPage() {
   const companyId = useCompanyId();
   const [products, setProducts] = useState<Product[]>([]);
@@ -135,10 +67,8 @@ export default function InventoryPage() {
       setProducts(data || []);
     } catch (error) {
       console.error('Erreur chargement produits:', error);
-      // Fallback vers données mock si API non disponible
-      console.warn('API non disponible, utilisation des données mock');
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setProducts(mockProducts);
+      // En cas d'erreur API, afficher un état vide
+      setProducts([]);
     } finally {
       setLoading(false);
     }

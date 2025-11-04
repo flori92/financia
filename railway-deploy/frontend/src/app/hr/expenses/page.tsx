@@ -26,46 +26,6 @@ interface Expense {
   comments?: string;
 }
 
-const mockExpenses: Expense[] = [
-  {
-    id: '1',
-    employee: 'Jean Dupont',
-    type: 'transport',
-    description: 'Ticket de train Paris - Lyon',
-    amount: 85.50,
-    date: new Date(2025, 10, 15),
-    status: 'approved',
-    category: 'Déplacement professionnel',
-    project: 'Projet Alpha',
-    submittedAt: new Date(2025, 10, 16),
-    approvedAt: new Date(2025, 10, 17),
-    approvedBy: 'Marie Martin',
-    receiptUrl: '/receipts/train-ticket-1.pdf'
-  },
-  {
-    id: '2',
-    employee: 'Marie Martin',
-    type: 'repas',
-    description: 'Déjeuner client restaurant Le Gourmet',
-    amount: 65.00,
-    date: new Date(2025, 10, 14),
-    status: 'submitted',
-    category: 'Repas d\'affaires',
-    project: 'Projet Beta',
-    submittedAt: new Date(2025, 10, 15)
-  },
-  {
-    id: '3',
-    employee: 'Pierre Durand',
-    type: 'hebergement',
-    description: 'Hôtel Ibis Marseille 2 nuits',
-    amount: 180.00,
-    date: new Date(2025, 10, 10),
-    status: 'draft',
-    category: 'Mission',
-    project: 'Projet Gamma'
-  }
-];
 
 export default function ExpensesPage() {
   const companyId = useCompanyId();
@@ -100,10 +60,8 @@ export default function ExpensesPage() {
       setExpenses(data || []);
     } catch (error) {
       console.error('Erreur chargement dépenses:', error);
-      // Fallback vers données mock si API non disponible
-      console.warn('API non disponible, utilisation des données mock');
-      await new Promise(resolve => setTimeout(resolve, 400));
-      setExpenses(mockExpenses);
+      // En cas d'erreur API, afficher un état vide
+      setExpenses([]);
     } finally {
       setLoading(false);
     }

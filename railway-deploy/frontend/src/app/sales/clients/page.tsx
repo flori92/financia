@@ -54,54 +54,8 @@ export default function SalesClientsPage() {
       setClients(clientsResponse);
     } catch (error) {
       console.error("Erreur chargement clients:", error);
-      // Fallback vers données mock si API indisponible
-      const mockClients: SalesClient[] = [
-        {
-          id: "1",
-          name: "Jean Dupont",
-          company: "SARL Tech Solutions",
-          email: "jean.dupont@techsolutions.com",
-          phone: "+229 97 123 456",
-          address: "Cotonou, Quartier des Affaires",
-          type: "company",
-          status: "active",
-          totalOrders: 12,
-          totalRevenue: 15000000,
-          lastOrderDate: "2025-01-20",
-          createdAt: "2024-06-15",
-          rating: 5
-        },
-        {
-          id: "2",
-          name: "Marie Claire",
-          company: "EURL Commerce Plus",
-          email: "marie.claire@commerceplus.com",
-          phone: "+229 98 234 567",
-          address: "Porto-Novo, Centre Commercial",
-          type: "company",
-          status: "active",
-          totalOrders: 8,
-          totalRevenue: 9500000,
-          lastOrderDate: "2025-01-18",
-          createdAt: "2024-08-20",
-          rating: 4
-        },
-        {
-          id: "3",
-          name: "Paul Martin",
-          email: "paul.martin@email.com",
-          phone: "+229 99 345 678",
-          address: "Abomey-Calavi, Résidence les Palmiers",
-          type: "individual",
-          status: "prospect",
-          totalOrders: 0,
-          totalRevenue: 0,
-          createdAt: "2025-01-10",
-          rating: 0
-        }
-      ];
-
-      setClients(mockClients);
+      // En cas d'erreur, afficher un message approprié à l'utilisateur
+      setClients([]);
     } finally {
       setLoading(false);
     }
