@@ -12,7 +12,8 @@ export enum UserProfile {
   ADMIN = 'admin'
 }
 
-export const PROFILE_MODULES = {
+// Définition des modules par profil avec typage explicite
+const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
   [UserProfile.EXPERT_COMPTABLE]: [
     'accounting.dashboard',
     'accounting.chart-of-accounts',
@@ -86,12 +87,14 @@ export const PROFILE_MODULES = {
     'employee.documents'
   ],
   [UserProfile.ADMIN]: [
-    // Admin a accès à tout
-    ...Object.values(PROFILE_MODULES).flat()
+    // Admin a accès à tous les modules des autres profils
+    ...Object.values(PROFILE_MODULES_BASE).flat()
   ]
 };
 
-export const PORTAL_ROUTES = {
+export const PROFILE_MODULES: Record<UserProfile, string[]> = PROFILE_MODULES_BASE;
+
+export const PORTAL_ROUTES: Record<UserProfile, string> = {
   [UserProfile.EXPERT_COMPTABLE]: '/expert-comptable',
   [UserProfile.ENTREPRENEUR]: '/entrepreneur',
   [UserProfile.BANQUE]: '/banque',
@@ -104,7 +107,7 @@ export const PORTAL_ROUTES = {
 };
 
 export const getPortalByRole = (role: UserRole): string => {
-  const roleToPortal = {
+  const roleToPortal: Record<UserRole, string> = {
     [UserRole.ADMIN]: PORTAL_ROUTES[UserProfile.ADMIN],
     [UserRole.TAX_ADMIN]: PORTAL_ROUTES[UserProfile.ADMINISTRATION_FISCAL],
     [UserRole.HR_MANAGER]: PORTAL_ROUTES[UserProfile.HR_MANAGER],
@@ -118,7 +121,7 @@ export const getPortalByRole = (role: UserRole): string => {
 };
 
 export const getModulesByRole = (role: UserRole): string[] => {
-  const roleToProfile = {
+  const roleToProfile: Record<UserRole, UserProfile> = {
     [UserRole.ADMIN]: UserProfile.ADMIN,
     [UserRole.TAX_ADMIN]: UserProfile.ADMINISTRATION_FISCAL,
     [UserRole.HR_MANAGER]: UserProfile.HR_MANAGER,
