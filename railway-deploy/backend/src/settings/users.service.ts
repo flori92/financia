@@ -15,12 +15,12 @@ export class UsersService {
   async getUsersByCompany(companyId: string) {
     const users = await this.usersRepository.find({
       where: { companyId },
-      select: ['id', 'name', 'email', 'role', 'status', 'createdAt', 'lastLogin'],
+      select: ['id', 'firstName', 'lastName', 'email', 'role', 'isActive', 'createdAt', 'lastLoginAt'],
       order: { createdAt: 'DESC' }
     });
 
     const totalUsers = users.length;
-    const activeUsers = users.filter(u => u.status === 'active').length;
+    const activeUsers = users.filter(u => u.isActive).length;
 
     return {
       users,
@@ -40,14 +40,9 @@ export class UsersService {
       throw new ConflictException('Un utilisateur avec cet email existe déjà');
     }
 
-    // Hasher le mot de passe
-    const hashedPassword = await bcrypt.hash(createUserDto.password || 'defaultPassword123', 10);
-
     const user = this.usersRepository.create({
       ...createUserDto,
-      password: hashedPassword,
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
+      isActive: true
     });
 
     const savedUser = await this.usersRepository.save(user);
@@ -96,8 +91,8 @@ export class UsersService {
       throw new NotFoundException('Utilisateur non trouvé');
     }
 
-    const newStatus = user.status === 'active' ? 'inactive' : 'active';
-    await this.usersRepository.update(id, { status: newStatus });
+    const newStatus = !user.isActive;
+    await this.usersRepository.update(id, { isActive: newStatus });
 
     const updatedUser = await this.usersRepository.findOne({ where: { id } });
     
@@ -112,7 +107,7 @@ export class UsersService {
     });
 
     const totalUsers = users.length;
-    const activeUsers = users.filter(u => u.status === 'active').length;
+    const activeUsers = users.filter(u => u.isActive).length;
     const inactiveUsers = totalUsers - activeUsers;
     
     const roleStats = users.reduce((acc, user) => {
@@ -121,8 +116,8 @@ export class UsersService {
     }, {});
 
     const recentLogins = users
-      .filter(u => u.lastLogin)
-      .sort((a, b) => new Date(b.lastLogin).getTime() - new Date(a.lastLogin).getTime())
+      .filter(u => u.lastLoginAt)
+      .sort((a, b) => new Date(b.lastLoginAt).getTime() - new Date(a.lastLoginAt).getTime())
       .slice(0, 5);
 
     return {

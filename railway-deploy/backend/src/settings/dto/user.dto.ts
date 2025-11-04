@@ -14,10 +14,15 @@ export enum UserStatus {
 }
 
 export class CreateUserDto {
-  @ApiProperty({ description: 'User full name', example: 'Jean Dupont' })
+  @ApiProperty({ description: 'User first name', example: 'Jean' })
   @IsNotEmpty()
   @IsString()
-  name: string;
+  firstName: string;
+
+  @ApiProperty({ description: 'User last name', example: 'Dupont' })
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @ApiProperty({ description: 'User email address', example: 'jean.dupont@company.com' })
   @IsNotEmpty()
@@ -25,10 +30,10 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty({ description: 'User password', example: 'SecurePassword123' })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @MinLength(6)
-  password?: string;
+  password: string;
 
   @ApiProperty({ description: 'User role', enum: UserRole, example: UserRole.USER })
   @IsNotEmpty()
@@ -47,10 +52,15 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto {
-  @ApiPropertyOptional({ description: 'User full name', example: 'Jean Dupont' })
+  @ApiPropertyOptional({ description: 'User first name', example: 'Jean' })
   @IsOptional()
   @IsString()
-  name?: string;
+  firstName?: string;
+
+  @ApiPropertyOptional({ description: 'User last name', example: 'Dupont' })
+  @IsOptional()
+  @IsString()
+  lastName?: string;
 
   @ApiPropertyOptional({ description: 'User email address', example: 'jean.dupont@company.com' })
   @IsOptional()
@@ -68,10 +78,9 @@ export class UpdateUserDto {
   @IsEnum(UserRole)
   role?: UserRole;
 
-  @ApiPropertyOptional({ description: 'User status', enum: UserStatus, example: UserStatus.ACTIVE })
+  @ApiPropertyOptional({ description: 'User active status', example: true })
   @IsOptional()
-  @IsEnum(UserStatus)
-  status?: UserStatus;
+  isActive?: boolean;
 
   @ApiPropertyOptional({ description: 'User phone number', example: '+225 07 00 00 00 00' })
   @IsOptional()
@@ -83,8 +92,11 @@ export class UserResponseDto {
   @ApiProperty({ description: 'User ID' })
   id: string;
 
-  @ApiProperty({ description: 'User full name' })
-  name: string;
+  @ApiProperty({ description: 'User first name' })
+  firstName: string;
+
+  @ApiProperty({ description: 'User last name' })
+  lastName: string;
 
   @ApiProperty({ description: 'User email address' })
   email: string;
@@ -92,8 +104,8 @@ export class UserResponseDto {
   @ApiProperty({ description: 'User role', enum: UserRole })
   role: UserRole;
 
-  @ApiProperty({ description: 'User status', enum: UserStatus })
-  status: UserStatus;
+  @ApiProperty({ description: 'User active status' })
+  isActive: boolean;
 
   @ApiProperty({ description: 'Company ID' })
   companyId: string;
@@ -102,10 +114,10 @@ export class UserResponseDto {
   phone?: string;
 
   @ApiProperty({ description: 'Creation date' })
-  createdAt: string;
+  createdAt: Date;
 
   @ApiPropertyOptional({ description: 'Last login date' })
-  lastLogin?: string;
+  lastLoginAt?: Date;
 }
 
 export class UserStatisticsDto {
