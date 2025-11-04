@@ -28,11 +28,18 @@ export function AuthGuard({ children, requiredRole }: { children: React.ReactNod
 
     // Vérifier le rôle si requis
     if (requiredRole) {
-      const userRole = typeof window !== "undefined" 
-        ? window.localStorage.getItem("bms_user_role") 
-        : null;
+      const userRoles = typeof window !== "undefined" 
+        ? JSON.parse(window.localStorage.getItem("bms_user_roles") || "[]")
+        : [];
 
-      if (userRole !== requiredRole) {
+      // Super Admin a accès à tout
+      if (userRoles.includes("ROLE_SUPER_ADMIN")) {
+        setIsChecking(false);
+        return;
+      }
+
+      // Vérifier si l'utilisateur a le rôle requis
+      if (!userRoles.includes(requiredRole)) {
         router.push("/unauthorized");
         return;
       }
