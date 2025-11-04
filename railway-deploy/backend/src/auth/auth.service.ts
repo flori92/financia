@@ -55,7 +55,7 @@ export class AuthService {
       // Recharger des champs supplémentaires sûrs pour enrichir le token et la réponse
       const fullUser = await this.userRepository.findOne({
         where: { id: user.id },
-        select: ['id', 'email', 'role', 'companyId', 'firstName', 'lastName', 'uxLevel'],
+        select: ['id', 'email', 'role', 'companyId', 'firstName', 'lastName', 'uxLevel', 'primaryProfile', 'profiles'],
       });
 
       const enriched: any = { ...fullUser };
