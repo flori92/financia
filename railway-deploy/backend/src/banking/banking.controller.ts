@@ -7,6 +7,7 @@ import {
   Query,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,14 +24,24 @@ import { BankAccount } from './entities/bank-account.entity';
 import { ReconcileEntryDto } from './dto/reconcile-entry.dto';
 import { AutoMatchDto } from './dto/auto-match.dto';
 import { BankReconciliation } from './entities/bank-reconciliation.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { ProfileGuard } from '../auth/guards/profile.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Profiles } from '../auth/decorators/profile.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
+import { UserProfile } from '../auth/guards/user-profiles';
+import { CompanyId } from '../common/decorators/company-id.decorator';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 
 /**
  * Contrôleur pour la gestion bancaire
  */
 @ApiTags('Banking')
 @Controller('banking')
-// @UseGuards(JwtAuthGuard) // À décommenter quand l'auth est configurée
+@UseGuards(JwtAuthGuard, RolesGuard, ProfileGuard)
 @ApiBearerAuth()
+@RequirePermissions('banking:read')
 export class BankingController {
   constructor(private readonly bankingService: BankingService) {}
 
@@ -41,20 +52,23 @@ export class BankingController {
     description: 'Transactions importées',
     type: [BankTransaction],
   })
-  async importCsv(@Body() dto: ImportCsvDto): Promise<BankTransaction[]> {
-    return this.bankingService.importFromCsv(dto);
+  @RequirePermissions('banking:create')
+  async importCsv(
+    @Body() dto: ImportCsvDto,
+    @CompanyId() companyId: string
+  ): Promise<BankTransaction[]> {
+    return this.bankingService.importFromCsv({ ...dto, companyId });
   }
 
   @Get('transactions')
   @ApiOperation({ summary: 'Lister les transactions bancaires' })
-  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({
     status: 200,
     description: 'Liste des transactions bancaires',
     type: [BankTransaction],
   })
   async findAll(
-    @Query('companyId') companyId: string,
+    @CompanyId() companyId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('status') status?: string,

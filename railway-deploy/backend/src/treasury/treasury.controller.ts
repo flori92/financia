@@ -1,21 +1,27 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TreasuryService } from './treasury.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { ProfileGuard } from '../auth/guards/profile.guard';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
+import { CompanyId } from '../common/decorators/company-id.decorator';
 
 @ApiTags('Treasury')
 @ApiBearerAuth()
 @Controller('treasury')
+@UseGuards(JwtAuthGuard, RolesGuard, ProfileGuard)
+@RequirePermissions('treasury:read')
 export class TreasuryController {
   constructor(private readonly treasuryService: TreasuryService) {}
 
   @Get('summary')
   @ApiOperation({ summary: 'Résumé de trésorerie (solde initial/final, entrées/sorties, net)' })
-  @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'startDate', required: true })
   @ApiQuery({ name: 'endDate', required: true })
   @ApiResponse({ status: 200, description: 'Résumé calculé' })
   async getSummary(
-    @Query('companyId') companyId: string,
+    @CompanyId() companyId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
@@ -24,13 +30,12 @@ export class TreasuryController {
 
   @Get('timeseries')
   @ApiOperation({ summary: 'Séries temporelles des flux (in/out/net, solde cumulé)' })
-  @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'startDate', required: true })
   @ApiQuery({ name: 'endDate', required: true })
   @ApiQuery({ name: 'granularity', required: false, enum: ['day', 'month'], description: 'Par jour ou par mois (défaut: month)' })
   @ApiResponse({ status: 200, description: 'Séries temporelles' })
   async getTimeseries(
-    @Query('companyId') companyId: string,
+    @CompanyId() companyId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
     @Query('granularity') granularity: 'day'|'month' = 'month',
