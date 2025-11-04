@@ -66,17 +66,39 @@ import { AppController } from './app.controller';
     // Database
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get('DB_HOST', 'localhost'),
-        port: config.get('DB_PORT', 5432),
-        username: config.get('DB_USER', 'bms'),
-        password: config.get('DB_PASSWORD', 'bms_dev_password'),
-        database: config.get('DB_NAME', 'bms'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // ✅ ACTIVÉ pour création automatique des tables
-        logging: config.get('NODE_ENV') === 'development',
-      }),
+      useFactory: (config: ConfigService) => {
+        // Priorité à DATABASE_URL (Railway), sinon variables individuelles
+        const databaseUrl = config.get('DATABASE_URL');
+        
+        if (databaseUrl) {
+          // Parse DATABASE_URL pour TypeORM
+          const url = new URL(databaseUrl);
+          return {
+            type: 'postgres',
+            host: url.hostname,
+            port: parseInt(url.port) || 5432,
+            username: url.username,
+            password: url.password,
+            database: url.pathname.substring(1), // Enlever le /
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            synchronize: true, // ✅ ACTIVÉ pour création automatique des tables
+            logging: config.get('NODE_ENV') === 'development',
+          };
+        }
+        
+        // Fallback variables individuelles
+        return {
+          type: 'postgres',
+          host: config.get('DATABASE_HOST', config.get('DB_HOST', 'localhost')),
+          port: config.get('DATABASE_PORT', config.get('DB_PORT', 5432)),
+          username: config.get('DATABASE_USER', config.get('DB_USER', 'postgres')),
+          password: config.get('DATABASE_PASSWORD', config.get('DB_PASSWORD', 'postgres')),
+          database: config.get('DATABASE_NAME', config.get('DB_NAME', 'bms')),
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: true, // ✅ ACTIVÉ pour création automatique des tables
+          logging: config.get('NODE_ENV') === 'development',
+        };
+      },
     }),
 
     // Redis Cache (désactivé temporairement)

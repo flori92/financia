@@ -7,21 +7,7 @@ import { SeedController } from './seed.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST', 'localhost'),
-        port: configService.get('DATABASE_PORT', 5432),
-        username: configService.get('DATABASE_USER', 'postgres'),
-        password: configService.get('DATABASE_PASSWORD', 'postgres'),
-        database: configService.get('DATABASE_NAME', 'bms_erp'),
-        entities: Object.values(entities),
-        synchronize: configService.get('NODE_ENV') === 'development',
-        logging: configService.get('NODE_ENV') === 'development',
-      }),
-    }),
+    // Pas de forRootAsync ici - déjà configuré dans app.module.ts
     TypeOrmModule.forFeature([
       ...Object.values(entities),
       require('../accounting/entities/journal-entry.entity').JournalEntry,
