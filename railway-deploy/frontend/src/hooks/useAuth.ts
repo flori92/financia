@@ -1,6 +1,7 @@
 // Hook d'authentification pour BMS
 import { useState, useEffect } from 'react';
 import { UserRole, User } from '../types/auth';
+import { authManager } from '@/lib/auth-manager';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);

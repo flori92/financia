@@ -288,6 +288,16 @@ class AuthManager {
       return false;
     }
   }
+
+  // Accéder à l'état actuel
+  getState(): AuthState {
+    return this.state;
+  }
+
+  // Obtenir un companyId de démo pour le développement
+  getDemoCompanyId(): string {
+    return 'demo-company-123';
+  }
 }
 
 export const authManager = AuthManager.getInstance();

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ interface PurchaseOrder {
 }
 
 export default function OrdersPage() {
+  const companyId = useCompanyId();
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -32,7 +34,7 @@ export default function OrdersPage() {
     supplierName: "",
     totalAmount: "",
     expectedDeliveryDate: "",
-    companyId: "1805bc61-7cfd-44e9-8a63-17187bf05dc7" // ID par défaut pour le demo
+    companyId: companyId
   });
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export default function OrdersPage() {
         supplierName: "",
         totalAmount: "",
         expectedDeliveryDate: "",
-        companyId: "1805bc61-7cfd-44e9-8a63-17187bf05dc7"
+        companyId: companyId
       });
     } catch (error) {
       console.error("Erreur création commande:", error);

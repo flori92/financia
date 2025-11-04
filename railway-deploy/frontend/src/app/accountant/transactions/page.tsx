@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ interface TransactionsResponse {
 }
 
 export default function TransactionsPage() {
+  const companyId = useCompanyId();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,6 @@ export default function TransactionsPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7"; // Default company ID
 
   const loadTransactions = async (page: number = 1) => {
     setLoading(true);

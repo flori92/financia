@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { getBaseUrl, apiPost, apiGet } from '@/lib/api';
 import { formatCurrency } from '@/lib/format-utils';
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { 
   Send, 
   Bot, 
@@ -125,7 +126,7 @@ export default function FreeAIChatPage() {
   const [availableModels, setAvailableModels] = useState<any>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const companyId = 'demo-company-1'; // TODO: Get from auth context
+  const companyId = useCompanyId();
   const userId = 'demo-user-1'; // TODO: Get from auth context
 
   const scrollToBottom = () => {

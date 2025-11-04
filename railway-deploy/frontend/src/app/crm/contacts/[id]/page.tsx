@@ -2,11 +2,13 @@
 import { useState, useEffect } from "react";
 import { apiGet } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { Mail, Phone, MapPin, DollarSign, Calendar } from "lucide-react";
 import { useParams } from "next/navigation";
 
 export default function ContactDetailPage() {
   const params = useParams();
+  const companyId = useCompanyId();
   const [contact, setContact] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -14,7 +16,6 @@ export default function ContactDetailPage() {
     if (!params?.id) return;
     setLoading(true);
     try {
-      const companyId = localStorage.getItem('companyId') || '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
       const res = await fetch(`/api/crm/contacts/${params.id}?companyId=${companyId}`);
       if (res.ok) {
         const data = await res.json();

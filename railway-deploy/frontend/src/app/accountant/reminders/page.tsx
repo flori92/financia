@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getBaseUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { 
   Clock, 
   AlertTriangle, 
@@ -29,6 +30,7 @@ interface Reminder {
 }
 
 export default function RemindersPage() {
+  const companyId = useCompanyId();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -47,7 +49,7 @@ export default function RemindersPage() {
 
   const loadReminders = async () => {
     try {
-      const response = await fetch(`${getBaseUrl()}/api/v1/invoices/reminders/preview?companyId=1805bc61-7cfd-44e9-8a63-17187bf05dc7`);
+      const response = await fetch(`${getBaseUrl()}/api/v1/invoices/reminders/preview?companyId=${companyId}`);
       const data = await response.json();
       
       setReminders(data.reminders || []);
@@ -75,7 +77,7 @@ export default function RemindersPage() {
       const response = await fetch(`${getBaseUrl()}/api/v1/invoices/reminders/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyId: '1805bc61-7cfd-44e9-8a63-17187bf05dc7' })
+        body: JSON.stringify({ companyId: companyId })
       });
       
       if (response.ok) {

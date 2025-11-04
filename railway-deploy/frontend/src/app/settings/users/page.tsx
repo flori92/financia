@@ -1,6 +1,7 @@
 "use client";
 // Utilisateurs - MODE DYNAMIQUE avec API backend
 import { getBaseUrl } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { UserCog, Plus, Mail, Shield, Edit, Trash2, RefreshCw, AlertTriangle } from "lucide-react";
 
@@ -29,6 +30,7 @@ const ROLES = [
 ];
 
 export default function UsersPage() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<UsersData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,6 @@ export default function UsersPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7";
       const response = await fetch(
         `${getBaseUrl()}/api/v1/settings/users?companyId=${companyId}`,
         { 

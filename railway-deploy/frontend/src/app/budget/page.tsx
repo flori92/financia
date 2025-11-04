@@ -1,6 +1,7 @@
 "use client";
 // Budget - MODE DYNAMIQUE avec API backend
 import { getBaseUrl } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { Plus, TrendingUp, TrendingDown, Target, AlertTriangle, X, BarChart3, RefreshCw } from "lucide-react";
 
@@ -21,6 +22,7 @@ interface BudgetData {
 }
 
 export default function BudgetPage() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<BudgetData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +41,6 @@ export default function BudgetPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7";
       const response = await fetch(
         `${getBaseUrl()}/api/v1/budget/summary?companyId=${companyId}`,
         { 

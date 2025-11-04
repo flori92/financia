@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 
 export default function ApiTestPage() {
+  const companyId = useCompanyId();
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +25,7 @@ export default function ApiTestPage() {
     for (const endpoint of testEndpoints) {
       try {
         const response = await apiGet(endpoint, { 
-          companyId: "1805bc61-7cfd-44e9-8a63-17187bf05dc7" 
+          companyId: companyId 
         });
         testResults.push({
           endpoint,

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getBaseUrl } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -45,6 +46,7 @@ interface Alert {
 }
 
 export default function CashFlowCoherencePage() {
+  const companyId = useCompanyId();
   const [cashFlowData, setCashFlowData] = useState<CashFlowData[]>([]);
   const [metrics, setMetrics] = useState<CoherenceMetrics | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -60,7 +62,6 @@ export default function CashFlowCoherencePage() {
     setLoading(true);
     setError(null);
     try {
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7";
       const response = await fetch(
         `${getBaseUrl()}/api/v1/accounting/cash-flow-coherence?companyId=${companyId}&period=${selectedPeriod}`,
         { 

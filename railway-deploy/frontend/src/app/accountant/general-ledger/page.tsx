@@ -2,6 +2,7 @@
 // Grand livre - MODE DYNAMIQUE avec API backend
 import { getBaseUrl } from "@/lib/api";
 import { ProfessionalExporter } from "@/lib/export-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { Search, Filter, Download, Calendar, RefreshCw, AlertTriangle } from "lucide-react";
 
@@ -24,6 +25,7 @@ interface GeneralLedgerData {
 }
 
 export default function GeneralLedgerPage() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<GeneralLedgerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +47,6 @@ export default function GeneralLedgerPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7";
       const response = await fetch(
         `${getBaseUrl()}/api/v1/accounting/general-ledger?companyId=${companyId}&startDate=${startDate}&endDate=${endDate}`,
         { 
