@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copie et installation backend
 COPY backend/package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production --legacy-peer-deps
 
 # Copie du code backend
 COPY backend/ .
