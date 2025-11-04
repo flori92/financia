@@ -81,7 +81,67 @@ const ALL_MODULES_EXCEPT_ADMIN = [
   'employee.timesheets',
   'employee.leave-requests',
   'employee.payslips',
-  'employee.documents'
+  'employee.documents',
+  // 🆕 Modules IA/ML existants
+  'ai.document-analysis',
+  'ai.anomaly-detection',
+  'ai.financial-predictions',
+  'ai.rag-search',
+  'ai.cash-flow-predictions',
+  'ai.business-insights',
+  'ai.risk-assessment',
+  'ai.talent-analytics',
+  'ai.recruitment-scoring',
+  'ai.performance-prediction',
+  'ai.team-productivity',
+  'ai.project-forecasting',
+  'ai.decision-support',
+  // 🆕 Modules Notifications existants
+  'notifications.email',
+  'notifications.sms',
+  'notifications.real-time',
+  'notifications.alerts',
+  'notifications.reports',
+  'notifications.hr-alerts',
+  'notifications.team-alerts',
+  'notifications.in-app',
+  'notifications.preferences',
+  'notifications.history',
+  // 🆕 Modules CRM & Marketing existants
+  'crm.client-portfolio',
+  'crm.campaign-management',
+  'crm.lead-scoring',
+  'crm.lead-generation',
+  'crm.email-marketing',
+  'crm.employee-engagement',
+  'crm.team-management',
+  'crm.contacts',
+  'crm.activities',
+  'crm.opportunities',
+  // 🆕 Modules Automation existants
+  'automation.workflows',
+  'automation.schedules',
+  'automation.integrations',
+  'automation.reports',
+  'automation.hr-workflows',
+  // 🆕 Modules Banking & Fintech existants
+  'banking.api-connections',
+  'banking.auto-reconciliation',
+  'banking.anomaly-detection',
+  'banking.credit-scoring',
+  'banking.provider-management',
+  // 🆕 Modules Treasury avancés existants
+  'treasury.cash-flow-forecast',
+  'treasury.sepa-direct-debit',
+  'treasury.bills-of-exchange',
+  'treasury.runway-analysis',
+  'treasury.alerts-config',
+  // 🆕 Modules Reporting & Analytics
+  'reporting.custom-dashboards',
+  'reporting.financial-ratios',
+  'reporting.business-intelligence',
+  'reporting.export-tools',
+  'reporting.audit-trails'
 ];
 
 const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
@@ -109,7 +169,46 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'expert.client-portfolio',
     'expert.mission-tracking',
     'expert.invoicing',
-    'expert.document-management'
+    'expert.document-management',
+    // 🆕 IA/ML avancé pour Expert Comptable
+    'ai.document-analysis',
+    'ai.anomaly-detection',
+    'ai.financial-predictions',
+    'ai.rag-search',
+    'ai.business-insights',
+    'ai.risk-assessment',
+    // 🆕 Notifications professionnelles
+    'notifications.email',
+    'notifications.sms',
+    'notifications.real-time',
+    'notifications.alerts',
+    'notifications.reports',
+    'notifications.in-app',
+    'notifications.preferences',
+    'notifications.history',
+    // 🆕 CRM & Reporting avancé
+    'crm.client-portfolio',
+    'crm.campaign-management',
+    'crm.lead-scoring',
+    'crm.activities',
+    'crm.opportunities',
+    // 🆕 Automation & Productivité
+    'automation.workflows',
+    'automation.schedules',
+    'automation.integrations',
+    'automation.reports',
+    // 🆕 Banking & Fintech
+    'banking.api-connections',
+    'banking.auto-reconciliation',
+    'banking.anomaly-detection',
+    'banking.credit-scoring',
+    'banking.provider-management',
+    // 🆕 Reporting & Analytics
+    'reporting.custom-dashboards',
+    'reporting.financial-ratios',
+    'reporting.business-intelligence',
+    'reporting.export-tools',
+    'reporting.audit-trails'
   ],
   [UserProfile.ENTREPRENEUR]: [
     'dashboard.overview',
@@ -125,7 +224,49 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'employees.transfers',
     'employees.documents',
     'entrepreneur.financial-summary',
-    'entrepreneur.compliance-status'
+    'entrepreneur.compliance-status',
+    // 🆕 IA Décisionnelle pour Entrepreneur
+    'ai.cash-flow-predictions',
+    'ai.business-insights',
+    'ai.risk-assessment',
+    'ai.financial-predictions',
+    'ai.decision-support',
+    // 🆕 Notifications Stratégiques
+    'notifications.email',
+    'notifications.sms',
+    'notifications.real-time',
+    'notifications.alerts',
+    'notifications.reports',
+    'notifications.in-app',
+    'notifications.preferences',
+    'notifications.history',
+    // 🆕 Marketing & CRM
+    'crm.lead-generation',
+    'crm.email-marketing',
+    'crm.lead-scoring',
+    'crm.contacts',
+    'crm.activities',
+    // 🆕 Automation Business
+    'automation.workflows',
+    'automation.schedules',
+    'automation.integrations',
+    'automation.reports',
+    // 🆕 Banking & Treasury avancé
+    'banking.api-connections',
+    'banking.auto-reconciliation',
+    'banking.anomaly-detection',
+    'banking.provider-management',
+    'treasury.cash-flow-forecast',
+    'treasury.sepa-direct-debit',
+    'treasury.bills-of-exchange',
+    'treasury.runway-analysis',
+    'treasury.alerts-config',
+    // 🆕 Reporting Business
+    'reporting.custom-dashboards',
+    'reporting.financial-ratios',
+    'reporting.business-intelligence',
+    'reporting.export-tools',
+    'reporting.audit-trails'
   ],
   [UserProfile.BANQUE]: [
     'banking.transactions',
@@ -151,7 +292,44 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'hr.recruitment',
     'hr.performance',
     'hr.training',
-    'hr.compliance'
+    'hr.compliance',
+    // 🆕 IA RH pour Manager
+    'ai.talent-analytics',
+    'ai.recruitment-scoring',
+    'ai.performance-prediction',
+    'ai.team-productivity',
+    'ai.business-insights',
+    // 🆕 Notifications RH
+    'notifications.email',
+    'notifications.sms',
+    'notifications.real-time',
+    'notifications.hr-alerts',
+    'notifications.reports',
+    'notifications.in-app',
+    'notifications.preferences',
+    'notifications.history',
+    // 🆕 CRM RH & Engagement
+    'crm.employee-engagement',
+    'crm.team-management',
+    'crm.contacts',
+    'crm.activities',
+    // 🆕 Automation RH
+    'automation.hr-workflows',
+    'automation.schedules',
+    'automation.integrations',
+    'automation.reports',
+    // 🆕 Banking & Paie
+    'banking.api-connections',
+    'banking.auto-reconciliation',
+    'banking.provider-management',
+    'treasury.sepa-direct-debit',
+    'treasury.alerts-config',
+    // 🆕 Reporting RH
+    'reporting.custom-dashboards',
+    'reporting.financial-ratios',
+    'reporting.business-intelligence',
+    'reporting.export-tools',
+    'reporting.audit-trails'
   ],
   [UserProfile.ACCOUNTANT]: [
     'accounting.dashboard',
@@ -173,14 +351,63 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'manager.reports',
     'manager.performance',
     'manager.budget',
-    'manager.projects'
+    'manager.projects',
+    // 🆕 IA Management
+    'ai.team-productivity',
+    'ai.project-forecasting',
+    'ai.decision-support',
+    'ai.performance-prediction',
+    'ai.business-insights',
+    // 🆕 Notifications Management
+    'notifications.email',
+    'notifications.sms',
+    'notifications.real-time',
+    'notifications.team-alerts',
+    'notifications.reports',
+    'notifications.in-app',
+    'notifications.preferences',
+    'notifications.history',
+    // 🆕 CRM Management d'équipe
+    'crm.team-management',
+    'crm.contacts',
+    'crm.activities',
+    'crm.opportunities',
+    // 🆕 Automation Management
+    'automation.workflows',
+    'automation.schedules',
+    'automation.integrations',
+    'automation.reports',
+    // 🆕 Banking & Budget
+    'banking.api-connections',
+    'banking.auto-reconciliation',
+    'banking.provider-management',
+    'treasury.cash-flow-forecast',
+    'treasury.alerts-config',
+    // 🆕 Reporting Management
+    'reporting.custom-dashboards',
+    'reporting.financial-ratios',
+    'reporting.business-intelligence',
+    'reporting.export-tools',
+    'reporting.audit-trails'
   ],
   [UserProfile.EMPLOYEE]: [
     'employee.profile',
     'employee.timesheets',
     'employee.leave-requests',
     'employee.payslips',
-    'employee.documents'
+    'employee.documents',
+    // 🆕 Notifications Employé
+    'notifications.email',
+    'notifications.sms',
+    'notifications.real-time',
+    'notifications.in-app',
+    'notifications.preferences',
+    'notifications.history',
+    // 🆕 CRM Employé (limité)
+    'crm.contacts',
+    'crm.activities',
+    // 🆕 Reporting Employé (limité)
+    'reporting.export-tools'
   ],
   [UserProfile.ADMIN]: ALL_MODULES_EXCEPT_ADMIN
 };
