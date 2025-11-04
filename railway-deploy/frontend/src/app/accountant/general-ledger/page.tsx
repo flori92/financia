@@ -66,12 +66,12 @@ export default function GeneralLedgerPage() {
       const entries = Array.isArray(apiData) ? apiData : (apiData.entries || []);
       
       // Calculer les totaux
-      const totalDebit = entries.reduce((sum, entry) => sum + (entry.debit || 0), 0);
-      const totalCredit = entries.reduce((sum, entry) => sum + (entry.credit || 0), 0);
+      const totalDebit = entries.reduce((sum: number, entry: any) => sum + (entry.debit || 0), 0);
+      const totalCredit = entries.reduce((sum: number, entry: any) => sum + (entry.credit || 0), 0);
       
       // Transformer les données API au format attendu
       const transformedData: GeneralLedgerData = {
-        entries: entries.map(entry => ({
+        entries: entries.map((entry: any) => ({
           date: entry.date,
           account: entry.account,
           description: entry.description,
