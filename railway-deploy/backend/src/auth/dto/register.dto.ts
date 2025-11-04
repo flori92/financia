@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsIn,
-  Array,
+  IsArray,
 } from 'class-validator';
 import { UserProfile } from '../guards/user-profiles';
 
@@ -59,7 +59,7 @@ export class RegisterDto {
     description: 'Profils multiples pour l\'utilisateur'
   })
   @IsOptional()
-  @Array()
+  @IsArray()
   @IsIn(Object.values(UserProfile), { each: true })
   profiles?: UserProfile[];
 }
