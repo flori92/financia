@@ -1,4 +1,4 @@
-// import * as tf from '@tensorflow/tfjs-node'; // TODO: Install TensorFlow
+import * as tf from '@tensorflow/tfjs-node';
 
 export class AnomalyDetectionModel {
     private model: tf.LayersModel;
