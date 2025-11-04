@@ -17,6 +17,8 @@ interface CreateLeaveRequestDto {
     mimeType: string;
     size: number;
   }>;
+  requestedDays?: number;
+  approvedDays?: number;
 }
 
 @Injectable()

@@ -142,6 +142,16 @@ export class CreateEmployeeDto {
   @IsOptional()
   annualLeaveDays?: number;
 
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  remainingLeaveDays?: number;
+
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  lastLeaveUpdate?: Date;
+
   // Sécurité sociale
   @IsString()
   @IsOptional()

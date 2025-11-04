@@ -17,6 +17,7 @@ import { Employee, EmployeeStatus, ContractType } from './entities/employee.enti
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
 
 @ApiTags('Employees')
 @Controller('employees')
@@ -25,7 +26,7 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Post()
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Créer un nouvel employé' })
   @ApiResponse({ status: 201, description: 'Employé créé avec succès', type: Employee })
   @ApiResponse({ status: 400, description: 'Données invalides' })
@@ -38,7 +39,7 @@ export class EmployeeController {
   }
 
   @Get()
-  @Roles('admin', 'hr_manager', 'accountant', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER)
   @ApiOperation({ summary: 'Lister tous les employés' })
   @ApiResponse({ status: 200, description: 'Liste des employés' })
   @ApiQuery({ name: 'status', required: false, enum: EmployeeStatus })
@@ -67,7 +68,7 @@ export class EmployeeController {
   }
 
   @Get('stats')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Obtenir les statistiques des employés' })
   @ApiResponse({ status: 200, description: 'Statistiques des employés' })
   async getStats(@Request() req: any) {
@@ -75,7 +76,7 @@ export class EmployeeController {
   }
 
   @Get('managers')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Lister les managers disponibles' })
   @ApiResponse({ status: 200, description: 'Liste des managers' })
   async findManagers(@Request() req: any): Promise<Employee[]> {
@@ -83,7 +84,7 @@ export class EmployeeController {
   }
 
   @Get(':id')
-  @Roles('admin', 'hr_manager', 'accountant', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Obtenir les détails d\'un employé' })
   @ApiResponse({ status: 200, description: 'Détails de l\'employé', type: Employee })
   @ApiResponse({ status: 404, description: 'Employé non trouvé' })
@@ -93,7 +94,7 @@ export class EmployeeController {
     @Request() req: any
   ): Promise<Employee> {
     // Vérifier les permissions : employé ne peut voir que ses propres infos
-    if (req.user.role === 'employee' && req.user.employeeId !== id) {
+    if (req.user.role === UserRole.EMPLOYEE && req.user.employeeId !== id) {
       throw new Error('Accès non autorisé');
     }
 
@@ -101,7 +102,7 @@ export class EmployeeController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Mettre à jour un employé' })
   @ApiResponse({ status: 200, description: 'Employé mis à jour', type: Employee })
   @ApiResponse({ status: 404, description: 'Employé non trouvé' })
@@ -115,7 +116,7 @@ export class EmployeeController {
   }
 
   @Patch(':id/toggle-status')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Activer/Désactiver un employé' })
   @ApiResponse({ status: 200, description: 'Statut de l\'employé mis à jour' })
   @ApiResponse({ status: 404, description: 'Employé non trouvé' })
@@ -128,7 +129,7 @@ export class EmployeeController {
   }
 
   @Patch(':id/update-leave-balance')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Mettre à jour le solde de congés d\'un employé' })
   @ApiResponse({ status: 200, description: 'Solde de congés mis à jour' })
   @ApiResponse({ status: 404, description: 'Employé non trouvé' })
@@ -147,7 +148,7 @@ export class EmployeeController {
   }
 
   @Post(':id/associate-user')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Associer un utilisateur à un employé' })
   @ApiResponse({ status: 200, description: 'Utilisateur associé avec succès' })
   @ApiResponse({ status: 404, description: 'Employé ou utilisateur non trouvé' })
@@ -161,7 +162,7 @@ export class EmployeeController {
   }
 
   @Delete(':id/dissociate-user')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Désassocier un utilisateur d\'un employé' })
   @ApiResponse({ status: 200, description: 'Utilisateur désassocié avec succès' })
   @ApiResponse({ status: 404, description: 'Employé non trouvé' })
@@ -174,7 +175,7 @@ export class EmployeeController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Supprimer un employé (soft delete)' })
   @ApiResponse({ status: 200, description: 'Employé supprimé avec succès' })
   @ApiResponse({ status: 404, description: 'Employé non trouvé' })
