@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { apiGet } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Megaphone, Users, TrendingUp, DollarSign, Target, Calendar, Mail, BarChart3, Plus } from "lucide-react";

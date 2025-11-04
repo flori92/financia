@@ -1,5 +1,5 @@
 "use client";
-import { getBaseUrl } from "@/lib/api";
+import { getBaseUrl, apiGet } from "@/lib/api";
 import { fetchPostWithAuth, fetchPutWithAuth } from "@/lib/fetch-with-auth";
 import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProfessionalExporter } from "@/lib/export-utils";
@@ -41,8 +41,8 @@ export default function InvoicesPage() {
   const loadData = async () => {
     try {
       const [invoicesRes, clientsRes] = await Promise.all([
-        apiGet('/invoices', { companyId }).catch(() => []),
-        apiGet('/crm/contacts', { companyId }).catch(() => [])
+        apiGet('/api/v1/invoices', { companyId }).catch(() => []),
+        apiGet('/api/v1/crm/contacts', { companyId }).catch(() => [])
       ]);
       setInvoices(Array.isArray(invoicesRes) ? invoicesRes : []);
       setClients(Array.isArray(clientsRes) ? clientsRes : []);
