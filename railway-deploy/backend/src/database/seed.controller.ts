@@ -1,11 +1,16 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { SimpleTestSeedService } from './seeds/simple-test.seed';
 
 @ApiTags('Database Seeds')
 @Controller('database')
 export class SeedController {
-  constructor(private readonly simpleTestSeedService: SimpleTestSeedService) {}
+  constructor(
+    private readonly simpleTestSeedService: SimpleTestSeedService,
+    @InjectDataSource() private readonly dataSource: DataSource,
+  ) {}
 
   @Post('seed-test-data')
   @HttpCode(HttpStatus.OK)
@@ -29,6 +34,55 @@ export class SeedController {
         period: '6 derniers mois',
         types: 'Ventes (70%) + Achats (30%)',
         purpose: 'Visualisation graphiques et KPI'
+      }
+    };
+  }
+
+  @Post('fix-user-profiles')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ 
+    summary: '🔧 FIX: Mettre à jour les primaryProfile des utilisateurs existants',
+    description: 'Corrige les utilisateurs qui ont NULL dans primaryProfile en le définissant selon leur role'
+  })
+  @ApiResponse({ status: 200, description: 'primaryProfile mis à jour avec succès' })
+  async fixUserProfiles() {
+    console.log('🔄 Début mise à jour des primaryProfile...');
+    
+    // Mettre à jour les profils selon le rôle
+    const result = await this.dataSource.query(`
+      UPDATE users 
+      SET primary_profile = CASE 
+        WHEN role = 'admin' THEN 'admin'
+        WHEN role = 'tax_admin' THEN 'tax_admin'
+        WHEN role = 'accountant' THEN 'accountant'
+        WHEN role = 'expert_comptable' THEN 'expert_comptable'
+        WHEN role = 'bank_admin' THEN 'bank_admin'
+        WHEN role = 'hr_manager' THEN 'hr_manager'
+        WHEN role = 'user' THEN 'entrepreneur'
+        ELSE 'entrepreneur'
+      END
+      WHERE primary_profile IS NULL;
+    `);
+    
+    console.log('✅ primaryProfile mis à jour pour tous les utilisateurs');
+    
+    // Récupérer le nombre d'utilisateurs mis à jour
+    const updatedCount = result[1]; // result[1] contient le nombre de lignes affectées
+    
+    return {
+      success: true,
+      message: `✅ ${updatedCount} utilisateur(s) mis à jour avec succès !`,
+      details: {
+        updatedUsers: updatedCount,
+        mapping: {
+          admin: 'admin',
+          tax_admin: 'tax_admin',
+          accountant: 'accountant',
+          expert_comptable: 'expert_comptable',
+          bank_admin: 'bank_admin',
+          hr_manager: 'hr_manager',
+          user: 'entrepreneur'
+        }
       }
     };
   }
