@@ -5,7 +5,7 @@
 
 import * as React from 'react';
 import { AuthGuard } from './auth/AuthGuard';
-import ErrorBoundary from './auth/ErrorBoundary';
+import ErrorBoundary from './error/ErrorBoundary';
 import { Loader2 } from 'lucide-react';
 
 interface SecurePageProps {
