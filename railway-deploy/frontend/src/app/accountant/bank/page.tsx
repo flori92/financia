@@ -34,14 +34,6 @@ export default function BankReconciliationPage() {
   const [showBulkActions, setShowBulkActions] = useState(false);
 
   useEffect(() => {
-    // Récupérer companyId depuis localStorage si présent
-    if (typeof window !== 'undefined') {
-      const cid = window.localStorage.getItem('company_id') || window.localStorage.getItem('user_company_id');
-      if (cid) setCompanyId(cid);
-    }
-  }, []);
-
-  useEffect(() => {
     loadTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId]);
