@@ -140,7 +140,7 @@ function UsersPageContent() {
   // Handler pour basculer le statut d'un utilisateur
   const handleToggleStatus = async (userId: string) => {
     try {
-      await apiPost(`/settings/users/${userId}/toggle-status`);
+      await apiPost(`/settings/users/${userId}/toggle-status`, {});
       await loadUsers();
       console.log("Statut utilisateur basculé avec succès");
     } catch (error: any) {
