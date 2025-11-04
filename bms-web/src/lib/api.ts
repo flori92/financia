@@ -31,7 +31,7 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
 
 function getBaseUrl() {
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  return 'http://localhost:3001';
+  return 'https://bms-backend-production.up.railway.app';
 }
 
 function getToken() {

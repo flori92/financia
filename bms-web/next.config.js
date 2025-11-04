@@ -5,10 +5,10 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@tensorflow/tfjs-node'],
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://bms-backend-production.up.railway.app',
   },
   images: {
-    domains: ['localhost'],
+    domains: ['bms-backend-production.up.railway.app', 'localhost'],
     unoptimized: true,
   },
   // Disable strict mode for production
