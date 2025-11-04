@@ -1,5 +1,6 @@
 "use client";
-import { getBaseUrl } from "@/lib/api";
+// Rapprochement Bancaire - MODE DYNAMIQUE avec API backend
+import { apiGet, apiPost, getCompanyId } from "@/lib/api";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, Link2, X, Filter, FileDown, FileUp } from "lucide-react";
@@ -14,7 +15,12 @@ export default function BankReconciliationPage() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [selectedTx, setSelectedTx] = useState<any | null>(null);
   const [note, setNote] = useState("");
-  const [companyId, setCompanyId] = useState<string>("default-company");
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 2600);
+  };
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
+  const companyId = getCompanyId();
   const { show } = useToast();
   const [matching, setMatching] = useState(false);
   const [threshold, setThreshold] = useState<number>(0.8);
@@ -42,12 +48,23 @@ export default function BankReconciliationPage() {
 
   const loadTransactions = async () => {
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/transactions?companyId=${companyId}`);
-      if (!res.ok) throw new Error("Erreur chargement transactions");
-      const data = await res.json();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      const data = await apiGet('/api/v1/banking/transactions', { companyId });
       setTransactions(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(err);
+      triggerToast("success", "Transactions bancaires chargées");
+    } catch (err: any) {
+      console.error('Erreur chargement transactions:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+      triggerToast("error", errorMessage);
+      
+      // Gérer spécifiquement l'erreur 404
+      if (err?.message?.includes('404') || err?.status === 404) {
+        triggerToast("info", "Endpoint banque en cours de déploiement. Affichage des données de démonstration.");
+        setTransactions([]); // Données vides en fallback
+      }
     } finally {
       setLoading(false);
     }
@@ -70,13 +87,11 @@ export default function BankReconciliationPage() {
     if (matching) return;
     setMatching(true);
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/auto-match`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyId, threshold, limit }),
-      });
-      if (!res.ok) throw new Error('Erreur lettrage automatique');
-      const data = await res.json();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      const data = await apiPost('/api/v1/banking/auto-match', { companyId, threshold, limit });
       await loadTransactions();
       const variant = data.matched > 0 ? 'success' : 'info';
       show({
@@ -122,12 +137,16 @@ export default function BankReconciliationPage() {
     setSuggestionsLoading(true);
     setSuggestions([]);
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/transactions/${tx.id}/entry-suggest?companyId=${companyId}`);
-      if (!res.ok) throw new Error('Erreur récupération suggestions');
-      const data = await res.json();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      const data = await apiGet(`/api/v1/banking/transactions/${tx.id}/entry-suggest`, { companyId });
       setSuggestions(Array.isArray(data) ? data : []);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
+      triggerToast("error", errorMessage);
       show({ title: 'Erreur', description: "Impossible de récupérer les écritures suggérées", variant: 'error' });
     } finally {
       setSuggestionsLoading(false);
@@ -137,17 +156,16 @@ export default function BankReconciliationPage() {
   const reconcileWithEntry = async (journalEntryId: string) => {
     if (!selectedTx) return;
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/reconcile-entry`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          companyId,
-          bankTransactionId: selectedTx.id,
-          journalEntryId,
-          notes: note || undefined,
-        }),
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      await apiPost('/api/v1/banking/reconcile-entry', {
+        companyId,
+        bankTransactionId: selectedTx.id,
+        journalEntryId,
+        notes: note || undefined,
       });
-      if (!res.ok) throw new Error('Erreur rapprochement');
       setSuggestionsOpen(false);
       setNote("");
       await loadTransactions();
@@ -164,14 +182,12 @@ export default function BankReconciliationPage() {
     
     setUploadingCsv(true);
     try {
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
       const text = await file.text();
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/import-csv`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyId, csvContent: text }),
-      });
-      if (!res.ok) throw new Error('Erreur import CSV');
-      const data = await res.json();
+      const data = await apiPost('/api/v1/banking/import-csv', { companyId, csvContent: text });
       await loadTransactions();
       show({ 
         title: `${data.imported} transactions importées`, 
@@ -227,13 +243,11 @@ export default function BankReconciliationPage() {
   const handleBulkReconcile = async () => {
     if (selectedTxs.length === 0) return;
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/bulk-reconcile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyId, transactionIds: selectedTxs }),
-      });
-      if (!res.ok) throw new Error('Erreur rapprochement lot');
-      const data = await res.json();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      const data = await apiPost('/api/v1/banking/bulk-reconcile', { companyId, transactionIds: selectedTxs });
       setSelectedTxs([]);
       await loadTransactions();
       show({ 
@@ -250,13 +264,11 @@ export default function BankReconciliationPage() {
   const handleBulkIgnore = async () => {
     if (selectedTxs.length === 0) return;
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/bulk-ignore`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyId, transactionIds: selectedTxs }),
-      });
-      if (!res.ok) throw new Error('Erreur ignorer lot');
-      const data = await res.json();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      const data = await apiPost('/api/v1/banking/bulk-ignore', { companyId, transactionIds: selectedTxs });
       setSelectedTxs([]);
       await loadTransactions();
       show({ title: `${data.ignored} transactions ignorées`, variant: 'success' });
@@ -268,18 +280,22 @@ export default function BankReconciliationPage() {
 
   const loadHistory = async () => {
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/banking/history?companyId=${companyId}&limit=50`);
-      if (!res.ok) throw new Error('Erreur chargement historique');
-      const data = await res.json();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      const data = await apiGet('/api/v1/banking/history', { companyId, limit: 50 });
       setHistory(Array.isArray(data) ? data : []);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
+      triggerToast("error", errorMessage);
       show({ title: 'Erreur chargement historique', variant: 'error' });
     }
   };
 
-  const bankBalance = transactions.reduce((sum, t) => t.status !== 'ignored' ? sum + t.amount : sum, 0);
-  const bookBalance = transactions.filter(t => t.status === 'reconciled').reduce((sum, t) => sum + t.amount, 0);
+  const bankBalance = transactions.reduce((sum: number, t: any) => t.status !== 'ignored' ? sum + t.amount : sum, 0);
+  const bookBalance = transactions.filter(t => t.status === 'reconciled').reduce((sum: number, t: any) => sum + t.amount, 0);
   const difference = Math.abs(bankBalance - bookBalance);
   const reconciledCount = transactions.filter(t => t.status === 'reconciled').length;
   const pendingCount = transactions.filter(t => t.status === 'pending').length;
@@ -685,6 +701,19 @@ export default function BankReconciliationPage() {
               <button onClick={() => setShowHistory(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Fermer</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
+            toast.type === "success" ? "bg-emerald-600 text-white" : 
+            toast.type === "error" ? "bg-rose-600 text-white" : 
+            "bg-blue-600 text-white"
+          }`}
+        >
+          {toast.message}
         </div>
       )}
     </div>

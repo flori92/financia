@@ -1,6 +1,7 @@
 "use client";
 // Trésorerie - MODE DYNAMIQUE avec API backend
-import { getBaseUrl } from "@/lib/api";
+import { apiGet, apiPost, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Plus, TrendingUp, TrendingDown, Wallet, AlertTriangle, Download, X, RefreshCw } from "lucide-react";
 
@@ -34,6 +35,12 @@ export default function TreasuryPage() {
   const [data, setData] = useState<TreasuryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
+
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 2600);
+  };
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
@@ -51,22 +58,12 @@ export default function TreasuryPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7";
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/treasury/summary?companyId=${companyId}`,
-        { 
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      const companyId = getCompanyId();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
       }
       
-      const apiData = await response.json();
+      const apiData = await apiGet('/api/v1/treasury/summary', { companyId });
       
       // Transformer les données API au format attendu
       const transformedData: TreasuryData = {
@@ -79,9 +76,17 @@ export default function TreasuryPage() {
       };
       
       setData(transformedData);
-    } catch (err) {
+      triggerToast("success", "Trésorerie chargée avec succès");
+    } catch (err: any) {
       console.error('Erreur chargement trésorerie:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+      setError(errorMessage);
+      triggerToast("error", errorMessage);
+      
+      // Gérer spécifiquement l'erreur 404 (endpoint non disponible)
+      if (err?.message?.includes('404') || err?.status === 404) {
+        triggerToast("info", "Endpoint trésorerie en cours de déploiement. Affichage des données de démonstration.");
+      }
       
       // En cas d'erreur, afficher des données de démonstration
       const mockAccounts: BankAccount[] = [
@@ -97,9 +102,9 @@ export default function TreasuryPage() {
         { date: "2025-02-10", inflow: 2200000, outflow: 2000000, balance: 16000000 }
       ];
       
-      const totalBalance = mockAccounts.reduce((sum, account) => sum + account.balance, 0);
-      const totalInflow = mockForecast.reduce((sum, item) => sum + item.inflow, 0);
-      const totalOutflow = mockForecast.reduce((sum, item) => sum + item.outflow, 0);
+      const totalBalance = mockAccounts.reduce((sum: number, account: BankAccount) => sum + account.balance, 0);
+      const totalInflow = mockForecast.reduce((sum: number, item: TreasuryForecast) => sum + item.inflow, 0);
+      const totalOutflow = mockForecast.reduce((sum: number, item: TreasuryForecast) => sum + item.outflow, 0);
       
       setData({
         accounts: mockAccounts,
@@ -463,6 +468,19 @@ export default function TreasuryPage() {
               Mode démonstration: {data.period}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
+            toast.type === "success" ? "bg-emerald-600 text-white" : 
+            toast.type === "error" ? "bg-rose-600 text-white" : 
+            "bg-blue-600 text-white"
+          }`}
+        >
+          {toast.message}
         </div>
       )}
     </div>
