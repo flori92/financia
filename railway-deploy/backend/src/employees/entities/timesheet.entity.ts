@@ -106,7 +106,7 @@ export class Timesheet {
   @JoinColumn({ name: 'approved_by_id' })
   approvedBy: User;
 
-  @OneToMany(() => TimesheetLine, (line) => line.timesheet, { cascade: true })
+  @OneToMany(() => TimesheetLine, (line: any) => line.timesheet, { cascade: true })
   lines: TimesheetLine[];
 
   // Métadonnées
@@ -146,5 +146,3 @@ export class Timesheet {
     }
   }
 }
-
-export { Timesheet };

@@ -374,5 +374,3 @@ export class DocumentVault {
     ].includes(this.mimeType);
   }
 }
-
-export { DocumentVault };

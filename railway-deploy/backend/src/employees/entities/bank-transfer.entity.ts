@@ -294,5 +294,3 @@ export class BankTransfer {
     return this.isMobileMoney;
   }
 }
-
-export { BankTransfer };

@@ -130,5 +130,3 @@ export class TimesheetLine {
     return `${this.workedHours}h`;
   }
 }
-
-export { TimesheetLine };
