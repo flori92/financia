@@ -48,7 +48,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userRepository.findOne({ 
       where: { email },
-      select: ['id', 'email', 'password', 'phone', 'firstName', 'lastName', 'isActive', 'role', 'companyId', 'uxLevel', 'createdAt', 'updatedAt', 'profiles', 'primaryProfile'] // Inclure password pour validation, exclure 'profile'
+      select: ['id', 'email', 'password'] // Sélection minimale pour validation
     });
 
     if (user && (await user.validatePassword(password))) {
@@ -71,9 +71,11 @@ export class AuthService {
 
   async login(user: any) {
     // Mettre à jour lastLoginAt
-    await this.userRepository.update(user.id, {
-      lastLoginAt: new Date(),
-    });
+    try {
+      await this.userRepository.update(user.id, {
+        lastLoginAt: new Date(),
+      });
+    } catch {}
 
     const tokens = await this.generateTokens(user);
 
@@ -97,7 +99,7 @@ export class AuthService {
       const payload = this.jwtService.verify(refreshToken);
       const user = await this.userRepository.findOne({
         where: { id: payload.sub },
-        select: ['id', 'email', 'phone', 'firstName', 'lastName', 'isActive', 'createdAt', 'updatedAt', 'profiles', 'primaryProfile', 'role', 'companyId'] // Exclure 'profile'
+        select: ['id', 'email', 'role', 'companyId'] // Sélection minimale sûre
       });
 
       if (!user) {
