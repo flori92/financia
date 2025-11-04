@@ -1,7 +1,7 @@
 # Dockerfile multi-stage pour l'API Gateway
 
 # Stage 1: Builder
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -32,13 +32,18 @@ RUN apk add --no-cache python3
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/server.js ./
 
 # Configuration des variables d'environnement
 ENV NODE_ENV=production \
     TZ=UTC
 
-# Exposition du port de l'application
-EXPOSE 3000
+# Exposition du port de l'application (Railway détecte automatiquement)
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # Commande de démarrage
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "server.js"]
