@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { Employee } from './employee.entity';
-import { TimesheetLine } from './timesheet-line.entity';
+// Import depuis l'index pour éviter les références circulaires
+import { Employee, TimesheetLine } from './index';
 import { User } from '../../auth/entities/user.entity';
 
 export enum TimesheetStatus {

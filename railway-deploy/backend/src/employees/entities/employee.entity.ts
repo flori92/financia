@@ -10,12 +10,8 @@ import {
 } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
 import { User } from '../../auth/entities/user.entity';
-import { Timesheet } from './timesheet.entity';
-import { TimesheetLine } from './timesheet-line.entity';
-import { LeaveRequest } from './leave-request.entity';
-import { PayrollRecord } from './payroll-record.entity';
-import { BankTransfer } from './bank-transfer.entity';
-import { DocumentVault } from './document-vault.entity';
+// Import depuis l'index pour éviter les références circulaires
+import { Timesheet, TimesheetLine, LeaveRequest, PayrollRecord, BankTransfer, DocumentVault } from './index';
 
 export enum EmployeeStatus {
   ACTIVE = 'active',
@@ -174,13 +170,13 @@ export class Employee {
   @ManyToOne(() => User, { nullable: true })
   user: User;
 
-  @OneToMany(() => Timesheet, (timesheet: any) => timesheet.employee)
+  @OneToMany(() => Timesheet, (timesheet) => timesheet.employee)
   timesheets: Timesheet[];
 
-  @OneToMany(() => LeaveRequest, (leaveRequest: any) => leaveRequest.employee)
+  @OneToMany(() => LeaveRequest, (leaveRequest) => leaveRequest.employee)
   leaveRequests: LeaveRequest[];
 
-  @OneToMany(() => PayrollRecord, (payrollRecord: any) => payrollRecord.employee)
+  @OneToMany(() => PayrollRecord, (payrollRecord) => payrollRecord.employee)
   payrollRecords: PayrollRecord[];
 
   // Métadonnées
