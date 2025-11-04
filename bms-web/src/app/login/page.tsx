@@ -14,7 +14,8 @@ import {
   Lock,
   ArrowRight,
   Shield,
-  AlertCircle
+  AlertCircle,
+  Receipt
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -46,6 +47,16 @@ export default function LoginPage() {
       hoverColor: "hover:bg-emerald-700",
       borderColor: "border-emerald-600",
       demoEmail: "entreprise@company.bj"
+    },
+    {
+      id: "administration_fiscal",
+      name: "Administration Fiscale",
+      description: "Déclarations fiscales et contrôles",
+      icon: Receipt,
+      color: "bg-amber-600",
+      hoverColor: "hover:bg-amber-700",
+      borderColor: "border-amber-600",
+      demoEmail: "fiscal@dgfi.bj"
     },
     {
       id: "admin",
@@ -118,6 +129,9 @@ export default function LoginPage() {
             break;
           case 'admin':
             redirectTo = '/admin';
+            break;
+          case 'administration_fiscal':
+            redirectTo = '/tax-admin';
             break;
           case 'hr_manager':
             redirectTo = '/hr';
