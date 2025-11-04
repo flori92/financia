@@ -32,9 +32,33 @@ export function useEffectiveCompanyId(): string | null {
     return selectedClientId;
   }
   
-  // Sinon utiliser l'ID de l'entreprise depuis authManager
-  const { user } = authManager.getState();
-  return user?.companyId || null;
+  // Sinon utiliser l'ID de l'entreprise depuis localStorage
+  if (typeof window !== 'undefined') {
+    // D'abord essayer company_id directement
+    const directCompanyId = localStorage.getItem('company_id');
+    if (directCompanyId) {
+      return directCompanyId;
+    }
+    
+    // Sinon essayer depuis user_data
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user?.companyId) {
+          return user.companyId;
+        }
+      } catch (e) {
+        // Ignore parse error
+      }
+    }
+    
+    // Fallback: essayer authManager
+    const { user } = authManager.getState();
+    return user?.companyId || null;
+  }
+  
+  return null;
 }
 
 /**

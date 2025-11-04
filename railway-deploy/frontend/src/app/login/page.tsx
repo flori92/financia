@@ -34,22 +34,51 @@ export default function LoginPage() {
       }
 
       if (typeof window !== "undefined") {
+        // Stocker le token JWT
         window.localStorage.setItem("bms_token", data.access_token);
         window.localStorage.setItem("user_email", email);
         window.localStorage.setItem("user_data", JSON.stringify(data.user || {}));
         
-        // Déterminer le rôle et la redirection
+        // Stocker le companyId (essentiel pour toutes les requêtes API)
+        const companyId = data.user?.companyId || "1805bc61-7cfd-44e9-8a63-17187bf05dc7";
+        window.localStorage.setItem("company_id", companyId);
+        
+        // Déterminer les rôles pour notre architecture multi-rôles
+        let roles: string[] = [];
+        let primaryRole = 'ROLE_EMPLOYEE';
         let redirectTo = '/dashboard';
+        
         if (email.includes('comptable') || email.includes('accountant')) {
-          window.localStorage.setItem("user_role", 'accountant');
-          redirectTo = '/accountant';
+          roles = ['ROLE_EMPLOYEE', 'ROLE_EXPERT_COMPTABLE', 'ROLE_FISCAL_ADMIN'];
+          primaryRole = 'ROLE_EXPERT_COMPTABLE';
+          redirectTo = '/expert-comptable';
+        } else if (email.includes('admin') && email.includes('dgi')) {
+          roles = ['ROLE_FISCAL_ADMIN'];
+          primaryRole = 'ROLE_FISCAL_ADMIN';
+          redirectTo = '/fiscal-admin';
         } else if (email.includes('admin')) {
-          window.localStorage.setItem("user_role", 'admin');
-          redirectTo = '/dashboard';
+          roles = ['ROLE_SUPER_ADMIN'];
+          primaryRole = 'ROLE_SUPER_ADMIN';
+          redirectTo = '/admin';
+        } else if (email.includes('manager')) {
+          roles = ['ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_FISCAL_ADMIN'];
+          primaryRole = 'ROLE_MANAGER';
+          redirectTo = '/manager-space';
+        } else if (email.includes('hr') || email.includes('rh')) {
+          roles = ['ROLE_EMPLOYEE', 'ROLE_HR'];
+          primaryRole = 'ROLE_HR';
+          redirectTo = '/hr-space';
         } else {
-          window.localStorage.setItem("user_role", 'entrepreneur');
-          redirectTo = '/dashboard';
+          // Entrepreneur par défaut
+          roles = ['ROLE_EMPLOYEE', 'ROLE_ENTREPRENEUR', 'ROLE_FISCAL_ADMIN'];
+          primaryRole = 'ROLE_ENTREPRENEUR';
+          redirectTo = '/entrepreneur';
         }
+        
+        // Stocker les rôles multiples (pour AuthGuard)
+        window.localStorage.setItem("bms_user_roles", JSON.stringify(roles));
+        window.localStorage.setItem("bms_user_role", primaryRole);
+        window.localStorage.setItem("user_role", primaryRole); // Compatibilité
         
         router.push(redirectTo);
       }

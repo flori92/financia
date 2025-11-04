@@ -91,6 +91,9 @@ function RoleDemoPage() {
     if (typeof window !== "undefined") {
       window.localStorage.setItem("bms_token", "demo_token_" + Date.now());
       
+      // Stocker un companyId de démo (ESSENTIEL pour les requêtes API)
+      window.localStorage.setItem("company_id", "1805bc61-7cfd-44e9-8a63-17187bf05dc7");
+      
       // Pour le Super Admin, simuler tous les rôles
       if (role === "ROLE_SUPER_ADMIN") {
         window.localStorage.setItem("bms_user_roles", JSON.stringify([
@@ -132,6 +135,7 @@ function RoleDemoPage() {
       window.localStorage.removeItem("bms_token");
       window.localStorage.removeItem("bms_user_roles");
       window.localStorage.removeItem("bms_user_role");
+      window.localStorage.removeItem("company_id");
     }
     setSelectedRole("");
   };
