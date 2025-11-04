@@ -10,7 +10,11 @@ import { ImportButton } from "@/components/shared/ImportButton";
 import { ExportButton } from "@/components/shared/ExportButton";
 import { apiGet, getCompanyId } from "@/lib/api";
 
-export default function JournalPage() {
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
+function JournalPageContent() {
+  const companyId = useCompanyId();
   const searchParams = useSearchParams();
   const [entries, setEntries] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -47,7 +51,7 @@ export default function JournalPage() {
 
   const loadData = async () => {
     try {
-      const companyId = getCompanyId();
+      const companyId = companyId;
       if (!companyId) {
         console.error("Aucune société sélectionnée");
         setEntries([]);
@@ -568,5 +572,13 @@ export default function JournalPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function JournalPage() {
+  return (
+    <ProtectedPage>
+      <JournalPageContent />
+    </ProtectedPage>
   );
 }

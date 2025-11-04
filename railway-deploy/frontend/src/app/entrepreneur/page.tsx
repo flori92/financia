@@ -9,6 +9,9 @@ import { formatCurrency } from "@/lib/format-utils";
 import { useEffectiveCompanyId, useSelectedClientName, isExpertClientMode } from '@/hooks/useCompanyId';
 import { usePermissions } from '@/hooks/usePermissions';
 
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface EntrepreneurData {
   kpiMonth: {
     revenue: number;
@@ -56,7 +59,8 @@ interface EntrepreneurData {
   }>;
 }
 
-export default function EntrepreneurDashboard() {
+function EntrepreneurDashboardContent() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<EntrepreneurData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -348,5 +352,14 @@ export default function EntrepreneurDashboard() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+
+export default function EntrepreneurDashboard() {
+  return (
+    <ProtectedPage>
+      <EntrepreneurDashboardContent />
+    </ProtectedPage>
   );
 }

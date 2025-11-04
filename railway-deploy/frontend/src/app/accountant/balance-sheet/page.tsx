@@ -5,6 +5,9 @@ import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, RefreshCw, AlertCircle, Scale } from "lucide-react";
 
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface BalanceSheetItem {
   name: string;
   amount: number;
@@ -20,7 +23,8 @@ interface BalanceSheetData {
   period: string;
 }
 
-export default function BalanceSheetPage() {
+function BalanceSheetPageContent() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<BalanceSheetData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,7 @@ export default function BalanceSheetPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = getCompanyId();
+      const companyId = companyId;
       if (!companyId) {
         throw new Error('Aucune société sélectionnée');
       }
@@ -281,5 +285,13 @@ export default function BalanceSheetPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function BalanceSheetPage() {
+  return (
+    <ProtectedPage>
+      <BalanceSheetPageContent />
+    </ProtectedPage>
   );
 }

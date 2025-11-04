@@ -5,6 +5,9 @@ import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { UserCog, Plus, Mail, Shield, Edit, Trash2, RefreshCw, AlertTriangle } from "lucide-react";
 
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface User {
   id: string;
   name: string;
@@ -29,7 +32,7 @@ const ROLES = [
   { value: "user", label: "Utilisateur", color: "bg-gray-100 text-gray-700" },
 ];
 
-export default function UsersPage() {
+function UsersPageContent() {
   const companyId = useCompanyId();
   const [data, setData] = useState<UsersData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -397,5 +400,14 @@ export default function UsersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+
+export default function UsersPage() {
+  return (
+    <ProtectedPage>
+      <UsersPageContent />
+    </ProtectedPage>
   );
 }

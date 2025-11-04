@@ -7,6 +7,9 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
 import { useCompanyId } from '@/hooks/useCompanyId';
 
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface Account {
   code: string;
   name: string;
@@ -15,7 +18,7 @@ interface Account {
   balance?: number;
 }
 
-export default function ChartOfAccountsPage() {
+function ChartOfAccountsPageContent() {
   const companyId = useCompanyId();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -370,5 +373,13 @@ export default function ChartOfAccountsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ChartOfAccountsPage() {
+  return (
+    <ProtectedPage>
+      <ChartOfAccountsPageContent />
+    </ProtectedPage>
   );
 }

@@ -6,7 +6,11 @@ import { useState, useEffect } from "react";
 import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, Link2, X, Filter, FileDown, FileUp } from "lucide-react";
 import { useToast } from "@/components/providers/ToastProvider";
 
-export default function BankReconciliationPage() {
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
+function BankReconciliationPageContent() {
+  const companyId = useCompanyId();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -20,7 +24,7 @@ export default function BankReconciliationPage() {
     setTimeout(() => setToast(null), 2600);
   };
   const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
-  const companyId = getCompanyId();
+  const companyId = companyId;
   const { show } = useToast();
   const [matching, setMatching] = useState(false);
   const [threshold, setThreshold] = useState<number>(0.8);
@@ -710,4 +714,12 @@ export default function BankReconciliationPage() {
       )}
     </div>
   )
+}
+
+export default function BankReconciliationPage() {
+  return (
+    <ProtectedPage>
+      <BankReconciliationPageContent />
+    </ProtectedPage>
+  );
 }

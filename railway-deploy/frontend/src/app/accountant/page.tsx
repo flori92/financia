@@ -1,22 +1,24 @@
 "use client";
 import { useState, useEffect } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
+import { apiGet } from "@/lib/api";
 import { api } from "@/lib/api-service";
 import { formatCurrency } from "@/lib/format-utils";
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock, FileText } from "lucide-react";
 
-export default function AccountantDashboardPage() {
+function AccountantDashboardContent() {
+  const companyId = useCompanyId();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadDashboard() {
-    const cid = getCompanyId();
-    if (!cid) { setError('Aucune société sélectionnée'); setLoading(false); return; }
+    if (!companyId) { setError('Aucune société sélectionnée'); setLoading(false); return; }
     
     setLoading(true);
     try {
-      const metrics = await api.getDashboardMetrics(cid);
+      const metrics = await api.getDashboardMetrics(companyId);
       setData(metrics);
       setError(null);
     } catch (e: any) {
@@ -317,5 +319,13 @@ export default function AccountantDashboardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AccountantDashboardPage() {
+  return (
+    <ProtectedPage>
+      <AccountantDashboardContent />
+    </ProtectedPage>
   );
 }

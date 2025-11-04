@@ -5,6 +5,9 @@ import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, RefreshCw, AlertCircle } from "lucide-react";
 
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface ProfitLossItem {
   name: string;
   amount: number;
@@ -20,7 +23,8 @@ interface ProfitLossData {
   period: string;
 }
 
-export default function ProfitLossPage() {
+function ProfitLossPageContent() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<ProfitLossData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,7 @@ export default function ProfitLossPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = getCompanyId();
+      const companyId = companyId;
       if (!companyId) {
         throw new Error('Aucune société sélectionnée');
       }
@@ -262,5 +266,13 @@ export default function ProfitLossPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProfitLossPage() {
+  return (
+    <ProtectedPage>
+      <ProfitLossPageContent />
+    </ProtectedPage>
   );
 }

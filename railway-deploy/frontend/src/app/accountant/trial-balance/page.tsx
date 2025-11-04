@@ -6,6 +6,9 @@ import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Download, Printer, Calendar, RefreshCw, AlertCircle } from "lucide-react";
 
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface TrialBalanceItem {
   account: string;
   name: string;
@@ -24,7 +27,8 @@ interface TrialBalanceData {
   period: string;
 }
 
-export default function TrialBalancePage() {
+function TrialBalancePageContent() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<TrialBalanceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +47,7 @@ export default function TrialBalancePage() {
       setLoading(true);
       setError(null);
       
-      const companyId = getCompanyId();
+      const companyId = companyId;
       if (!companyId) {
         throw new Error('Aucune société sélectionnée');
       }
@@ -401,5 +405,13 @@ export default function TrialBalancePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TrialBalancePage() {
+  return (
+    <ProtectedPage>
+      <TrialBalancePageContent />
+    </ProtectedPage>
   );
 }

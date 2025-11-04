@@ -95,4 +95,5 @@ export function withSecurePage<P extends object>(
   };
 }
 
+export { SecurePage };
 export default SecurePage;

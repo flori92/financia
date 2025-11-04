@@ -7,7 +7,10 @@ import { useCompanyId } from "@/hooks/useCompanyId";
 import { useState } from "react";
 import { Download, Upload, Send, Calculator, FileText, X, Info } from "lucide-react";
 
-export default function VATPage() {
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
+function VATPageContent() {
   const companyId = useCompanyId();
   const [vatData] = useState({
     period: "2025-01",
@@ -374,5 +377,13 @@ export default function VATPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function VATPage() {
+  return (
+    <ProtectedPage>
+      <VATPageContent />
+    </ProtectedPage>
   );
 }

@@ -6,6 +6,9 @@ import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { Search, Filter, Download, Calendar, RefreshCw, AlertTriangle } from "lucide-react";
 
+
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface LedgerEntry {
   date: string;
   account: string;
@@ -24,7 +27,7 @@ interface GeneralLedgerData {
   isBalanced: boolean;
 }
 
-export default function GeneralLedgerPage() {
+function GeneralLedgerPageContent() {
   const companyId = useCompanyId();
   const [data, setData] = useState<GeneralLedgerData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -386,5 +389,13 @@ export default function GeneralLedgerPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function GeneralLedgerPage() {
+  return (
+    <ProtectedPage>
+      <GeneralLedgerPageContent />
+    </ProtectedPage>
   );
 }
