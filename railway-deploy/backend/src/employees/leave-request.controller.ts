@@ -42,7 +42,7 @@ export class LeaveRequestController {
   }
 
   @Get()
-  @Roles('admin', 'hr_manager', 'accountant', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Lister les demandes de congé' })
   @ApiResponse({ status: 200, description: 'Liste des demandes de congé' })
   @ApiQuery({ name: 'employeeId', required: false })
@@ -79,7 +79,7 @@ export class LeaveRequestController {
   }
 
   @Get('stats')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Obtenir les statistiques des congés' })
   @ApiResponse({ status: 200, description: 'Statistiques des congés' })
   @ApiQuery({ name: 'year', required: false, type: Number })
@@ -91,7 +91,7 @@ export class LeaveRequestController {
   }
 
   @Get('pending-approval')
-  @Roles('admin', 'hr_manager', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER)
   @ApiOperation({ summary: 'Lister les demandes en attente de validation' })
   @ApiResponse({ status: 200, description: 'Demandes en attente de validation' })
   @ApiQuery({ name: 'role', required: false, enum: ['manager', 'hr'] })
@@ -103,7 +103,7 @@ export class LeaveRequestController {
   }
 
   @Get(':id')
-  @Roles('admin', 'hr_manager', 'accountant', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Obtenir les détails d\'une demande de congé' })
   @ApiResponse({ status: 200, description: 'Détails de la demande de congé', type: LeaveRequest })
   @ApiResponse({ status: 404, description: 'Demande de congé non trouvée' })
@@ -166,7 +166,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id/approve')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Approuver directement une demande de congé' })
   @ApiResponse({ status: 200, description: 'Demande de congé approuvée avec succès' })
   @ApiResponse({ status: 400, description: 'Demande ne peut pas être approuvée' })
@@ -180,7 +180,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id/approve-by-manager')
-  @Roles('admin', 'hr_manager', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER)
   @ApiOperation({ summary: 'Approuver une demande de congé (Manager)' })
   @ApiResponse({ status: 200, description: 'Demande de congé approuvée par le manager' })
   @ApiResponse({ status: 400, description: 'Demande ne peut pas être approuvée par le manager' })
@@ -194,7 +194,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id/approve-by-hr')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Approuver une demande de congé (RH)' })
   @ApiResponse({ status: 200, description: 'Demande de congé approuvée par les RH' })
   @ApiResponse({ status: 400, description: 'Demande ne peut pas être approuvée par les RH' })
@@ -208,7 +208,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id/reject')
-  @Roles('admin', 'hr_manager', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER)
   @ApiOperation({ summary: 'Rejeter une demande de congé' })
   @ApiResponse({ status: 200, description: 'Demande de congé rejetée avec succès' })
   @ApiResponse({ status: 400, description: 'Demande ne peut pas être rejetée' })
@@ -248,7 +248,7 @@ export class LeaveRequestController {
   }
 
   @Patch(':id/process')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Marquer une demande de congé comme traitée' })
   @ApiResponse({ status: 200, description: 'Demande de congé traitée avec succès' })
   @ApiResponse({ status: 400, description: 'Demande ne peut pas être traitée' })

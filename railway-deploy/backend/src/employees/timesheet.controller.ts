@@ -42,7 +42,7 @@ export class TimesheetController {
   }
 
   @Get()
-  @Roles('admin', 'hr_manager', 'accountant', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Lister les CRA' })
   @ApiResponse({ status: 200, description: 'Liste des CRA' })
   @ApiQuery({ name: 'employeeId', required: false })
@@ -76,7 +76,7 @@ export class TimesheetController {
   }
 
   @Get('stats')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Obtenir les statistiques des CRA' })
   @ApiResponse({ status: 200, description: 'Statistiques des CRA' })
   @ApiQuery({ name: 'startDate', required: false })
@@ -91,7 +91,7 @@ export class TimesheetController {
   }
 
   @Get('pending-approval')
-  @Roles('admin', 'hr_manager', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER)
   @ApiOperation({ summary: 'Lister les CRA en attente de validation' })
   @ApiResponse({ status: 200, description: 'CRA en attente de validation' })
   async findPendingApproval(@Request() req: any): Promise<Timesheet[]> {
@@ -99,7 +99,7 @@ export class TimesheetController {
   }
 
   @Get(':id')
-  @Roles('admin', 'hr_manager', 'accountant', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Obtenir les détails d\'un CRA' })
   @ApiResponse({ status: 200, description: 'Détails du CRA', type: Timesheet })
   @ApiResponse({ status: 404, description: 'CRA non trouvé' })
@@ -162,7 +162,7 @@ export class TimesheetController {
   }
 
   @Patch(':id/approve')
-  @Roles('admin', 'hr_manager', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER)
   @ApiOperation({ summary: 'Approuver un CRA' })
   @ApiResponse({ status: 200, description: 'CRA approuvé avec succès' })
   @ApiResponse({ status: 400, description: 'CRA ne peut pas être approuvé' })
@@ -176,7 +176,7 @@ export class TimesheetController {
   }
 
   @Patch(':id/reject')
-  @Roles('admin', 'hr_manager', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER)
   @ApiOperation({ summary: 'Rejeter un CRA' })
   @ApiResponse({ status: 200, description: 'CRA rejeté avec succès' })
   @ApiResponse({ status: 400, description: 'CRA ne peut pas être rejeté' })
@@ -190,7 +190,7 @@ export class TimesheetController {
   }
 
   @Patch(':id/process')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Marquer un CRA comme traité (intégré en paie)' })
   @ApiResponse({ status: 200, description: 'CRA traité avec succès' })
   @ApiResponse({ status: 400, description: 'CRA ne peut pas être traité' })
