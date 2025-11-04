@@ -85,6 +85,28 @@ app.post('/api/v1/auth/login', (req, res) => {
 });
 
 // Treasury endpoints
+// Treasury Summary endpoint
+app.get('/api/v1/treasury/summary', (req, res) => {
+  const { companyId } = req.query;
+  res.json({
+    accounts: [
+      { id: "1", name: "Compte Principal BNI", bank: "BNI", balance: 15000000, currency: "FCFA", status: "Connecté", lastUpdated: "2025-01-19" },
+      { id: "2", name: "Compte USD", bank: "Ecobank", balance: 25000, currency: "USD", status: "Connecté", lastUpdated: "2025-01-19" },
+      { id: "3", name: "Compte Épargne", bank: "BOA", balance: 5000000, currency: "FCFA", status: "Manuel", lastUpdated: "2025-01-18" }
+    ],
+    forecast: [
+      { date: "2025-01-20", inflow: 2000000, outflow: 1500000, balance: 15500000 },
+      { date: "2025-01-27", inflow: 1800000, outflow: 2200000, balance: 15100000 },
+      { date: "2025-02-03", inflow: 2500000, outflow: 1800000, balance: 15800000 },
+      { date: "2025-02-10", inflow: 2200000, outflow: 2000000, balance: 16000000 }
+    ],
+    totalBalance: 20025000,
+    totalInflow: 8500000,
+    totalOutflow: 7500000,
+    period: 'Trésorerie actuelle'
+  });
+});
+
 app.get('/api/v1/treasury/forecast', (req, res) => {
   const { companyId } = req.query;
   res.json({
@@ -1272,6 +1294,22 @@ app.get('/api/v1/mobile-money/stats', (req, res) => {
 });
 
 // Budget endpoints
+app.get('/api/v1/budget/summary', (req, res) => {
+  const { companyId } = req.query;
+  res.json({
+    totalBudget: 50000000,
+    totalSpent: 32000000,
+    totalRemaining: 18000000,
+    categories: [
+      { id: "1", name: "Personnel", budget: 20000000, spent: 15000000, remaining: 5000000 },
+      { id: "2", name: "Marketing", budget: 10000000, spent: 6000000, remaining: 4000000 },
+      { id: "3", name: "Operations", budget: 15000000, spent: 9000000, remaining: 6000000 },
+      { id: "4", name: "IT", budget: 5000000, spent: 2000000, remaining: 3000000 }
+    ],
+    period: 'Budget 2025'
+  });
+});
+
 app.get('/api/v1/budget/revisions', (req, res) => {
   res.json([
     {
