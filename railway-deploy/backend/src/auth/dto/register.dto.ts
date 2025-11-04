@@ -7,6 +7,7 @@ import {
   IsPhoneNumber,
   IsIn,
 } from 'class-validator';
+import { UserProfile } from '../guards/user-profiles';
 
 export class RegisterDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -40,4 +41,13 @@ export class RegisterDto {
   @IsOptional()
   @IsIn(['simple', 'intermediate', 'expert'])
   uxLevel?: 'simple' | 'intermediate' | 'expert';
+
+  @ApiProperty({ 
+    example: 'entrepreneur', 
+    enum: UserProfile,
+    default: UserProfile.ENTREPRENEUR 
+  })
+  @IsOptional()
+  @IsIn(Object.values(UserProfile))
+  profile?: UserProfile;
 }

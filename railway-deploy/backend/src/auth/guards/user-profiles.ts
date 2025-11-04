@@ -434,7 +434,9 @@ export const getPortalByRole = (role: UserRole): string => {
     [UserRole.ACCOUNTANT]: PORTAL_ROUTES[UserProfile.ACCOUNTANT],
     [UserRole.MANAGER]: PORTAL_ROUTES[UserProfile.MANAGER],
     [UserRole.EMPLOYEE]: PORTAL_ROUTES[UserProfile.EMPLOYEE],
-    [UserRole.USER]: PORTAL_ROUTES[UserProfile.ENTREPRENEUR] // Default
+    [UserRole.USER]: PORTAL_ROUTES[UserProfile.ENTREPRENEUR], // Default
+    [UserRole.EXPERT_COMPTABLE]: PORTAL_ROUTES[UserProfile.EXPERT_COMPTABLE], // ✅ AJOUTER
+    [UserRole.BANQUE]: PORTAL_ROUTES[UserProfile.BANQUE], // ✅ AJOUTER
   };
   
   return roleToPortal[role] || PORTAL_ROUTES[UserProfile.ENTREPRENEUR];
@@ -448,7 +450,9 @@ export const getModulesByRole = (role: UserRole): string[] => {
     [UserRole.ACCOUNTANT]: UserProfile.ACCOUNTANT,
     [UserRole.MANAGER]: UserProfile.MANAGER,
     [UserRole.EMPLOYEE]: UserProfile.EMPLOYEE,
-    [UserRole.USER]: UserProfile.ENTREPRENEUR
+    [UserRole.USER]: UserProfile.ENTREPRENEUR,
+    [UserRole.EXPERT_COMPTABLE]: UserProfile.EXPERT_COMPTABLE, // ✅ AJOUTER
+    [UserRole.BANQUE]: UserProfile.BANQUE,                     // ✅ AJOUTER
   };
   
   const profile = roleToProfile[role] || UserProfile.ENTREPRENEUR;

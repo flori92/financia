@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
+import { UserProfile } from './guards/user-profiles';
 
 @Injectable()
 export class AuthService {
@@ -26,8 +27,7 @@ export class AuthService {
     // Créer l'utilisateur (le mot de passe sera hashé automatiquement)
     const user = this.userRepository.create({
       ...registerDto,
-      uxLevel: registerDto.uxLevel || 'simple',
-      countryCode: registerDto.countryCode || 'BJ',
+      profile: registerDto.profile || UserProfile.ENTREPRENEUR, // ✅ Profile par défaut
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -99,7 +99,7 @@ export class AuthService {
       sub: user.id,
       role: user.role,
       companyId: user.companyId,
-      uxLevel: user.uxLevel,
+      profile: user.profile, // ✅ AJOUTER profile
     };
 
     return {

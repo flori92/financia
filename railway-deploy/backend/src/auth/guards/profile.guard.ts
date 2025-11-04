@@ -27,20 +27,8 @@ export class ProfileGuard implements CanActivate {
       throw new ForbiddenException('Utilisateur non authentifié');
     }
 
-    // Vérifier si l'utilisateur a un des profils requis
-    const hasProfile = requiredProfiles.some((profile) => {
-      // Vérifier le profil principal de l'utilisateur
-      if (user.profile === profile) return true;
-      
-      // Vérifier les modules autorisés pour le rôle de l'utilisateur
-      const userModules = getModulesByRole(user.role);
-      const profileModules = requiredProfiles.flatMap(p => 
-        p === UserProfile.ADMIN ? ['*'] : [] // Admin a accès à tout
-      );
-      
-      return profileModules.includes('*') || 
-             profileModules.some(module => userModules.includes(module));
-    });
+    // ✅ LOGIQUE CORRECTE - Vérifier le profil principal de l'utilisateur
+    const hasProfile = requiredProfiles.includes(user.profile);
 
     if (!hasProfile) {
       throw new ForbiddenException(

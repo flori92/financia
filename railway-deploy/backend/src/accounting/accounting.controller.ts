@@ -29,12 +29,19 @@ import { JournalEntry } from './entities/journal-entry.entity';
 import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { CompanyId } from '../common/decorators/company-id.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { ProfileGuard } from '../auth/guards/profile.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Profiles } from '../auth/decorators/profile.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
+import { UserProfile } from '../auth/guards/user-profiles';
 
 /**
  * Contrôleur pour la gestion comptable OHADA
  */
 @ApiTags('Accounting (OHADA)')
 @Controller('accounting')
+@UseGuards(JwtAuthGuard, RolesGuard, ProfileGuard)
 export class AccountingController {
   constructor(
     private readonly accountingService: AccountingService,
@@ -163,6 +170,8 @@ export class AccountingController {
 
   @Delete('accounts/:id')
   @RequirePermissions('accounting:delete')
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Supprimer un compte' })
   @ApiResponse({ status: 204, description: 'Compte supprimé' })

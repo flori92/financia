@@ -16,16 +16,20 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { Employee, EmployeeStatus, ContractType } from './entities/employee.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { ProfileGuard } from '../auth/guards/profile.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Profiles } from '../auth/decorators/profile.decorator';
 import { UserRole } from '../auth/guards/roles.guard';
+import { UserProfile } from '../auth/guards/user-profiles';
 
 @ApiTags('Employees')
 @Controller('employees')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, ProfileGuard)
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Post()
+  @Profiles(UserProfile.HR_MANAGER, UserProfile.ACCOUNTANT)
   @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Créer un nouvel employé' })
   @ApiResponse({ status: 201, description: 'Employé créé avec succès', type: Employee })
@@ -39,6 +43,7 @@ export class EmployeeController {
   }
 
   @Get()
+  @Profiles(UserProfile.HR_MANAGER, UserProfile.MANAGER, UserProfile.ACCOUNTANT)
   @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER)
   @ApiOperation({ summary: 'Lister tous les employés' })
   @ApiResponse({ status: 200, description: 'Liste des employés' })

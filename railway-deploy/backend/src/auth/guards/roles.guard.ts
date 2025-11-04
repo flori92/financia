@@ -10,6 +10,8 @@ export enum UserRole {
   HR_MANAGER = 'hr_manager',
   MANAGER = 'manager',
   EMPLOYEE = 'employee',
+  EXPERT_COMPTABLE = 'expert_comptable',  // ✅ AJOUTER
+  BANQUE = 'banque',                      // ✅ AJOUTER
 }
 
 export const ROLES_KEY = 'roles';

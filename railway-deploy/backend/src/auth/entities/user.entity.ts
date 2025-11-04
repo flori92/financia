@@ -44,6 +44,9 @@ export class User {
   @Column({ default: 'user' })
   role: string; // Kept for backward compatibility
 
+  @Column({ nullable: true, name: 'profile' })
+  profile: string; // ✅ AJOUTER profile pour nouvelle architecture
+
   @ManyToMany(() => Role, { eager: true })
   @JoinTable({
     name: 'user_roles',
