@@ -8,9 +8,11 @@ import { PayrollRecord } from './entities/payroll-record.entity';
 import { EmployeeService } from './services/employee.service';
 import { TimesheetService } from './services/timesheet.service';
 import { LeaveRequestService } from './services/leave-request.service';
+import { PayrollService } from './services/payroll.service';
 import { EmployeeController } from './employee.controller';
 import { TimesheetController } from './timesheet.controller';
 import { LeaveRequestController } from './leave-request.controller';
+import { PayrollController } from './payroll.controller';
 import { Company } from '../companies/entities/company.entity';
 import { User } from '../auth/entities/user.entity';
 
@@ -26,8 +28,8 @@ import { User } from '../auth/entities/user.entity';
       User,
     ]),
   ],
-  controllers: [EmployeeController, TimesheetController, LeaveRequestController],
-  providers: [EmployeeService, TimesheetService, LeaveRequestService],
-  exports: [EmployeeService, TimesheetService, LeaveRequestService],
+  controllers: [EmployeeController, TimesheetController, LeaveRequestController, PayrollController],
+  providers: [EmployeeService, TimesheetService, LeaveRequestService, PayrollService],
+  exports: [EmployeeService, TimesheetService, LeaveRequestService, PayrollService],
 })
 export class EmployeeModule {}
