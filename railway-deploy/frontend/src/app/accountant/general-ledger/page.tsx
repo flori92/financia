@@ -62,13 +62,28 @@ export default function GeneralLedgerPage() {
       
       const apiData = await response.json();
       
+      // L'API retourne directement un tableau d'entrées
+      const entries = Array.isArray(apiData) ? apiData : (apiData.entries || []);
+      
+      // Calculer les totaux
+      const totalDebit = entries.reduce((sum, entry) => sum + (entry.debit || 0), 0);
+      const totalCredit = entries.reduce((sum, entry) => sum + (entry.credit || 0), 0);
+      
       // Transformer les données API au format attendu
       const transformedData: GeneralLedgerData = {
-        entries: apiData.entries || [],
-        totalDebit: apiData.totalDebit || 0,
-        totalCredit: apiData.totalCredit || 0,
-        period: apiData.period || `Du ${new Date(startDate).toLocaleDateString('fr-FR')} au ${new Date(endDate).toLocaleDateString('fr-FR')}`,
-        isBalanced: apiData.isBalanced || false
+        entries: entries.map(entry => ({
+          date: entry.date,
+          account: entry.account,
+          description: entry.description,
+          debit: entry.debit || 0,
+          credit: entry.credit || 0,
+          balance: entry.balance || 0,
+          entryNumber: entry.entryNumber || entry.id || 'EC' + entry.id
+        })),
+        totalDebit,
+        totalCredit,
+        period: `Du ${new Date(startDate).toLocaleDateString('fr-FR')} au ${new Date(endDate).toLocaleDateString('fr-FR')}`,
+        isBalanced: totalDebit === totalCredit
       };
       
       setData(transformedData);
@@ -125,7 +140,7 @@ export default function GeneralLedgerPage() {
         metadata: {
           date: new Date().toLocaleDateString('fr-FR'),
           company: 'BMS Business Management System',
-          period: selectedAccount ? `Compte ${selectedAccount}` : 'Tous les comptes',
+          period: 'Tous les comptes',
           author: 'Service Comptabilité'
         }
       };
@@ -154,11 +169,11 @@ export default function GeneralLedgerPage() {
   }, [startDate, endDate]);
 
   // Filtrer les entrées par recherche
-  const filteredEntries = data?.entries.filter(entry => 
+  const filteredEntries = (data?.entries && Array.isArray(data.entries) ? data.entries.filter(entry => 
     entry.account.toLowerCase().includes(searchTerm.toLowerCase()) ||
     entry.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     entry.entryNumber.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  ) : []);
 
   // État de chargement
   if (loading) {
