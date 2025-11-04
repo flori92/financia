@@ -84,7 +84,7 @@ import { AppController } from './app.controller';
             password: url.password,
             database: url.pathname.substring(1), // Enlever le /
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: false, // ⚠️ DÉSACTIVÉ en production - utiliser les migrations
+            synchronize: true, // ⚠️ TEMPORAIREMENT ACTIVÉ pour créer les colonnes profiles/primaryProfile
             logging: config.get('NODE_ENV') === 'development',
           };
         }
@@ -98,7 +98,7 @@ import { AppController } from './app.controller';
           password: config.get('DATABASE_PASSWORD') || config.get('DB_PASSWORD') || 'postgres',
           database: config.get('DATABASE_NAME') || config.get('DB_NAME') || 'bms',
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: false, // ⚠️ DÉSACTIVÉ en production - utiliser les migrations
+          synchronize: true, // ⚠️ TEMPORAIREMENT ACTIVÉ pour créer les colonnes profiles/primaryProfile
           logging: config.get('NODE_ENV') === 'development',
         };
       },
