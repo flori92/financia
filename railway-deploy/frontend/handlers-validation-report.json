@@ -1,0 +1,325 @@
+{
+  "date": "2025-11-04T17:01:52.002Z",
+  "summary": {
+    "totalPages": 102,
+    "totalHandlers": 123,
+    "totalApiCalls": 117,
+    "totalIssues": 49,
+    "globalHealth": "❌ NÉCESSITE TRAVAIL"
+  },
+  "modules": {
+    "accountant": {
+      "pages": 20,
+      "totalHandlers": 23,
+      "totalApiCalls": 30,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API",
+        "onClick sans handler fonctionnel",
+        "onClick sans handler fonctionnel",
+        "onClick sans handler fonctionnel",
+        "Handlers sans appels API",
+        "onClick sans handler fonctionnel",
+        "Handlers sans appels API",
+        "onClick sans handler fonctionnel",
+        "Handlers sans appels API",
+        "Handlers sans gestion d'erreurs",
+        "onClick sans handler fonctionnel",
+        "onClick sans handler fonctionnel",
+        "Handlers sans appels API",
+        "onClick sans handler fonctionnel",
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "accountant-modern": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 1,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "ai": {
+      "pages": 3,
+      "totalHandlers": 18,
+      "totalApiCalls": 6,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API",
+        "Handlers sans appels API"
+      ]
+    },
+    "api-test": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 1,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "bank-partner": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "budget": {
+      "pages": 4,
+      "totalHandlers": 1,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API"
+      ]
+    },
+    "communications": {
+      "pages": 4,
+      "totalHandlers": 1,
+      "totalApiCalls": 12,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel",
+        "onClick sans handler fonctionnel",
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "crm": {
+      "pages": 7,
+      "totalHandlers": 9,
+      "totalApiCalls": 4,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API",
+        "Handlers sans appels API",
+        "Handlers sans appels API"
+      ]
+    },
+    "dashboard": {
+      "pages": 3,
+      "totalHandlers": 1,
+      "totalApiCalls": 3,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel",
+        "Handlers sans appels API"
+      ]
+    },
+    "demo": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "demo-simple": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "entrepreneur": {
+      "pages": 2,
+      "totalHandlers": 3,
+      "totalApiCalls": 2,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API"
+      ]
+    },
+    "expert": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 2,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "financial-analysis": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "formalization": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 6,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "hr": {
+      "pages": 6,
+      "totalHandlers": 13,
+      "totalApiCalls": 4,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API",
+        "Handlers sans appels API"
+      ]
+    },
+    "inventory": {
+      "pages": 1,
+      "totalHandlers": 5,
+      "totalApiCalls": 0,
+      "functionalButtons": 9,
+      "issues": [
+        "Handlers sans appels API"
+      ]
+    },
+    "invoices": {
+      "pages": 3,
+      "totalHandlers": 11,
+      "totalApiCalls": 5,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "learning": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "login": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "manufacturing": {
+      "pages": 4,
+      "totalHandlers": 1,
+      "totalApiCalls": 2,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API"
+      ]
+    },
+    "marketing": {
+      "pages": 2,
+      "totalHandlers": 0,
+      "totalApiCalls": 1,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "nif": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 1,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "page.tsx": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "projects": {
+      "pages": 1,
+      "totalHandlers": 5,
+      "totalApiCalls": 2,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "purchases": {
+      "pages": 7,
+      "totalHandlers": 6,
+      "totalApiCalls": 4,
+      "functionalButtons": 7,
+      "issues": [
+        "Handlers sans appels API",
+        "Handlers sans appels API"
+      ]
+    },
+    "receivables-payables": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "sales": {
+      "pages": 6,
+      "totalHandlers": 16,
+      "totalApiCalls": 13,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API"
+      ]
+    },
+    "settings": {
+      "pages": 6,
+      "totalHandlers": 9,
+      "totalApiCalls": 5,
+      "functionalButtons": 0,
+      "issues": [
+        "Handlers sans appels API",
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "support": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 1,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "tax": {
+      "pages": 4,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "tax-admin": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 0,
+      "functionalButtons": 0,
+      "issues": []
+    },
+    "transactions": {
+      "pages": 1,
+      "totalHandlers": 0,
+      "totalApiCalls": 8,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel"
+      ]
+    },
+    "treasury": {
+      "pages": 3,
+      "totalHandlers": 1,
+      "totalApiCalls": 4,
+      "functionalButtons": 0,
+      "issues": [
+        "onClick sans handler fonctionnel",
+        "onClick sans handler fonctionnel"
+      ]
+    }
+  },
+  "criticalPages": []
+}

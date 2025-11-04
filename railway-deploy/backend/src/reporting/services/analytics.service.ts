@@ -1,102 +1,197 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Invoice } from '../../invoices/entities/invoice.entity';
+import { Product } from '../../inventory/entities/product.entity';
+import { PurchaseOrder } from '../../purchases/entities/purchase-order.entity';
 
 @Injectable()
 export class AnalyticsService {
+  constructor(
+    @InjectRepository(Invoice) private invoiceRepo: Repository<Invoice>,
+    @InjectRepository(Product) private productRepo: Repository<Product>,
+    @InjectRepository(PurchaseOrder) private purchaseOrderRepo: Repository<PurchaseOrder>,
+  ) {}
+
   async getRevenueAnalytics(companyId: string, period: string) {
-    // Implémentation basique pour l'analytics des revenus
+    // Analyse des revenus basée sur les factures réelles
+    const startDate = this.getStartDate(period);
+    
+    const revenueData = await this.invoiceRepo
+      .createQueryBuilder('invoice')
+      .select([
+        'DATE(invoice.createdAt) as date',
+        'SUM(invoice.totalAmount) as revenue',
+        'COUNT(invoice.id) as invoiceCount'
+      ])
+      .where('invoice.companyId = :companyId', { companyId })
+      .andWhere('invoice.invoiceType = :type', { type: 'sale' })
+      .andWhere('invoice.createdAt >= :startDate', { startDate })
+      .andWhere('invoice.status = :status', { status: 'paid' })
+      .groupBy('DATE(invoice.createdAt)')
+      .orderBy('DATE(invoice.createdAt)', 'ASC')
+      .getRawMany();
+
+    const totalRevenue = revenueData.reduce((sum, day) => sum + Number(day.revenue), 0);
+    const totalInvoices = revenueData.reduce((sum, day) => sum + Number(day.invoiceCount), 0);
+    
     return { 
-      data: [
-        { month: 'Jan', revenue: 10000 },
-        { month: 'Feb', revenue: 12000 },
-        { month: 'Mar', revenue: 11000 }
-      ], 
-      total: 33000,
-      growth: 10
+      period,
+      totalRevenue,
+      totalInvoices,
+      averageInvoiceValue: totalInvoices > 0 ? totalRevenue / totalInvoices : 0,
+      dailyData: revenueData.map(day => ({
+        date: day.date,
+        revenue: Number(day.revenue),
+        invoiceCount: Number(day.invoiceCount)
+      }))
     };
   }
 
   async getExpenseAnalytics(companyId: string, period: string) {
-    // Implémentation basique pour l'analytics des dépenses
+    // Analyse des dépenses basée sur les commandes d'achat réelles
+    const startDate = this.getStartDate(period);
+    
+    const expenseData = await this.purchaseOrderRepo
+      .createQueryBuilder('order')
+      .leftJoin('order.supplier', 'supplier')
+      .select([
+        'supplier.name as category',
+        'SUM(order.totalAmount) as amount',
+        'COUNT(order.id) as orderCount'
+      ])
+      .where('order.companyId = :companyId', { companyId })
+      .andWhere('order.orderDate >= :startDate', { startDate })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['approved', 'received'] })
+      .groupBy('supplier.id, supplier.name')
+      .orderBy('amount', 'DESC')
+      .getRawMany();
+
+    const totalExpenses = expenseData.reduce((sum, cat) => sum + Number(cat.amount), 0);
+    
     return { 
-      data: [
-        { category: 'Salaries', amount: 8000 },
-        { category: 'Rent', amount: 2000 },
-        { category: 'Utilities', amount: 500 }
-      ], 
-      total: 10500
+      period,
+      totalExpenses,
+      categoryBreakdown: expenseData.map(cat => ({
+        category: cat.category || 'Non catégorisé',
+        amount: Number(cat.amount),
+        orderCount: Number(cat.orderCount),
+        percentage: totalExpenses > 0 ? (Number(cat.amount) / totalExpenses) * 100 : 0
+      }))
     };
   }
 
   async getCustomerAnalytics(companyId: string) {
-    // Implémentation basique pour l'analytics clients
+    // Analyse des clients basée sur les factures
+    const customerData = await this.invoiceRepo
+      .createQueryBuilder('invoice')
+      .select([
+        'invoice.customerName as name',
+        'COUNT(invoice.id) as invoiceCount',
+        'SUM(invoice.totalAmount) as totalSpent',
+        'MAX(invoice.createdAt) as lastInvoiceDate'
+      ])
+      .where('invoice.companyId = :companyId', { companyId })
+      .andWhere('invoice.invoiceType = :type', { type: 'sale' })
+      .andWhere('invoice.customerName IS NOT NULL')
+      .groupBy('invoice.customerName')
+      .orderBy('totalSpent', 'DESC')
+      .limit(20)
+      .getRawMany();
+
+    const totalCustomers = customerData.length;
+    const totalRevenue = customerData.reduce((sum, cust) => sum + Number(cust.totalSpent), 0);
+    const totalInvoices = customerData.reduce((sum, cust) => sum + Number(cust.invoiceCount), 0);
+    const averageInvoiceValue = totalInvoices > 0 ? totalRevenue / totalInvoices : 0;
+    
     return { 
-      totalCustomers: 150, 
-      newCustomers: 25, 
-      churnRate: 5,
-      satisfaction: 4.2
+      totalCustomers,
+      totalRevenue,
+      totalInvoices,
+      averageInvoiceValue,
+      topCustomers: customerData.map(cust => ({
+        name: cust.name,
+        invoiceCount: Number(cust.invoiceCount),
+        totalSpent: Number(cust.totalSpent),
+        lastInvoiceDate: cust.lastInvoiceDate,
+        averageInvoiceValue: Number(cust.invoiceCount) > 0 ? Number(cust.totalSpent) / Number(cust.invoiceCount) : 0
+      }))
     };
   }
 
-  // Nouvelles méthodes pour le reporting service
-  async getSalesAnalysis(companyId: string, filters: any) {
-    return {
-      totalSales: 125000,
-      averageOrderValue: 2500,
-      topProducts: [
-        { name: 'Product A', sales: 35000 },
-        { name: 'Product B', sales: 28000 },
-        { name: 'Product C', sales: 22000 }
-      ],
-      salesByRegion: [
-        { region: 'North', sales: 45000 },
-        { region: 'South', sales: 38000 },
-        { region: 'East', sales: 27000 },
-        { region: 'West', sales: 15000 }
-      ]
+  async getProductAnalysis(companyId: string) {
+    // Analyse des produits basée sur les stocks et ventes
+    const productData = await this.productRepo
+      .createQueryBuilder('product')
+      .leftJoin('product.batches', 'batch')
+      .select([
+        'product.name',
+        'product.category',
+        'product.quantity as currentStock',
+        'product.minQuantity',
+        'product.maxQuantity',
+        'COUNT(batch.id) as batchCount',
+        'AVG(batch.unitCost) as averageCost'
+      ])
+      .where('product.companyId = :companyId', { companyId })
+      .groupBy('product.id, product.name, product.category, product.quantity, product.minQuantity, product.maxQuantity')
+      .orderBy('product.quantity', 'DESC')
+      .getRawMany();
+
+    const totalProducts = productData.length;
+    const lowStockProducts = productData.filter(p => Number(p.currentStock) <= Number(p.minQuantity)).length;
+    const outOfStockProducts = productData.filter(p => Number(p.currentStock) === 0).length;
+    const totalStockValue = productData.reduce((sum, p) => sum + (Number(p.currentStock) * Number(p.averageCost || 0)), 0);
+    
+    return { 
+      totalProducts,
+      lowStockProducts,
+      outOfStockProducts,
+      totalStockValue,
+      stockStatus: {
+        inStock: totalProducts - lowStockProducts - outOfStockProducts,
+        lowStock: lowStockProducts,
+        outOfStock: outOfStockProducts
+      },
+      topProducts: productData.slice(0, 10).map(product => ({
+        name: product.name,
+        category: product.category,
+        currentStock: Number(product.currentStock),
+        minStock: Number(product.minQuantity),
+        maxStock: Number(product.maxQuantity),
+        stockValue: Number(product.currentStock) * Number(product.averageCost || 0),
+        batchCount: Number(product.batchCount),
+        averageCost: Number(product.averageCost || 0)
+      }))
     };
   }
 
-  async getExpenseAnalysis(companyId: string, filters: any) {
-    return {
-      totalExpenses: 85000,
-      expensesByCategory: [
-        { category: 'Personnel', amount: 45000, percentage: 52.9 },
-        { category: 'Operations', amount: 20000, percentage: 23.5 },
-        { category: 'Marketing', amount: 12000, percentage: 14.1 },
-        { category: 'Administration', amount: 8000, percentage: 9.4 }
-      ],
-      trend: 'increasing',
-      variance: -5.2 // % par rapport au budget
-    };
+  private getStartDate(period: string): Date {
+    const now = new Date();
+    switch (period) {
+      case '7d':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case '30d':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      case '90d':
+        return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      case '1y':
+        return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+      default:
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
   }
 
-  async getCustomerAnalysis(companyId: string, filters: any) {
-    return {
-      totalCustomers: 485,
-      activeCustomers: 412,
-      newCustomersThisMonth: 28,
-      customerSegments: [
-        { segment: 'Enterprise', count: 45, revenue: 78000 },
-        { segment: 'Mid-Market', count: 120, revenue: 45000 },
-        { segment: 'Small Business', count: 320, revenue: 28000 }
-      ],
-      retentionRate: 92.5,
-      averageLifetimeValue: 12500
-    };
+  // Méthodes legacy pour compatibilité
+  async getSalesAnalysis(companyId: string, period: string) {
+    return this.getRevenueAnalytics(companyId, period);
   }
 
-  async getProductAnalysis(companyId: string, filters: any) {
-    return {
-      totalProducts: 156,
-      activeProducts: 142,
-      topPerforming: [
-        { sku: 'PROD-001', name: 'Product A', revenue: 35000, margin: 35 },
-        { sku: 'PROD-002', name: 'Product B', revenue: 28000, margin: 28 },
-        { sku: 'PROD-003', name: 'Product C', revenue: 22000, margin: 42 }
-      ],
-      lowStockProducts: 8,
-      outOfStockProducts: 3,
-      averageMargin: 31.5
-    };
+  async getExpenseAnalysis(companyId: string, period: string) {
+    return this.getExpenseAnalytics(companyId, period);
+  }
+
+  async getProductAnalytics(companyId: string) {
+    return this.getProductAnalysis(companyId);
   }
 }

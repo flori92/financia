@@ -1,83 +1,96 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseReceipt } from './entities/purchase-receipt.entity';
+import { Supplier } from './entities/supplier.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 
 @Injectable()
 export class PurchasesService {
-  private suppliers: any[] = []; // Stockage temporaire en mémoire
-  
   constructor(
     @InjectRepository(PurchaseOrder) private poRepo: Repository<PurchaseOrder>,
     @InjectRepository(PurchaseReceipt) private receiptRepo: Repository<PurchaseReceipt>,
+    @InjectRepository(Supplier) private supplierRepo: Repository<Supplier>,
     @InjectRepository(Invoice) private invoiceRepo: Repository<Invoice>,
   ) {}
 
   // Méthodes pour les fournisseurs
-  async getSuppliers(companyId: string) {
-    return this.suppliers.filter(s => s.companyId === companyId);
+  async getSuppliers(companyId: string): Promise<Supplier[]> {
+    return this.supplierRepo.find({ 
+      where: { companyId },
+      relations: ['purchaseOrders']
+    });
   }
 
-  async createSupplier(supplierData: any) {
-    const supplier = {
-      id: `SUP-${Date.now()}`,
+  async createSupplier(supplierData: any): Promise<Supplier> {
+    const supplier = this.supplierRepo.create({
       ...supplierData,
-      status: 'active',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.suppliers.push(supplier);
+      status: supplierData.status || 'active'
+    });
+    const saved = await this.supplierRepo.save(supplier);
+    return Array.isArray(saved) ? saved[0] : saved;
+  }
+
+  async getSupplier(id: string, companyId: string): Promise<Supplier> {
+    const supplier = await this.supplierRepo.findOne({ 
+      where: { id, companyId },
+      relations: ['purchaseOrders']
+    });
+    
+    if (!supplier) {
+      throw new NotFoundException('Fournisseur non trouvé');
+    }
+    
     return supplier;
   }
 
-  async getSupplier(id: string, companyId: string) {
-    return this.suppliers.find(s => s.id === id && s.companyId === companyId);
+  async updateSupplier(id: string, data: any, companyId: string): Promise<Supplier> {
+    const supplier = await this.getSupplier(id, companyId);
+    
+    Object.assign(supplier, data);
+    return this.supplierRepo.save(supplier);
   }
 
-  async updateSupplier(id: string, data: any, companyId: string) {
-    const index = this.suppliers.findIndex(s => s.id === id && s.companyId === companyId);
-    if (index === -1) {
-      throw new Error('Fournisseur non trouvé');
-    }
-    
-    this.suppliers[index] = {
-      ...this.suppliers[index],
-      ...data,
-      updatedAt: new Date()
-    };
-    return this.suppliers[index];
-  }
-
-  async deleteSupplier(id: string, companyId: string) {
-    const index = this.suppliers.findIndex(s => s.id === id && s.companyId === companyId);
-    if (index === -1) {
-      throw new Error('Fournisseur non trouvé');
-    }
-    
-    const deleted = this.suppliers[index];
-    this.suppliers.splice(index, 1);
-    return { deleted: true, supplier: deleted };
+  async deleteSupplier(id: string, companyId: string): Promise<void> {
+    const supplier = await this.getSupplier(id, companyId);
+    await this.supplierRepo.remove(supplier);
   }
 
   // Méthodes pour les commandes d'achat
-  async getOrders(companyId: string) {
-    return this.poRepo.find({ where: { companyId } });
+  async getOrders(companyId: string): Promise<PurchaseOrder[]> {
+    return this.poRepo.find({ 
+      where: { companyId },
+      relations: ['supplier']
+    });
   }
 
-  async getOrder(id: string, companyId: string) {
-    return this.poRepo.findOne({ where: { id, companyId } });
+  async getOrder(id: string, companyId: string): Promise<PurchaseOrder> {
+    const order = await this.poRepo.findOne({ 
+      where: { id, companyId },
+      relations: ['supplier']
+    });
+    
+    if (!order) {
+      throw new NotFoundException('Commande non trouvée');
+    }
+    
+    return order;
   }
 
-  async updateOrder(id: string, data: any, companyId: string) {
-    await this.poRepo.update({ id, companyId }, data);
-    return this.getOrder(id, companyId);
+  async updateOrder(id: string, data: any, companyId: string): Promise<PurchaseOrder> {
+    const order = await this.getOrder(id, companyId);
+    
+    Object.assign(order, data);
+    return this.poRepo.save(order);
   }
 
   // Méthodes pour les réceptions
-  async getReceipts(companyId: string) {
-    return this.receiptRepo.find({ where: { companyId } });
+  async getReceipts(companyId: string): Promise<PurchaseReceipt[]> {
+    return this.receiptRepo.find({ 
+      where: { companyId },
+      relations: ['purchaseOrder']
+    });
   }
 
   // Méthodes existantes

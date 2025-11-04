@@ -43,9 +43,9 @@ export class ReportingService {
       case 'expense_analysis':
         return this.analytics.getExpenseAnalysis(companyId, filters);
       case 'customer_analysis':
-        return this.analytics.getCustomerAnalysis(companyId, filters);
+        return this.analytics.getCustomerAnalytics(companyId);
       case 'product_analysis':
-        return this.analytics.getProductAnalysis(companyId, filters);
+        return this.analytics.getProductAnalysis(companyId);
       default:
         return { 
           error: "Type d'analyse non supporté",

@@ -251,8 +251,8 @@ export function SmartTable<T extends { id?: string | number }>({
                           <ChevronUp className="w-4 h-4" />
                         ) : (
                           <ChevronDown className="w-4 h-4" />
-                        )}
-                      }
+                        )
+                      )}
                     </div>
                   </th>
                 ))}

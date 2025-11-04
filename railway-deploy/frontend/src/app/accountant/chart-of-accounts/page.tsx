@@ -6,9 +6,6 @@ import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
 import { useCompanyId } from '@/hooks/useCompanyId';
-
-
-import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface Account {
   code: string;

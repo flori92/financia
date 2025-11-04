@@ -10,10 +10,19 @@ import { CafService } from './services/caf.service';
 import { RatiosService } from './services/ratios.service';
 import { Account } from '../accounting/entities/account.entity';
 import { JournalEntry } from '../accounting/entities/journal-entry.entity';
+import { Invoice } from '../invoices/entities/invoice.entity';
+import { Product } from '../inventory/entities/product.entity';
+import { PurchaseOrder } from '../purchases/entities/purchase-order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Account, JournalEntry])
+    TypeOrmModule.forFeature([
+      Account, 
+      JournalEntry,
+      Invoice,
+      Product,
+      PurchaseOrder
+    ])
   ],
   controllers: [ReportingController],
   providers: [
