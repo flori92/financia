@@ -306,6 +306,7 @@ export default function ModernCommunicationsPage() {
             <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
         </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Alertes */}
