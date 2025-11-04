@@ -12,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AIService } from './ai.service';
 import { GoogleVisionService } from './services/google-vision.service';
+import { GoogleVisionFallbackService } from './services/google-vision-fallback.service';
 
 @ApiTags('ai')
 @Controller('ai')
@@ -19,6 +20,7 @@ export class AIController {
   constructor(
     private readonly aiService: AIService,
     private readonly googleVisionService: GoogleVisionService,
+    private readonly googleVisionFallbackService: GoogleVisionFallbackService,
   ) {}
 
   @Post('ocr/invoice')
@@ -94,7 +96,20 @@ export class AIController {
     if (!file) {
       throw new BadRequestException('Aucun fichier fourni');
     }
-    return this.googleVisionService.extractText(file.buffer);
+    
+    // Utiliser Google Vision si disponible, sinon fallback
+    try {
+      const result = await this.googleVisionService.extractText(file.buffer);
+      if (result.text && result.confidence > 0) {
+        return { ...result, engine: 'google-vision', status: 'success' };
+      }
+    } catch (error) {
+      console.warn('Google Vision indisponible, utilisation fallback:', error.message);
+    }
+    
+    // Fallback
+    const fallbackResult = await this.googleVisionFallbackService.extractText(file.buffer);
+    return { ...fallbackResult, engine: 'google-vision-fallback', status: 'fallback' };
   }
 
   @Post('google-vision/classify')
@@ -105,17 +120,33 @@ export class AIController {
     if (!file) {
       throw new BadRequestException('Aucun fichier fourni');
     }
-    const documentType = await this.googleVisionService.classifyDocument(file.buffer);
-    const structuredData = await this.googleVisionService.extractStructuredData(
-      file.buffer, 
-      documentType
-    );
+    
+    let documentType: string;
+    let structuredData: any;
+    let engine: string = 'google-vision';
+    let status: string = 'success';
+    
+    // Utiliser Google Vision si disponible, sinon fallback
+    try {
+      documentType = await this.googleVisionService.classifyDocument(file.buffer);
+      if (documentType === 'other') {
+        throw new Error('Classification fallback nécessaire');
+      }
+      structuredData = await this.googleVisionService.extractStructuredData(file.buffer, documentType);
+    } catch (error) {
+      console.warn('Google Vision indisponible, utilisation fallback:', error.message);
+      documentType = await this.googleVisionFallbackService.classifyDocument(file.buffer);
+      structuredData = await this.googleVisionFallbackService.extractStructuredData(file.buffer, documentType);
+      engine = 'google-vision-fallback';
+      status = 'fallback';
+    }
     
     return {
       documentType,
       data: structuredData,
       extractedAt: new Date().toISOString(),
-      ocrEngine: 'google-vision',
+      ocrEngine: engine,
+      status,
     };
   }
 

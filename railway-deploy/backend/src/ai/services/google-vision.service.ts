@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-// import vision from '@google-cloud/vision'; // Import dynamique pour éviter erreurs TypeScript
 
 @Injectable()
 export class GoogleVisionService {
   private readonly logger = new Logger(GoogleVisionService.name);
-  private client: any; // Type any pour éviter erreurs TypeScript
+  private client: any = null;
+  private isGoogleVisionAvailable = false;
 
   constructor() {
     this.initializeClient();
@@ -12,18 +12,28 @@ export class GoogleVisionService {
 
   private async initializeClient() {
     try {
-      // Import dynamique pour éviter erreurs TypeScript au build
-      const vision = await import('@google-cloud/vision');
+      // Vérifier si Google Vision est installé avant d'importer
+      this.logger.log('🔍 Vérification disponibilité Google Cloud Vision...');
+      
+      // Import conditionnel pour éviter erreurs TypeScript
+      let vision: any = null;
+      try {
+        vision = require('@google-cloud/vision');
+      } catch (importError) {
+        this.logger.warn('⚠️ @google-cloud/vision non installé, Google Vision désactivé');
+        return;
+      }
       
       // Initialiser le client avec les credentials par défaut
       this.client = new vision.ImageAnnotatorClient({
         keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials.json',
         projectId: process.env.GOOGLE_CLOUD_PROJECT || 'bms-erp-prod',
       });
-      this.logger.log('✅ Google Vision client initialisé');
+      this.isGoogleVisionAvailable = true;
+      this.logger.log('✅ Google Vision client initialisé avec succès');
     } catch (error) {
       this.logger.error('❌ Erreur initialisation Google Vision:', error.message);
-      this.logger.warn('⚠️ Google Vision sera désactivé jusqu\'à installation correcte');
+      this.isGoogleVisionAvailable = false;
     }
   }
 
@@ -32,9 +42,9 @@ export class GoogleVisionService {
    */
   async extractText(fileBuffer: Buffer): Promise<{ text: string; confidence: number }> {
     try {
-      // Vérifier que le client est initialisé
-      if (!this.client) {
-        this.logger.warn('❌ Google Vision client non initialisé, fallback sur simulation');
+      // Vérifier que Google Vision est disponible
+      if (!this.isGoogleVisionAvailable || !this.client) {
+        this.logger.warn('❌ Google Vision non disponible, fallback sur simulation');
         return { text: '', confidence: 0 };
       }
 
@@ -75,8 +85,8 @@ export class GoogleVisionService {
    */
   async extractDocumentData(fileBuffer: Buffer): Promise<any> {
     try {
-      if (!this.client) {
-        this.logger.warn('❌ Google Vision client non initialisé');
+      if (!this.isGoogleVisionAvailable || !this.client) {
+        this.logger.warn('❌ Google Vision non disponible');
         return null;
       }
 
@@ -121,8 +131,8 @@ export class GoogleVisionService {
    */
   async classifyDocument(fileBuffer: Buffer): Promise<string> {
     try {
-      if (!this.client) {
-        this.logger.warn('❌ Google Vision client non initialisé, fallback sur other');
+      if (!this.isGoogleVisionAvailable || !this.client) {
+        this.logger.warn('❌ Google Vision non disponible, fallback sur other');
         return 'other';
       }
 
@@ -171,8 +181,8 @@ export class GoogleVisionService {
    */
   async extractStructuredData(fileBuffer: Buffer, documentType: string): Promise<any> {
     try {
-      if (!this.client) {
-        this.logger.warn('❌ Google Vision client non initialisé');
+      if (!this.isGoogleVisionAvailable || !this.client) {
+        this.logger.warn('❌ Google Vision non disponible');
         return null;
       }
 

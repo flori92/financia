@@ -5,6 +5,7 @@ import { AIService } from './ai.service';
 import { OcrService } from './services/ocr.service';
 import { OllamaRAGService } from './services/ollama-rag.service';
 import { GoogleVisionService } from './services/google-vision.service';
+import { GoogleVisionFallbackService } from './services/google-vision-fallback.service';
 import { JournalEntry } from '../accounting/entities/journal-entry.entity';
 import { JournalEntryLine } from '../accounting/entities/journal-entry-line.entity';
 import { Account } from '../accounting/entities/account.entity';
@@ -32,10 +33,11 @@ import { NotificationGateway } from '../notifications/gateways/notification.gate
     AIService,
     OcrService,
     OllamaRAGService,
-    GoogleVisionService, // ✅ ACTIVÉ Google Cloud Vision
+    GoogleVisionService, // ✅ Google Cloud Vision (si disponible)
+    GoogleVisionFallbackService, // ✅ Fallback si Google Vision non installé
     AnomalyDetectionService, // ✅ ACTIVÉ avec TensorFlow
     NotificationGateway,
   ],
-  exports: [AIService, AnomalyDetectionService, GoogleVisionService],
+  exports: [AIService, AnomalyDetectionService, GoogleVisionService, GoogleVisionFallbackService],
 })
 export class AIModule {}
