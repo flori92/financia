@@ -285,6 +285,55 @@ app.post('/api/v1/accounting/journal-entries', (req, res) => {
   res.json(newEntry);
 });
 
+// Revenue Recognition endpoint
+app.get('/api/v1/accounting/revenue-recognition', (req, res) => {
+  const { companyId, period } = req.query;
+  res.json({
+    totalRevenue: 25000000,
+    recognizedRevenue: 18500000,
+    deferredRevenue: 6500000,
+    period: period || 'current',
+    contracts: [
+      {
+        id: '1',
+        customer: 'Client A',
+        contractValue: 12000000,
+        recognized: 8000000,
+        deferred: 4000000,
+        startDate: '2025-01-01',
+        endDate: '2025-12-31',
+        status: 'active'
+      },
+      {
+        id: '2',
+        customer: 'Client B',
+        contractValue: 8000000,
+        recognized: 6500000,
+        deferred: 1500000,
+        startDate: '2025-03-01',
+        endDate: '2025-09-30',
+        status: 'active'
+      },
+      {
+        id: '3',
+        customer: 'Client C',
+        contractValue: 5000000,
+        recognized: 4000000,
+        deferred: 1000000,
+        startDate: '2025-02-15',
+        endDate: '2025-08-15',
+        status: 'active'
+      }
+    ],
+    monthlyBreakdown: [
+      { month: 'Janvier', recognized: 2500000, deferred: 1500000 },
+      { month: 'Février', recognized: 2800000, deferred: 1200000 },
+      { month: 'Mars', recognized: 3200000, deferred: 1800000 },
+      { month: 'Avril', recognized: 3000000, deferred: 2000000 }
+    ]
+  });
+});
+
 app.get('/api/v1/accounting/closure', (req, res) => {
   const { companyId } = req.query;
   res.json({
