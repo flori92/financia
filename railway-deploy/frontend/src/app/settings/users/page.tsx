@@ -4,9 +4,6 @@ import { getBaseUrl } from "@/lib/api";
 import { useCompanyId } from '@/hooks/useCompanyId';
 import { useState, useEffect } from "react";
 import { UserCog, Plus, Mail, Shield, Edit, Trash2, RefreshCw, AlertTriangle } from "lucide-react";
-
-
-import { useCompanyId } from '@/hooks/useCompanyId';
 import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface User {
   id: string;

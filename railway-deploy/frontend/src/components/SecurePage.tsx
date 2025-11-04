@@ -5,14 +5,11 @@
 
 import * as React from 'react';
 import { AuthGuard } from './auth/AuthGuard';
-import { ErrorBoundary } from './auth/ErrorBoundary';
+import ErrorBoundary from './auth/ErrorBoundary';
 import { Loader2 } from 'lucide-react';
 
 interface SecurePageProps {
   children: React.ReactNode;
-  requiredProfile?: 'entrepreneur' | 'accountant' | 'expert' | 'admin' | 'bank_partner' | 'tax_admin';
-  fallback?: React.ReactNode;
-  showLoading?: boolean;
 }
 
 /**
@@ -42,17 +39,11 @@ function DefaultLoading() {
  * ```
  */
 export function SecurePage({ 
-  children, 
-  requiredProfile,
-  fallback,
-  showLoading = true
+  children
 }: SecurePageProps) {
   return (
     <ErrorBoundary>
-      <AuthGuard 
-        requiredProfile={requiredProfile}
-        fallback={fallback || (showLoading ? <DefaultLoading /> : null)}
-      >
+      <AuthGuard>
         {children}
       </AuthGuard>
     </ErrorBoundary>
@@ -95,5 +86,4 @@ export function withSecurePage<P extends object>(
   };
 }
 
-export { SecurePage };
 export default SecurePage;

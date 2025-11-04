@@ -5,7 +5,7 @@
 
 "use client";
 import { AuthGuard } from './AuthGuard';
-import { ErrorBoundary } from './ErrorBoundary';
+import ErrorBoundary from './ErrorBoundary';
 
 interface ProtectedPageProps {
   children: React.ReactNode;
