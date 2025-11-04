@@ -11,11 +11,13 @@
 ### **🎯 Principe de Base**
 - **ROLE_EMPLOYEE**: Rôle de base pour TOUS les personnels de l'entreprise
 - **Rôles cumulables**: Manager, RH, Expert Comptable, Entrepreneur peuvent cumuler avec ROLE_EMPLOYEE
-- **Rôles externes uniquement**: Fiscal, Banque (non cumulables avec Employee)
+- **Cumul Fiscal possible**: Manager, Expert Comptable, Entrepreneur peuvent aussi cumuler avec ROLE_FISCAL_ADMIN
+- **Rôles externes uniquement**: Banque (non cumulables avec d'autres rôles)
 
 **🔄 Logique de Cumul**:
 - **Interne entreprise**: Employee + Manager + RH + Expert Comptable + Entrepreneur (cumul possible)
-- **Externe**: Fiscal Admin + Banque (accès spécialisé uniquement)
+- **Gestion fiscale**: Manager + Expert Comptable + Entrepreneur + Fiscal Admin (cumul possible)
+- **Externe**: Banque (accès spécialisé uniquement)
 
 ---
 
@@ -158,9 +160,13 @@
 
 ---
 
-### 6. 🏛️ **ROLE_FISCAL_ADMIN (Spécialisé)**
+### 6. 🏛️ **ROLE_FISCAL_ADMIN (Cumulable avec Manager, Expert Comptable, Entrepreneur)**
 **Route**: `/fiscal-admin`  
-**Non cumulable**: Accès fiscal uniquement
+**Cumul possible**: 
+- ROLE_FISCAL_ADMIN uniquement (si administration fiscale externe)
+- ROLE_MANAGER + ROLE_FISCAL_ADMIN (si manager gère les déclarations)
+- ROLE_EXPERT_COMPTABLE + ROLE_FISCAL_ADMIN (si expert comptable interne gère la fiscalité)
+- ROLE_ENTREPRENEUR + ROLE_FISCAL_ADMIN (si entrepreneur gère directement les impôts)
 
 #### Fonctionnalités Fiscales
 - ✅ **Déclarations Fiscales Automatisées**
@@ -204,25 +210,29 @@
 | Rôle Principal | Employee | Manager | HR | Expert Comptable | Entrepreneur | Fiscal | Banque |
 |----------------|----------|---------|----|------------------|--------------|--------|--------|
 | Employee       | ✅       | ❌      | ❌ | ❌               | ❌           | ❌     | ❌     |
-| Manager        | ✅       | ✅      | ❌ | ❌               | ❌           | ❌     | ❌     |
+| Manager        | ✅       | ✅      | ❌ | ❌               | ❌           | ✅     | ❌     |
 | HR             | ✅       | ❌      | ✅ | ❌               | ❌           | ❌     | ❌     |
-| Expert Comptable | ✅     | ❌      | ❌ | ✅               | ❌           | ❌     | ❌     |
-| Entrepreneur   | ✅       | ❌      | ❌ | ❌               | ✅           | ❌     | ❌     |
+| Expert Comptable | ✅     | ❌      | ❌ | ✅               | ❌           | ✅     | ❌     |
+| Entrepreneur   | ✅       | ❌      | ❌ | ❌               | ✅           | ✅     | ❌     |
 | Fiscal Admin   | ❌       | ❌      | ❌ | ❌               | ❌           | ✅     | ❌     |
 | Bank           | ❌       | ❌      | ❌ | ❌               | ❌           | ❌     | ✅     |
 
 **📝 Notes**:
-- **Expert Comptable**: Cumul Employee possible si interne à l'entreprise
-- **Entrepreneur**: Cumul Employee possible si fait partie de l'entreprise
-- **Fiscal/Banque**: Rôles externes uniquement, pas de cumul avec Employee
+- **Expert Comptable**: Cumul Employee + Fiscal possible si interne à l'entreprise
+- **Entrepreneur**: Cumul Employee + Fiscal possible si fait partie de l'entreprise
+- **Manager**: Cumul Employee + Fiscal possible pour gestion déclarations
+- **Fiscal/Banque**: Rôles externes, Fiscal peut cumuler avec internes, Banque reste spécialisé
 
 ### **Exemples Concrets**
 - **Alice (Développeur)**: ROLE_EMPLOYEE → Accès `/employee-space`
 - **Bob (Tech Lead)**: ROLE_EMPLOYEE + ROLE_MANAGER → Accès `/employee-space` + `/manager-space`
+- **Bob (Manager avec fiscal)**: ROLE_EMPLOYEE + ROLE_MANAGER + ROLE_FISCAL_ADMIN → Accès `/employee-space` + `/manager-space` + `/fiscal-admin`
 - **Carol (DRH)**: ROLE_EMPLOYEE + ROLE_HR → Accès `/employee-space` + `/hr-space`
 - **David (Expert Comptable interne)**: ROLE_EMPLOYEE + ROLE_EXPERT_COMPTABLE → Accès `/employee-space` + `/expert-comptable`
+- **David (Expert Comptable avec fiscal)**: ROLE_EMPLOYEE + ROLE_EXPERT_COMPTABLE + ROLE_FISCAL_ADMIN → Accès `/employee-space` + `/expert-comptable` + `/fiscal-admin`
 - **David (Expert Comptable externe)**: ROLE_EXPERT_COMPTABLE → Accès `/expert-comptable` uniquement
 - **Eva (Entrepreneur interne)**: ROLE_EMPLOYEE + ROLE_ENTREPRENEUR → Accès `/employee-space` + `/entrepreneur`
+- **Eva (Entrepreneur avec fiscal)**: ROLE_EMPLOYEE + ROLE_ENTREPRENEUR + ROLE_FISCAL_ADMIN → Accès `/employee-space` + `/entrepreneur` + `/fiscal-admin`
 - **Eva (Entrepreneur externe)**: ROLE_ENTREPRENEUR → Accès `/entrepreneur` uniquement
 
 ---
@@ -366,7 +376,16 @@ interface Permission {
 6. Gère l'automatisation comptable
 ```
 
-### **Scénario 5: Entrepreneur Interne**
+### **Scénario 5: Expert Comptable Interne avec Fiscalité**
+```
+1. David se connecte → ROLE_EMPLOYEE + ROLE_EXPERT_COMPTABLE + ROLE_FISCAL_ADMIN
+2. Accède à son espace employee (gestion personnelle)
+3. Accède à /expert-comptable pour la comptabilité
+4. Accède à /fiscal-admin pour les déclarations d'impôts
+5. Bascule entre espaces selon les besoins
+```
+
+### **Scénario 6: Entrepreneur Interne**
 ```
 1. Eva se connecte → ROLE_EMPLOYEE + ROLE_ENTREPRENEUR
 2. Accède à son espace employee (gestion personnelle)
@@ -374,6 +393,24 @@ interface Permission {
 4. Consulte les KPI stratégiques
 5. Analyse les insights business
 6. Prend les décisions stratégiques
+```
+
+### **Scénario 7: Entrepreneur Interne avec Fiscalité**
+```
+1. Eva se connecte → ROLE_EMPLOYEE + ROLE_ENTREPRENEUR + ROLE_FISCAL_ADMIN
+2. Accède à son espace employee (gestion personnelle)
+3. Accède à /entrepreneur pour la vision stratégique
+4. Accède à /fiscal-admin pour déclarer les impôts
+5. Optimise la stratégie fiscale de l'entreprise
+```
+
+### **Scénario 8: Manager avec Fiscalité**
+```
+1. Bob se connecte → ROLE_EMPLOYEE + ROLE_MANAGER + ROLE_FISCAL_ADMIN
+2. Accède à son espace employee (gestion personnelle)
+3. Accède à /manager-space pour gérer son équipe
+4. Accède à /fiscal-admin pour les déclarations fiscales
+5. Assure la conformité fiscale de son département
 ```
 
 ---
