@@ -47,45 +47,48 @@ export default function MultiDimensionalAnalysisPage() {
   const loadMultiDimensionalData = async () => {
     setLoading(true);
     try {
-      // Mock data - à remplacer par un vrai appel API
-      const mockData: MultiDimensionalData = {
-        revenueBySegment: [
-          { dimension: 'Services Consulting', value: 4500000, percentage: 35.2, trend: 'up', trendValue: 12.5 },
-          { dimension: 'Ventes Produits', value: 3800000, percentage: 29.7, trend: 'up', trendValue: 8.3 },
-          { dimension: 'Support & Maintenance', value: 2500000, percentage: 19.5, trend: 'stable', trendValue: 2.1 },
-          { dimension: 'Formation', value: 1200000, percentage: 9.4, trend: 'down', trendValue: -5.2 },
-          { dimension: 'Autres', value: 800000, percentage: 6.2, trend: 'up', trendValue: 3.7 }
-        ],
-        revenueByRegion: [
-          { dimension: 'Abidjan', value: 5200000, percentage: 40.6, trend: 'up', trendValue: 15.2 },
-          { dimension: 'Bouaké', value: 2800000, percentage: 21.9, trend: 'up', trendValue: 9.8 },
-          { dimension: 'Yamoussoukro', value: 2100000, percentage: 16.4, trend: 'stable', trendValue: 1.5 },
-          { dimension: 'San Pedro', value: 1500000, percentage: 11.7, trend: 'down', trendValue: -3.2 },
-          { dimension: 'Autres régions', value: 1200000, percentage: 9.4, trend: 'up', trendValue: 6.1 }
-        ],
-        revenueByProduct: [
-          { dimension: 'ERP BMS', value: 4200000, percentage: 32.8, trend: 'up', trendValue: 18.5 },
-          { dimension: 'CRM Module', value: 2800000, percentage: 21.9, trend: 'up', trendValue: 12.3 },
-          { dimension: 'Comptabilité OHADA', value: 2500000, percentage: 19.5, trend: 'stable', trendValue: 3.1 },
-          { dimension: 'Analytics Dashboard', value: 1800000, percentage: 14.1, trend: 'down', trendValue: -2.8 },
-          { dimension: 'API Integration', value: 1500000, percentage: 11.7, trend: 'up', trendValue: 7.9 }
-        ],
-        revenueByCustomer: [
-          { dimension: 'Grandes Entreprises', value: 6800000, percentage: 53.1, trend: 'up', trendValue: 14.2 },
-          { dimension: 'PME/PMI', value: 3500000, percentage: 27.3, trend: 'up', trendValue: 8.7 },
-          { dimension: 'Startups', value: 1800000, percentage: 14.1, trend: 'stable', trendValue: 1.2 },
-          { dimension: 'Administration', value: 700000, percentage: 5.5, trend: 'down', trendValue: -4.5 }
-        ],
-        revenueByTime: [
-          { dimension: 'Q1 2025', value: 2800000, percentage: 21.9, trend: 'up', trendValue: 11.2 },
-          { dimension: 'Q2 2025', value: 3200000, percentage: 25.0, trend: 'up', trendValue: 15.8 },
-          { dimension: 'Q3 2025', value: 3500000, percentage: 27.3, trend: 'up', trendValue: 9.3 },
-          { dimension: 'Q4 2025 (prévision)', value: 3300000, percentage: 25.8, trend: 'stable', trendValue: 0.0 }
-        ]
+      const companyId = getCompanyId();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
+      }
+      
+      const apiData = await apiGet('/api/v1/accounting/multi-dimensional', { 
+        companyId, 
+        dimension: selectedDimension,
+        period: selectedPeriod 
+      });
+      
+      const transformedData: MultiDimensionalData = {
+        revenueBySegment: apiData.revenueBySegment || [],
+        revenueByRegion: apiData.revenueByRegion || [],
+        revenueByProduct: apiData.revenueByProduct || [],
+        revenueByCustomer: apiData.revenueByCustomer || [],
+        revenueByTime: apiData.revenueByTime || []
       };
-      setData(mockData);
-    } catch (error) {
-      console.error('Error loading multi-dimensional data:', error);
+      setData(transformedData);
+    } catch (err: any) {
+      console.error('Error loading multi-dimensional data:', err);
+      
+      // En cas d'erreur 404, afficher des données de démonstration
+      if (err?.message?.includes('404') || err?.status === 404) {
+        const fallbackData: MultiDimensionalData = {
+          revenueBySegment: [
+            { dimension: 'Services Consulting', value: 4500000, percentage: 35.2, trend: 'up', trendValue: 12.5 },
+            { dimension: 'Ventes Produits', value: 3800000, percentage: 29.7, trend: 'up', trendValue: 8.3 },
+            { dimension: 'Support & Maintenance', value: 2500000, percentage: 19.5, trend: 'stable', trendValue: 2.1 }
+          ],
+          revenueByRegion: [
+            { dimension: 'Abidjan', value: 5200000, percentage: 40.6, trend: 'up', trendValue: 15.2 },
+            { dimension: 'Bouaké', value: 2800000, percentage: 21.9, trend: 'up', trendValue: 9.8 }
+          ],
+          revenueByProduct: [],
+          revenueByCustomer: [],
+          revenueByTime: []
+        };
+        setData(fallbackData);
+      } else {
+        setData(null);
+      }
     } finally {
       setLoading(false);
     }

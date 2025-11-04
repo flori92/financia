@@ -1,6 +1,7 @@
 "use client";
 // Compte de résultat - MODE DYNAMIQUE avec API backend
-import { getBaseUrl } from "@/lib/api";
+import { apiGet, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, RefreshCw, AlertCircle } from "lucide-react";
 
@@ -23,6 +24,12 @@ export default function ProfitLossPage() {
   const [data, setData] = useState<ProfitLossData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
+
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 2600);
+  };
 
   // Charger les données du compte de résultat depuis l'API
   const loadProfitLoss = async () => {
@@ -30,22 +37,12 @@ export default function ProfitLossPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7"; // TODO: depuis contexte
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/accounting/profit-loss?companyId=${companyId}`,
-        { 
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      const companyId = getCompanyId();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
       }
       
-      const apiData = await response.json();
+      const apiData = await apiGet('/api/v1/accounting/profit-loss', { companyId });
       
       // Transformer les données API au format attendu
       const transformedData: ProfitLossData = {
@@ -58,26 +55,38 @@ export default function ProfitLossPage() {
       };
       
       setData(transformedData);
-    } catch (err) {
+      triggerToast("success", "Compte de résultat chargé avec succès");
+    } catch (err: any) {
       console.error('Erreur chargement compte de résultat:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+      setError(errorMessage);
+      triggerToast("error", errorMessage);
+      
+      // Gérer spécifiquement l'erreur 404 (endpoint non disponible)
+      if (err?.message?.includes('404') || err?.status === 404) {
+        triggerToast("info", "Endpoint compte de résultat en cours de déploiement. Affichage des données de démonstration.");
+      }
       
       // En cas d'erreur, afficher des données de démonstration
-      setData({
+      const mockData: ProfitLossData = {
         revenues: [
-          { name: "Ventes de marchandises", amount: 150000, type: 'revenue' },
-          { name: "Prestations de services", amount: 80000, type: 'revenue' }
+          { name: "Ventes marchandises", amount: 8000000, type: "revenue" },
+          { name: "Prestations de services", amount: 2000000, type: "revenue" },
+          { name: "Revenus financiers", amount: 150000, type: "revenue" }
         ],
         expenses: [
-          { name: "Achats", amount: 80000, type: 'expense' },
-          { name: "Charges de personnel", amount: 45000, type: 'expense' },
-          { name: "Charges externes", amount: 25000, type: 'expense' }
+          { name: "Achats marchandises", amount: 4500000, type: "expense" },
+          { name: "Services extérieurs", amount: 1200000, type: "expense" },
+          { name: "Salaires et charges", amount: 2500000, type: "expense" },
+          { name: "Impôts et taxes", amount: 380000, type: "expense" }
         ],
-        totalRevenue: 230000,
-        totalExpenses: 150000,
-        netResult: 80000,
+        totalRevenue: 10150000,
+        totalExpenses: 8580000,
+        netResult: 1570000,
         period: 'Données de démonstration'
-      });
+      };
+      
+      setData(mockData);
     } finally {
       setLoading(false);
     }
@@ -237,6 +246,19 @@ export default function ProfitLossPage() {
               Mode démonstration: {data.period}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
+            toast.type === "success" ? "bg-emerald-600 text-white" : 
+            toast.type === "error" ? "bg-rose-600 text-white" : 
+            "bg-blue-600 text-white"
+          }`}
+        >
+          {toast.message}
         </div>
       )}
     </div>

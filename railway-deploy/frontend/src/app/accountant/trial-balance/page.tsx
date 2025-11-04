@@ -1,6 +1,6 @@
 "use client";
 // Balance générale - MODE DYNAMIQUE avec API backend
-import { getBaseUrl } from "@/lib/api";
+import { apiGet, getCompanyId } from "@/lib/api";
 import { ProfessionalExporter } from "@/lib/export-utils";
 import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
@@ -43,22 +43,12 @@ export default function TrialBalancePage() {
       setLoading(true);
       setError(null);
       
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7"; // TODO: depuis contexte
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/accounting/trial-balance?companyId=${companyId}&date=${selectedDate}`,
-        { 
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      const companyId = getCompanyId();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
       }
       
-      const apiData = await response.json();
+      const apiData = await apiGet('/api/v1/accounting/trial-balance', { companyId, date: selectedDate });
       
       // Transformer les données API au format attendu
       const transformedData: TrialBalanceData = {
@@ -70,22 +60,30 @@ export default function TrialBalancePage() {
       };
       
       setData(transformedData);
-    } catch (err) {
-      console.error('Erreur chargement balance générale:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      triggerToast("success", "Balance générale chargée avec succès");
+    } catch (err: any) {
+      console.error('Erreur chargement balance:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+      setError(errorMessage);
+      triggerToast("error", errorMessage);
+      
+      // Gérer spécifiquement l'erreur 404 (endpoint non disponible)
+      if (err?.message?.includes('404') || err?.status === 404) {
+        triggerToast("info", "Endpoint balance générale en cours de déploiement. Affichage des données de démonstration.");
+      }
       
       // En cas d'erreur, afficher des données de démonstration
       const mockAccounts = [
-        { account: "101000", name: "Capital social", debit: 0, credit: 100000, accountNumber: "101000", accountName: "Capital social", balance: -100000 },
-        { account: "411000", name: "Clients", debit: 85000, credit: 0, accountNumber: "411000", accountName: "Clients", balance: 85000 },
-        { account: "401000", name: "Fournisseurs", debit: 0, credit: 25000, accountNumber: "401000", accountName: "Fournisseurs", balance: -25000 },
-        { account: "701000", name: "Ventes", debit: 0, credit: 150000, accountNumber: "701000", accountName: "Ventes", balance: -150000 },
-        { account: "607000", name: "Achats", debit: 80000, credit: 0, accountNumber: "607000", accountName: "Achats", balance: 80000 },
-        { account: "512000", name: "Banque", debit: 110000, credit: 0, accountNumber: "512000", accountName: "Banque", balance: 110000 }
+        { account: "101000", name: "Capital", debit: 0, credit: 10000000, accountNumber: "101000", accountName: "Capital", balance: -10000000 },
+        { account: "401000", name: "Fournisseurs", debit: 0, credit: 2000000, accountNumber: "401000", accountName: "Fournisseurs", balance: -2000000 },
+        { account: "411000", name: "Clients", debit: 3000000, credit: 0, accountNumber: "411000", accountName: "Clients", balance: 3000000 },
+        { account: "512000", name: "Banque", debit: 8000000, credit: 0, accountNumber: "512000", accountName: "Banque", balance: 8000000 },
+        { account: "607000", name: "Achats marchandises", debit: 5000000, credit: 0, accountNumber: "607000", accountName: "Achats marchandises", balance: 5000000 },
+        { account: "707000", name: "Ventes marchandises", debit: 0, credit: 8000000, accountNumber: "707000", accountName: "Ventes marchandises", balance: -8000000 }
       ];
       
-      const totalDebit = mockAccounts.reduce((sum, item) => sum + item.debit, 0);
-      const totalCredit = mockAccounts.reduce((sum, item) => sum + item.credit, 0);
+      const totalDebit = mockAccounts.reduce((sum: number, account: any) => sum + account.debit, 0);
+      const totalCredit = mockAccounts.reduce((sum: number, account: any) => sum + account.credit, 0);
       
       setData({
         accounts: mockAccounts,

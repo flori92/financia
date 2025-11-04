@@ -1,6 +1,7 @@
 "use client";
 // Bilan comptable - MODE DYNAMIQUE avec API backend
-import { getBaseUrl } from "@/lib/api";
+import { apiGet, getCompanyId } from "@/lib/api";
+import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, RefreshCw, AlertCircle, Scale } from "lucide-react";
 
@@ -23,6 +24,12 @@ export default function BalanceSheetPage() {
   const [data, setData] = useState<BalanceSheetData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
+
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 2600);
+  };
 
   // Charger les données du bilan depuis l'API
   const loadBalanceSheet = async () => {
@@ -30,22 +37,12 @@ export default function BalanceSheetPage() {
       setLoading(true);
       setError(null);
       
-      const companyId = "1805bc61-7cfd-44e9-8a63-17187bf05dc7"; // TODO: depuis contexte
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/accounting/balance-sheet?companyId=${companyId}`,
-        { 
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      const companyId = getCompanyId();
+      if (!companyId) {
+        throw new Error('Aucune société sélectionnée');
       }
       
-      const apiData = await response.json();
+      const apiData = await apiGet('/api/v1/accounting/balance-sheet', { companyId });
       
       // Transformer les données API au format attendu
       const transformedData: BalanceSheetData = {
@@ -58,36 +55,38 @@ export default function BalanceSheetPage() {
       };
       
       setData(transformedData);
-    } catch (err) {
-      console.error('Erreur chargement bilan comptable:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      triggerToast("success", "Bilan chargé avec succès");
+    } catch (err: any) {
+      console.error('Erreur chargement bilan:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+      setError(errorMessage);
+      triggerToast("error", errorMessage);
+      
+      // Gérer spécifiquement l'erreur 404 (endpoint non disponible)
+      if (err?.message?.includes('404') || err?.status === 404) {
+        triggerToast("info", "Endpoint bilan en cours de déploiement. Affichage des données de démonstration.");
+      }
       
       // En cas d'erreur, afficher des données de démonstration
-      const mockAssets = [
-        { name: "Immobilisations", amount: 500000, type: 'asset' as const },
-        { name: "Stocks", amount: 150000, type: 'asset' as const },
-        { name: "Créances clients", amount: 85000, type: 'asset' as const },
-        { name: "Trésorerie", amount: 110000, type: 'asset' as const }
-      ];
-      
-      const mockLiabilities = [
-        { name: "Capital", amount: 100000, type: 'equity' as const },
-        { name: "Résultat", amount: 70000, type: 'equity' as const },
-        { name: "Dettes fournisseurs", amount: 25000, type: 'liability' as const },
-        { name: "Emprunts", amount: 650000, type: 'liability' as const }
-      ];
-      
-      const totalAssets = mockAssets.reduce((sum, item) => sum + item.amount, 0);
-      const totalLiabilities = mockLiabilities.reduce((sum, item) => sum + item.amount, 0);
-      
-      setData({
-        assets: mockAssets,
-        liabilities: mockLiabilities,
-        totalAssets,
-        totalLiabilities,
-        isBalanced: totalAssets === totalLiabilities,
+      const mockData: BalanceSheetData = {
+        assets: [
+          { name: "Disponibilités", amount: 1500000, type: "asset" },
+          { name: "Créances clients", amount: 2500000, type: "asset" },
+          { name: "Stocks", amount: 800000, type: "asset" },
+          { name: "Immobilisations", amount: 5000000, type: "asset" }
+        ],
+        liabilities: [
+          { name: "Dettes fournisseurs", amount: 1200000, type: "liability" },
+          { name: "Dettes fiscales", amount: 600000, type: "liability" },
+          { name: "Capitaux propres", amount: 8000000, type: "equity" }
+        ],
+        totalAssets: 9800000,
+        totalLiabilities: 9800000,
+        isBalanced: true,
         period: 'Données de démonstration'
-      });
+      };
+      
+      setData(mockData);
     } finally {
       setLoading(false);
     }
@@ -266,6 +265,19 @@ export default function BalanceSheetPage() {
               Mode démonstration: {data.period}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
+            toast.type === "success" ? "bg-emerald-600 text-white" : 
+            toast.type === "error" ? "bg-rose-600 text-white" : 
+            "bg-blue-600 text-white"
+          }`}
+        >
+          {toast.message}
         </div>
       )}
     </div>
