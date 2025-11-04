@@ -48,7 +48,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userRepository.findOne({ 
       where: { email },
-      select: ['id', 'email', 'phone', 'firstName', 'lastName', 'isActive', 'createdAt', 'updatedAt', 'profiles', 'primaryProfile'] // Exclure 'profile'
+      select: ['id', 'email', 'password', 'phone', 'firstName', 'lastName', 'isActive', 'role', 'companyId', 'uxLevel', 'createdAt', 'updatedAt', 'profiles', 'primaryProfile'] // Inclure password pour validation, exclure 'profile'
     });
 
     if (user && (await user.validatePassword(password))) {
@@ -61,7 +61,9 @@ export class AuthService {
         user.primaryProfile = user.profiles[0] || 'entrepreneur';
       }
       
-      return user;
+      // Retourner sans le password
+      const { password: _, ...result } = user;
+      return result;
     }
 
     return null;
