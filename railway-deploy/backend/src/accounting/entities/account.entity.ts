@@ -41,8 +41,8 @@ export class Account {
 
   @ApiProperty({ description: 'Type de compte (asset, liability, equity, revenue, expense)', enum: ['asset', 'liability', 'equity', 'revenue', 'expense'] })
   @Column({
-    type: 'enum',
-    enum: ['asset', 'liability', 'equity', 'revenue', 'expense'],
+    type: 'varchar',
+    length: 50,
   })
   accountType: string;
 
