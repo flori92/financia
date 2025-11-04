@@ -46,44 +46,69 @@ export class SeedController {
   })
   @ApiResponse({ status: 200, description: 'primaryProfile mis à jour avec succès' })
   async fixUserProfiles() {
-    console.log('🔄 Début mise à jour des primaryProfile...');
-    
-    // Mettre à jour les profils selon le rôle
-    const result = await this.dataSource.query(`
-      UPDATE users 
-      SET primary_profile = CASE 
-        WHEN role = 'admin' THEN 'admin'
-        WHEN role = 'tax_admin' THEN 'tax_admin'
-        WHEN role = 'accountant' THEN 'accountant'
-        WHEN role = 'expert_comptable' THEN 'expert_comptable'
-        WHEN role = 'bank_admin' THEN 'bank_admin'
-        WHEN role = 'hr_manager' THEN 'hr_manager'
-        WHEN role = 'user' THEN 'entrepreneur'
-        ELSE 'entrepreneur'
-      END
-      WHERE primary_profile IS NULL;
-    `);
-    
-    console.log('✅ primaryProfile mis à jour pour tous les utilisateurs');
-    
-    // Récupérer le nombre d'utilisateurs mis à jour
-    const updatedCount = result[1]; // result[1] contient le nombre de lignes affectées
-    
-    return {
-      success: true,
-      message: `✅ ${updatedCount} utilisateur(s) mis à jour avec succès !`,
-      details: {
-        updatedUsers: updatedCount,
-        mapping: {
-          admin: 'admin',
-          tax_admin: 'tax_admin',
-          accountant: 'accountant',
-          expert_comptable: 'expert_comptable',
-          bank_admin: 'bank_admin',
-          hr_manager: 'hr_manager',
-          user: 'entrepreneur'
-        }
+    try {
+      console.log('🔄 Début mise à jour des primaryProfile...');
+      
+      // Récupérer les utilisateurs avec primaryProfile NULL
+      const usersWithoutProfile = await this.dataSource.query(`
+        SELECT id, email, role FROM users WHERE primary_profile IS NULL;
+      `);
+      
+      console.log(`📊 ${usersWithoutProfile.length} utilisateur(s) sans primaryProfile trouvé(s)`);
+      
+      if (usersWithoutProfile.length === 0) {
+        return {
+          success: true,
+          message: '✅ Tous les utilisateurs ont déjà un primaryProfile !',
+          details: {
+            updatedUsers: 0,
+            alreadySet: true
+          }
+        };
       }
-    };
+      
+      // Mettre à jour les profils selon le rôle
+      await this.dataSource.query(`
+        UPDATE users 
+        SET primary_profile = CASE 
+          WHEN role = 'admin' THEN 'admin'
+          WHEN role = 'tax_admin' THEN 'tax_admin'
+          WHEN role = 'accountant' THEN 'accountant'
+          WHEN role = 'expert_comptable' THEN 'expert_comptable'
+          WHEN role = 'bank_admin' THEN 'bank_admin'
+          WHEN role = 'hr_manager' THEN 'hr_manager'
+          WHEN role = 'user' THEN 'entrepreneur'
+          ELSE 'entrepreneur'
+        END
+        WHERE primary_profile IS NULL;
+      `);
+      
+      console.log('✅ primaryProfile mis à jour pour tous les utilisateurs');
+      
+      return {
+        success: true,
+        message: `✅ ${usersWithoutProfile.length} utilisateur(s) mis à jour avec succès !`,
+        details: {
+          updatedUsers: usersWithoutProfile.length,
+          users: usersWithoutProfile.map(u => ({ email: u.email, role: u.role })),
+          mapping: {
+            admin: 'admin',
+            tax_admin: 'tax_admin',
+            accountant: 'accountant',
+            expert_comptable: 'expert_comptable',
+            bank_admin: 'bank_admin',
+            hr_manager: 'hr_manager',
+            user: 'entrepreneur'
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ Erreur lors de la mise à jour des primaryProfile:', error);
+      return {
+        success: false,
+        message: '❌ Erreur lors de la mise à jour',
+        error: error.message
+      };
+    }
   }
 }
