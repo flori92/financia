@@ -3,7 +3,6 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SimpleTestSeedService } from './seeds/simple-test.seed';
-import { runDevSeed } from './seeds/dev.seed';
 import * as bcrypt from 'bcrypt';
 
 @ApiTags('Database Seeds')
