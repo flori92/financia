@@ -6,7 +6,8 @@ echo "================================"
 
 # Variables
 RAILWAY_URL="https://bms-web.up.railway.app"
-HEALTH_ENDPOINT="/api/health"
+HEALTH_ENDPOINT="/health"
+API_HEALTH_ENDPOINT="/api/health"
 
 echo "📍 URL: $RAILWAY_URL$HEALTH_ENDPOINT"
 echo ""
@@ -67,7 +68,9 @@ else
 fi
 
 echo ""
-echo "🔗 Direct URL: $RAILWAY_URL$HEALTH_ENDPOINT"
+echo "🔗 Direct URLs:"
+echo "  - Health Check: $RAILWAY_URL$HEALTH_ENDPOINT"
+echo "  - API Health:   $RAILWAY_URL$API_HEALTH_ENDPOINT"
 echo "📈 Railway Dashboard: https://railway.app/project/bms-web"
 echo ""
 echo "🏁 Test terminé!"
