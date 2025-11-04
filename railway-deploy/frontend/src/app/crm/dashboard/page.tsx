@@ -1,20 +1,21 @@
 "use client";
 import { useState, useEffect } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
+import { apiGet } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { formatCurrency } from "@/lib/format-utils";
 import { TrendingUp, Users, DollarSign, Target } from "lucide-react";
 import Link from "next/link";
 
 export default function CRMDashboardPage() {
+  const companyId = useCompanyId();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadData() {
-    const cid = getCompanyId();
-    if (!cid) return;
+    if (!companyId) return;
     setLoading(true);
     try {
-      const result = await apiGet('/api/v1/crm/dashboard', { companyId: cid });
+      const result = await apiGet('/crm/dashboard', { companyId });
       setData(result);
     } catch (e) {
       console.error(e);
@@ -23,7 +24,7 @@ export default function CRMDashboardPage() {
     }
   }
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [companyId]);
 
   if (loading) return <div className="p-8">Chargement...</div>;
   if (!data) return <div className="p-8">Aucune donnée</div>;

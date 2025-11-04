@@ -1,6 +1,7 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { apiGet } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { Database, Filter, Download, RefreshCw, BarChart3, PieChart, LineChart } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Line, Area } from "recharts";
 
@@ -29,8 +30,22 @@ const PRODUCT_ANALYSIS = [
 ];
 
 export default function BIPage() {
+  const companyId = useCompanyId();
   const [selectedDim, setSelectedDim] = useState("Temps");
   const [selectedMesure, setSelectedMesure] = useState("CA");
+
+  useEffect(() => {
+    loadBI();
+  }, [companyId]);
+
+  const loadBI = async () => {
+    try {
+      const data = await apiGet('/dashboard/bi', { companyId });
+      console.log('BI data loaded:', data);
+    } catch (error) {
+      console.error('Erreur chargement BI:', error);
+    }
+  };
 
   return (
     <div className="space-y-6">

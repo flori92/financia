@@ -1,4 +1,7 @@
 "use client";
+import { useState, useEffect } from "react";
+import { apiGet } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 
 import { TrendingUp, TrendingDown, Package, Users, DollarSign } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
@@ -27,6 +30,23 @@ const TOP_SUPPLIERS = [
 ];
 
 export default function PurchasesAnalyticsPage() {
+  const companyId = useCompanyId();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [companyId]);
+
+  const loadAnalytics = async () => {
+    try {
+      const data = await apiGet('/purchases/analytics', { companyId });
+      console.log('Purchases analytics data loaded:', data);
+    } catch (error) {
+      console.error('Erreur chargement analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="space-y-6">
       <div>

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, BellRing, SlidersHorizontal, AlertCircle, Info, FileText } from "lucide-react";
-import { apiGet, getCompanyId } from "@/lib/api";
+import { apiGet } from "@/lib/api";
+import { useCompanyId } from '@/hooks/useCompanyId';
 import { formatCurrency } from "@/lib/format-utils";
 
 type AlertData = {
@@ -22,13 +23,13 @@ type AlertData = {
 };
 
 export default function AlertsPage() {
+  const companyId = useCompanyId();
   const [loading, setLoading] = useState(true);
   const [alertData, setAlertData] = useState<AlertData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAlerts = async () => {
-      const companyId = getCompanyId();
       if (!companyId) {
         setError("Aucune société sélectionnée");
         setLoading(false);
