@@ -52,18 +52,23 @@ export class AuthService {
     });
 
     if (user && (await user.validatePassword(password))) {
+      // Recharger des champs supplémentaires sûrs pour enrichir le token et la réponse
+      const fullUser = await this.userRepository.findOne({
+        where: { id: user.id },
+        select: ['id', 'email', 'role', 'companyId', 'firstName', 'lastName', 'uxLevel'],
+      });
+
+      const enriched: any = { ...fullUser };
+
       // 🆕 Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
-      if (!user.profiles || user.profiles.length === 0) {
-        // Pour les anciens utilisateurs, utiliser des valeurs par défaut
-        user.profiles = ['entrepreneur'];
+      if (!enriched.profiles || enriched.profiles.length === 0) {
+        enriched.profiles = ['entrepreneur'];
       }
-      if (!user.primaryProfile) {
-        user.primaryProfile = user.profiles[0] || 'entrepreneur';
+      if (!enriched.primaryProfile) {
+        enriched.primaryProfile = enriched.profiles[0] || 'entrepreneur';
       }
-      
-      // Retourner sans le password
-      const { password: _, ...result } = user;
-      return result;
+
+      return enriched;
     }
 
     return null;
@@ -138,9 +143,15 @@ export class AuthService {
       primaryProfile: user.primaryProfile, // Profil principal pour redirection
     };
 
+    const access_token = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const refresh_token = this.jwtService.sign(payload, { expiresIn: '30d' });
+
     return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '30d' }),
+      access_token,
+      refresh_token,
+      // Alias camelCase pour compatibilité front
+      accessToken: access_token,
+      refreshToken: refresh_token,
     };
   }
 }
