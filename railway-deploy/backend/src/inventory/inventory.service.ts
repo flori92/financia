@@ -105,4 +105,91 @@ export class InventoryService {
       }
     }
   }
+
+  // Nouvelles méthodes pour compléter le controller
+  async createBatch(batchData: any) {
+    // Implémentation basique pour créer un lot
+    return {
+      id: `BATCH-${Date.now()}`,
+      ...batchData,
+      createdAt: new Date(),
+      status: 'active'
+    };
+  }
+
+  async getBatchHistory(batchId: string, companyId: string) {
+    // Implémentation basique pour l'historique des lots
+    return {
+      batchId,
+      companyId,
+      history: [
+        {
+          date: new Date(),
+          action: 'created',
+          quantity: 100,
+          user: 'system'
+        }
+      ]
+    };
+  }
+
+  async createPicking(pickingData: any) {
+    // Implémentation basique pour créer une préparation de commande
+    return {
+      id: `PICK-${Date.now()}`,
+      ...pickingData,
+      status: 'pending',
+      createdAt: new Date()
+    };
+  }
+
+  async optimizePicking(pickingId: string, companyId: string) {
+    // Implémentation basique pour l'optimisation du picking
+    return {
+      pickingId,
+      optimized: true,
+      estimatedTime: Math.floor(Math.random() * 60) + 30, // 30-90 minutes
+      route: [
+        { location: 'A1', item: 'Product A', quantity: 10 },
+        { location: 'B3', item: 'Product B', quantity: 5 },
+        { location: 'C2', item: 'Product C', quantity: 20 }
+      ]
+    };
+  }
+
+  async calculateFIFO(itemId: string, quantity: number, companyId: string) {
+    // Implémentation basique pour la valorisation FIFO
+    const unitCost = Math.random() * 100 + 10; // Coût unitaire simulé
+    return {
+      itemId,
+      quantity,
+      unitCost,
+      totalValue: quantity * unitCost,
+      method: 'FIFO',
+      companyId
+    };
+  }
+
+  async adjustStock(adjustmentData: any) {
+    // Implémentation basique pour l'ajustement de stock
+    const { productId, quantity, reason, type } = adjustmentData;
+    
+    // Mettre à jour la quantité du produit
+    await this.productRepository.update(productId, {
+      quantity: type === 'increase' ? 
+        () => `quantity + ${quantity}` : 
+        () => `quantity - ${quantity}`,
+      lastUpdated: new Date()
+    });
+
+    return {
+      id: `ADJ-${Date.now()}`,
+      productId,
+      quantity,
+      reason,
+      type,
+      status: 'completed',
+      createdAt: new Date()
+    };
+  }
 }

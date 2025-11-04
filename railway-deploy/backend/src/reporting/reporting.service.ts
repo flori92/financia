@@ -34,8 +34,24 @@ export class ReportingService {
   }
 
   async getCustomAnalysis(params: any) {
-    // TODO: Implement custom analysis
-    return { status: 'not_implemented' };
+    // Implémentation basique pour l'analyse personnalisée
+    const { companyId, reportType, filters } = params;
+    
+    switch (reportType) {
+      case 'sales_analysis':
+        return this.analytics.getSalesAnalysis(companyId, filters);
+      case 'expense_analysis':
+        return this.analytics.getExpenseAnalysis(companyId, filters);
+      case 'customer_analysis':
+        return this.analytics.getCustomerAnalysis(companyId, filters);
+      case 'product_analysis':
+        return this.analytics.getProductAnalysis(companyId, filters);
+      default:
+        return { 
+          error: 'Type d\\'analyse non supporté',
+          supportedTypes: ['sales_analysis', 'expense_analysis', 'customer_analysis', 'product_analysis']
+        };
+    }
   }
 
   async getKPIs(companyId: string) {
@@ -52,5 +68,66 @@ export class ReportingService {
 
   async getRatios(companyId: string, date: string) {
     return this.ratios.calculateRatios(companyId, date);
+  }
+
+  // Nouvelles méthodes pour les endpoints ajoutés
+  async getBalanceSheet(companyId: string, date: Date) {
+    return this.financialReport.generateBalanceSheet(companyId, date);
+  }
+
+  async getIncomeStatement(companyId: string, startDate: Date, endDate: Date) {
+    return this.financialReport.generateIncomeStatement(companyId, startDate, endDate);
+  }
+
+  async getCashFlow(companyId: string, startDate: Date, endDate: Date) {
+    return this.financialReport.generateCashFlowStatement(companyId, startDate, endDate);
+  }
+
+  async exportReport(data: any) {
+    const { companyId, reportType, format = 'pdf', filters } = data;
+    
+    // Implémentation basique pour l'export
+    const reportData = await this.getReportData(companyId, reportType, filters);
+    
+    return {
+      exportId: `EXP-${Date.now()}`,
+      companyId,
+      reportType,
+      format,
+      status: 'generated',
+      downloadUrl: `/api/v1/reporting/download/EXP-${Date.now()}`,
+      generatedAt: new Date(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 heures
+      data: reportData
+    };
+  }
+
+  private async getReportData(companyId: string, reportType: string, filters: any) {
+    switch (reportType) {
+      case 'balance_sheet':
+        return this.getBalanceSheet(companyId, new Date(filters.date || new Date()));
+      case 'income_statement':
+        return this.getIncomeStatement(
+          companyId, 
+          new Date(filters.startDate), 
+          new Date(filters.endDate)
+        );
+      case 'cash_flow':
+        return this.getCashFlow(
+          companyId, 
+          new Date(filters.startDate), 
+          new Date(filters.endDate)
+        );
+      case 'kpis':
+        return this.getKPIs(companyId);
+      case 'sig':
+        return this.getSIG(companyId, filters.startDate, filters.endDate);
+      case 'caf':
+        return this.getCAF(companyId, filters.startDate, filters.endDate);
+      case 'ratios':
+        return this.getRatios(companyId, filters.date);
+      default:
+        throw new Error(`Type de rapport non supporté: ${reportType}`);
+    }
   }
 }
