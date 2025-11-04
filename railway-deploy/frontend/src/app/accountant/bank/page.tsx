@@ -66,9 +66,9 @@ function BankReconciliationPageContent() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       await loadTransactions();
-      show({ title: 'Synchronisation réussie', variant: 'success' });
+      triggerToast('success', 'Synchronisation réussie');
     } catch (err) {
-      show({ title: 'Erreur de synchronisation', variant: 'error' });
+      triggerToast('error', 'Erreur de synchronisation');
     } finally {
       setSyncing(false);
     }
@@ -85,11 +85,7 @@ function BankReconciliationPageContent() {
       const data = await apiPost('/api/v1/banking/auto-match', { companyId, threshold, limit });
       await loadTransactions();
       const variant = data.matched > 0 ? 'success' : 'info';
-      show({
-        title: 'Lettrage automatique terminé',
-        description: `Tentatives: ${data.attempted} · Rapprochées: ${data.matched} · Erreurs: ${data.errors}`,
-        variant: variant as any,
-      });
+      triggerToast(variant as any, `Lettrage automatique terminé - Tentatives: ${data.attempted} · Rapprochées: ${data.matched} · Erreurs: ${data.errors}`);
 
       // Export CSV des détails si disponibles
       if (Array.isArray(data.details) && data.details.length > 0) {
@@ -112,11 +108,11 @@ function BankReconciliationPageContent() {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        show({ title: 'Export CSV généré', variant: 'success' });
+        triggerToast('success', 'Export CSV généré');
       }
     } catch (e) {
       console.error(e);
-      show({ title: 'Échec du lettrage automatique', variant: 'error' });
+      triggerToast('error', 'Échec du lettrage automatique');
     } finally {
       setMatching(false);
     }
@@ -138,7 +134,7 @@ function BankReconciliationPageContent() {
       console.error(e);
       const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
       triggerToast("error", errorMessage);
-      show({ title: 'Erreur', description: "Impossible de récupérer les écritures suggérées", variant: 'error' });
+      triggerToast('error', 'Erreur: Impossible de récupérer les écritures suggérées');
     } finally {
       setSuggestionsLoading(false);
     }
@@ -160,10 +156,10 @@ function BankReconciliationPageContent() {
       setSuggestionsOpen(false);
       setNote("");
       await loadTransactions();
-      show({ title: 'Rapprochement effectué', variant: 'success' });
+      triggerToast('success', 'Rapprochement effectué');
     } catch (e) {
       console.error(e);
-      show({ title: 'Échec du rapprochement', variant: 'error' });
+      triggerToast('error', 'Échec du rapprochement');
     }
   };
 
@@ -180,14 +176,10 @@ function BankReconciliationPageContent() {
       const text = await file.text();
       const data = await apiPost('/api/v1/banking/import-csv', { companyId, csvContent: text });
       await loadTransactions();
-      show({ 
-        title: `${data.imported} transactions importées`, 
-        description: data.skipped ? `${data.skipped} doublons ignorés` : undefined,
-        variant: 'success' 
-      });
+      triggerToast('success', `${data.imported} transactions importées${data.skipped ? ` - ${data.skipped} doublons ignorés` : ''}`);
     } catch (e) {
       console.error(e);
-      show({ title: 'Échec import CSV', variant: 'error' });
+      triggerToast('error', 'Échec import CSV');
     } finally {
       setUploadingCsv(false);
       if (e.target) e.target.value = '';
@@ -214,7 +206,7 @@ function BankReconciliationPageContent() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    show({ title: 'Export CSV téléchargé', variant: 'success' });
+    triggerToast('success', 'Export CSV téléchargé');
   };
 
   const toggleSelection = (txId: string) => {
@@ -241,14 +233,10 @@ function BankReconciliationPageContent() {
       const data = await apiPost('/api/v1/banking/bulk-reconcile', { companyId, transactionIds: selectedTxs });
       setSelectedTxs([]);
       await loadTransactions();
-      show({ 
-        title: `${data.reconciled} transactions rapprochées`, 
-        description: data.failed ? `${data.failed} échecs` : undefined,
-        variant: 'success' 
-      });
+      triggerToast('success', `${data.reconciled} transactions rapprochées${data.failed ? ` - ${data.failed} échecs` : ''}`);
     } catch (e) {
       console.error(e);
-      show({ title: 'Échec rapprochement lot', variant: 'error' });
+      triggerToast('error', 'Échec rapprochement lot');
     }
   };
 
@@ -262,10 +250,10 @@ function BankReconciliationPageContent() {
       const data = await apiPost('/api/v1/banking/bulk-ignore', { companyId, transactionIds: selectedTxs });
       setSelectedTxs([]);
       await loadTransactions();
-      show({ title: `${data.ignored} transactions ignorées`, variant: 'success' });
+      triggerToast('success', `${data.ignored} transactions ignorées`);
     } catch (e) {
       console.error(e);
-      show({ title: 'Échec ignorer lot', variant: 'error' });
+      triggerToast('error', 'Échec ignorer lot');
     }
   };
 
@@ -281,7 +269,7 @@ function BankReconciliationPageContent() {
       console.error(e);
       const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
       triggerToast("error", errorMessage);
-      show({ title: 'Erreur chargement historique', variant: 'error' });
+      triggerToast('error', 'Erreur chargement historique');
     }
   };
 
