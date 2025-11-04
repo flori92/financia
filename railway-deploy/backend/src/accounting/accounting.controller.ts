@@ -28,13 +28,13 @@ import { Account } from './entities/account.entity';
 import { JournalEntry } from './entities/journal-entry.entity';
 import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { CompanyId } from '../common/decorators/company-id.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { ProfileGuard } from '../auth/guards/profile.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Profiles } from '../auth/decorators/profile.decorator';
 import { UserRole } from '../auth/guards/roles.guard';
 import { UserProfile } from '../auth/guards/user-profiles';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { ProfileGuard } from '../auth/guards/profile.guard';
 
 /**
  * Contrôleur pour la gestion comptable OHADA
@@ -411,6 +411,8 @@ export class AccountingController {
   // ============================================
 
   @Get('aged-balance')
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   @ApiOperation({ summary: 'Balance âgée des créances clients ou dettes fournisseurs' })
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'type', enum: ['receivables', 'payables'], required: true })
@@ -419,8 +421,6 @@ export class AccountingController {
     status: 200,
     description: 'Balance âgée avec ventilation par tranches d\'ancienneté',
   })
-  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
-  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   async getAgedBalance(
     @Query('companyId') companyId: string,
     @Query('type') type: 'receivables' | 'payables',
