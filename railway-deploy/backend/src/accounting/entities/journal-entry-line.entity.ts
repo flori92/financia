@@ -37,7 +37,7 @@ export class JournalEntryLine {
   lineNumber: number;
 
   @ApiProperty({ description: 'Libellé de la ligne' })
-  @Column({ length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: false })
   label: string;
 
   @ApiProperty({ description: 'Montant au débit' })
