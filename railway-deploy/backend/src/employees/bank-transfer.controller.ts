@@ -16,6 +16,7 @@ import { BankTransfer, TransferStatus, TransferType, PaymentProvider } from './e
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
 
 @ApiTags('Bank Transfers / Virements')
 @Controller('bank-transfers')
@@ -24,7 +25,7 @@ export class BankTransferController {
   constructor(private readonly bankTransferService: BankTransferService) {}
 
   @Post()
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Créer un nouveau virement' })
   @ApiResponse({ status: 201, description: 'Virement créé avec succès', type: BankTransfer })
   @ApiResponse({ status: 400, description: 'Données invalides ou informations de paiement manquantes' })
@@ -36,7 +37,7 @@ export class BankTransferController {
   }
 
   @Get()
-  @Roles('admin', 'hr_manager', 'accountant', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER)
   @ApiOperation({ summary: 'Lister les virements' })
   @ApiResponse({ status: 200, description: 'Liste des virements' })
   @ApiQuery({ name: 'employeeId', required: false })
@@ -68,7 +69,7 @@ export class BankTransferController {
   }
 
   @Get('stats')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Obtenir les statistiques des virements' })
   @ApiResponse({ status: 200, description: 'Statistiques des virements' })
   @ApiQuery({ name: 'startDate', required: false })
@@ -83,7 +84,7 @@ export class BankTransferController {
   }
 
   @Post('schedule-payroll')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Programmer les virements de paie automatiques' })
   @ApiResponse({ status: 201, description: 'Virements de paie programmés avec succès' })
   async schedulePayrollTransfers(
@@ -98,7 +99,7 @@ export class BankTransferController {
   }
 
   @Get(':id')
-  @Roles('admin', 'hr_manager', 'accountant', 'manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER)
   @ApiOperation({ summary: 'Obtenir les détails d\'un virement' })
   @ApiResponse({ status: 200, description: 'Détails du virement', type: BankTransfer })
   @ApiResponse({ status: 404, description: 'Virement non trouvé' })
@@ -111,7 +112,7 @@ export class BankTransferController {
   }
 
   @Patch(':id/execute')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Exécuter un virement' })
   @ApiResponse({ status: 200, description: 'Virement exécuté avec succès' })
   @ApiResponse({ status: 400, description: 'Virement ne peut plus être exécuté' })
@@ -124,7 +125,7 @@ export class BankTransferController {
   }
 
   @Patch(':id/cancel')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Annuler un virement' })
   @ApiResponse({ status: 200, description: 'Virement annulé avec succès' })
   @ApiResponse({ status: 400, description: 'Virement ne peut plus être annulé' })
@@ -138,7 +139,7 @@ export class BankTransferController {
   }
 
   @Patch(':id/retry')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Réessayer un virement échoué' })
   @ApiResponse({ status: 200, description: 'Virement réessayé avec succès' })
   @ApiResponse({ status: 400, description: 'Virement ne peut pas être réessayé' })
@@ -151,7 +152,7 @@ export class BankTransferController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Supprimer un virement' })
   @ApiResponse({ status: 200, description: 'Virement supprimé avec succès' })
   @ApiResponse({ status: 400, description: 'Virement ne peut plus être supprimé' })

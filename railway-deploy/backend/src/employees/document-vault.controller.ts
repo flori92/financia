@@ -20,6 +20,7 @@ import { DocumentVault, DocumentType, DocumentStatus, AccessLevel } from './enti
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
@@ -30,7 +31,7 @@ export class DocumentVaultController {
   constructor(private readonly documentVaultService: DocumentVaultService) {}
 
   @Post()
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -80,7 +81,7 @@ export class DocumentVaultController {
     }
 
     // Employé ne peut uploader que pour lui-même (sauf RH/Admin)
-    if (req.user.role === 'employee') {
+    if (req.user.role === UserRole.EMPLOYEE) {
       body.employeeId = req.user.employeeId;
     }
 
@@ -114,7 +115,7 @@ export class DocumentVaultController {
   }
 
   @Get()
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Lister les documents du coffre fort' })
   @ApiResponse({ status: 200, description: 'Liste des documents' })
   @ApiQuery({ name: 'employeeId', required: false })
@@ -141,7 +142,7 @@ export class DocumentVaultController {
     @Query('limit') limit?: number
   ): Promise<{ documents: DocumentVault[]; total: number }> {
     // Employé ne peut voir que ses propres documents
-    if (req.user.role === 'employee') {
+    if (req.user.role === UserRole.EMPLOYEE) {
       employeeId = req.user.employeeId;
     }
 
@@ -160,7 +161,7 @@ export class DocumentVaultController {
   }
 
   @Get('stats')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Obtenir les statistiques des documents' })
   @ApiResponse({ status: 200, description: 'Statistiques des documents' })
   @ApiQuery({ name: 'startDate', required: false })
@@ -175,7 +176,7 @@ export class DocumentVaultController {
   }
 
   @Get(':id')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Obtenir les détails d\'un document' })
   @ApiResponse({ status: 200, description: 'Détails du document', type: DocumentVault })
   @ApiResponse({ status: 404, description: 'Document non trouvé' })
@@ -188,7 +189,7 @@ export class DocumentVaultController {
   }
 
   @Get(':id/download')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Télécharger un document' })
   @ApiResponse({ status: 200, description: 'Fichier du document' })
   @ApiResponse({ status: 404, description: 'Document non trouvé' })
@@ -202,7 +203,7 @@ export class DocumentVaultController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Mettre à jour les métadonnées d\'un document' })
   @ApiResponse({ status: 200, description: 'Document mis à jour', type: DocumentVault })
   @ApiResponse({ status: 400, description: 'Document ne peut plus être modifié' })
@@ -236,7 +237,7 @@ export class DocumentVaultController {
   }
 
   @Patch(':id/approve')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Approuver un document en attente de vérification' })
   @ApiResponse({ status: 200, description: 'Document approuvé avec succès' })
   @ApiResponse({ status: 400, description: 'Document ne peut pas être approuvé' })
@@ -250,7 +251,7 @@ export class DocumentVaultController {
   }
 
   @Patch(':id/archive')
-  @Roles('admin', 'hr_manager')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER)
   @ApiOperation({ summary: 'Archiver un document' })
   @ApiResponse({ status: 200, description: 'Document archivé avec succès' })
   @ApiResponse({ status: 400, description: 'Document ne peut pas être archivé' })
@@ -263,7 +264,7 @@ export class DocumentVaultController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'hr_manager', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Supprimer un document' })
   @ApiResponse({ status: 200, description: 'Document supprimé avec succès' })
   @ApiResponse({ status: 400, description: 'Document ne peut plus être supprimé' })

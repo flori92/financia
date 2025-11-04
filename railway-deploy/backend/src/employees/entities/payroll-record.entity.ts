@@ -63,6 +63,9 @@ export class PayrollRecord {
   @Column({ name: 'overtime_hours', type: 'decimal', precision: 8, scale: 2, default: 0 })
   overtimeHours: number;
 
+  @Column({ name: 'currency', default: 'XOF', length: 3 })
+  currency: string;
+
   @Column({ name: 'overtime_pay', type: 'decimal', precision: 15, scale: 2, default: 0 })
   overtimePay: number;
 

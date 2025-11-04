@@ -16,6 +16,7 @@ import { PayrollRecord, PayrollStatus, PayrollFrequency } from './entities/payro
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
 
 @ApiTags('Payroll / Paie')
 @Controller('payroll')
@@ -24,7 +25,7 @@ export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {}
 
   @Post()
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Créer une nouvelle fiche de paie' })
   @ApiResponse({ status: 201, description: 'Fiche de paie créée avec succès', type: PayrollRecord })
   @ApiResponse({ status: 400, description: 'Données invalides ou doublon de période' })
@@ -36,7 +37,7 @@ export class PayrollController {
   }
 
   @Get()
-  @Roles('admin', 'hr_manager', 'accountant', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Lister les fiches de paie' })
   @ApiResponse({ status: 200, description: 'Liste des fiches de paie' })
   @ApiQuery({ name: 'employeeId', required: false })
@@ -70,7 +71,7 @@ export class PayrollController {
   }
 
   @Get('stats')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Obtenir les statistiques de paie' })
   @ApiResponse({ status: 200, description: 'Statistiques de paie' })
   @ApiQuery({ name: 'startDate', required: false })
@@ -85,7 +86,7 @@ export class PayrollController {
   }
 
   @Post('calculate-batch')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Calculer la paie pour plusieurs employés' })
   @ApiResponse({ status: 201, description: 'Fiches de paie calculées avec succès' })
   async calculateBatchPayroll(
@@ -105,7 +106,7 @@ export class PayrollController {
   }
 
   @Get(':id')
-  @Roles('admin', 'hr_manager', 'accountant', 'manager', 'employee')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Obtenir les détails d\'une fiche de paie' })
   @ApiResponse({ status: 200, description: 'Détails de la fiche de paie', type: PayrollRecord })
   @ApiResponse({ status: 404, description: 'Fiche de paie non trouvée' })
@@ -125,7 +126,7 @@ export class PayrollController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Mettre à jour une fiche de paie' })
   @ApiResponse({ status: 200, description: 'Fiche de paie mise à jour', type: PayrollRecord })
   @ApiResponse({ status: 400, description: 'Fiche de paie ne peut plus être modifiée' })
@@ -140,7 +141,7 @@ export class PayrollController {
   }
 
   @Patch(':id/approve')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Approuver une fiche de paie' })
   @ApiResponse({ status: 200, description: 'Fiche de paie approuvée avec succès' })
   @ApiResponse({ status: 400, description: 'Fiche de paie ne peut pas être approuvée' })
@@ -153,7 +154,7 @@ export class PayrollController {
   }
 
   @Patch(':id/process')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Traiter une fiche de paie (générer bulletin)' })
   @ApiResponse({ status: 200, description: 'Fiche de paie traitée avec succès' })
   @ApiResponse({ status: 400, description: 'Fiche de paie ne peut pas être traitée' })
@@ -166,7 +167,7 @@ export class PayrollController {
   }
 
   @Patch(':id/mark-as-paid')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Marquer une fiche de paie comme payée' })
   @ApiResponse({ status: 200, description: 'Fiche de paie marquée comme payée avec succès' })
   @ApiResponse({ status: 400, description: 'Fiche de paie ne peut pas être marquée comme payée' })
@@ -190,7 +191,7 @@ export class PayrollController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'hr_manager', 'accountant')
+  @Roles(UserRole.ADMIN, UserRole.HR_MANAGER, UserRole.ACCOUNTANT)
   @ApiOperation({ summary: 'Supprimer une fiche de paie' })
   @ApiResponse({ status: 200, description: 'Fiche de paie supprimée avec succès' })
   @ApiResponse({ status: 400, description: 'Fiche de paie ne peut plus être supprimée' })

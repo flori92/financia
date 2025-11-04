@@ -4,15 +4,18 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
 } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
 import { User } from '../../auth/entities/user.entity';
 import { Timesheet } from './timesheet.entity';
+import { TimesheetLine } from './timesheet-line.entity';
 import { LeaveRequest } from './leave-request.entity';
 import { PayrollRecord } from './payroll-record.entity';
+import { BankTransfer } from './bank-transfer.entity';
+import { DocumentVault } from './document-vault.entity';
 
 export enum EmployeeStatus {
   ACTIVE = 'active',
@@ -171,13 +174,13 @@ export class Employee {
   @ManyToOne(() => User, { nullable: true })
   user: User;
 
-  @OneToMany(() => Timesheet, (timesheet) => timesheet.employee)
+  @OneToMany(() => Timesheet, (timesheet: any) => timesheet.employee)
   timesheets: Timesheet[];
 
-  @OneToMany(() => LeaveRequest, (leaveRequest) => leaveRequest.employee)
+  @OneToMany(() => LeaveRequest, (leaveRequest: any) => leaveRequest.employee)
   leaveRequests: LeaveRequest[];
 
-  @OneToMany(() => PayrollRecord, (payrollRecord) => payrollRecord.employee)
+  @OneToMany(() => PayrollRecord, (payrollRecord: any) => payrollRecord.employee)
   payrollRecords: PayrollRecord[];
 
   // Métadonnées

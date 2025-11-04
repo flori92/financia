@@ -52,6 +52,9 @@ export class User {
   })
   roles: Role[];
 
+  @Column({ type: 'uuid', nullable: true, name: 'employee_id' })
+  employeeId: string;
+
   @Column({ name: 'ux_level', default: 'simple' })
   uxLevel: 'simple' | 'intermediate' | 'expert';
 
