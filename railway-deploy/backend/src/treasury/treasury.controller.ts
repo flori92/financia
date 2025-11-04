@@ -6,6 +6,10 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { ProfileGuard } from '../auth/guards/profile.guard';
 import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { CompanyId } from '../common/decorators/company-id.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Profiles } from '../auth/decorators/profile.decorator';
+import { UserRole } from '../auth/guards/roles.guard';
+import { UserProfile } from '../auth/guards/user-profiles';
 
 @ApiTags('Treasury')
 @ApiBearerAuth()
@@ -44,6 +48,8 @@ export class TreasuryController {
   }
 
   @Get('alerts')
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   @ApiOperation({ summary: 'Alertes trésorerie (runway, tendances, seuils configurables)' })
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'criticalRunwayDays', required: false, description: 'Seuil critique en jours (défaut: 15)' })
@@ -89,6 +95,8 @@ export class TreasuryController {
   }
 
   @Get('forecast')
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   @ApiOperation({ summary: 'Prévisions de trésorerie (naïf 30j → horizon 7/30 jours)' })
   @ApiQuery({ name: 'companyId', required: true })
   @ApiQuery({ name: 'horizonDays', required: false, description: 'Nombre de jours à prévoir (défaut: 7)' })

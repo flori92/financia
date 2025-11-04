@@ -61,6 +61,8 @@ export class BankingController {
   }
 
   @Get('transactions')
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   @ApiOperation({ summary: 'Lister les transactions bancaires' })
   @ApiResponse({
     status: 200,
