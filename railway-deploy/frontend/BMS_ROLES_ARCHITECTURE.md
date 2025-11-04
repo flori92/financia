@@ -12,11 +12,13 @@
 - **ROLE_EMPLOYEE**: Rôle de base pour TOUS les personnels de l'entreprise
 - **Rôles cumulables**: Manager, RH, Expert Comptable, Entrepreneur peuvent cumuler avec ROLE_EMPLOYEE
 - **Cumul Fiscal possible**: Manager, Expert Comptable, Entrepreneur peuvent aussi cumuler avec ROLE_FISCAL_ADMIN
+- **Super Admin**: ROLE_SUPER_ADMIN avec accès complet à tous les espaces et fonctionnalités
 - **Rôles externes uniquement**: Banque (non cumulables avec d'autres rôles)
 
 **🔄 Logique de Cumul**:
 - **Interne entreprise**: Employee + Manager + RH + Expert Comptable + Entrepreneur (cumul possible)
 - **Gestion fiscale**: Manager + Expert Comptable + Entrepreneur + Fiscal Admin (cumul possible)
+- **Super Admin**: Accès UNIVERSEL à tous les rôles et espaces
 - **Externe**: Banque (accès spécialisé uniquement)
 
 ---
@@ -204,24 +206,63 @@
 
 ---
 
+### 8. 👑 **ROLE_SUPER_ADMIN (Accès Universel)**
+**Route**: `/admin`  
+**Accès**: TOUS les espaces et fonctionnalités du système
+
+#### Fonctionnalités Super Admin
+- ✅ **Accès Universel**
+  - Tous les espaces: Employee, Manager, RH, Expert Comptable, Entrepreneur, Fiscal Admin, Banque
+  - Toutes les fonctionnalités sans restriction
+  - Vue d'ensemble complète de toute l'entreprise
+- ✅ **Administration Système**
+  - Gestion des comptes utilisateurs et rôles
+  - Configuration globale de la plateforme
+  - Monitoring et maintenance du système
+- ✅ **Super Vision**
+  - Audit de toutes les activités et accès
+  - Rapports globaux multi-départements
+  - Contrôle de sécurité et conformité
+- ✅ **Pouvoirs Spéciaux**
+  - Réinitialisation des mots de passe
+  - Déblocage des comptes utilisateurs
+  - Modification des permissions et rôles
+  - Accès backup et restauration
+
+#### Interface Spéciale
+- Dashboard Super Admin avec métriques globales
+- Panneau de contrôle central pour toutes les opérations
+- Système de navigation rapide entre tous les espaces
+- Outils d'administration avancés
+
+**🔐 Sécurité**: 
+- Authentification multi-facteurs obligatoire
+- Logs détaillés de toutes les actions admin
+- Restrictions IP possibles
+- Session timeout renforcé
+
+---
+
 ## 🔄 **Logique de Cumul des Rôles**
 
 ### **Matrix d'Accès**
-| Rôle Principal | Employee | Manager | HR | Expert Comptable | Entrepreneur | Fiscal | Banque |
-|----------------|----------|---------|----|------------------|--------------|--------|--------|
-| Employee       | ✅       | ❌      | ❌ | ❌               | ❌           | ❌     | ❌     |
-| Manager        | ✅       | ✅      | ❌ | ❌               | ❌           | ✅     | ❌     |
-| HR             | ✅       | ❌      | ✅ | ❌               | ❌           | ❌     | ❌     |
-| Expert Comptable | ✅     | ❌      | ❌ | ✅               | ❌           | ✅     | ❌     |
-| Entrepreneur   | ✅       | ❌      | ❌ | ❌               | ✅           | ✅     | ❌     |
-| Fiscal Admin   | ❌       | ❌      | ❌ | ❌               | ❌           | ✅     | ❌     |
-| Bank           | ❌       | ❌      | ❌ | ❌               | ❌           | ❌     | ✅     |
+| Rôle Principal | Employee | Manager | HR | Expert Comptable | Entrepreneur | Fiscal | Banque | Super Admin |
+|----------------|----------|---------|----|------------------|--------------|--------|--------|-------------|
+| Employee       | ✅       | ❌      | ❌ | ❌               | ❌           | ❌     | ❌     | ❌           |
+| Manager        | ✅       | ✅      | ❌ | ❌               | ❌           | ✅     | ❌     | ❌           |
+| HR             | ✅       | ❌      | ✅ | ❌               | ❌           | ❌     | ❌     | ❌           |
+| Expert Comptable | ✅     | ❌      | ❌ | ✅               | ❌           | ✅     | ❌     | ❌           |
+| Entrepreneur   | ✅       | ❌      | ❌ | ❌               | ✅           | ✅     | ❌     | ❌           |
+| Fiscal Admin   | ❌       | ❌      | ❌ | ❌               | ❌           | ✅     | ❌     | ❌           |
+| Bank           | ❌       | ❌      | ❌ | ❌               | ❌           | ❌     | ✅     | ❌           |
+| **Super Admin**| ✅       | ✅      | ✅ | ✅               | ✅           | ✅     | ✅     | ✅           |
 
 **📝 Notes**:
 - **Expert Comptable**: Cumul Employee + Fiscal possible si interne à l'entreprise
 - **Entrepreneur**: Cumul Employee + Fiscal possible si fait partie de l'entreprise
 - **Manager**: Cumul Employee + Fiscal possible pour gestion déclarations
 - **Fiscal/Banque**: Rôles externes, Fiscal peut cumuler avec internes, Banque reste spécialisé
+- **Super Admin**: Accès UNIVERSEL à tous les espaces et fonctionnalités sans restriction
 
 ### **Exemples Concrets**
 - **Alice (Développeur)**: ROLE_EMPLOYEE → Accès `/employee-space`
@@ -234,6 +275,7 @@
 - **Eva (Entrepreneur interne)**: ROLE_EMPLOYEE + ROLE_ENTREPRENEUR → Accès `/employee-space` + `/entrepreneur`
 - **Eva (Entrepreneur avec fiscal)**: ROLE_EMPLOYEE + ROLE_ENTREPRENEUR + ROLE_FISCAL_ADMIN → Accès `/employee-space` + `/entrepreneur` + `/fiscal-admin`
 - **Eva (Entrepreneur externe)**: ROLE_ENTREPRENEUR → Accès `/entrepreneur` uniquement
+- **Super Admin**: ROLE_SUPER_ADMIN → Accès **UNIVERSEL** à tous les espaces (`/admin` + tous les autres)
 
 ---
 
@@ -413,6 +455,23 @@ interface Permission {
 5. Assure la conformité fiscale de son département
 ```
 
+### **Scénario 9: Super Admin**
+```
+1. Admin se connecte → ROLE_SUPER_ADMIN
+2. Accède à /admin (dashboard central de contrôle)
+3. Peut naviguer vers TOUS les espaces:
+   - /employee-space (pour aider un employé)
+   - /manager-space (pour superviser les équipes)
+   - /hr-space (pour administrer le personnel)
+   - /expert-comptable (pour vérifier la comptabilité)
+   - /entrepreneur (pour accéder aux KPI stratégiques)
+   - /fiscal-admin (pour superviser les déclarations)
+   - /banking (pour gérer les relations bancaires)
+4. Gère les comptes utilisateurs et les permissions
+5. Configure les paramètres globaux du système
+6. Monitor l'activité et la sécurité de toute la plateforme
+```
+
 ---
 
 ## 📊 **Métriques de Succès**
@@ -422,6 +481,7 @@ interface Permission {
 - **Manager**: 85% des managers (cible)
 - **HR**: 95% des équipes RH (cible)
 - **Spécialisés**: 90% des experts (cible)
+- **Super Admin**: 100% des administrateurs système (cible)
 
 ### **Performance Technique**
 - **Load Time**: <1.5s pour tous les rôles
