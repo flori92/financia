@@ -146,8 +146,34 @@ export class SeedController {
       
       console.log(`✅ ${columnsCreated.length} colonne(s) créée(s): ${columnsCreated.join(', ')}`);
       
-      // ÉTAPE 2: Mettre à jour les profils selon le rôle
-      console.log('🔄 Mise à jour des primaryProfile selon les roles...');
+      // ÉTAPE 2: Corriger les rôles des utilisateurs seed
+      console.log('🔄 Correction des roles utilisateurs seed...');
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      
+      await this.dataSource.query(`
+        UPDATE users SET role = 'admin', primary_profile = 'admin', password = $1 
+        WHERE email = 'admin@bms.bj';
+      `, [hashedPassword]);
+      
+      await this.dataSource.query(`
+        UPDATE users SET role = 'tax_admin', primary_profile = 'tax_admin', password = $1 
+        WHERE email = 'taxadmin@dgi.bj';
+      `, [hashedPassword]);
+      
+      await this.dataSource.query(`
+        UPDATE users SET role = 'accountant', primary_profile = 'accountant', password = $1 
+        WHERE email = 'comptable@cabinet.bj';
+      `, [hashedPassword]);
+      
+      await this.dataSource.query(`
+        UPDATE users SET role = 'user', primary_profile = 'entrepreneur', password = $1 
+        WHERE email = 'entrepreneur@test.bj';
+      `, [hashedPassword]);
+      
+      console.log('✅ Roles et primaryProfile corrigés pour les utilisateurs seed');
+      
+      // ÉTAPE 3: Mettre à jour les autres profils selon le rôle
+      console.log('🔄 Mise à jour des autres primaryProfile selon les roles...');
       await this.dataSource.query(`
         UPDATE users 
         SET primary_profile = CASE 
@@ -165,7 +191,7 @@ export class SeedController {
       
       console.log('✅ primaryProfile mis à jour pour tous les utilisateurs');
       
-      // ÉTAPE 3: Vérifier les résultats
+      // ÉTAPE 4: Vérifier les résultats
       const users = await this.dataSource.query(`
         SELECT email, role, primary_profile, profiles FROM users;
       `);
