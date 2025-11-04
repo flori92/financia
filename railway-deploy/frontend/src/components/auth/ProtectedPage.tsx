@@ -9,12 +9,13 @@ import ErrorBoundary from '../error/ErrorBoundary';
 
 interface ProtectedPageProps {
   children: React.ReactNode;
+  requiredRole?: string;
 }
 
-export function ProtectedPage({ children }: ProtectedPageProps) {
+export function ProtectedPage({ children, requiredRole }: ProtectedPageProps) {
   return (
     <ErrorBoundary>
-      <AuthGuard>
+      <AuthGuard requiredRole={requiredRole}>
         {children}
       </AuthGuard>
     </ErrorBoundary>

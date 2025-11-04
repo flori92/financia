@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-export function AuthGuard({ children }: { children: React.ReactNode }) {
+export function AuthGuard({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
@@ -23,10 +23,23 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     if (!token) {
       router.push("/login");
-    } else {
-      setIsChecking(false);
+      return;
     }
-  }, [pathname, router]);
+
+    // Vérifier le rôle si requis
+    if (requiredRole) {
+      const userRole = typeof window !== "undefined" 
+        ? window.localStorage.getItem("bms_user_role") 
+        : null;
+
+      if (userRole !== requiredRole) {
+        router.push("/unauthorized");
+        return;
+      }
+    }
+
+    setIsChecking(false);
+  }, [pathname, router, requiredRole]);
 
   if (isChecking) {
     return (
