@@ -23,6 +23,8 @@ const ENTREPRENEUR_NAV = [
 const ACCOUNTANT_NAV = [
   { href: "/accountant", label: "Dashboard Comptable", icon: LayoutDashboard },
   { href: "/accountant/validation", label: "Centre de Validation", icon: FileCheck },
+  { href: "/crm/contacts", label: "CRM", icon: Users },
+  { href: "/hr", label: "RH", icon: Briefcase },
   { href: "/accountant/chart-of-accounts", label: "Plan Comptable SYSCOHADA", icon: Landmark },
   { href: "/accountant/journal", label: "Journal des Écritures", icon: FileText },
   { href: "/accountant/general-ledger", label: "Grand Livre", icon: LayoutDashboard },
