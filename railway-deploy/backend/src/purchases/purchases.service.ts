@@ -19,7 +19,7 @@ export class PurchasesService {
   async getSuppliers(companyId: string): Promise<Supplier[]> {
     return this.supplierRepo.find({ 
       where: { companyId },
-      relations: ['purchaseOrders']
+      order: { createdAt: 'DESC' }
     });
   }
 
