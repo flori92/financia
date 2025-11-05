@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { UserCog, Plus, Mail, Shield, Edit, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { apiGet, apiPost, apiPut, apiDelete, getCompanyId } from "@/lib/api";
+import { PermissionGuard } from "@/components/auth/PermissionGuard";
 
 const ROLES = [
   { value: "admin", label: "Administrateur", color: "bg-red-100 text-red-700" },
@@ -24,6 +25,18 @@ interface User {
 }
 
 export default function UsersPage() {
+  return (
+    <PermissionGuard
+      requiredPermissions={["users:read", "users:write"]}
+      requireAll={false}
+      resource="la gestion des utilisateurs"
+    >
+      <UsersPageContent />
+    </PermissionGuard>
+  );
+}
+
+function UsersPageContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
