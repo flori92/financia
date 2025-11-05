@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info, PenTool } from "lucide-react";
 import { formatCurrency, detectCurrency, type CurrencyCode } from "@/lib/currency";
 import { CurrencyBadge } from "@/components/ui/currency-badge";
+import { aiAPI } from "@/lib/api-client";
 
 type DocumentType = "invoice" | "receipt" | "bank_statement";
 
@@ -81,19 +82,7 @@ export default function OcrPage() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch(`/api/v1/ai/ocr/${selectedType}`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'extraction OCR");
-      }
-
-      const data = await response.json();
+      const data = await aiAPI.ocr(file, selectedType);
       
       setResult({
         type: selectedType,
