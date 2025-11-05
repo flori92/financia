@@ -435,6 +435,8 @@ export class AccountingController {
   // ============================================
 
   @Get('dashboard/metrics')
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT, UserProfile.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
   @ApiOperation({ summary: 'Métriques du dashboard comptable (KPI, graphiques, alertes)' })
   @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({
