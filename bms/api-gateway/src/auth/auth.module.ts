@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 
 import { AuthController } from './auth.controller';
+import { UsersController } from './users.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -26,7 +27,7 @@ import { TwoFactorController } from './two-factor.controller';
       }),
     }),
   ],
-  controllers: [AuthController, TwoFactorController],
+  controllers: [AuthController, TwoFactorController, UsersController],
   providers: [AuthService, JwtStrategy, LocalStrategy, TwoFactorService],
   exports: [AuthService, TwoFactorService],
 })
