@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react";
 import { EmailDialog } from "@/components/shared/EmailDialog";
-import { invoicesAPI } from '@/lib/api-client';
+import { invoicesAPI, crmAPI } from '@/lib/api-client';
 
 
 export default function InvoicesPage() {

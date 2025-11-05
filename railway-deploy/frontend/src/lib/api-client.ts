@@ -35,13 +35,21 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
+    // Auto-include authentication token from localStorage
+    const token = this.getToken();
+    const headers: Record<string, string> = {
+      ...this.defaultHeaders,
+      ...options.headers,
+    };
+
+    if (token && !headers['Authorization']) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const config: RequestInit = {
       ...options,
-      headers: {
-        ...this.defaultHeaders,
-        ...options.headers,
-      },
+      headers,
     };
 
     // Add timeout
@@ -54,6 +62,14 @@ class ApiClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // Handle 401 Unauthorized - redirect to login
+        if (response.status === 401 && typeof window !== 'undefined') {
+          window.localStorage.removeItem('bms_token');
+          window.localStorage.removeItem('token');
+          window.localStorage.removeItem('bms_access_token');
+          window.localStorage.removeItem('user_data');
+          window.location.href = '/login';
+        }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -148,6 +164,17 @@ class ApiClient {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  }
+
+  // Get token from localStorage
+  private getToken(): string | undefined {
+    if (typeof window !== 'undefined') {
+      const token = window.localStorage.getItem('bms_token') ||
+                    window.localStorage.getItem('token') ||
+                    window.localStorage.getItem('bms_access_token');
+      return token || undefined;
+    }
+    return undefined;
   }
 
   // Set authentication token
