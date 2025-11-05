@@ -36,7 +36,8 @@ export default function LoginPage() {
       color: "bg-blue-600",
       hoverColor: "hover:bg-blue-700",
       borderColor: "border-blue-600",
-      demoEmail: "comptable@cabinet.bj"
+      demoEmail: "comptable@cabinet.bj",
+      demoPassword: "password123"
     },
     {
       id: "entrepreneur",
@@ -46,7 +47,8 @@ export default function LoginPage() {
       color: "bg-emerald-600",
       hoverColor: "hover:bg-emerald-700",
       borderColor: "border-emerald-600",
-      demoEmail: "entreprise@company.bj"
+      demoEmail: "entrepreneur@test.bj",
+      demoPassword: "password123"
     },
     {
       id: "administration_fiscal",
@@ -56,7 +58,8 @@ export default function LoginPage() {
       color: "bg-amber-600",
       hoverColor: "hover:bg-amber-700",
       borderColor: "border-amber-600",
-      demoEmail: "fiscal@dgfi.bj"
+      demoEmail: "taxadmin@dgi.bj",
+      demoPassword: "password123"
     },
     {
       id: "admin",
@@ -66,7 +69,8 @@ export default function LoginPage() {
       color: "bg-purple-600",
       hoverColor: "hover:bg-purple-700",
       borderColor: "border-purple-600",
-      demoEmail: "admin@bms.bj"
+      demoEmail: "admin@bms.bj",
+      demoPassword: "password123"
     },
     {
       id: "hr_manager",
@@ -76,7 +80,8 @@ export default function LoginPage() {
       color: "bg-rose-600",
       hoverColor: "hover:bg-rose-700",
       borderColor: "border-rose-600",
-      demoEmail: "rh@company.bj"
+      demoEmail: "s.agbodjan@cabinet.bj",
+      demoPassword: "password123"
     },
     {
       id: "manager",
@@ -86,7 +91,8 @@ export default function LoginPage() {
       color: "bg-indigo-600",
       hoverColor: "hover:bg-indigo-700",
       borderColor: "border-indigo-600",
-      demoEmail: "manager@company.bj"
+      demoEmail: "e.dossou@cabinet.bj",
+      demoPassword: "password123"
     }
   ];
 
@@ -371,6 +377,77 @@ export default function LoginPage() {
                 <div className="flex items-center gap-1">
                   <Shield className="w-3 h-3" strokeWidth={1.5} />
                   <span>RGPD compliant</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Carte Comptes Démo */}
+        <div className="mt-12 bg-gradient-to-br from-blue-600/10 to-purple-600/10 backdrop-blur-sm rounded-2xl border border-blue-500/20 p-8">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600/20 rounded-full mb-4">
+              <Shield className="w-4 h-4 text-blue-400" strokeWidth={1.5} />
+              <span className="text-blue-400 text-sm font-semibold">Comptes de Démonstration</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Testez BMS avec nos comptes démo</h3>
+            <p className="text-slate-400 text-sm">Tous les comptes utilisent le mot de passe: <span className="text-blue-400 font-mono">password123</span></p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {profiles.map((profile) => (
+              <div
+                key={profile.id}
+                onClick={() => {
+                  setEmail(profile.demoEmail);
+                  setPassword(profile.demoPassword);
+                  setSelectedProfile(profile.id);
+                }}
+                className="group cursor-pointer bg-slate-800/50 hover:bg-slate-800/70 border border-slate-700 hover:border-slate-600 rounded-xl p-4 transition-all duration-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${profile.color} flex items-center justify-center flex-shrink-0`}>
+                    <profile.icon className="w-5 h-5 text-white" strokeWidth={1.5} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-white font-semibold text-sm mb-1">{profile.name}</h4>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-xs text-slate-400 font-mono truncate">{profile.demoEmail}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Lock className="w-3 h-3 text-slate-400 flex-shrink-0" strokeWidth={1.5} />
+                        <span className="text-xs text-slate-400 font-mono">{profile.demoPassword}</span>
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-blue-400 group-hover:text-blue-300 transition-colors">
+                      Cliquer pour utiliser →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-slate-700/50">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-sm text-slate-400">
+                <AlertCircle className="w-4 h-4" strokeWidth={1.5} />
+                <span>Ces comptes sont à usage de démonstration uniquement</span>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-slate-500">
+                <div className="flex items-center gap-1">
+                  <Users className="w-3 h-3" strokeWidth={1.5} />
+                  <span>12 employés</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Receipt className="w-3 h-3" strokeWidth={1.5} />
+                  <span>36 bulletins</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Building2 className="w-3 h-3" strokeWidth={1.5} />
+                  <span>3 entreprises</span>
                 </div>
               </div>
             </div>
