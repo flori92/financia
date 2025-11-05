@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, DollarSign, BarChart3, Eye, CheckCircle } from "lucide-react";
+import { apiGet, apiPost, apiPatch, apiDelete, getCompanyId } from '@/lib/api';
 
 interface RevenueData {
   id: string;
@@ -30,39 +31,9 @@ export default function RevenueRecognitionPage() {
     setLoading(true);
     try {
       // Mock data - à remplacer par un vrai appel API
-      const mockData: RevenueData[] = [
-        {
-          id: '1',
-          period: '2025-10',
-          recognizedRevenue: 2500000,
-          deferredRevenue: 500000,
-          totalRevenue: 3000000,
-          recognitionRate: 83.3,
-          status: 'recognized',
-          contracts: 45
-        },
-        {
-          id: '2',
-          period: '2025-09',
-          recognizedRevenue: 2200000,
-          deferredRevenue: 800000,
-          totalRevenue: 3000000,
-          recognitionRate: 73.3,
-          status: 'recognized',
-          contracts: 38
-        },
-        {
-          id: '3',
-          period: '2025-08',
-          recognizedRevenue: 1800000,
-          deferredRevenue: 1200000,
-          totalRevenue: 3000000,
-          recognitionRate: 60.0,
-          status: 'in-review',
-          contracts: 42
-        }
-      ];
-      setRevenueData(mockData);
+      const companyId = getCompanyId();
+      const data = await apiGet('/api/v1/accounting/revenue-recognition', { companyId });
+      setRevenueData(data);
     } catch (error) {
       console.error('Error loading revenue recognition:', error);
     } finally {

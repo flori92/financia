@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(gh:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git -C /Users/floriace/MERP/financia branch -a)",
+      "Bash(git checkout:*)",
+      "Bash(railway:*)",
+      "Bash(cat:*)",
+      "Bash(RAILWAY_PROJECT_ID=e85bb96c-1c85-487e-851a-ae6087d38c96 railway status:*)",
+      "Bash(mkdir:*)",
+      "Bash(RAILWAY_PROJECT_ID=a003a9ae-d435-4d5a-a29a-f2d3f9c0f910 railway status:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []

@@ -297,3 +297,95 @@ CREATE INDEX idx_invoices_company ON invoices(company_id);
 CREATE INDEX idx_customers_company ON customers(company_id);
 CREATE INDEX idx_suppliers_company ON suppliers(company_id);
 CREATE INDEX idx_products_company ON products(company_id);
+
+
+-- ==================== COMMUNICATIONS ====================
+
+-- Emails
+CREATE TABLE IF NOT EXISTS emails (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES companies(id),
+    "from" VARCHAR(255) NOT NULL,
+    "to" VARCHAR(255) NOT NULL,
+    cc VARCHAR(255),
+    bcc VARCHAR(255),
+    subject VARCHAR(500) NOT NULL,
+    body TEXT NOT NULL,
+    folder VARCHAR(50) DEFAULT 'inbox',
+    status VARCHAR(50) DEFAULT 'draft',
+    read BOOLEAN DEFAULT FALSE,
+    starred BOOLEAN DEFAULT FALSE,
+    has_attachment BOOLEAN DEFAULT FALSE,
+    sent_at TIMESTAMP,
+    delivered_at TIMESTAMP,
+    read_at TIMESTAMP,
+    created_by UUID,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_emails_company_folder ON emails(company_id, folder);
+CREATE INDEX IF NOT EXISTS idx_emails_company_created ON emails(company_id, created_at);
+
+-- SMS Messages
+CREATE TABLE IF NOT EXISTS sms_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES companies(id),
+    "to" VARCHAR(50) NOT NULL,
+    "from" VARCHAR(50),
+    message TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    provider_id VARCHAR(100),
+    provider_name VARCHAR(50),
+    sent_at TIMESTAMP,
+    delivered_at TIMESTAMP,
+    error_message TEXT,
+    created_by UUID,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sms_company_created ON sms_messages(company_id, created_at);
+
+-- WhatsApp Messages
+CREATE TABLE IF NOT EXISTS whatsapp_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES companies(id),
+    conversation_id VARCHAR(100) NOT NULL,
+    "to" VARCHAR(50) NOT NULL,
+    "from" VARCHAR(50),
+    message TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'text',
+    direction VARCHAR(50) DEFAULT 'outbound',
+    status VARCHAR(50) DEFAULT 'pending',
+    media_url VARCHAR(500),
+    provider_id VARCHAR(100),
+    sent_at TIMESTAMP,
+    delivered_at TIMESTAMP,
+    read_at TIMESTAMP,
+    error_message TEXT,
+    created_by UUID,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_company_conversation ON whatsapp_messages(company_id, conversation_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_company_created ON whatsapp_messages(company_id, created_at);
+
+-- Communication Templates
+CREATE TABLE IF NOT EXISTS communication_templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES companies(id),
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    category VARCHAR(50),
+    subject VARCHAR(500),
+    body TEXT NOT NULL,
+    variables JSONB,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_by UUID,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_templates_company_type ON communication_templates(company_id, type);

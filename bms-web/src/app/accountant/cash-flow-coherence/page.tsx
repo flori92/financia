@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, getCompanyId } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,79 +60,12 @@ export default function CashFlowCoherencePage() {
   const loadCashFlowCoherence = async () => {
     setLoading(true);
     try {
-      // Mock data - à remplacer par un vrai appel API
-      const mockCashFlowData: CashFlowData[] = [
-        {
-          period: '2025-10',
-          revenue: 3200000,
-          cashInflow: 2800000,
-          cashOutflow: 2100000,
-          netCashFlow: 700000,
-          conversionRate: 87.5,
-          daysSalesOutstanding: 35,
-          collectionRate: 85.2,
-          status: 'warning'
-        },
-        {
-          period: '2025-09',
-          revenue: 2900000,
-          cashInflow: 2750000,
-          cashOutflow: 1950000,
-          netCashFlow: 800000,
-          conversionRate: 94.8,
-          daysSalesOutstanding: 28,
-          collectionRate: 92.1,
-          status: 'healthy'
-        },
-        {
-          period: '2025-08',
-          revenue: 3100000,
-          cashInflow: 2550000,
-          cashOutflow: 2200000,
-          netCashFlow: 350000,
-          conversionRate: 82.3,
-          daysSalesOutstanding: 42,
-          collectionRate: 78.5,
-          status: 'critical'
-        }
-      ];
-
-      const mockMetrics: CoherenceMetrics = {
-        revenueCashGap: 450000,
-        cashConversionEfficiency: 88.2,
-        liquidityRatio: 1.8,
-        workingCapital: 2500000,
-        operatingCashFlow: 1850000,
-        freeCashFlow: 950000
-      };
-
-      const mockAlerts: Alert[] = [
-        {
-          type: 'critical',
-          title: 'Décalage CA-Trésorerie important',
-          description: 'Écart de 450 000 FCFA entre chiffre d\'affaires et entrées de trésorerie',
-          impact: 'Risque de liquidité à court terme',
-          recommendation: 'Renforcer le recouvrement des créances clients'
-        },
-        {
-          type: 'warning',
-          title: 'Délai de paiement moyen allongé',
-          description: 'DSO de 35 jours (objectif: <30 jours)',
-          impact: 'Impact sur le besoin en fonds de roulement',
-          recommendation: 'Mettre en place une politique de recouvrement plus stricte'
-        },
-        {
-          type: 'info',
-          title: 'Taux de conversion améliorable',
-          description: '87.5% de conversion CA → trésorerie',
-          impact: 'Potentiel d\'optimisation de 12.5%',
-          recommendation: 'Analyser les causes des retards de paiement'
-        }
-      ];
-
-      setCashFlowData(mockCashFlowData);
-      setMetrics(mockMetrics);
-      setAlerts(mockAlerts);
+      const companyId = getCompanyId();
+      const data = await apiGet('/api/v1/treasury/cash-flow-analysis', { companyId, period: selectedPeriod });
+      
+      setCashFlowData(data.cashFlow || []);
+      setMetrics(data.metrics || null);
+      setAlerts(data.alerts || []);
     } catch (error) {
       console.error('Error loading cash flow coherence:', error);
     } finally {

@@ -96,7 +96,7 @@ export default function ClosePeriodPage() {
     const cid = getCompanyId();
     if (!cid || !preview || !preview.canClose) return;
     
-    const userId = '550e8400-e29b-41d4-a716-446655440000'; // TODO: récupérer du contexte
+    const userId = localStorage.getItem('userId') || '';
     
     setLoading(true);
     try {
