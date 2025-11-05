@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { Building2, Plus, Search, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 
 type AssetStatus = "en_service" | "amortis" | "en_cours";
@@ -51,7 +50,9 @@ const fallbackAssets: AssetItem[] = [
   },
 ];
 
-
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value) + " FCFA";
+}
 
 function statusLabel(status: AssetStatus) {
   switch (status) {

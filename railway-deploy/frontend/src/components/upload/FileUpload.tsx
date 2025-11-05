@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Upload, X, FileText, Image as ImageIcon, CheckCircle } from "lucide-react";
-import { getBaseUrl } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 
 interface FileUploadProps {
   label?: string;
@@ -74,7 +72,7 @@ export function FileUpload({
       const formData = new FormData();
       formData.append('file', fileToUpload);
 
-      let url = `${getBaseUrl()}/api/v1/uploads?`;
+      let url = `/api/v1/uploads?`;
       if (entityType) url += `entityType=${entityType}&`;
       if (entityId) url += `entityId=${entityId}&`;
       if (companyId) url += `companyId=${companyId}&`;

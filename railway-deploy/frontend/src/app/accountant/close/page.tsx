@@ -1,11 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { Lock, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function ClosePeriodPage() {
-  // v3.0 - Fix API URL routing
   const [loading, setLoading] = useState(false);
   const [closures, setClosures] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<string>(
@@ -25,8 +23,8 @@ export default function ClosePeriodPage() {
     const cid = getCompanyId();
     if (!cid) return;
     try {
-      const data = await apiGet('/api/v1/accounting/close', { companyId: cid });
-      setClosures(Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : []));
+      const data = await apiGet('/api/v1/accounting/closure', { companyId: cid });
+      setClosures(data || []);
     } catch (e: any) {
       console.error(e);
     }
@@ -47,17 +45,12 @@ export default function ClosePeriodPage() {
       return 0;
     };
 
-    // Harmonisation des schémas possibles provenant du backend
-    const revenues = asNumber(raw.totalRevenues ?? raw.revenues ?? raw.revenueTotal ?? 0);
-    const expenses = asNumber(raw.totalExpenses ?? raw.expenses ?? raw.expenseTotal ?? 0);
-    const result = asNumber(raw.result ?? raw.resultAmount ?? raw.netResult ?? (revenues - expenses));
-
     return {
       ...raw,
-      totalRevenues: revenues,
-      totalExpenses: expenses,
-      result,
-      canClose: Boolean(raw.canClose ?? true),
+      totalRevenues: asNumber(raw.totalRevenues ?? raw.revenues ?? 0),
+      totalExpenses: asNumber(raw.totalExpenses ?? raw.expenses ?? 0),
+      result: asNumber(raw.result ?? raw.resultAmount ?? (asNumber(raw.totalRevenues) - asNumber(raw.totalExpenses))),
+      canClose: Boolean(raw.canClose),
     };
   }
 
@@ -103,7 +96,7 @@ export default function ClosePeriodPage() {
     const cid = getCompanyId();
     if (!cid || !preview || !preview.canClose) return;
     
-    const userId = '550e8400-e29b-41d4-a716-446655440000'; // TODO: récupérer du contexte
+    const userId = localStorage.getItem('userId') || '';
     
     setLoading(true);
     try {
@@ -130,8 +123,6 @@ export default function ClosePeriodPage() {
     const safeValue = Number.isFinite(value) ? value : 0;
     return safeValue.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
-
-  const closuresList = Array.isArray(closures) ? closures : [];
 
   return (
     <div className="space-y-6">
@@ -252,7 +243,7 @@ export default function ClosePeriodPage() {
       {/* Historique */}
       <div className="card p-4">
         <h3 className="text-lg font-semibold mb-3">Historique des clôtures</h3>
-        {closuresList.length === 0 ? (
+        {closures.length === 0 ? (
           <div className="text-sm text-slate-500">Aucune clôture enregistrée</div>
         ) : (
           <div className="overflow-x-auto">
@@ -266,7 +257,7 @@ export default function ClosePeriodPage() {
                 </tr>
               </thead>
               <tbody>
-                {closuresList.map((closure: any) => (
+                {closures.map((closure: any) => (
                   <tr key={closure.id} className="border-b border-app-border">
                     <td className="py-2">
                       {new Date(closure.startDate).toLocaleDateString('fr-FR')} → {new Date(closure.endDate).toLocaleDateString('fr-FR')}

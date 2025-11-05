@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { apiGet, apiPost, getCompanyId } from "@/lib/api";
-import { BellRing, Loader2, Mail, PhoneCall, AlertTriangle, CheckCircle2, Eye, Send } from "lucide-react";
-import { ReminderPreviewModal } from "@/components/invoices/reminder-preview-modal";
-import { formatCurrency } from "@/lib/format-utils";
+import { apiGet, getCompanyId } from "@/lib/api";
+import { BellRing, Loader2, Mail, PhoneCall, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 type ReminderSeverity = "critical" | "warning" | "info";
 
@@ -14,27 +12,41 @@ type ReminderItem = {
   over90: number;
   daysLate: number;
   oldestDate: string;
-  customerEmail?: string;
-  customerPhone?: string;
-  customerWhatsApp?: string;
-  invoiceIds?: string[];
 };
 
-type ReminderPreview = {
-  invoice: string;
-  customerName: string;
-  customerEmail?: string;
-  customerPhone?: string;
-  customerWhatsApp?: string;
-  level: 'gentle' | 'firm' | 'formal' | 'legal';
-  daysOverdue: number;
-  amount: number;
-  penalty: number;
-  totalDue: number;
-  subject: string;
-  emailMessage: string;
-  smsMessage?: string;
-  whatsappMessage?: string;
+const fallbackReminders: ReminderItem[] = [
+  {
+    party: "SARL Martin",
+    total: 520000,
+    over90: 520000,
+    daysLate: 112,
+    oldestDate: "2024-09-30",
+  },
+  {
+    party: "Digital Agency Pro",
+    total: 285000,
+    over90: 180000,
+    daysLate: 76,
+    oldestDate: "2024-11-15",
+  },
+  {
+    party: "Logistique Express",
+    total: 190000,
+    over90: 0,
+    daysLate: 48,
+    oldestDate: "2024-12-10",
+  },
+];
+
+type RawAgedBalanceItem = {
+  party?: string;
+  customerName?: string;
+  total?: number;
+  over90?: number;
+  daysOverdue?: number;
+  daysLate?: number;
+  oldestDate?: string;
+  firstDueDate?: string;
 };
 
 function severity(amount: number, daysLate: number): ReminderSeverity {
@@ -43,7 +55,9 @@ function severity(amount: number, daysLate: number): ReminderSeverity {
   return "info";
 }
 
-
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value) + " FCFA";
+}
 
 export default function RemindersPage() {
   const [reminders, setReminders] = useState<ReminderItem[]>([]);
@@ -51,59 +65,39 @@ export default function RemindersPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<ReminderSeverity | "all">("all");
   const [processing, setProcessing] = useState<string | null>(null);
-  const [selectedReminder, setSelectedReminder] = useState<ReminderPreview | null>(null);
-  const [sendingAction, setSendingAction] = useState<string | null>(null);
-  const [sentReminders, setSentReminders] = useState<Set<string>>(new Set());
 
   const loadReminders = async () => {
     const companyId = getCompanyId();
     if (!companyId) {
-      setError("ID d'entreprise non trouvé");
+      setReminders(fallbackReminders);
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      // Récupérer les données depuis la balance âgée
       const aged = await apiGet("/api/v1/accounting/aged-balance", {
         companyId,
         type: "receivables",
       });
-      
       if (Array.isArray(aged?.items) && aged.items.length) {
-        const rawItems = aged.items;
+        const rawItems = aged.items as RawAgedBalanceItem[];
         const mapped: ReminderItem[] = rawItems
-          .map((item: {
-            party?: string;
-            customerName?: string;
-            total?: number;
-            over90?: number;
-            daysOverdue?: number;
-            daysLate?: number;
-            oldestDate?: string;
-            firstDueDate?: string;
-            customerEmail?: string;
-            customerPhone?: string;
-            customerWhatsApp?: string;
-          }) => ({
+          .map((item) => ({
             party: item.party || item.customerName || "Client",
             total: Number(item.total || 0),
             over90: Number(item.over90 || 0),
             daysLate: Number(item.daysOverdue ?? item.daysLate ?? 0),
             oldestDate: item.oldestDate || item.firstDueDate || new Date().toISOString().slice(0, 10),
-            customerEmail: item.customerEmail || `${item.party?.toLowerCase().replace(/\s+/g, '.')}@example.com`,
-            customerPhone: item.customerPhone || "+22900000000",
-            customerWhatsApp: item.customerWhatsApp || item.customerPhone || "+22900000000",
           }))
-          .filter((entry: ReminderItem) => entry.total > 0);
-        setReminders(mapped);
+          .filter((entry) => entry.total > 0);
+        setReminders(mapped.length ? mapped : fallbackReminders);
       } else {
-        setReminders([]);
+        setReminders(fallbackReminders);
       }
     } catch (err) {
       console.error("loadReminders", err);
-      setError("Impossible de récupérer les relances");
-      setReminders([]);
+      setError("Impossible de récupérer les relances (affichage des données de démonstration).");
+      setReminders(fallbackReminders);
     } finally {
       setLoading(false);
     }
@@ -125,157 +119,18 @@ export default function RemindersPage() {
     return { totalAmount, totalOver90, critical };
   }, [reminders]);
 
-  const generateReminderPreview = (item: ReminderItem): ReminderPreview => {
-    let level: 'gentle' | 'firm' | 'formal' | 'legal' = 'gentle';
-    if (item.daysLate > 45) level = 'legal';
-    else if (item.daysLate > 30) level = 'formal';
-    else if (item.daysLate > 15) level = 'firm';
+  function markAsDone(party: string) {
+    setProcessing(party);
+    setTimeout(() => {
+      setReminders((prev) => prev.filter((item) => item.party !== party));
+      setProcessing(null);
+    }, 700);
+  }
 
-    const penalty = Math.round(item.total * 0.0004 * item.daysLate + 40);
-    const totalDue = item.total + penalty;
-
-    const invoiceUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app'}/invoices/${item.party}`;
-
-    let subject = '';
-    let message = '';
-
-    switch (level) {
-      case 'gentle':
-        subject = `⏰ Rappel amiable - Facture en retard`;
-        message = `Bonjour ${item.party},
-
-Ceci est un rappel amical concernant votre facture :
-
- Facture : Multiple factures
- Montant : ${formatCurrency(item.total)}
- Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
-⏰ En retard de : ${item.daysLate} jour(s)
-
-Vous pouvez consulter et payer vos factures ici : ${invoiceUrl}
-
-Merci pour votre confiance !
-
-Cordialement,
-L'équipe BMS`;
-        break;
-
-      case 'firm':
-        subject = ` Rappel - Factures en retard de paiement`;
-        message = `Bonjour ${item.party},
-
-Vos factures sont en retard de paiement :
-
- Factures : Multiple factures
- Montant : ${formatCurrency(item.total)}
- Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
-⏰ En retard de : ${item.daysLate} jour(s)
-
-Merci de régulariser votre situation rapidement.
-
-Consultez vos factures : ${invoiceUrl}
-
-Cordialement,
-Service comptabilité BMS`;
-        break;
-
-      case 'formal':
-        subject = ` DEMANDE DE PAIEMENT - Factures en retard`;
-        message = `Madame, Monsieur ${item.party},
-
-Nous vous informons que vos factures présentent un retard important :
-
- Factures : Multiple factures
- Montant dû : ${formatCurrency(item.total)}
- Date d'échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
-⏰ Retard : ${item.daysLate} jour(s)
- Pénalités de retard : ${formatCurrency(penalty)}
-
-Nous vous demandons de procéder au règlement dans les plus brefs délais pour éviter toute procédure de recouvrement supplémentaire.
-
-Factures détaillées : ${invoiceUrl}
-
-Service recouvrement BMS`;
-        break;
-
-      case 'legal':
-        subject = `⚖ MISE EN DEMEURE - Factures impayées`;
-        message = `Madame, Monsieur ${item.party},
-
-MALGRÉ NOS RELANCES
-
-Nous vous mettons en demeure de régler votre dette :
-
- Factures : Multiple factures
- Montant principal : ${formatCurrency(item.total)}
- Pénalités de retard : ${formatCurrency(penalty)}
- TOTAL DÛ : ${formatCurrency(totalDue)}
- Échéance la plus ancienne : ${new Date(item.oldestDate).toLocaleDateString('fr-FR')}
-⏰ Retard : ${item.daysLate} jour(s)
-
-À défaut de paiement sous 8 jours, nous saisirons les tribunaux compétents.
-
-Factures : ${invoiceUrl}
-
-Service contentieux BMS`;
-        break;
-    }
-
-    const smsMessage = `${subject} - Montant : ${formatCurrency(item.total)} - Retard : ${item.daysLate}j - ${invoiceUrl}`;
-    const whatsappMessage = `${subject}\n\n${message.split('\n').slice(0, 8).join('\n')}\n\n ${invoiceUrl}`;
-
-    return {
-      invoice: "Multiple factures",
-      customerName: item.party,
-      customerEmail: item.customerEmail,
-      customerPhone: item.customerPhone,
-      customerWhatsApp: item.customerWhatsApp,
-      level,
-      daysOverdue: item.daysLate,
-      amount: item.total,
-      penalty,
-      totalDue,
-      subject,
-      emailMessage: message,
-      smsMessage,
-      whatsappMessage,
-    };
-  };
-
-  const handlePreviewReminder = (item: ReminderItem) => {
-    const preview = generateReminderPreview(item);
-    setSelectedReminder(preview);
-  };
-
-  const handleSendReminder = async (type: 'email' | 'sms' | 'whatsapp' | 'call') => {
-    if (!selectedReminder) return;
-
-    setSendingAction(type);
-    try {
-      // Simuler l'envoi (à remplacer par de vrais appels API)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Marquer comme envoyé
-      setSentReminders(prev => new Set(prev).add(selectedReminder.customerName));
-      
-      // Retirer de la liste des relances en attente
-      setReminders(prev => prev.filter(item => item.party !== selectedReminder.customerName));
-      
-      setSelectedReminder(null);
-      
-      // Afficher un message de succès
-      alert(`Relance ${type} envoyée avec succès à ${selectedReminder.customerName}`);
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi:', error);
-      alert('Erreur lors de l\'envoi de la relance');
-    } finally {
-      setSendingAction(null);
-    }
-  };
-
-  const handleQuickAction = (item: ReminderItem, action: 'email' | 'call') => {
-    const preview = generateReminderPreview(item);
-    setSelectedReminder(preview);
-  };
+  function quickAction(party: string, action: "email" | "call") {
+    console.info(`Action relance ${action} pour ${party}`);
+    markAsDone(party);
+  }
 
   return (
     <div className="space-y-6">
@@ -360,10 +215,6 @@ Service contentieux BMS`;
           <div className="space-y-4">
             {filteredReminders.map((item) => {
               const tone = severity(item.over90 || item.total, item.daysLate);
-              const isSent = sentReminders.has(item.party);
-              
-              if (isSent) return null; // Ne pas afficher les relances déjà envoyées
-              
               return (
                 <div
                   key={item.party}
@@ -395,15 +246,7 @@ Service contentieux BMS`;
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => handlePreviewReminder(item)}
-                        disabled={processing === item.party}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-xs font-medium border border-slate-300 hover:bg-slate-50 disabled:opacity-60"
-                      >
-                        <Eye className="w-3 h-3" /> Aperçu
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleQuickAction(item, "email")}
+                        onClick={() => quickAction(item.party, "email")}
                         disabled={processing === item.party}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-xs font-medium border border-slate-300 hover:bg-slate-50 disabled:opacity-60"
                       >
@@ -411,11 +254,20 @@ Service contentieux BMS`;
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleQuickAction(item, "call")}
+                        onClick={() => quickAction(item.party, "call")}
                         disabled={processing === item.party}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-xs font-medium border border-slate-300 hover:bg-slate-50 disabled:opacity-60"
                       >
                         <PhoneCall className="w-3 h-3" /> Appel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => markAsDone(item.party)}
+                        disabled={processing === item.party}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0D9488] text-white text-xs font-medium hover:bg-[#0B7C74] disabled:opacity-60"
+                      >
+                        {processing === item.party ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                        Relancé
                       </button>
                     </div>
                   </div>
@@ -425,14 +277,6 @@ Service contentieux BMS`;
           </div>
         )}
       </div>
-
-      {/* Modal de prévisualisation */}
-      <ReminderPreviewModal
-        reminder={selectedReminder}
-        onClose={() => setSelectedReminder(null)}
-        onSend={handleSendReminder}
-        sending={sendingAction !== null}
-      />
     </div>
   );
 }

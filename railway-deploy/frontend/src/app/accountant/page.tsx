@@ -1,24 +1,20 @@
 "use client";
 import { useState, useEffect } from "react";
-import { apiGet } from "@/lib/api";
-import { api } from "@/lib/api-service";
-import { formatCurrency } from "@/lib/format-utils";
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { ProtectedPage } from '@/components/auth/ProtectedPage';
+import { apiGet, getCompanyId } from "@/lib/api";
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock, FileText } from "lucide-react";
 
-function AccountantDashboardContent() {
-  const companyId = useCompanyId();
+export default function AccountantDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadDashboard() {
-    if (!companyId) { setError('Aucune société sélectionnée'); setLoading(false); return; }
+    const cid = getCompanyId();
+    if (!cid) { setError('Aucune société sélectionnée'); setLoading(false); return; }
     
     setLoading(true);
     try {
-      const metrics = await api.getDashboardMetrics(companyId);
+      const metrics = await apiGet('/api/v1/accounting/dashboard/metrics', { companyId: cid });
       setData(metrics);
       setError(null);
     } catch (e: any) {
@@ -137,7 +133,7 @@ function AccountantDashboardContent() {
 
       {/* KPI du Mois */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-4 bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="card p-4 bg-blue-50">
           <div className="text-sm text-blue-700 mb-1">CA du Mois</div>
           <div className="text-2xl font-bold text-blue-900">{nf(safeData.kpiMonth.revenue)} FCFA</div>
           <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
@@ -146,7 +142,7 @@ function AccountantDashboardContent() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-orange-50 to-orange-100">
+        <div className="card p-4 bg-orange-50">
           <div className="text-sm text-orange-700 mb-1">Charges du Mois</div>
           <div className="text-2xl font-bold text-orange-900">{nf(safeData.kpiMonth.expenses)} FCFA</div>
           <div className="text-xs text-orange-600 mt-1 flex items-center gap-1">
@@ -165,7 +161,7 @@ function AccountantDashboardContent() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-purple-50 to-purple-100">
+        <div className="card p-4 bg-purple-50">
           <div className="text-sm text-purple-700 mb-1">Marge Brute</div>
           <div className="text-2xl font-bold text-purple-900">{safeData.kpiMonth.margin.toFixed(1)}%</div>
           <div className="text-xs text-purple-600 mt-1">
@@ -303,7 +299,7 @@ function AccountantDashboardContent() {
               <tbody>
                 {safeData.recentActivity.entries.map((entry: any, idx: number) => (
                   <tr key={idx} className="border-b border-app-border">
-                    <td className="py-2">{entry.date?.toLocaleDateString('fr-FR') || '—'}</td>
+                    <td className="py-2">{entry.date ? entry.date.toLocaleDateString('fr-FR') : '—'}</td>
                     <td className="py-2">{entry.description}</td>
                     <td className="py-2">
                       <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">
@@ -319,13 +315,5 @@ function AccountantDashboardContent() {
         )}
       </div>
     </div>
-  );
-}
-
-export default function AccountantDashboardPage() {
-  return (
-    <ProtectedPage>
-      <AccountantDashboardContent />
-    </ProtectedPage>
   );
 }

@@ -168,12 +168,12 @@ export default function MobileMoneyPage() {
 
   const getProviderIcon = (provider: string) => {
     const icons: Record<string, string> = {
-      mtn: "",
-      moov: "", 
-      orange: "",
-      wave: "",
-      kkiapay: "",
-      fedapay: "",
+      mtn: "🟠",
+      moov: "🟦", 
+      orange: "🟧",
+      wave: "🟪",
+      kkiapay: "💚",
+      fedapay: "💙",
     };
     return icons[provider] || "";
   };

@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { CheckCircle, Circle, XCircle, Clock, FileText, Upload, AlertTriangle } from "lucide-react";
 import { apiGet, apiPost, apiPatch, getCompanyId, apiDelete } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { FileUpload } from "@/components/upload/FileUpload";
 
 const STATUS_CONFIG = {

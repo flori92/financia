@@ -1,10 +1,9 @@
 'use client';
 
-import { getBaseUrl } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
-
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, Loader2, MessageCircle, FileText, TrendingUp, HelpCircle } from 'lucide-react';
+import { aiAPI } from '@/lib/api-client';
+
 
 interface Message {
   id: string;
@@ -36,7 +35,7 @@ export default function AIChatPage() {
     {
       id: '0',
       role: 'assistant',
-      content: "🦙 **BMS IA 100% GRATUITE !**\n\nDécouvrez notre système avec **Llama 3.2** open-source **TOTALEMENT GRATUITE** !\n\n✨ **AVANTAGES INCROYABLES :**\n• 🦙 **Llama 3.2** : Performance excellente\n• 💰 **0 FCFA** : Totalement gratuit, aucun coût caché\n• 📊 **Données réelles** : Analyse de vos comptes BMS\n• 💡 **Recommandations** : Fiscalité OHADA/Bénin\n• 📈 **Prévisions** : Intelligence artificielle avancée\n• 🌍 **Souveraineté** : Open-source indépendant\n\n👉 [Essayez Llama GRATUIT maintenant](/ai/free-chat)\n\nOu continuez avec cette version de démonstration ci-dessous.",
+      content: "Bonjour ! Je suis votre assistant virtuel BMS. Je peux vous aider avec vos questions comptables, fiscales et de gestion. Comment puis-je vous assister aujourd'hui ?",
       timestamp: new Date()
     }
   ]);
@@ -52,13 +51,15 @@ export default function AIChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (messageText?: string) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim() || isLoading) return;
 
+    // Ajouter le message utilisateur
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input,
+      content: textToSend,
       timestamp: new Date()
     };
 
@@ -67,177 +68,184 @@ export default function AIChatPage() {
     setIsLoading(true);
 
     try {
-      // Simuler une réponse (ancienne version)
-      setTimeout(() => {
-        const responses = [
-          "Pour une analyse complète basée sur vos données réelles, essayez notre nouveau chat Llama GRATUIT : /ai/free-chat",
-          "Je vous recommande d'utiliser le nouvel assistant IA Llama 3.2 connecté à vos comptes - 100% GRATUIT !",
-          "Cette version est une démonstration. Accédez au vrai système IA gratuit pour des analyses personnalisées."
-        ];
-        
-        const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: responses[Math.floor(Math.random() * responses.length)],
-          timestamp: new Date()
-        };
+      // Appel API backend
+      const response = await aiAPI.chat(message, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: textToSend,
+          context: {
+            companyId: '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
+            previousMessages: messages.slice(-5) // Derniers 5 messages pour contexte
+          }
+        })
+      });
 
-        setMessages(prev => [...prev, assistantMessage]);
-        setIsLoading(false);
-      }, 1500);
+      if (!response.ok) {
+        throw new Error('Erreur API');
+      }
+
+      const data = await response.json();
+
+      // Ajouter la réponse de l'assistant
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.response || data.message || "Je n'ai pas pu générer une réponse. Veuillez réessayer.",
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Erreur chat:', error);
+      
+      // Message d'erreur
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: "Désolé, je rencontre un problème technique. Le service de chat IA sera bientôt disponible avec une intégration complète.",
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSuggestionClick = (prompt: string) => {
+  const handlePromptClick = (prompt: string) => {
     setInput(prompt);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
+    handleSend(prompt);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      {/* Alert for new free version */}
-      <div className="max-w-4xl mx-auto mb-6">
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Sparkles className="w-6 h-6" />
-                BMS IA 100% GRATUITE
-              </h2>
-              <p className="text-green-100 mb-4">
-                Accédez maintenant à notre système avec Llama 3.2 open-source - TOTALEMENT GRATUIT !
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">🦙 Llama 3.2</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">💰 0 FCFA</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">📊 Données réelles</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">🌍 Open-source</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">⚡ Performance excellente</span>
-              </div>
-            </div>
-            <a 
-              href="/ai/free-chat"
-              className="px-6 py-3 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors"
-            >
-              Essayer GRATUITEMENT →
-            </a>
-          </div>
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b px-6 py-4 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+          <Bot className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Assistant Virtuel BMS</h1>
+          <p className="text-sm text-gray-500">Propulsé par l'Intelligence Artificielle</p>
+        </div>
+        <div className="ml-auto">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+            <Sparkles className="h-3 w-3" />
+            IA Avancée
+          </span>
         </div>
       </div>
 
-      {/* Demo Interface */}
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                <MessageCircle className="w-6 h-6" />
-                Version Démo
-              </h1>
-              <p className="text-gray-300">Essayez la version gratuite pour des analyses réelles</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-gray-700 rounded-full text-sm">Démo</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="h-96 overflow-y-auto p-6 space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-              )}
-              
-              <div className={`max-w-2xl ${
-                message.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm' 
-                  : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-sm'
-              } px-4 py-3`}>
-                <div className="whitespace-pre-wrap">{message.content}</div>
-                <div className={`text-xs mt-2 ${
-                  message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
-                }`}>
-                  {message.timestamp.toLocaleTimeString('fr-FR')}
-                </div>
-              </div>
-
-              {message.role === 'user' && (
-                <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-gray-600" />
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {isLoading && (
-            <div className="flex gap-4 justify-start">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
-              </div>
-              <div className="bg-gray-100 text-gray-900 rounded-2xl rounded-bl-sm px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>En cours de réflexion...</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="border-t border-gray-200 p-6">
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-2">Suggestions rapides :</p>
-            <div className="flex flex-wrap gap-2">
-              {SUGGESTED_PROMPTS.map((suggestion, index) => (
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+        {messages.length === 1 && (
+          <div className="max-w-3xl mx-auto mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {SUGGESTED_PROMPTS.map((suggestion, idx) => (
                 <button
-                  key={index}
-                  onClick={() => handleSuggestionClick(suggestion.prompt)}
-                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm"
+                  key={idx}
+                  onClick={() => handlePromptClick(suggestion.prompt)}
+                  className="p-4 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all text-left group"
                 >
-                  <suggestion.icon className="w-4 h-4 text-gray-600" />
-                  {suggestion.title}
+                  <suggestion.icon className="h-5 w-5 text-purple-600 mb-2" />
+                  <h3 className="font-medium text-gray-900 text-sm mb-1">{suggestion.title}</h3>
+                  <p className="text-xs text-gray-600 line-clamp-2">{suggestion.prompt}</p>
                 </button>
               ))}
             </div>
           </div>
-          
-          <div className="flex gap-4">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Tapez votre message..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={isLoading}
-            />
+        )}
+
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            {message.role === 'assistant' && (
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                <Bot className="h-5 w-5 text-white" />
+              </div>
+            )}
+
+            <div
+              className={`max-w-2xl rounded-2xl px-4 py-3 ${
+                message.role === 'user'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-white border border-gray-200'
+              }`}
+            >
+              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              <p className={`text-xs mt-2 ${
+                message.role === 'user' ? 'text-purple-200' : 'text-gray-400'
+              }`}>
+                {message.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+
+            {message.role === 'user' && (
+              <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+                <User className="h-5 w-5 text-gray-600" />
+              </div>
+            )}
+          </div>
+        ))}
+
+        {isLoading && (
+          <div className="flex gap-3 justify-start">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+              <Bot className="h-5 w-5 text-white" />
+            </div>
+            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+                <span className="text-sm text-gray-600">L'assistant réfléchit...</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="bg-white border-t px-6 py-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 relative">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder="Posez votre question comptable, fiscale ou de gestion..."
+                rows={3}
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                disabled={isLoading}
+              />
+              <MessageCircle className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+            </div>
             <button
-              onClick={handleSendMessage}
+              onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="h-12 w-12 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="h-5 w-5 text-white animate-spin" />
               ) : (
-                <Send className="w-5 h-5" />
+                <Send className="h-5 w-5 text-white" />
               )}
             </button>
           </div>
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            L'assistant IA peut faire des erreurs. Vérifiez les informations importantes.
+          </p>
         </div>
       </div>
     </div>

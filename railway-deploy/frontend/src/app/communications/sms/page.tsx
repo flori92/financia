@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, MessageSquare, Send, Users, TrendingUp, MoreVertical, RefreshCw, Download, XCircle } from 'lucide-react';
-import { apiGet } from '@/lib/api';
-import { formatCurrency } from "@/lib/format-utils";
+import { Plus, MessageSquare, Send, Users, TrendingUp } from 'lucide-react';
+import { communicationsAPI } from '@/lib/api-client';
+
 
 interface SMSMessage {
   id: string;
@@ -20,58 +20,9 @@ interface SMSMessage {
 export default function SMSPage() {
   const [messages, setMessages] = useState<SMSMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCompose, setShowCompose] = useState(false);
-  const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
-
-  // Actions SMS
-  const resendSMS = (messageId: string) => {
-    const message = messages.find(m => m.id === messageId);
-    if (message) {
-      alert(`SMS renvoyé à ${message.recipient}: ${message.message}`);
-      setShowActionMenu(null);
-    }
-  };
-
-  const viewDeliveryDetails = (messageId: string) => {
-    const message = messages.find(m => m.id === messageId);
-    if (message) {
-      alert(`Détails de livraison SMS:\n\nDestinataire: ${message.recipient}\nStatut: ${message.status}\nEnvoyé le: ${new Date(message.sentAt).toLocaleString('fr-FR')}\nCoût: ${message.cost} FCFA\nType: ${message.type}`);
-      setShowActionMenu(null);
-    }
-  };
-
-  const exportSMSReport = (messageId: string) => {
-    const message = messages.find(m => m.id === messageId);
-    if (message) {
-      const content = `Rapport SMS - ${message.recipient}\n` +
-        `Date: ${new Date(message.sentAt).toLocaleString('fr-FR')}\n` +
-        `Message: ${message.message}\n` +
-        `Statut: ${message.status}\n` +
-        `Type: ${message.type}\n` +
-        `Coût: ${message.cost} FCFA`;
-      
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `sms-report-${message.recipient}-${new Date().toISOString().split('T')[0]}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      setShowActionMenu(null);
-    }
-  };
-
-  const cancelSMS = (messageId: string) => {
-    const message = messages.find(m => m.id === messageId);
-    if (message && message.status === 'pending') {
-      setMessages(messages.filter(m => m.id !== messageId));
-      setShowActionMenu(null);
-    }
-  };
 
   useEffect(() => {
-    apiGet('/api/v1/communications/sms')
+    communicationsAPI.getSMS()
       .then(r => r.json())
       .then(data => {
         setMessages(data);
@@ -96,10 +47,7 @@ export default function SMSPage() {
           <h1 className="text-3xl font-bold">SMS</h1>
           <p className="text-gray-600">Envoyez des SMS à vos clients</p>
         </div>
-        <Button 
-          className="bg-teal-600 hover:bg-teal-700"
-          onClick={() => setShowCompose(true)}
-        >
+        <Button className="bg-teal-600 hover:bg-teal-700">
           <Plus className="w-4 h-4 mr-2" />
           Nouveau SMS
         </Button>
@@ -162,15 +110,11 @@ export default function SMSPage() {
                   <th className="text-left p-3">Statut</th>
                   <th className="text-left p-3">Date</th>
                   <th className="text-left p-3">Coût</th>
-                  <th className="text-left p-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {messages.map((msg) => (
-                  <tr 
-                    key={msg.id} 
-                    className="border-b hover:bg-gray-50 relative"
-                  >
+                  <tr key={msg.id} className="border-b hover:bg-gray-50">
                     <td className="p-3 font-medium">{msg.recipient}</td>
                     <td className="p-3 text-sm text-gray-600 max-w-md truncate">{msg.message}</td>
                     <td className="p-3">
@@ -179,107 +123,31 @@ export default function SMSPage() {
                         msg.type === 'notification' ? 'bg-blue-100 text-blue-800' :
                         'bg-purple-100 text-purple-800'
                       }`}>
-                        {msg.type === 'reminder' ? 'Rappel' :
-                         msg.type === 'notification' ? 'Notification' : 'Info'}
+                        {msg.type === 'reminder' ? 'Relance' : 
+                         msg.type === 'notification' ? 'Notification' : 'Marketing'}
                       </span>
                     </td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${
                         msg.status === 'delivered' ? 'bg-green-100 text-green-800' :
                         msg.status === 'sent' ? 'bg-blue-100 text-blue-800' :
-                        'bg-orange-100 text-orange-800'
+                        msg.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                        'bg-red-100 text-red-800'
                       }`}>
-                        {msg.status === 'delivered' ? 'Livré' :
-                         msg.status === 'sent' ? 'Envoyé' : 'En attente'}
+                        {msg.status === 'delivered' ? 'Délivré' :
+                         msg.status === 'sent' ? 'Envoyé' :
+                         msg.status === 'pending' ? 'En attente' : 'Échec'}
                       </span>
                     </td>
-                    <td className="p-3 text-sm text-gray-500">
-                      {new Date(msg.sentAt).toLocaleString('fr-FR')}
-                    </td>
-                    <td className="p-3 text-sm font-mono">{msg.cost} FCFA</td>
-                    <td className="p-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowActionMenu(showActionMenu === msg.id ? null : msg.id);
-                        }}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </td>
+                    <td className="p-3 text-sm">{new Date(msg.sentAt).toLocaleString('fr-FR')}</td>
+                    <td className="p-3 text-sm">{msg.cost} FCFA</td>
                   </tr>
                 ))}
-                
-                {/* Menu d'actions SMS */}
-                {showActionMenu && (
-                  <tr>
-                    <td colSpan={7} className="p-0 relative">
-                      <div className="absolute right-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 w-56">
-                        <button
-                          onClick={() => resendSMS(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                          Renvoyer le SMS
-                        </button>
-                        <button
-                          onClick={() => viewDeliveryDetails(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <MessageSquare className="w-4 h-4" />
-                          Voir détails de livraison
-                        </button>
-                        <button
-                          onClick={() => exportSMSReport(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <Download className="w-4 h-4" />
-                          Exporter le rapport
-                        </button>
-                        <button
-                          onClick={() => cancelSMS(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          Annuler si en attente
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
-
-      {/* Modal composition SMS */}
-      {showCompose && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Nouveau SMS</h3>
-              <button onClick={() => setShowCompose(false)} className="p-2 hover:bg-gray-100 rounded">✕</button>
-            </div>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Numéro</label>
-                <input type="tel" className="w-full border rounded-lg px-3 py-2" placeholder="+229 XX XX XX XX" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Message</label>
-                <textarea className="w-full border rounded-lg px-3 py-2 h-24" placeholder="Votre message..." maxLength={160} />
-                <p className="text-xs text-gray-500 mt-1">160 caractères max</p>
-              </div>
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowCompose(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Annuler</button>
-                <button type="submit" className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700" onClick={(e) => { e.preventDefault(); setShowCompose(false); alert('SMS envoyé !'); }}>Envoyer</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,14 +1,8 @@
 "use client";
-import { apiGet } from "@/lib/api";
-import { ProfessionalExporter } from "@/lib/export-utils";
-import { getBaseUrl } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
-import { useCompanyId } from "@/hooks/useCompanyId";
 import { useState } from "react";
 import { Download, Upload, Send, Calculator, FileText, X, Info } from "lucide-react";
-import { ProtectedPage } from '@/components/auth/ProtectedPage';
-function VATPageContent() {
-  const companyId = useCompanyId();
+
+export default function VATPage() {
   const [vatData] = useState({
     period: "2025-01",
     collectee: 125000,
@@ -22,19 +16,20 @@ function VATPageContent() {
     { account: "445620", description: "TVA déductible achats", base: 225000, rate: 20, amount: -45000 }
   ]);
 
-  const [toastMessage, setToastMessage] = useState<{ type: "success" | "info" | "warning" | "error"; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "warning"; message: string } | null>(null);
   const [showTransmitModal, setShowTransmitModal] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
 
-  const triggerToast = (type: "success" | "info" | "warning" | "error", message: string) => {
-    setToastMessage({ type, message });
-    setTimeout(() => setToastMessage(null), 3000);
+  const triggerToast = (type: "success" | "info" | "warning", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 2800);
   };
 
   const handleRecalculate = async () => {
     try {
+      const companyId = "default-company"; // TODO: récupérer depuis contexte
       const response = await fetch(
-        `${getBaseUrl()}/api/v1/tax/vat/recalculate`,
+        `/api/v1/tax/vat/recalculate`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -59,7 +54,7 @@ function VATPageContent() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `${getBaseUrl()}/api/v1/tax/export/fec?companyId=${companyId}`,
+        `/api/v1/tax/export/fec?companyId=${companyId}`,
         { method: 'GET' }
       );
       
@@ -77,8 +72,7 @@ function VATPageContent() {
       
       triggerToast("success", "Export FEC téléchargé avec succès !");
     } catch (error) {
-      console.error('Erreur export FEC:', error);
-      triggerToast("error", "Erreur lors de l'export FEC. Veuillez réessayer.");
+      triggerToast("info", "Export FEC non disponible. Implémentez l'endpoint backend /api/v1/tax/export/fec");
     }
   };
 
@@ -86,7 +80,7 @@ function VATPageContent() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `${getBaseUrl()}/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`,
+        `/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`,
         { method: 'GET' }
       );
       
@@ -105,58 +99,8 @@ function VATPageContent() {
       setShowGenerateModal(false);
       triggerToast("success", "PDF CA3 généré et téléchargé !");
     } catch (error) {
-      console.error('Erreur génération PDF CA3:', error);
-      triggerToast("error", "Erreur lors de la génération du PDF CA3. Veuillez réessayer.");
+      triggerToast("info", "PDF CA3 non disponible. Implémentez l'endpoint backend /api/v1/tax/generate-ca3-pdf");
       setShowGenerateModal(false);
-    }
-  };
-
-  const importDEBDES = () => {
-    // Simulation d'import DEB/DES
-    const mockData = {
-      debNumber: `DEB-${Date.now()}`,
-      desNumber: `DES-${Date.now()}`,
-      importDate: new Date().toISOString().split('T')[0],
-      totalValue: Math.floor(Math.random() * 1000000) + 100000,
-      customsValue: Math.floor(Math.random() * 500000) + 50000,
-      vatAmount: Math.floor(Math.random() * 100000) + 10000,
-      supplierCount: Math.floor(Math.random() * 20) + 5,
-      productLines: Math.floor(Math.random() * 50) + 10
-    };
-
-    // Données structurées pour l'export
-    const exportData = {
-      title: 'Rapport d\'Import DEB/DES - Flux Douanes',
-      headers: ['Référence', 'Description', 'Valeur déclarée', 'Valeur douanière', 'TVA', 'Statut'],
-      rows: [
-        [mockData.debNumber, 'Déclaration d\'Échange de Biens', mockData.totalValue.toLocaleString('fr-FR') + ' FCFA', mockData.customsValue.toLocaleString('fr-FR') + ' FCFA', mockData.vatAmount.toLocaleString('fr-FR') + ' FCFA', 'Validé'],
-        [mockData.desNumber, 'Déclaration d\'Échange de Services', mockData.totalValue.toLocaleString('fr-FR') + ' FCFA', mockData.customsValue.toLocaleString('fr-FR') + ' FCFA', mockData.vatAmount.toLocaleString('fr-FR') + ' FCFA', 'Validé'],
-        ['', '', '', '', '', ''],
-        ['', 'Résumé', '', '', '', ''],
-        ['', 'Nombre de fournisseurs', mockData.supplierCount, '', '', ''],
-        ['', 'Nombre de lignes produits', mockData.productLines, '', '', ''],
-        ['', 'Valeur totale', mockData.totalValue.toLocaleString('fr-FR') + ' FCFA', '', '', ''],
-        ['', 'Montant TVA', mockData.vatAmount.toLocaleString('fr-FR') + ' FCFA', '', '', '']
-      ],
-      metadata: {
-        date: mockData.importDate,
-        company: 'BMS Business Management System',
-        period: `Import du ${mockData.importDate}`,
-        author: 'Service Comptabilité'
-      }
-    };
-
-    // Choix du format d'export
-    const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
-    
-    if (formatChoice) {
-      // Export Excel avec styles professionnels
-      ProfessionalExporter.exportExcel(exportData, 'import-deb-des');
-      triggerToast("success", `Import DEB/DES ${mockData.debNumber} effectué ! Rapport Excel généré avec styles professionnels.`);
-    } else {
-      // Export PDF pour impression
-      ProfessionalExporter.exportPDF(exportData, 'import-deb-des');
-      triggerToast("success", `Import DEB/DES ${mockData.debNumber} effectué ! Rapport PDF généré pour impression.`);
     }
   };
 
@@ -260,7 +204,7 @@ function VATPageContent() {
             </div>
           </button>
           <button
-            onClick={importDEBDES}
+            onClick={() => triggerToast("info", "Import DEB/DES connecté aux flux douanes (à venir).")}
             className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
           >
             <Upload className="w-8 h-8 text-blue-600" />
@@ -282,17 +226,17 @@ function VATPageContent() {
         </div>
       </div>
 
-      {toastMessage && (
+      {toast && (
         <div
           className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
-            toastMessage.type === "success"
+            toast.type === "success"
               ? "bg-emerald-600 text-white"
-              : toastMessage.type === "warning"
+              : toast.type === "warning"
                 ? "bg-amber-500 text-white"
                 : "bg-slate-900 text-white"
           }`}
         >
-          {toastMessage.message}
+          {toast.message}
         </div>
       )}
 
@@ -374,13 +318,5 @@ function VATPageContent() {
         </div>
       )}
     </div>
-  );
-}
-
-export default function VATPage() {
-  return (
-    <ProtectedPage>
-      <VATPageContent />
-    </ProtectedPage>
   );
 }

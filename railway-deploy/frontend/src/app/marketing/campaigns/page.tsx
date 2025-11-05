@@ -1,18 +1,18 @@
 'use client';
-import { getBaseUrl } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Mail, Users, TrendingUp, Eye } from 'lucide-react';
+import { marketingAPI } from '@/lib/api-client';
+
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${getBaseUrl()}/api/v1/marketing/campaigns`)
+    marketingAPI.getCampaigns()
       .then(res => res.json())
       .then(data => {
         setCampaigns(data);
@@ -30,21 +30,7 @@ export default function CampaignsPage() {
           <h1 className="text-3xl font-bold">Campagnes Marketing</h1>
           <p className="text-gray-600">Gérez vos campagnes email et SMS</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => {
-          // Simulation de création de campagne
-          const newCampaign = {
-            id: Date.now().toString(),
-            name: `Campagne ${['Email', 'SMS', 'Multicanal'][Math.floor(Math.random() * 3)]} ${new Date().toLocaleDateString('fr-FR')}`,
-            type: ['email', 'sms', 'multicanal'][Math.floor(Math.random() * 3)],
-            status: 'draft',
-            targetAudience: Math.floor(Math.random() * 5000) + 1000,
-            budget: Math.floor(Math.random() * 500000) + 100000,
-            expectedROI: Math.floor(Math.random() * 300) + 50,
-            createdAt: new Date().toISOString()
-          };
-          
-          alert(`Nouvelle campagne créée !\n\nNom: ${newCampaign.name}\nCible: ${newCampaign.targetAudience.toLocaleString('fr-FR')} contacts\nBudget: ${newCampaign.budget.toLocaleString('fr-FR')} FCFA\nROI attendu: ${newCampaign.expectedROI}%\n\nCampagne prête à être configurée !`);
-        }}>
+        <Button className="bg-teal-600 hover:bg-teal-700">
           <Plus className="w-4 h-4 mr-2" />
           Nouvelle Campagne
         </Button>
@@ -68,7 +54,7 @@ export default function CampaignsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {campaigns.reduce((sum, c) => sum + (c.recipients || 0), 0).toLocaleString('fr-FR')}
+              {campaigns.reduce((sum, c) => sum + (c.recipients || 0), 0).toLocaleString()}
             </div>
           </CardContent>
         </Card>
@@ -132,10 +118,10 @@ export default function CampaignsPage() {
                         {campaign.type === 'email' ? 'Email' : 'SMS'}
                       </span>
                     </td>
-                    <td className="p-3">{(campaign.recipients || 0).toLocaleString('fr-FR')}</td>
-                    <td className="p-3">{(campaign.sent || 0).toLocaleString('fr-FR')}</td>
-                    <td className="p-3">{(campaign.opened || 0).toLocaleString('fr-FR')} ({campaign.openRate}%)</td>
-                    <td className="p-3">{(campaign.clicked || 0).toLocaleString('fr-FR')} ({campaign.clickRate}%)</td>
+                    <td className="p-3">{campaign.recipients?.toLocaleString()}</td>
+                    <td className="p-3">{campaign.sent?.toLocaleString()}</td>
+                    <td className="p-3">{campaign.opened?.toLocaleString()} ({campaign.openRate}%)</td>
+                    <td className="p-3">{campaign.clicked?.toLocaleString()} ({campaign.clickRate}%)</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${
                         campaign.status === 'active' ? 'bg-green-100 text-green-800' :
@@ -147,18 +133,7 @@ export default function CampaignsPage() {
                       </span>
                     </td>
                     <td className="p-3">
-                      <Button variant="ghost" size="sm" onClick={() => {
-                      const campaignDetails = {
-                        name: campaign.name,
-                        sent: Math.floor(Math.random() * 3000) + 500,
-                        opened: Math.floor(Math.random() * 60) + 20,
-                        clicked: Math.floor(Math.random() * 25) + 5,
-                        converted: Math.floor(Math.random() * 10) + 1,
-                        revenue: Math.floor(Math.random() * 200000) + 50000
-                      };
-                      
-                      alert(`Détails Campagne: ${campaign.name}\n\nStatistiques performance:\nEnvoyés: ${campaignDetails.sent.toLocaleString('fr-FR')}\nOuverts: ${campaignDetails.opened}%\nCliqués: ${campaignDetails.clicked}%\nConversions: ${campaignDetails.converted}%\nRevenus: ${campaignDetails.revenue.toLocaleString('fr-FR')} FCFA\n\nPerformance: ${campaignDetails.converted > 5 ? 'Excellente' : campaignDetails.converted > 2 ? 'Bonne' : 'À améliorer'}`);
-                    }}>Voir</Button>
+                      <Button variant="ghost" size="sm">Voir</Button>
                     </td>
                   </tr>
                 ))}

@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
+import { apiGet } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, DollarSign, BarChart3, Eye, CheckCircle } from "lucide-react";
+import { apiGet, apiPost, apiPatch, apiDelete, getCompanyId } from '@/lib/api';
 
 interface RevenueData {
   id: string;
@@ -30,49 +30,12 @@ export default function RevenueRecognitionPage() {
   const loadRevenueRecognition = async () => {
     setLoading(true);
     try {
+      // Mock data - à remplacer par un vrai appel API
       const companyId = getCompanyId();
-      if (!companyId) {
-        throw new Error('Aucune société sélectionnée');
-      }
-      
-      const apiData = await apiGet('/api/v1/accounting/revenue-recognition', { 
-        companyId, 
-        period: selectedPeriod 
-      });
-      
-      const revenueData: RevenueData[] = Array.isArray(apiData) ? apiData : (apiData.items || []);
-      setRevenueData(revenueData);
-    } catch (err: any) {
-      console.error('Error loading revenue recognition:', err);
-      
-      // En cas d'erreur 404, afficher des données de démonstration
-      if (err?.message?.includes('404') || err?.status === 404) {
-        const fallbackData: RevenueData[] = [
-          {
-            id: 'demo-1',
-            period: '2025-10',
-            recognizedRevenue: 2500000,
-            deferredRevenue: 500000,
-            totalRevenue: 3000000,
-            recognitionRate: 83.3,
-            status: 'recognized',
-            contracts: 45
-          },
-          {
-            id: 'demo-2',
-            period: '2025-09',
-            recognizedRevenue: 2200000,
-            deferredRevenue: 800000,
-            totalRevenue: 3000000,
-            recognitionRate: 73.3,
-            status: 'recognized',
-            contracts: 38
-          }
-        ];
-        setRevenueData(fallbackData);
-      } else {
-        setRevenueData([]);
-      }
+      const data = await apiGet('/api/v1/accounting/revenue-recognition', { companyId });
+      setRevenueData(data);
+    } catch (error) {
+      console.error('Error loading revenue recognition:', error);
     } finally {
       setLoading(false);
     }

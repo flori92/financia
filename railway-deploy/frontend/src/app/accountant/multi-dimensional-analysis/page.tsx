@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
+import { apiGet } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { 
+import { apiGet, apiPost, apiPatch, apiDelete, getCompanyId } from '@/lib/api';
   BarChart3, 
   PieChart, 
   TrendingUp, 
@@ -47,48 +47,12 @@ export default function MultiDimensionalAnalysisPage() {
   const loadMultiDimensionalData = async () => {
     setLoading(true);
     try {
+      // Mock data - à remplacer par un vrai appel API
       const companyId = getCompanyId();
-      if (!companyId) {
-        throw new Error('Aucune société sélectionnée');
-      }
-      
-      const apiData = await apiGet('/api/v1/accounting/multi-dimensional', { 
-        companyId, 
-        dimension: selectedDimension,
-        period: selectedPeriod 
-      });
-      
-      const transformedData: MultiDimensionalData = {
-        revenueBySegment: apiData.revenueBySegment || [],
-        revenueByRegion: apiData.revenueByRegion || [],
-        revenueByProduct: apiData.revenueByProduct || [],
-        revenueByCustomer: apiData.revenueByCustomer || [],
-        revenueByTime: apiData.revenueByTime || []
-      };
-      setData(transformedData);
-    } catch (err: any) {
-      console.error('Error loading multi-dimensional data:', err);
-      
-      // En cas d'erreur 404, afficher des données de démonstration
-      if (err?.message?.includes('404') || err?.status === 404) {
-        const fallbackData: MultiDimensionalData = {
-          revenueBySegment: [
-            { dimension: 'Services Consulting', value: 4500000, percentage: 35.2, trend: 'up', trendValue: 12.5 },
-            { dimension: 'Ventes Produits', value: 3800000, percentage: 29.7, trend: 'up', trendValue: 8.3 },
-            { dimension: 'Support & Maintenance', value: 2500000, percentage: 19.5, trend: 'stable', trendValue: 2.1 }
-          ],
-          revenueByRegion: [
-            { dimension: 'Abidjan', value: 5200000, percentage: 40.6, trend: 'up', trendValue: 15.2 },
-            { dimension: 'Bouaké', value: 2800000, percentage: 21.9, trend: 'up', trendValue: 9.8 }
-          ],
-          revenueByProduct: [],
-          revenueByCustomer: [],
-          revenueByTime: []
-        };
-        setData(fallbackData);
-      } else {
-        setData(null);
-      }
+      const data = await apiGet('/api/v1/accounting/multi-dimensional-analysis', { companyId });
+      setData(data);
+    } catch (error) {
+      console.error('Error loading multi-dimensional data:', error);
     } finally {
       setLoading(false);
     }

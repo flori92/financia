@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,81 +14,58 @@ import {
   Download,
   RefreshCw,
   AlertTriangle,
-  CheckCircle,
-  Activity,
-  DollarSign,
-  Users,
-  PieChart,
-  Lightbulb
+  CheckCircle
 } from "lucide-react";
 
+interface ForecastData {
+  period: string;
+  actual: number | null;
+  predicted: number;
+  confidence: number;
+  accuracy: number | null;
+  model: string;
+}
+
+interface ModelMetrics {
+  name: string;
+  accuracy: number;
+  mae: number;
+  rmse: number;
+  mape: number;
+  lastTrained: string;
+  status: 'active' | 'training' | 'error';
+}
+
 interface MLForecastData {
-  forecasts: Array<{
-    period: string;
-    actual: number | null;
-    predicted: number;
-    confidence: number;
-    accuracy: number | null;
-    model: string;
-  }>;
-  models: Array<{
-    name: string;
-    accuracy: number;
-    mae: number;
-    rmse: number;
-    mape: number;
-    lastTrained: string;
-    status: string;
-  }>;
+  forecasts: ForecastData[];
+  models: ModelMetrics[];
   insights: string[];
   recommendations: string[];
-  metadata?: {
-    generatedAt: string;
-    horizon: number;
-    frequency: string;
-  };
 }
 
 export default function MLForecastPage() {
   const [data, setData] = useState<MLForecastData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedModel, setSelectedModel] = useState('prophet');
+  const [selectedModel, setSelectedModel] = useState('ensemble');
   const [forecastPeriod, setForecastPeriod] = useState('6months');
   const [isTraining, setIsTraining] = useState(false);
 
-  const loadForecastData = async () => {
+  useEffect(() => {
+    loadMLForecastData();
+  }, [selectedModel, forecastPeriod]);
+
+  const loadMLForecastData = async () => {
     setLoading(true);
     try {
-      // Charger données réelles depuis API ML
-      const response = await apiGet('/api/v1/ml-forecast/dashboard', {
-        companyId: getCompanyId(),
-        metric: 'revenue',
-        horizon: forecastPeriod === '3months' ? 3 : forecastPeriod === '6months' ? 6 : 12
-      });
-
-      if (!response) {
-        throw new Error('Pas de données disponibles');
-      }
-
-      const mlData: MLForecastData = {
-        forecasts: response.forecasts || [],
-        models: response.models || [],
-        insights: response.insights || [],
-        recommendations: response.recommendations || [],
-        metadata: response.metadata
-      };
-      
-      setData(mlData);
+      const companyId = getCompanyId();
+      const data = await apiGet('/api/v1/accounting/ml-forecast', { companyId, model: selectedModel, period: forecastPeriod });
+      setData(data);
     } catch (error) {
-      console.error('Error loading forecast data:', error);
+      console.error('Error loading ML forecast data:', error);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadForecastData();
-  }, [selectedModel, forecastPeriod]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -102,18 +78,24 @@ export default function MLForecastPage() {
   const getModelStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <span className="px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-800 rounded">Actif</span>;
+        return <Badge className="bg-emerald-100 text-emerald-800"><CheckCircle className="w-3 h-3 mr-1" />Actif</Badge>;
       case 'training':
-        return <span className="px-2 py-1 text-xs font-medium bg-amber-100 text-amber-800 rounded">En cours</span>;
+        return <Badge className="bg-amber-100 text-amber-800"><RefreshCw className="w-3 h-3 mr-1" />En cours</Badge>;
       case 'error':
-        return <span className="px-2 py-1 text-xs font-medium bg-rose-100 text-rose-800 rounded">Erreur</span>;
+        return <Badge className="bg-rose-100 text-rose-800"><AlertTriangle className="w-3 h-3 mr-1" />Erreur</Badge>;
       default:
-        return <span className="px-2 py-1 text-xs font-medium bg-slate-100 text-slate-800 rounded">Inconnu</span>;
+        return <Badge className="bg-slate-100 text-slate-800">{status}</Badge>;
     }
   };
 
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 90) return 'text-emerald-600';
+    if (confidence >= 80) return 'text-amber-600';
+    return 'text-rose-600';
+  };
+
   const getBestModel = () => {
-    return data?.models.reduce((best: any, model: any) => 
+    return data?.models.reduce((best, model) => 
       model.accuracy > best.accuracy ? model : best
     ) || data?.models[0];
   };
@@ -121,18 +103,9 @@ export default function MLForecastPage() {
   const handleRetrainModels = async () => {
     setIsTraining(true);
     try {
-      // Appel API pour réentraîner tous les modèles
-      await fetch('/api/v1/ml-forecast/train', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          companyId: getCompanyId(),
-          metric: 'revenue' 
-        })
-      });
-
-      // Recharger les données après entraînement
-      await loadForecastData();
+      // Simuler le réentraînement
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      await loadMLForecastData();
     } catch (error) {
       console.error('Error retraining models:', error);
     } finally {
@@ -140,12 +113,12 @@ export default function MLForecastPage() {
     }
   };
 
+  if (loading) return <div>Chargement...</div>;
+
   const bestModel = getBestModel();
   const totalPredictedRevenue = data?.forecasts
-    .filter((f: any) => f.actual === null)
-    .reduce((sum: number, f: any) => sum + f.predicted, 0) || 0;
-
-  if (loading) return <div>Chargement...</div>;
+    .filter(f => f.actual === null)
+    .reduce((sum, f) => sum + f.predicted, 0) || 0;
 
   return (
     <div className="space-y-6">
@@ -214,7 +187,7 @@ export default function MLForecastPage() {
           <CardContent>
             <div className="text-lg font-bold text-amber-600">
               {data?.forecasts ? 
-                (data.forecasts.reduce((sum: number, f: any) => sum + f.confidence, 0) / data.forecasts.length).toFixed(1) 
+                (data.forecasts.reduce((sum, f) => sum + f.confidence, 0) / data.forecasts.length).toFixed(1) 
                 : '0.0'}%
             </div>
             <p className="text-xs text-slate-600">Fiabilité des prévisions</p>
@@ -229,6 +202,148 @@ export default function MLForecastPage() {
           <CardContent>
             <div className="text-lg font-bold text-blue-600">{data?.models.length}</div>
             <p className="text-xs text-slate-600">Algorithmes déployés</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Forecast Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5" />
+            Prévisions du Chiffre d'Affaires
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-end gap-4">
+            {data?.forecasts.map((forecast, index) => {
+              const maxValue = Math.max(...data.forecasts.map(f => Math.max(f.actual || f.predicted, f.predicted)));
+              const actualHeight = forecast.actual ? (forecast.actual / maxValue) * 100 : 0;
+              const predictedHeight = (forecast.predicted / maxValue) * 100;
+              
+              return (
+                <div key={index} className="flex-1 flex flex-col items-center">
+                  <div className="w-full flex flex-col items-center gap-1">
+                    {forecast.actual && (
+                      <div 
+                        className="w-full bg-blue-500 rounded-t"
+                        style={{ height: `${actualHeight}%` }}
+                        title={`Réel: ${forecast.actual ? formatCurrency(forecast.actual) : 'N/A'}`}
+                      ></div>
+                    )}
+                    <div 
+                      className={`w-full ${forecast.actual ? 'bg-blue-300' : 'bg-purple-500'} rounded-t ${forecast.actual ? '' : 'rounded'}`}
+                      style={{ height: forecast.actual ? `${predictedHeight - actualHeight}%` : `${predictedHeight}%` }}
+                      title={`Prévu: ${formatCurrency(forecast.predicted)}`}
+                    ></div>
+                  </div>
+                  <div className="text-xs mt-2 text-center">
+                    <div className="font-medium">{forecast.period}</div>
+                    <div className={`text-xs ${getConfidenceColor(forecast.confidence)}`}>
+                      {forecast.confidence}%
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-center gap-6 mt-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-500 rounded"></div>
+              <span className="text-sm">Réel</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-500 rounded"></div>
+              <span className="text-sm">Prévu</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-300 rounded"></div>
+              <span className="text-sm">Prévision vs Réel</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Model Performance Table */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Performance des Modèles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">Modèle</th>
+                    <th className="text-right p-2">Précision</th>
+                    <th className="text-right p-2">MAE</th>
+                    <th className="text-right p-2">RMSE</th>
+                    <th className="text-center p-2">Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.models.map((model, index) => (
+                    <tr key={index} className="border-b hover:bg-slate-50">
+                      <td className="p-2 font-medium">{model.name}</td>
+                      <td className="text-right p-2">
+                        <span className={`font-medium ${
+                          model.accuracy >= 95 ? 'text-emerald-600' : 
+                          model.accuracy >= 90 ? 'text-amber-600' : 'text-rose-600'
+                        }`}>
+                          {model.accuracy.toFixed(1)}%
+                        </span>
+                      </td>
+                      <td className="text-right p-2 font-mono text-sm">{formatCurrency(model.mae)}</td>
+                      <td className="text-right p-2 font-mono text-sm">{formatCurrency(model.rmse)}</td>
+                      <td className="text-center p-2">{getModelStatusBadge(model.status)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Forecast Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">Période</th>
+                    <th className="text-right p-2">Prévu</th>
+                    <th className="text-right p-2">Réel</th>
+                    <th className="text-right p-2">Confiance</th>
+                    <th className="text-center p-2">Modèle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.forecasts.map((forecast, index) => (
+                    <tr key={index} className="border-b hover:bg-slate-50">
+                      <td className="p-2 font-medium">{forecast.period}</td>
+                      <td className="text-right p-2 font-mono">{formatCurrency(forecast.predicted)}</td>
+                      <td className="text-right p-2 font-mono">
+                        {forecast.actual ? formatCurrency(forecast.actual) : '-'}
+                      </td>
+                      <td className="text-right p-2">
+                        <span className={`font-medium ${getConfidenceColor(forecast.confidence)}`}>
+                          {forecast.confidence}%
+                        </span>
+                      </td>
+                      <td className="text-center p-2">
+                        <Badge variant="outline" className="text-xs">
+                          {forecast.model}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       </div>

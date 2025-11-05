@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { Search, LogOut, User, Bell } from "lucide-react";
 import { apiGet, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { useRouter } from "next/navigation";
 
 export function Topbar() {
@@ -79,8 +78,13 @@ export function Topbar() {
   function handleLogout() {
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem('bms_token');
+      window.localStorage.removeItem('token');
       window.localStorage.removeItem('user_email');
-      router.push('/login');
+      window.localStorage.removeItem('user_data');
+      window.localStorage.removeItem('user_role');
+      window.localStorage.removeItem('user_profile');
+      window.localStorage.removeItem('companyId');
+      window.location.href = '/login';
     }
   }
   return (

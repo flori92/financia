@@ -1,13 +1,12 @@
 "use client";
-import { getBaseUrl } from "@/lib/api";
-import { fetchGetWithAuth, fetchPostWithAuth } from "@/lib/fetch-with-auth";
-import { formatCurrency } from "@/lib/format-utils";
 
 import { useState, useEffect } from "react";
 import { Building2, Plus, Mail, Download, Upload, Search } from "lucide-react";
 import { ExportButton } from "@/components/shared/ExportButton";
 import { ImportButton } from "@/components/shared/ImportButton";
 import { EmailDialog } from "@/components/shared/EmailDialog";
+import { companiesAPI } from '@/lib/api-client';
+
 
 type Company = {
   id: string;
@@ -28,7 +27,7 @@ export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchGetWithAuth(`${getBaseUrl()}/api/v1/companies`)
+    companiesAPI.getCompanies()
       .then(res => res.json())
       .then(setCompanies);
   }, []);
@@ -38,12 +37,12 @@ export default function CompaniesPage() {
     const formData = new FormData(e.currentTarget);
     const newCompany = Object.fromEntries(formData);
     
-    fetchPostWithAuth(`${getBaseUrl()}/api/v1/companies`, newCompany)
-      .then(res => res.json())
+    companiesAPI.createCompany(newCompany)
       .then(company => {
         setCompanies([...companies, company]);
         setShowAddForm(false);
-      });
+      })
+      .catch(err => console.error(err));
   };
 
   const handleExport = () => {
@@ -61,43 +60,7 @@ export default function CompaniesPage() {
   };
 
   const handleImport = (file: File) => {
-    // Simulation d'import de sociétés
-    const mockData = {
-      fileName: file.name,
-      importDate: new Date().toLocaleString('fr-FR'),
-      companiesCount: Math.floor(Math.random() * 10) + 1,
-      success: true
-    };
-
-    const content = `Rapport d'Import de Sociétés
-====================================
-
-Fichier: ${mockData.fileName}
-Date d'import: ${mockData.importDate}
-Sociétés importées: ${mockData.companiesCount}
-
-Import effectué avec succès !
-Données intégrées et disponibles
-
-Sociétés ajoutées:
-- Entreprise Alpha SARL
-- Beta Services 
-- Gamma Consulting
-- Delta Industries
-- (et ${mockData.companiesCount - 4} autres...)
-
-Généré le: ${new Date().toLocaleString('fr-FR')}`;
-
-    // Télécharger le rapport
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `import-societes-${new Date().toISOString().split('T')[0]}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    alert(`Import de ${mockData.companiesCount} sociétés effectué avec succès !`);
+    alert(`Import de ${file.name} - Fonctionnalité en développement`);
   };
 
   const handleSendEmail = (data: { to: string; subject: string; message: string }) => {

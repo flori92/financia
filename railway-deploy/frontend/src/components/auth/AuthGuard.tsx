@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-export function AuthGuard({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) {
+export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
@@ -23,30 +23,10 @@ export function AuthGuard({ children, requiredRole }: { children: React.ReactNod
 
     if (!token) {
       router.push("/login");
-      return;
+    } else {
+      setIsChecking(false);
     }
-
-    // Vérifier le rôle si requis
-    if (requiredRole) {
-      const userRoles = typeof window !== "undefined" 
-        ? JSON.parse(window.localStorage.getItem("bms_user_roles") || "[]")
-        : [];
-
-      // Super Admin a accès à tout
-      if (userRoles.includes("ROLE_SUPER_ADMIN")) {
-        setIsChecking(false);
-        return;
-      }
-
-      // Vérifier si l'utilisateur a le rôle requis
-      if (!userRoles.includes(requiredRole)) {
-        router.push("/unauthorized");
-        return;
-      }
-    }
-
-    setIsChecking(false);
-  }, [pathname, router, requiredRole]);
+  }, [pathname, router]);
 
   if (isChecking) {
     return (

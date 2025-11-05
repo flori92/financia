@@ -1,281 +1,363 @@
 /**
- * Client API professionnel avec gestion d'erreurs avancée
- * Résout les problèmes 401 et standardise les réponses
+ * Centralized API Client for BMS Frontend
+ * Handles all HTTP requests to the backend API
  */
 
-import { authManager, AuthTokens } from './auth-manager';
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: {
-    code: string;
-    message: string;
-    details?: any;
-  };
-  meta?: {
-    timestamp: string;
-    requestId: string;
-    version: string;
-  };
+interface ApiClientConfig {
+  baseURL: string;
+  timeout?: number;
+  headers?: Record<string, string>;
 }
 
-export interface ApiError extends Error {
-  status?: number;
-  code?: string;
-  details?: any;
+interface ApiResponse<T = any> {
+  data: T;
+  success: boolean;
+  message?: string;
+  error?: string;
 }
 
 class ApiClient {
-  private baseUrl: string;
-  private defaultTimeout: number = 30000;
+  private baseURL: string;
+  private timeout: number;
+  private defaultHeaders: Record<string, string>;
 
-  constructor() {
-    // Forcer l'URL backend directe (pas de proxy)
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
-  }
-
-  private async request<T>(
-    method: string,
-    path: string,
-    options: {
-      body?: any;
-      params?: Record<string, any>;
-      headers?: Record<string, string>;
-      timeout?: number;
-      skipAuth?: boolean;
-    } = {}
-  ): Promise<ApiResponse<T>> {
-    const { body, params, headers = {}, timeout = this.defaultTimeout, skipAuth = false } = options;
-    
-    const requestId = this.generateRequestId();
-    const timestamp = new Date().toISOString();
-    
-    try {
-      // Construire l'URL
-      const url = new URL(`${this.baseUrl}${path}`);
-      if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            url.searchParams.append(key, String(value));
-          }
-        });
-      }
-
-      // Préparer les headers
-      const requestHeaders: Record<string, string> = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Request-ID': requestId,
-        'X-Client-Version': '3.0.0',
-        'X-Client-Timestamp': timestamp,
-        ...headers
-      };
-
-      // Ajouter l'authentification si nécessaire
-      if (!skipAuth) {
-        const authHeaders = authManager.getAuthHeaders();
-        Object.assign(requestHeaders, authHeaders);
-      }
-
-      // Configuration de la requête
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-      const response = await fetch(url.toString(), {
-        method,
-        headers: requestHeaders,
-        body: body ? JSON.stringify(body) : undefined,
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      // Gérer les réponses
-      if (!response.ok) {
-        await this.handleHttpError(response, requestId);
-      }
-
-      const data = await response.json();
-      
-      // Normaliser la réponse
-      return this.normalizeResponse(data, requestId, timestamp);
-      
-    } catch (error) {
-      throw this.enhanceError(error, requestId);
-    }
-  }
-
-  private async handleHttpError(response: Response, requestId: string): Promise<never> {
-    let errorData: any = {};
-    
-    try {
-      errorData = await response.json();
-    } catch {
-      // Si la réponse n'est pas du JSON
-    }
-
-    const error: ApiError = new Error(
-      errorData.message || `HTTP ${response.status}: ${response.statusText}`
-    );
-    
-    error.status = response.status;
-    error.code = errorData.code || `HTTP_${response.status}`;
-    error.details = errorData.details;
-
-    // Gérer les erreurs d'authentification
-    if (response.status === 401) {
-      if (authManager.isAuthenticated()) {
-        // Token invalide, tentative de rafraîchissement
-        try {
-          await authManager['refreshTokenIfNeeded']();
-          // Relancer la requête (implémentation à suivre)
-        } catch {
-          await authManager.logout();
-        }
-      }
-      throw error;
-    }
-
-    // Gérer les erreurs de permissions
-    if (response.status === 403) {
-      error.message = 'Accès non autorisé';
-      throw error;
-    }
-
-    // Gérer les erreurs de ressources
-    if (response.status === 404) {
-      error.message = 'Ressource introuvable';
-      throw error;
-    }
-
-    // Gérer les erreurs de serveur
-    if (response.status >= 500) {
-      error.message = 'Erreur serveur temporaire';
-      throw error;
-    }
-
-    throw error;
-  }
-
-  private normalizeResponse<T>(data: any, requestId: string, timestamp: string): ApiResponse<T> {
-    // Si la réponse est déjà au format standard
-    if (data && typeof data === 'object' && 'success' in data) {
-      return {
-        ...data,
-        meta: {
-          timestamp,
-          requestId,
-          version: '3.0.0',
-          ...data.meta
-        }
-      };
-    }
-
-    // Normaliser les réponses non standardisées
-    return {
-      success: true,
-      data,
-      meta: {
-        timestamp,
-        requestId,
-        version: '3.0.0'
-      }
+  constructor(config: ApiClientConfig) {
+    this.baseURL = config.baseURL.replace(/\/$/, ''); // Remove trailing slash
+    this.timeout = config.timeout || 30000;
+    this.defaultHeaders = {
+      'Content-Type': 'application/json',
+      ...config.headers,
     };
   }
 
-  private enhanceError(error: any, requestId: string): ApiError {
-    if (error instanceof Error) {
-      const enhanced: ApiError = error;
-      if (!enhanced.code) {
-        enhanced.code = 'UNKNOWN_ERROR';
-      }
-      return enhanced;
-    }
-
-    const enhanced: ApiError = new Error(error?.message || 'Erreur inconnue');
-    enhanced.code = error?.code || 'UNKNOWN_ERROR';
-    enhanced.details = error?.details;
-    return enhanced;
-  }
-
-  private generateRequestId(): string {
-    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  // Méthodes HTTP pratiques
-  async get<T>(path: string, params?: Record<string, any>, options?: Omit<Parameters<typeof this.request>[2], 'method' | 'body' | 'params'>): Promise<ApiResponse<T>> {
-    return this.request<T>('GET', path, { ...options, params });
-  }
-
-  async post<T>(path: string, body?: any, options?: Omit<Parameters<typeof this.request>[2], 'method' | 'body'>): Promise<ApiResponse<T>> {
-    return this.request<T>('POST', path, { ...options, body });
-  }
-
-  async put<T>(path: string, body?: any, options?: Omit<Parameters<typeof this.request>[2], 'method' | 'body'>): Promise<ApiResponse<T>> {
-    return this.request<T>('PUT', path, { ...options, body });
-  }
-
-  async patch<T>(path: string, body?: any, options?: Omit<Parameters<typeof this.request>[2], 'method' | 'body'>): Promise<ApiResponse<T>> {
-    return this.request<T>('PATCH', path, { ...options, body });
-  }
-
-  async delete<T>(path: string, options?: Omit<Parameters<typeof this.request>[2], 'method' | 'body'>): Promise<ApiResponse<T>> {
-    return this.request<T>('DELETE', path, options);
-  }
-
-  // Upload de fichiers
-  async upload<T>(path: string, file: File, options?: {
-    onProgress?: (progress: number) => void;
-    field?: string;
-    metadata?: Record<string, any>;
-  }): Promise<ApiResponse<T>> {
-    const formData = new FormData();
-    formData.append(options?.field || 'file', file);
+  private async request<T = any>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
     
-    if (options?.metadata) {
-      Object.entries(options.metadata).forEach(([key, value]) => {
-        formData.append(key, String(value));
-      });
-    }
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        ...this.defaultHeaders,
+        ...options.headers,
+      },
+    };
 
-    const requestId = this.generateRequestId();
-    const timestamp = new Date().toISOString();
+    // Add timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    config.signal = controller.signal;
 
     try {
-      const response = await fetch(`${this.baseUrl}${path}`, {
-        method: 'POST',
-        headers: {
-          ...authManager.getAuthHeaders(),
-          'X-Request-ID': requestId,
-          'X-Client-Version': '3.0.0',
-          'X-Client-Timestamp': timestamp,
-        },
-        body: formData
-      });
+      const response = await fetch(url, config);
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
-        await this.handleHttpError(response, requestId);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      return this.normalizeResponse(data, requestId, timestamp);
+      const contentType = response.headers.get('content-type');
       
+      if (contentType?.includes('application/json')) {
+        return await response.json();
+      } else if (contentType?.includes('text/')) {
+        return await response.text() as T;
+      } else {
+        return await response.blob() as T;
+      }
     } catch (error) {
-      throw this.enhanceError(error, requestId);
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+      
+      console.error(`API Request failed: ${url}`, error);
+      throw error;
     }
   }
 
-  // Méthodes utilitaires
-  getBaseUrl(): string {
-    return this.baseUrl;
+  // HTTP Methods
+  async get<T = any>(endpoint: string, params?: Record<string, any>): Promise<T> {
+    let url = endpoint;
+    
+    if (params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value));
+        }
+      });
+      url += `?${searchParams.toString()}`;
+    }
+
+    return this.request<T>(url, { method: 'GET' });
   }
 
-  setBaseUrl(url: string): void {
-    this.baseUrl = url;
+  async post<T = any>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async put<T = any>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async patch<T = any>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async delete<T = any>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE' });
+  }
+
+  // File upload
+  async upload<T = any>(endpoint: string, formData: FormData): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: formData,
+      headers: {}, // Let browser set Content-Type for FormData
+    });
+  }
+
+  // Download file
+  async download(endpoint: string, filename?: string): Promise<void> {
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      headers: this.defaultHeaders,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || 'download';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  // Set authentication token
+  setAuthToken(token: string) {
+    this.defaultHeaders['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Remove authentication token
+  removeAuthToken() {
+    delete this.defaultHeaders['Authorization'];
+  }
+
+  // Update base URL (useful for environment switching)
+  setBaseURL(baseURL: string) {
+    this.baseURL = baseURL.replace(/\/$/, '');
   }
 }
 
-// Exporter une instance singleton
-export const apiClient = new ApiClient();
+// Create and export the API client instance
+const apiClient = new ApiClient({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '',
+  timeout: 30000,
+});
+
 export default apiClient;
+
+// Export specific API modules for better organization
+export const authAPI = {
+  login: (credentials: { email: string; password: string }) =>
+    apiClient.post('/api/v1/auth/login', credentials),
+  
+  register: (userData: any) =>
+    apiClient.post('/api/v1/auth/register', userData),
+  
+  refresh: () =>
+    apiClient.post('/api/v1/auth/refresh'),
+  
+  logout: () =>
+    apiClient.post('/api/v1/auth/logout'),
+};
+
+export const communicationsAPI = {
+  // Emails
+  getEmails: (folder?: string) =>
+    apiClient.get('/api/v1/communications/emails', { folder }),
+  
+  sendEmail: (emailData: any) =>
+    apiClient.post('/api/v1/communications/emails', emailData),
+  
+  getEmail: (id: string) =>
+    apiClient.get(`/api/v1/communications/emails/${id}`),
+
+  // SMS
+  getSMS: () =>
+    apiClient.get('/api/v1/communications/sms'),
+  
+  sendSMS: (smsData: any) =>
+    apiClient.post('/api/v1/communications/sms', smsData),
+
+  // WhatsApp
+  getWhatsApp: () =>
+    apiClient.get('/api/v1/communications/whatsapp'),
+  
+  sendWhatsApp: (whatsAppData: any) =>
+    apiClient.post('/api/v1/communications/whatsapp', whatsAppData),
+
+  // Templates
+  getTemplates: (type?: string) =>
+    apiClient.get('/api/v1/communications/templates', { type }),
+  
+  createTemplate: (templateData: any) =>
+    apiClient.post('/api/v1/communications/templates', templateData),
+  
+  getTemplate: (id: string) =>
+    apiClient.get(`/api/v1/communications/templates/${id}`),
+};
+
+export const invoicesAPI = {
+  getInvoices: () =>
+    apiClient.get('/api/v1/invoices'),
+  
+  createInvoice: (invoiceData: any) =>
+    apiClient.post('/api/v1/invoices', invoiceData),
+  
+  sendInvoice: (id: string) =>
+    apiClient.post(`/api/v1/invoices/${id}/send`),
+  
+  getInvoice: (id: string) =>
+    apiClient.get(`/api/v1/invoices/${id}`),
+};
+
+export const crmAPI = {
+  getContacts: () =>
+    apiClient.get('/api/v1/crm/contacts'),
+  
+  createContact: (contactData: any) =>
+    apiClient.post('/api/v1/crm/contacts', contactData),
+  
+  getContact: (id: string) =>
+    apiClient.get(`/api/v1/crm/contacts/${id}`),
+  
+  getStats: () =>
+    apiClient.get('/api/v1/crm/stats'),
+};
+
+export const budgetAPI = {
+  createRevision: (revisionData: any) =>
+    apiClient.post('/api/v1/budget/revisions', revisionData),
+  
+  createBudget: (budgetData: any) =>
+    apiClient.post('/api/v1/budget/new', budgetData),
+};
+
+export const treasuryAPI = {
+  getDirectDebits: (companyId: string) =>
+    apiClient.get('/api/v1/treasury/direct-debits', { companyId }),
+  
+  getDirectDebitStats: (companyId: string) =>
+    apiClient.get('/api/v1/treasury/direct-debits/statistics', { companyId }),
+  
+  createDirectDebit: (debitData: any) =>
+    apiClient.post('/api/v1/treasury/direct-debits', debitData),
+  
+  updateDirectDebit: (id: string, debitData: any) =>
+    apiClient.put(`/api/v1/treasury/direct-debits/${id}`, debitData),
+  
+  deleteDirectDebit: (id: string) =>
+    apiClient.delete(`/api/v1/treasury/direct-debits/${id}`),
+  
+  executeDirectDebitAction: (id: string, action: string) =>
+    apiClient.post(`/api/v1/treasury/direct-debits/${id}/${action}`),
+};
+
+export const accountingAPI = {
+  exportChartOfAccounts: (companyId: string) =>
+    apiClient.download(`/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`, 'chart-of-accounts.xlsx'),
+  
+  exportTrialBalance: (companyId: string) =>
+    apiClient.download(`/api/v1/accounting/export/trial-balance?companyId=${companyId}`, 'trial-balance.xlsx'),
+  
+  exportJournalEntries: (companyId: string) =>
+    apiClient.download(`/api/v1/accounting/export/journal-entries?companyId=${companyId}`, 'journal-entries.xlsx'),
+  
+  createJournalEntry: (entryData: any) =>
+    apiClient.post('/api/v1/accounting/journal-entries', entryData),
+};
+
+export const bankingAPI = {
+  getTransactions: (companyId: string) =>
+    apiClient.get('/api/v1/banking/transactions', { companyId }),
+  
+  autoMatch: (companyId: string) =>
+    apiClient.post('/api/v1/banking/auto-match', { companyId }),
+  
+  getSuggestions: (transactionId: string, companyId: string) =>
+    apiClient.get(`/api/v1/banking/transactions/${transactionId}/entry-suggest`, { companyId }),
+  
+  reconcileEntry: (reconciliationData: any) =>
+    apiClient.post('/api/v1/banking/reconcile-entry', reconciliationData),
+};
+
+export const taxAPI = {
+  recalculateVAT: (companyId: string) =>
+    apiClient.post('/api/v1/tax/vat/recalculate', { companyId }),
+  
+  exportFEC: (companyId: string) =>
+    apiClient.download(`/api/v1/tax/export/fec?companyId=${companyId}`, 'fec-export.txt'),
+  
+  generateCA3PDF: (companyId: string) =>
+    apiClient.download(`/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`, 'ca3-declaration.pdf'),
+};
+
+export const aiAPI = {
+  chat: (message: string, context?: any) =>
+    apiClient.post('/api/v1/ai/chat', { message, context }),
+  
+  ocr: (file: File, type: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.upload(`/api/v1/ai/ocr/${type}`, formData);
+  },
+};
+
+export const uploadsAPI = {
+  upload: (file: File, entityType?: string, entityId?: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const params = new URLSearchParams();
+    if (entityType) params.append('entityType', entityType);
+    if (entityId) params.append('entityId', entityId);
+    
+    return apiClient.upload(`/api/v1/uploads?${params.toString()}`, formData);
+  },
+};
+
+export const companiesAPI = {
+  getCompanies: () =>
+    apiClient.get('/api/v1/companies'),
+  
+  createCompany: (companyData: any) =>
+    apiClient.post('/api/v1/companies', companyData),
+};
+
+export const supportAPI = {
+  getTickets: () =>
+    apiClient.get('/api/v1/support/tickets'),
+};
+
+export const marketingAPI = {
+  getCampaigns: () =>
+    apiClient.get('/api/v1/marketing/campaigns'),
+};

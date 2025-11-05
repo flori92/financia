@@ -15,8 +15,7 @@ export default NextAuth({
         }
 
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
-          const response = await fetch(`${apiUrl}/auth/login`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

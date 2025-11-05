@@ -1,8 +1,4 @@
 "use client";
-import { useState, useEffect } from "react";
-import { apiGet } from "@/lib/api";
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { formatCurrency } from "@/lib/format-utils";
 
 import { TrendingUp, TrendingDown, ShoppingCart, Users, DollarSign, Target } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -32,24 +28,6 @@ const TOP_CLIENTS = [
 ];
 
 export default function SalesAnalyticsPage() {
-  const companyId = useCompanyId();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadAnalytics();
-  }, [companyId]);
-
-  const loadAnalytics = async () => {
-    try {
-      const data = await apiGet('/sales/analytics', { companyId });
-      // Utiliser les données API si disponibles, sinon fallback mock
-      console.log('Analytics data loaded:', data);
-    } catch (error) {
-      console.error('Erreur chargement analytics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
   return (
     <div className="space-y-6">
       <div>
@@ -150,7 +128,7 @@ export default function SalesAnalyticsPage() {
               {TOP_CLIENTS.map((client, idx) => (
                 <tr key={idx} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">{client.name}</td>
-                  <td className="px-4 py-3 text-right">{formatCurrency(client.ca)}</td>
+                  <td className="px-4 py-3 text-right">{client.ca.toLocaleString()} FCFA</td>
                   <td className="px-4 py-3 text-right">{client.commandes}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={`inline-flex items-center gap-1 ${client.evolution > 0 ? 'text-green-600' : 'text-red-600'}`}>

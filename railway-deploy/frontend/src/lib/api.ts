@@ -11,6 +11,26 @@ function buildQuery(params?: Query) {
   return s ? `?${s}` : '';
 }
 
+function handleAuthError(status: number) {
+  if (status === 401 || status === 403) {
+    console.error(`[AUTH] Erreur d'authentification ${status} - Redirection vers login`);
+    // Clear auth data
+    if (typeof window !== 'undefined') {
+      console.log('[AUTH] Nettoyage des données d\'authentification...');
+      window.localStorage.removeItem('bms_token');
+      window.localStorage.removeItem('token');
+      window.localStorage.removeItem('user_data');
+      window.localStorage.removeItem('user_email');
+      window.localStorage.removeItem('user_role');
+      window.localStorage.removeItem('user_profile');
+
+      // Redirect to login
+      console.log('[AUTH] Redirection vers /login...');
+      window.location.href = '/login';
+    }
+  }
+}
+
 export async function apiDelete(path: string, params?: Query, init?: RequestInit) {
   const base = getBaseUrl().replace(/\/$/, '');
   const url = `${base}${path}${buildQuery(params)}`;
@@ -23,62 +43,55 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
     },
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
 }
 
+declare const process: any;
+
 export function getBaseUrl() {
-  // SOLUTION FORTE : Forcer l'URL backend en production
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
-  
-  // Debug log
-  if (typeof window !== 'undefined') {
-    console.log('🔗 API Base URL:', backendUrl);
-  }
-  
-  return backendUrl;
+  const env = typeof window === 'undefined' ? (typeof process !== 'undefined' ? process.env : {}) : {};
+  return (env as any).NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
 }
 
 function getToken() {
-  // Next.js injecte NEXT_PUBLIC_* au build time
-  if (process.env.NEXT_PUBLIC_API_TOKEN) return process.env.NEXT_PUBLIC_API_TOKEN;
+  const env = typeof window === 'undefined' ? (typeof process !== 'undefined' ? process.env : {}) : {};
+  if ((env as any).NEXT_PUBLIC_API_TOKEN) return (env as any).NEXT_PUBLIC_API_TOKEN;
   if (typeof window !== 'undefined') {
     const t = window.localStorage.getItem('bms_token') || window.localStorage.getItem('token') || '';
+    if (t) {
+      console.log('[TOKEN] Token trouvé:', t.substring(0, 20) + '...');
+    } else {
+      console.warn('[TOKEN] Aucun token trouvé dans localStorage');
+    }
     return t || undefined;
   }
   return undefined;
 }
 
 export function getCompanyId() {
-  // Pour le dashboard demo, utiliser un companyId fixe
-  const demoCompanyId = '1805bc61-7cfd-44e9-8a63-17187bf05dc7';
-  
-  // Next.js injecte NEXT_PUBLIC_* au build time
-  if (process.env.NEXT_PUBLIC_COMPANY_ID) {
-    const cid = process.env.NEXT_PUBLIC_COMPANY_ID;
+  const env = typeof window === 'undefined' ? (typeof process !== 'undefined' ? process.env : {}) : {};
+  if ((env as any).NEXT_PUBLIC_COMPANY_ID) {
+    const cid = (env as any).NEXT_PUBLIC_COMPANY_ID as string;
     if (typeof window !== 'undefined') {
       try { window.localStorage.setItem('companyId', cid); } catch {}
     }
     return cid;
   }
-  if (typeof window !== 'undefined') {
-    try { 
-      const stored = window.localStorage.getItem('companyId');
-      if (stored) return stored;
-      // Stocker le companyId de demo par défaut
-      window.localStorage.setItem('companyId', demoCompanyId);
-      return demoCompanyId;
-    } catch {}
-  }
-  return demoCompanyId;
+  if (typeof window !== 'undefined') return window.localStorage.getItem('companyId') || undefined;
+  return undefined;
 }
 
 export async function apiGet(path: string, params?: Query, init?: RequestInit) {
   const base = getBaseUrl().replace(/\/$/, '');
   const url = `${base}${path}${buildQuery(params)}`;
   const token = getToken();
+  console.log(`[API] GET ${path}`, token ? '(avec token)' : '(sans token)');
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -87,7 +100,11 @@ export async function apiGet(path: string, params?: Query, init?: RequestInit) {
     },
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    console.error(`[API] Erreur ${res.status} sur GET ${path}`);
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
@@ -119,27 +136,10 @@ export async function apiPost(path: string, body: any, params?: Query, init?: Re
     body: JSON.stringify(body ?? {}),
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  const ct = res.headers.get('content-type') || '';
-  if (ct.includes('application/json')) return res.json();
-  return res.text();
-}
-
-export async function apiPatch(path: string, body: any, params?: Query, init?: RequestInit) {
-  const base = getBaseUrl().replace(/\/$/, '');
-  const url = `${base}${path}${buildQuery(params)}`;
-  const token = getToken();
-  const res = await fetch(url, {
-    method: 'PATCH',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(body ?? {}),
-    ...init,
-  } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
@@ -159,9 +159,34 @@ export async function apiPut(path: string, body: any, params?: Query, init?: Req
     body: JSON.stringify(body ?? {}),
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
 }
 
+export async function apiPatch(path: string, body: any, params?: Query, init?: RequestInit) {
+  const base = getBaseUrl().replace(/\/$/, '');
+  const url = `${base}${path}${buildQuery(params)}`;
+  const token = getToken();
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body ?? {}),
+    ...init,
+  } as RequestInit);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  if (ct.includes('application/json')) return res.json();
+  return res.text();
+}

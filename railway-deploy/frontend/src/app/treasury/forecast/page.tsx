@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { TrendingUp, AlertTriangle, Loader2, LineChart } from "lucide-react";
 
 type ForecastPoint = {
@@ -44,7 +43,9 @@ const fallbackRecommendations: Recommendation[] = [
   },
 ];
 
-
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value) + " FCFA";
+}
 
 export default function TreasuryForecastPage() {
   const [forecast, setForecast] = useState<ForecastPoint[]>([]);

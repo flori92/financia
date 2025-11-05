@@ -1,169 +1,108 @@
 "use client";
-// Page Plan Comptable - MODE DYNAMIQUE avec API backend
-import { getBaseUrl } from "@/lib/api";
-import { ProfessionalExporter } from "@/lib/export-utils";
-import { formatCurrency } from "@/lib/format-utils";
-import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Download, Upload, X } from "lucide-react";
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { ProtectedPage } from '@/components/auth/ProtectedPage';
+import { useState, useEffect, useRef } from "react";
+import { Plus, Search, Filter, Download, Upload, X, Loader2, AlertCircle } from "lucide-react";
+import { apiGet, apiPost, apiPut, getCompanyId } from "@/lib/api";
+
 interface Account {
-  code: string;
-  name: string;
-  type: string;
-  class: string;
+  id: string;
+  accountNumber: string;
+  accountName: string;
+  accountType: string;
+  syscohadaClass: number;
   balance?: number;
 }
 
-function ChartOfAccountsPageContent() {
-  const companyId = useCompanyId();
+export default function ChartOfAccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
-  const [activeAction, setActiveAction] = useState<{ type: "import" | "export" | "create" | "edit"; payload?: any } | null>(null);
+  const [activeAction, setActiveAction] = useState<{ type: "import" | "export" | "create" | "edit"; payload?: Account | null } | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Form refs
+  const accountNumberRef = useRef<HTMLInputElement>(null);
+  const accountNameRef = useRef<HTMLInputElement>(null);
+  const accountTypeRef = useRef<HTMLSelectElement>(null);
+  const syscohadaClassRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const loadAccounts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const companyId = getCompanyId();
+      if (!companyId) {
+        setError("Aucune société sélectionnée. Veuillez vous connecter.");
+        setLoading(false);
+        return;
+      }
+
+      const data = await apiGet("/api/v1/accounting/chart-of-accounts", { companyId });
+      setAccounts(data);
+    } catch (err: any) {
+      console.error("Erreur chargement plan comptable:", err);
+      setError(err.message || "Erreur lors du chargement du plan comptable");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const triggerToast = (type: "success" | "info" | "error", message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 2800);
   };
 
-  // Charger les données du plan comptable depuis l'API
-  const loadChartOfAccounts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch(
-        `${getBaseUrl()}/api/v1/accounting/chart-of-accounts?companyId=${companyId}`,
-        { 
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      setAccounts(data || []);
-    } catch (err) {
-      console.error('Erreur chargement plan comptable:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
-      // En cas d'erreur, afficher un plan comptable de base
-      setAccounts([
-        { code: '101000', name: 'Capital Social', type: 'equity', class: '1' },
-        { code: '401000', name: 'Fournisseurs', type: 'liability', class: '4' },
-        { code: '411000', name: 'Clients', type: 'asset', class: '4' },
-        { code: '601000', name: 'Achats marchandises', type: 'expense', class: '6' },
-        { code: '701000', name: 'Ventes marchandises', type: 'revenue', class: '7' }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Charger au montage du composant
-  useEffect(() => {
-    loadChartOfAccounts();
-  }, []);
-
   const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv,.xlsx,.xls';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      try {
-        const text = await file.text();
-        const lines = text.split('\n').filter(line => line.trim());
-        
-        if (lines.length < 2) {
-          triggerToast("error", "Le fichier est vide ou invalide");
-          return;
-        }
-
-        // Parser le CSV (format: numéro,nom,type,classe)
-        const newAccounts = lines.slice(1).map(line => {
-          const [number, name, type, classe] = line.split(',').map(s => s.trim().replace(/"/g, ''));
-          return {
-            number: number || '',
-            name: name || '',
-            type: type || 'ACTIF',
-            classe: classe || (number ? number.charAt(0) : '1'),
-            status: 'ACTIF'
-          };
-        }).filter(acc => acc.number && acc.name);
-
-        // Simuler l'ajout (remplacer par appel API réel)
-        triggerToast("success", `${newAccounts.length} comptes importés avec succès`);
-        loadChartOfAccounts(); // Recharger les données
-        
-      } catch (error) {
-        console.error('Erreur import:', error);
-        triggerToast("error", "Erreur lors de l'import du fichier");
-      }
-    };
-    input.click();
+    setActiveAction({ type: "import" });
+    triggerToast("info", "Import CSV/Excel disponible prochainement.");
   };
 
   const handleExport = async () => {
     setActiveAction({ type: "export" });
     try {
-      if (!accounts || accounts.length === 0) {
-        triggerToast("error", "Aucune donnée à exporter");
-        return;
-      }
-
-      // Données structurées pour l'export professionnel
-      const exportData = {
-        title: 'Plan Comptable SYSCOHADA',
-        headers: ['Code Compte', 'Nom du Compte', 'Type', 'Classe', 'Solde'],
-        rows: accounts.map(account => [
-          account.code,
-          account.name,
-          account.type,
-          account.class,
-          account.balance ? account.balance.toLocaleString('fr-FR') + ' FCFA' : '0 FCFA'
-        ]),
-        metadata: {
-          date: new Date().toLocaleDateString('fr-FR'),
-          company: 'BMS Business Management System',
-          period: 'Plan comptable complet',
-          author: 'Service Comptabilité'
+      const companyId = getCompanyId();
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const response = await fetch(
+        `${apiUrl}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'text/csv',
+            'Authorization': `Bearer ${localStorage.getItem('bms_token')}`
+          }
         }
-      };
+      );
 
-      // Choix du format d'export
-      const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
-      
-      if (formatChoice) {
-        // Export Excel avec styles professionnels
-        ProfessionalExporter.exportExcel(exportData, 'plan-comptable');
-        triggerToast("success", "Plan comptable exporté en Excel avec styles professionnels !");
-      } else {
-        // Export PDF pour impression
-        ProfessionalExporter.exportPDF(exportData, 'plan-comptable');
-        triggerToast("success", "Plan comptable exporté en PDF pour impression !");
-      }
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `plan-comptable-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      triggerToast("success", "Plan comptable exporté avec succès !");
     } catch (error) {
-      triggerToast("info", "Erreur lors de l'export. Veuillez réessayer.");
-    } finally {
-      setActiveAction(null);
+      triggerToast("error", "Erreur lors de l'export.");
     }
   };
 
   const openCreateModal = () => {
-    setActiveAction({ type: "create" });
+    setActiveAction({ type: "create", payload: null });
     setShowModal(true);
   };
 
-  const openEditModal = (account: typeof accounts[number]) => {
+  const openEditModal = (account: Account) => {
     setActiveAction({ type: "edit", payload: account });
     setShowModal(true);
   };
@@ -173,12 +112,84 @@ function ChartOfAccountsPageContent() {
     setActiveAction(null);
   };
 
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      const companyId = getCompanyId();
+      if (!companyId) {
+        triggerToast("error", "Aucune société sélectionnée");
+        return;
+      }
+
+      // Collect form data
+      const formData = {
+        companyId,
+        accountNumber: accountNumberRef.current?.value || "",
+        accountName: accountNameRef.current?.value || "",
+        accountType: accountTypeRef.current?.value || "",
+        syscohadaClass: parseInt(syscohadaClassRef.current?.value || "0", 10),
+      };
+
+      // Validate
+      if (!formData.accountNumber || !formData.accountName) {
+        triggerToast("error", "Le code et le libellé sont requis");
+        return;
+      }
+
+      if (activeAction?.type === "edit" && activeAction.payload?.id) {
+        // Update existing account
+        await apiPut(`/api/v1/accounting/accounts/${activeAction.payload.id}`, formData);
+        triggerToast("success", "Compte modifié avec succès !");
+      } else {
+        // Create new account
+        await apiPost("/api/v1/accounting/accounts", formData);
+        triggerToast("success", "Compte créé avec succès !");
+      }
+
+      // Reload accounts list
+      await loadAccounts();
+      closeModal();
+    } catch (err: any) {
+      console.error("Erreur enregistrement compte:", err);
+      triggerToast("error", err.message || "Erreur lors de l'enregistrement");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0D9488]" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex items-center gap-3">
+        <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+        <div>
+          <h3 className="font-semibold text-red-900">Erreur</h3>
+          <p className="text-red-700">{error}</p>
+          <button
+            onClick={loadAccounts}
+            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Plan comptable</h1>
-          <p className="text-gray-600">Gestion du plan comptable multi-dimensionnel</p>
+          <p className="text-gray-600">Gestion du plan comptable SYSCOHADA</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -205,52 +216,21 @@ function ChartOfAccountsPageContent() {
         </div>
       </div>
 
-      {/* État de chargement */}
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D9488] mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement du plan comptable...</p>
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Rechercher un compte..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
+            />
           </div>
+          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <Filter className="w-4 h-4" />
+            Filtres
+          </button>
         </div>
-      )}
-
-      {/* État d'erreur */}
-      {error && !loading && (
-        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <X className="w-5 h-5 text-rose-600" />
-            <div>
-              <h3 className="text-rose-800 font-medium">Erreur de chargement</h3>
-              <p className="text-rose-700 text-sm">{error}</p>
-              <button
-                onClick={loadChartOfAccounts}
-                className="mt-2 text-sm text-rose-600 hover:text-rose-800 underline"
-              >
-                Réessayer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Contenu principal - seulement si pas en chargement */}
-      {!loading && !error && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Rechercher un compte..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
-              />
-            </div>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="w-4 h-4" />
-              Filtres
-            </button>
-          </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -264,36 +244,46 @@ function ChartOfAccountsPageContent() {
               </tr>
             </thead>
             <tbody>
-              {accounts.map((account, idx) => (
-                <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-mono text-sm">{account.code}</td>
-                  <td className="py-3 px-4">{account.name}</td>
-                  <td className="py-3 px-4 text-sm text-gray-600">{account.type}</td>
-                  <td className={`py-3 px-4 text-right font-medium ${account.balance !== undefined && account.balance >= 0 ? 'text-green-600' : account.balance !== undefined ? 'text-red-600' : 'text-gray-400'}`}>
-                    {account.balance !== undefined 
-                      ? `${new Intl.NumberFormat('fr-FR').format(Math.abs(account.balance))} FCFA`
-                      : '—'
-                    }
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <button
-                      onClick={() => openEditModal(account)}
-                      className="text-[#0D9488] hover:text-[#0B7C74] text-sm font-medium"
-                    >
-                      Modifier
-                    </button>
+              {accounts.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-gray-500">
+                    Aucun compte trouvé. Créez votre premier compte.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                accounts.map((account) => (
+                  <tr key={account.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-3 px-4 font-mono text-sm">{account.accountNumber}</td>
+                    <td className="py-3 px-4">{account.accountName}</td>
+                    <td className="py-3 px-4 text-sm text-gray-600">
+                      {account.accountType} (Classe {account.syscohadaClass})
+                    </td>
+                    <td className={`py-3 px-4 text-right font-medium ${(account.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {new Intl.NumberFormat('fr-FR').format(Math.abs(account.balance || 0))} FCFA
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        onClick={() => openEditModal(account)}
+                        className="text-[#0D9488] hover:text-[#0B7C74] text-sm font-medium"
+                      >
+                        Modifier
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
-      )}
       {toast && (
         <div
           className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg ${
-            toast.type === "success" ? "bg-emerald-600 text-white" : "bg-slate-800 text-white"
+            toast.type === "success"
+              ? "bg-emerald-600 text-white"
+              : toast.type === "error"
+              ? "bg-red-600 text-white"
+              : "bg-slate-800 text-white"
           }`}
         >
           {toast.message}
@@ -309,74 +299,93 @@ function ChartOfAccountsPageContent() {
                   {activeAction?.type === "edit" ? "Modifier un compte" : "Créer un compte"}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Gestion des comptes SYSCOHADA avec synchronisation API
+                  Plan comptable SYSCOHADA
                 </p>
               </div>
-              <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100">
+              <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100" disabled={saving}>
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Code</label>
+                <label className="block text-sm font-medium text-gray-700">Code compte *</label>
                 <input
+                  ref={accountNumberRef}
                   type="text"
-                  defaultValue={activeAction?.payload?.code || "70XXXX"}
-                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  defaultValue={activeAction?.payload?.accountNumber || ""}
+                  placeholder="Ex: 701000"
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
+                  disabled={saving}
+                  required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Libellé</label>
+                <label className="block text-sm font-medium text-gray-700">Libellé *</label>
                 <input
+                  ref={accountNameRef}
                   type="text"
-                  defaultValue={activeAction?.payload?.name || "Compte de test"}
-                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  defaultValue={activeAction?.payload?.accountName || ""}
+                  placeholder="Ex: Ventes de marchandises"
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
+                  disabled={saving}
+                  required
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Type</label>
-                  <select className="mt-1 w-full border rounded-lg px-3 py-2" defaultValue={activeAction?.payload?.type || "Charges"}>
-                    <option>Actif</option>
-                    <option>Passif</option>
-                    <option>Charges</option>
-                    <option>Produits</option>
-                    <option>Capitaux propres</option>
+                  <label className="block text-sm font-medium text-gray-700">Type *</label>
+                  <select
+                    ref={accountTypeRef}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
+                    defaultValue={activeAction?.payload?.accountType || "ASSET"}
+                    disabled={saving}
+                    required
+                  >
+                    <option value="ASSET">Actif</option>
+                    <option value="LIABILITY">Passif</option>
+                    <option value="EQUITY">Capitaux propres</option>
+                    <option value="REVENUE">Produits</option>
+                    <option value="EXPENSE">Charges</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Solde initial</label>
-                  <input type="number" className="mt-1 w-full border rounded-lg px-3 py-2" defaultValue={activeAction?.payload?.balance || 0} />
+                  <label className="block text-sm font-medium text-gray-700">Classe SYSCOHADA *</label>
+                  <input
+                    ref={syscohadaClassRef}
+                    type="number"
+                    min="1"
+                    max="8"
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0D9488] focus:border-transparent"
+                    defaultValue={activeAction?.payload?.syscohadaClass || 1}
+                    disabled={saving}
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">1-8 (OHADA)</p>
                 </div>
               </div>
             </div>
 
             <div className="flex justify-end gap-2">
-              <button onClick={closeModal} className="px-4 py-2 border rounded-lg hover:bg-gray-50">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                disabled={saving}
+              >
                 Annuler
               </button>
               <button
-                onClick={() => {
-                  triggerToast("success", "Enregistrement simulé.");
-                  closeModal();
-                }}
-                className="px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
+                onClick={handleSave}
+                className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74] disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={saving}
               >
-                Enregistrer
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {saving ? "Enregistrement..." : "Enregistrer"}
               </button>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
-}
-
-export default function ChartOfAccountsPage() {
-  return (
-    <ProtectedPage>
-      <ChartOfAccountsPageContent />
-    </ProtectedPage>
   );
 }

@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ProfessionalExporter } from "@/lib/export-utils";
 import Link from 'next/link';
 
 interface PipelineStage {
@@ -319,90 +318,11 @@ export default function OpportunitiesPage() {
 
       {/* Actions rapides */}
       <div className="flex gap-4">
-        <Button 
-          variant="outline"
-          onClick={() => {
-            // Simulation de filtres avancés
-            const filters = {
-              status: ['ouvert', 'gagné', 'perdu'],
-              amountRange: { min: 0, max: 10000000 },
-              dateRange: { start: new Date(), end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) },
-              contacts: ['Contact A', 'Contact B', 'Contact C']
-            };
-            
-            alert(`Filtres avancés appliqués !\n\nStatuts: ${filters.status.join(', ')}\nMontant: ${filters.amountRange.min.toLocaleString('fr-FR')} - ${filters.amountRange.max.toLocaleString('fr-FR')} FCFA\nPériode: ${filters.dateRange.start.toLocaleDateString('fr-FR')} - ${filters.dateRange.end.toLocaleDateString('fr-FR')}\nContacts: ${filters.contacts.length} disponibles\n\nFiltres sauvegardés et appliqués !`);
-          }}
-        >
+        <Button variant="outline">
           <Filter className="h-4 w-4 mr-2" />
           Filtres avancés
         </Button>
-        <Button 
-          variant="outline"
-          onClick={() => {
-            // Simulation de prévisions
-            const forecast = {
-              monthlyRevenue: [500000, 750000, 1200000, 900000, 1500000, 1100000],
-              conversionRate: 25,
-              targetAchievement: 87,
-              totalProjected: 5950000
-            };
-            
-            const content = `Rapport de Prévisions des Ventes
-====================================
-
-Revenus mensuels prévisionnels:
-Mois 1: ${forecast.monthlyRevenue[0].toLocaleString('fr-FR')} FCFA
-Mois 2: ${forecast.monthlyRevenue[1].toLocaleString('fr-FR')} FCFA
-Mois 3: ${forecast.monthlyRevenue[2].toLocaleString('fr-FR')} FCFA
-Mois 4: ${forecast.monthlyRevenue[3].toLocaleString('fr-FR')} FCFA
-Mois 5: ${forecast.monthlyRevenue[4].toLocaleString('fr-FR')} FCFA
-Mois 6: ${forecast.monthlyRevenue[5].toLocaleString('fr-FR')} FCFA
-
-Taux de conversion: ${forecast.conversionRate}%
-Objectif atteint: ${forecast.targetAchievement}%
-Total projeté 6 mois: ${forecast.totalProjected.toLocaleString('fr-FR')} FCFA
-
-Prévisions générées avec succès !
-Export Excel/PDF disponible
-
-Analyse performance:
-- Opportunités chaudes: 12
-- Pipeline actif: 45 opportunités
-- Valeur moyenne: 250,000 FCFA
-- Cycle de vente moyen: 45 jours
-
-Généré le: ${new Date().toLocaleString('fr-FR')}`;
-
-            // Export professionnel Excel formaté
-            ProfessionalExporter.exportExcel({
-              title: 'Rapport de Prévisions des Ventes',
-              headers: ['Mois', 'Revenus prévisionnels', 'Taux conversion', 'Objectif atteint', 'Statut'],
-              rows: [
-                ['Mois 1', forecast.monthlyRevenue[0].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'En cours'],
-                ['Mois 2', forecast.monthlyRevenue[1].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
-                ['Mois 3', forecast.monthlyRevenue[2].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
-                ['Mois 4', forecast.monthlyRevenue[3].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
-                ['Mois 5', forecast.monthlyRevenue[4].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
-                ['Mois 6', forecast.monthlyRevenue[5].toLocaleString('fr-FR') + ' FCFA', forecast.conversionRate + '%', forecast.targetAchievement + '%', 'Prévision'],
-                ['', '', '', '', ''],
-                ['Résumé performance', '', '', '', ''],
-                ['Total projeté 6 mois', forecast.totalProjected.toLocaleString('fr-FR') + ' FCFA', '', '', ''],
-                ['Opportunités chaudes', '12', '', '', ''],
-                ['Pipeline actif', '45 opportunités', '', '', ''],
-                ['Valeur moyenne', '250,000 FCFA', '', '', ''],
-                ['Cycle vente moyen', '45 jours', '', '', '']
-              ],
-              metadata: {
-                date: new Date().toLocaleDateString('fr-FR'),
-                company: 'BMS Business Management System',
-                period: '6 prochain mois',
-                author: 'Service Commercial'
-              }
-            }, 'previsions-ventes');
-
-            alert(`Prévisions générées !\nTotal projeté: ${forecast.totalProjected.toLocaleString('fr-FR')} FCFA\nTaux conversion: ${forecast.conversionRate}%\nObjectif: ${forecast.targetAchievement}%\n\nRapport exporté avec succès !`);
-          }}
-        >
+        <Button variant="outline">
           <TrendingUp className="h-4 w-4 mr-2" />
           Prévisions
         </Button>

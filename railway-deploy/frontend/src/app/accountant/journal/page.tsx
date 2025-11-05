@@ -1,8 +1,4 @@
 "use client";
-import { getBaseUrl } from "@/lib/api";
-import { fetchPostWithAuth } from "@/lib/fetch-with-auth";
-import { ProfessionalExporter } from "@/lib/export-utils";
-import { formatCurrency } from "@/lib/format-utils";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Search, Filter, Upload, Camera, X, Info, Download } from "lucide-react";
@@ -10,12 +6,9 @@ import Link from "next/link";
 import { ImportButton } from "@/components/shared/ImportButton";
 import { ExportButton } from "@/components/shared/ExportButton";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { accountingAPI } from "@/lib/api-client";
 
-
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { ProtectedPage } from '@/components/auth/ProtectedPage';
-function JournalPageContent() {
-  const companyId = useCompanyId();
+export default function JournalPage() {
   const searchParams = useSearchParams();
   const [entries, setEntries] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -48,10 +41,11 @@ function JournalPageContent() {
     const handleCompanyChange = () => loadData();
     window.addEventListener('bms-company-changed', handleCompanyChange);
     return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
-  }, [companyId]);
+  }, []);
 
   const loadData = async () => {
     try {
+      const companyId = getCompanyId();
       if (!companyId) {
         console.error("Aucune société sélectionnée");
         setEntries([]);
@@ -80,14 +74,22 @@ function JournalPageContent() {
   const handleAddEntry = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
+    const companyId = getCompanyId();
+    if (!companyId) {
+      triggerToast("error", "Aucune société sélectionnée");
+      return;
+    }
+    
     const entry = {
+      companyId,
       description: formData.get('description'),
       debit: { account: formData.get('debitAccount'), amount: Number(formData.get('debitAmount')) },
       credit: { account: formData.get('creditAccount'), amount: Number(formData.get('creditAmount')) }
     };
     
     try {
-      await fetchPostWithAuth(`${getBaseUrl()}/api/v1/accounting/journal-entries`, entry);
+      await accountingAPI.createJournalEntry(entry);
       setShowAddForm(false);
       loadData();
       triggerToast("success", "Écriture ajoutée avec succès");
@@ -121,45 +123,26 @@ function JournalPageContent() {
 
   const handleExport = async () => {
     try {
-      if (!entries || entries.length === 0) {
-        triggerToast("error", "Aucune écriture à exporter");
-        return;
-      }
-
-      // Données structurées pour l'export professionnel
-      const exportData = {
-        title: 'Journal des Écritures Comptables',
-        headers: ['Date', 'N° Pièce', 'Compte', 'Libellé', 'Débit', 'Crédit'],
-        rows: entries.map(entry => [
-          entry.date,
-          entry.reference || entry.number,
-          entry.accountNumber || entry.account,
-          entry.description || entry.label,
-          entry.debit ? entry.debit.toLocaleString('fr-FR') + ' FCFA' : '',
-          entry.credit ? entry.credit.toLocaleString('fr-FR') + ' FCFA' : ''
-        ]),
-        metadata: {
-          date: new Date().toLocaleDateString('fr-FR'),
-          company: 'BMS Business Management System',
-          period: 'Toutes les écritures',
-          author: 'Service Comptabilité'
-        }
-      };
-
-      // Choix du format d'export
-      const formatChoice = confirm('Choisir le format d\'export:\n\nOK = Excel (formaté avec styles)\nAnnuler = PDF (professionnel imprimable)');
+      const companyId = "default-company";
+      const response = await fetch(
+        `/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
+        { method: 'GET' }
+      );
       
-      if (formatChoice) {
-        // Export Excel avec styles professionnels
-        ProfessionalExporter.exportExcel(exportData, 'journal-ecritures');
-        triggerToast("success", "Journal exporté en Excel avec styles professionnels !");
-      } else {
-        // Export PDF pour impression
-        ProfessionalExporter.exportPDF(exportData, 'journal-ecritures');
-        triggerToast("success", "Journal exporté en PDF pour impression !");
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'export');
       }
-    } catch (error) {
-      triggerToast("error", "Erreur lors de l'export. Veuillez réessayer.");
+
+      const result = await response.json();
+      const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = result.filename || 'ecritures.csv';
+      link.click();
+      
+      triggerToast("success", "Export réalisé avec succès");
+    } catch (err) {
+      triggerToast("error", "Erreur lors de l'export");
     }
   };
 
@@ -257,11 +240,11 @@ function JournalPageContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Total débits</div>
-          <div className="text-2xl font-semibold text-green-600">{totalDebit.toLocaleString('fr-FR')} FCFA</div>
+          <div className="text-2xl font-semibold text-green-600">{totalDebit.toLocaleString()} FCFA</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Total crédits</div>
-          <div className="text-2xl font-semibold text-red-600">{totalCredit.toLocaleString('fr-FR')} FCFA</div>
+          <div className="text-2xl font-semibold text-red-600">{totalCredit.toLocaleString()} FCFA</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">Écritures</div>
@@ -568,13 +551,5 @@ function JournalPageContent() {
         </div>
       )}
     </div>
-  );
-}
-
-export default function JournalPage() {
-  return (
-    <ProtectedPage>
-      <JournalPageContent />
-    </ProtectedPage>
   );
 }

@@ -86,7 +86,7 @@ export default function DemoPage() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border">
+          <div className="bg-blue-50 p-6 rounded-xl border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 font-medium">CA Mois</p>
@@ -99,7 +99,7 @@ export default function DemoPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border">
+          <div className="bg-orange-50 p-6 rounded-xl border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 font-medium">Charges Mois</p>
@@ -112,7 +112,7 @@ export default function DemoPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-xl border">
+          <div className="bg-emerald-50 p-6 rounded-xl border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-emerald-600 font-medium">Résultat Net</p>
@@ -125,7 +125,7 @@ export default function DemoPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border">
+          <div className="bg-purple-50 p-6 rounded-xl border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-purple-600 font-medium">Marge Brute</p>
@@ -535,7 +535,7 @@ export default function DemoPage() {
         <div className="flex items-center gap-2">
           {isDemo && (
             <div className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
-              Mode Demo
+              🎭 Mode Démo
             </div>
           )}
           <button
@@ -558,7 +558,7 @@ export default function DemoPage() {
               : 'border-transparent text-gray-600 hover:text-gray-900'
           }`}
         >
-          Dashboard Comptable
+           Dashboard Comptable
         </button>
         <button
           onClick={() => setActiveTab('mobile-money')}

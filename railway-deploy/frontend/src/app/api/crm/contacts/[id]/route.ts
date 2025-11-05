@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Forcer cette route à être dynamique car elle utilise request.headers
-export const dynamic = 'force-dynamic';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export async function GET(
   request: NextRequest,

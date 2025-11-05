@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { ModernSidebar } from "@/components/layout/ModernSidebar";
 import { ModernTopbar } from "@/components/layout/ModernTopbar";
 import {
@@ -30,10 +29,10 @@ export default function AccountantModernPage() {
         <ModernTopbar />
         
         <main className="p-8 space-y-8">
-          <div className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+          <div className="bg-[#0D9488] rounded-xl p-8 text-white">
             <div className="flex items-start justify-between">
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight mb-2">Tableau de bord MS</h1>
+                <h1 className="text-3xl font-semibold tracking-tight mb-2">Tableau de bord ERP</h1>
                 <p className="text-white/80 text-lg mb-6">Vue consolidée de votre activité comptable, trésorerie et fiscale</p>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg backdrop-blur-sm">
@@ -61,7 +60,7 @@ export default function AccountantModernPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0D9488]/10 to-[#0D9488]/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-[#0D9488]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Wallet className="text-[#0D9488] w-[22px] h-[22px]" strokeWidth={1.5} />
                 </div>
                 <div className="flex items-center gap-2">
@@ -79,7 +78,7 @@ export default function AccountantModernPage() {
 
             <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <TrendingUp className="text-blue-600 w-[22px] h-[22px]" strokeWidth={1.5} />
                 </div>
                 <div className="flex items-center gap-2">
@@ -96,7 +95,7 @@ export default function AccountantModernPage() {
 
             <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/10 to-green-500/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Activity className="text-green-600 w-[22px] h-[22px]" strokeWidth={1.5} />
                 </div>
                 <div className="flex items-center gap-2">
@@ -113,7 +112,7 @@ export default function AccountantModernPage() {
 
             <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer group">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-500/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Percent className="text-orange-600 w-[22px] h-[22px]" strokeWidth={1.5} />
                 </div>
                 <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded">À payer</span>

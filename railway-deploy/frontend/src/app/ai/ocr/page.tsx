@@ -1,9 +1,8 @@
 "use client";
 
-import { getBaseUrl } from "@/lib/api";
-import { formatCurrency, detectCurrency, type CurrencyCode } from "@/lib/currency";
 import { useState } from "react";
 import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info, PenTool } from "lucide-react";
+import { formatCurrency, detectCurrency, type CurrencyCode } from "@/lib/currency";
 import { CurrencyBadge } from "@/components/ui/currency-badge";
 
 type DocumentType = "invoice" | "receipt" | "bank_statement";
@@ -82,95 +81,29 @@ export default function OcrPage() {
     setError(null);
 
     try {
-      // Simuler extraction OCR avec données mock
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simuler délai
-      
-      let mockData = {};
-      
-      if (selectedType === "invoice") {
-        mockData = {
-          invoiceNumber: "F2025-001",
-          date: new Date().toISOString().slice(0, 10),
-          supplierName: "FOURNISSEUR EXEMPLE SARL",
-          total: 2500000,
-          subtotal: 2083333,
-          vatAmount: 416667,
-          currency: "XOF",
-          items: [
-            {
-              description: "Produit A - Quantité 10",
-              quantity: 10,
-              unitPrice: 125000,
-              total: 1250000
-            },
-            {
-              description: "Produit B - Quantité 5",
-              quantity: 5,
-              unitPrice: 166667,
-              total: 833335
-            }
-          ]
-        };
-      } else if (selectedType === "receipt") {
-        mockData = {
-          merchant: "SUPERMARCHE EXEMPLE",
-          date: new Date().toISOString().slice(0, 10),
-          time: "14:30",
-          total: 15000,
-          subtotal: 12500,
-          tax: 2500,
-          currency: "XOF",
-          paymentMethod: "Carte bancaire",
-          items: [
-            {
-              description: "Article 1",
-              amount: 8000
-            },
-            {
-              description: "Article 2", 
-              amount: 4500
-            },
-            {
-              description: "Article 3",
-              amount: 2500
-            }
-          ]
-        };
-      } else if (selectedType === "bank_statement") {
-        mockData = [
-          {
-            date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-            description: "Virement client ABC",
-            amount: 500000,
-            type: "credit",
-            balance: 2500000
-          },
-          {
-            date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-            description: "Paiement fournisseur XYZ",
-            amount: 200000,
-            type: "debit",
-            balance: 2300000
-          },
-          {
-            date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-            description: "Frais bancaires",
-            amount: 5000,
-            type: "debit",
-            balance: 2295000
-          }
-        ];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`/api/v1/ai/ocr/${selectedType}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'extraction OCR");
       }
+
+      const data = await response.json();
       
       setResult({
         type: selectedType,
-        confidence: 0.92,
-        data: mockData,
+        confidence: data.confidence || 0.95,
+        data,
         extractedAt: new Date().toISOString(),
       });
       
       // Initialiser les données éditables
-      setEditedData(JSON.parse(JSON.stringify(mockData)));
+      setEditedData(JSON.parse(JSON.stringify(data)));
       setIsEditing(false);
       setModifiedFields(new Set());
     } catch (err) {
@@ -199,99 +132,6 @@ export default function OcrPage() {
       setIsEditing(false);
       setModifiedFields(new Set());
     }
-  };
-
-  const handleCreateAccountingEntry = () => {
-    if (!result) return;
-    
-    // Créer une écriture comptable à partir des données OCR
-    const data = result.data;
-    
-    if (selectedType === "invoice") {
-      // Écriture pour facture fournisseur
-      const entry = {
-        date: data.date,
-        description: `Facture ${data.invoiceNumber} - ${data.supplierName}`,
-        lines: [
-          {
-            account: "607000", // Achats marchandises
-            debit: data.subtotal || data.total,
-            credit: 0,
-            description: "Achats marchandises"
-          },
-          {
-            account: "445660", // TVA déductible
-            debit: data.vatAmount || 0,
-            credit: 0,
-            description: "TVA déductible sur achats"
-          },
-          {
-            account: "401000", // Fournisseurs
-            debit: 0,
-            credit: data.total,
-            description: `Fournisseur: ${data.supplierName}`
-          }
-        ]
-      };
-      
-      // Simuler sauvegarde dans le système
-      console.log("Écriture comptable créée:", entry);
-      alert(`✅ Écriture comptable créée avec succès !\n\nFacture: ${data.invoiceNumber}\nFournisseur: ${data.supplierName}\nMontant: ${formatAmount(data.total)}\n\nL'écriture a été enregistrée dans le journal comptable.`);
-    }
-    
-    if (selectedType === "receipt") {
-      // Écriture pour reçu de caisse
-      const entry = {
-        date: data.date,
-        description: `Reçu - ${data.merchant}`,
-        lines: [
-          {
-            account: "531000", // Caisse
-            debit: data.total,
-            credit: 0,
-            description: "Encaissement caisse"
-          },
-          {
-            account: "707000", // Ventes
-            debit: 0,
-            credit: data.subtotal || data.total,
-            description: `Ventes - ${data.merchant}`
-          }
-        ]
-      };
-      
-      // Simuler sauvegarde dans le système
-      console.log("Écriture comptable créée:", entry);
-      alert(`✅ Écriture comptable créée avec succès !\n\nReçu: ${data.merchant}\nDate: ${data.date}\nMontant: ${formatAmount(data.total)}\n\nL'écriture a été enregistrée dans le journal comptable.`);
-    }
-    
-    if (selectedType === "bank_statement") {
-      alert(`📊 Relevé bancaire traité avec succès !\n\n${data.length} transactions identifiées\nSolde final: ${formatAmount(data[data.length - 1]?.balance || 0)}\n\nLes transactions ont été importées dans le journal.`);
-    }
-  };
-
-  const handleExportJson = () => {
-    if (!result) return;
-    
-    const exportData = {
-      type: result.type,
-      confidence: result.confidence,
-      extractedAt: result.extractedAt,
-      data: result.data
-    };
-    
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json"
-    });
-    
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `ocr-${result.type}-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   };
 
   const handleFieldChange = (fieldPath: string, value: any) => {
@@ -795,16 +635,10 @@ export default function OcrPage() {
                         <PenTool className="w-4 h-4" />
                         Modifier les données
                       </button>
-                      <button 
-                        onClick={handleCreateAccountingEntry}
-                        className="w-full px-4 py-3 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74] transition-colors font-medium"
-                      >
+                      <button className="w-full px-4 py-3 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74] transition-colors font-medium">
                         Créer une écriture comptable
                       </button>
-                      <button 
-                        onClick={handleExportJson}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-                      >
+                      <button className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                         <Download className="w-4 h-4" />
                         Exporter en JSON
                       </button>

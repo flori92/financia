@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, BellRing, SlidersHorizontal, AlertCircle, Info, FileText } from "lucide-react";
-import { apiGet } from "@/lib/api";
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { formatCurrency } from "@/lib/format-utils";
+import { apiGet, getCompanyId } from "@/lib/api";
 
 type AlertData = {
   alerts: Array<{
@@ -23,13 +21,13 @@ type AlertData = {
 };
 
 export default function AlertsPage() {
-  const companyId = useCompanyId();
   const [loading, setLoading] = useState(true);
   const [alertData, setAlertData] = useState<AlertData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAlerts = async () => {
+      const companyId = getCompanyId();
       if (!companyId) {
         setError("Aucune société sélectionnée");
         setLoading(false);
@@ -149,19 +147,19 @@ export default function AlertsPage() {
             <div className="text-center">
               <p className="text-sm text-gray-500">Net (90j)</p>
               <p className={`text-xl font-bold ${alertData.metrics.last90Net && alertData.metrics.last90Net < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {alertData.metrics.last90Net !== undefined ? `${Math.abs(alertData.metrics.last90Net).toLocaleString('fr-FR')} XOF` : 'N/A'}
+                {alertData.metrics.last90Net !== undefined ? `${Math.abs(alertData.metrics.last90Net).toLocaleString()} XOF` : 'N/A'}
               </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-500">Entrées (30j)</p>
               <p className="text-xl font-bold text-green-600">
-                {alertData.metrics.last30In !== undefined ? `${alertData.metrics.last30In.toLocaleString('fr-FR')} XOF` : 'N/A'}
+                {alertData.metrics.last30In !== undefined ? `${alertData.metrics.last30In.toLocaleString()} XOF` : 'N/A'}
               </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-500">Sorties (30j)</p>
               <p className="text-xl font-bold text-red-600">
-                {alertData.metrics.last30Out !== undefined ? `${alertData.metrics.last30Out.toLocaleString('fr-FR')} XOF` : 'N/A'}
+                {alertData.metrics.last30Out !== undefined ? `${alertData.metrics.last30Out.toLocaleString()} XOF` : 'N/A'}
               </p>
             </div>
           </div>

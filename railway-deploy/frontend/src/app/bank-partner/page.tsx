@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DollarSign, Users, TrendingUp, Award, FileText, CheckCircle, AlertTriangle, Target, Activity, Shield } from 'lucide-react';
 import { apiGet, getCompanyId } from '@/lib/api';
-import { formatCurrency } from "@/lib/format-utils";
 
 interface BankPartnerData {
   portfolio: {
@@ -76,117 +75,9 @@ export default function BankPartnerDashboard() {
       try {
         // Simuler les données de partenaire bancaire
         // En réalité, ces données viendraient des APIs scoring et loans
-        const mockData: BankPartnerData = {
-          portfolio: {
-            activeClients: 156,
-            newClients: 12,
-            activeLoans: 89,
-            totalLoanAmount: 245000000, // 245 millions FCFA
-            repaymentRate: 94.5,
-            pendingApplications: 23
-          },
-          creditScoreDistribution: {
-            excellent: 34,
-            good: 67,
-            average: 42,
-            poor: 13,
-            totalScored: 156
-          },
-          recentApplications: [
-            { 
-              id: '1', 
-              clientName: 'SARL Tech Innov', 
-              business: 'Services IT', 
-              amount: 15000000, 
-              creditScore: 750, 
-              duration: 24, 
-              status: 'pending',
-              riskLevel: 'low'
-            },
-            { 
-              id: '2', 
-              clientName: 'EURL Commerce Pro', 
-              business: 'Commerce', 
-              amount: 8000000, 
-              creditScore: 680, 
-              duration: 18, 
-              status: 'approved',
-              riskLevel: 'medium'
-            },
-            { 
-              id: '3', 
-              clientName: 'SA Industries Plus', 
-              business: 'Industrie', 
-              amount: 25000000, 
-              creditScore: 450, 
-              duration: 36, 
-              status: 'rejected',
-              riskLevel: 'high'
-            }
-          ],
-          loanPortfolio: [
-            {
-              id: '1',
-              clientName: 'SARL Construction Plus',
-              business: 'BTP',
-              amount: 20000000,
-              repaid: 8500000,
-              remaining: 11500000,
-              dueDate: '2025-06-15',
-              status: 'active'
-            },
-            {
-              id: '2',
-              clientName: 'EURL Services Elite',
-              business: 'Services',
-              amount: 12000000,
-              repaid: 12000000,
-              remaining: 0,
-              dueDate: '2024-12-20',
-              status: 'completed'
-            },
-            {
-              id: '3',
-              clientName: 'SA Transport Express',
-              business: 'Transport',
-              amount: 15000000,
-              repaid: 5000000,
-              remaining: 10000000,
-              dueDate: '2024-11-30',
-              status: 'overdue',
-              daysPastDue: 45
-            }
-          ],
-          performance: {
-            monthlyDisbursements: 45000000,
-            monthlyRepayments: 42000000,
-            defaultRate: 5.5,
-            averageLoanSize: 2750000,
-            approvalRate: 68.5
-          },
-          alerts: [
-            {
-              type: 'danger',
-              title: 'Retard de paiement critique',
-              message: 'SA Transport Express a 45 jours de retard',
-              clientName: 'SA Transport Express'
-            },
-            {
-              type: 'warning',
-              title: 'Applications à haut risque',
-              message: '8 applications présentent un score de crédit inférieur à 500',
-              clientName: 'Multiple'
-            },
-            {
-              type: 'info',
-              title: 'Nouveaux clients qualifiés',
-              message: '12 nouveaux clients avec score de crédit > 650 ce mois',
-              clientName: 'Multiple'
-            }
-          ]
-        };
-
-        setData(mockData);
+        const companyId = getCompanyId();
+      const data = await apiGet('/api/v1/banking/partner-dashboard', { companyId });
+      setData(data);
       } catch (err: any) {
         setError(err?.message || "Impossible de charger les données");
       } finally {
@@ -213,7 +104,7 @@ export default function BankPartnerDashboard() {
             <Users className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(data?.portfolio.activeClients || 0).toLocaleString('fr-FR')}</div>
+            <div className="text-2xl font-bold">{data?.portfolio.activeClients?.toLocaleString()}</div>
             <p className="text-xs text-gray-600 mt-1">+{data?.portfolio.newClients} ce mois</p>
           </CardContent>
         </Card>
@@ -225,7 +116,7 @@ export default function BankPartnerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data?.portfolio.activeLoans}</div>
-            <p className="text-xs text-green-600 mt-1">{(data?.portfolio.totalLoanAmount || 0).toLocaleString('fr-FR')} FCFA</p>
+            <p className="text-xs text-green-600 mt-1">{data?.portfolio.totalLoanAmount?.toLocaleString()} FCFA</p>
           </CardContent>
         </Card>
 
@@ -278,7 +169,7 @@ export default function BankPartnerDashboard() {
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
                       <p className="text-gray-600">Montant</p>
-                      <p className="font-medium">{app.amount.toLocaleString('fr-FR')} FCFA</p>
+                      <p className="font-medium">{app.amount.toLocaleString()} FCFA</p>
                     </div>
                     <div>
                       <p className="text-gray-600">Score</p>
@@ -366,9 +257,9 @@ export default function BankPartnerDashboard() {
                         <p className="text-sm text-gray-600">{loan.business}</p>
                       </div>
                     </td>
-                    <td className="p-3 font-medium">{loan.amount.toLocaleString('fr-FR')} FCFA</td>
-                    <td className="p-3 text-green-600">{loan.repaid.toLocaleString('fr-FR')} FCFA</td>
-                    <td className="p-3 text-orange-600">{loan.remaining.toLocaleString('fr-FR')} FCFA</td>
+                    <td className="p-3 font-medium">{loan.amount.toLocaleString()} FCFA</td>
+                    <td className="p-3 text-green-600">{loan.repaid.toLocaleString()} FCFA</td>
+                    <td className="p-3 text-orange-600">{loan.remaining.toLocaleString()} FCFA</td>
                     <td className="p-3 text-sm">{new Date(loan.dueDate).toLocaleDateString('fr-FR')}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${

@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
-import { api } from "@/lib/api-service";
 import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 
 type AgedBalanceType = 'receivables' | 'payables';
@@ -23,30 +21,15 @@ export default function AgedBalancePage() {
     
     setLoading(true);
     try {
-      const result = await api.getAgedBalance(cid, activeTab, asOfDate);
+      const result = await apiGet('/api/v1/accounting/aged-balance', { 
+        companyId: cid, 
+        type: activeTab,
+        asOfDate 
+      });
       setData(result);
       showSuccess('Balance âgée chargée');
-    } catch (error: any) {
-      console.error('Error loading aged balance:', error);
-      // Gérer spécifiquement l'erreur 404 (endpoint non disponible)
-      if (error?.message?.includes('404') || error?.status === 404) {
-        showError('Endpoint balance âgée en cours de déploiement. Veuillez réessayer dans quelques minutes.');
-        // Afficher des données mock pour ne pas bloquer l'interface
-        setData({
-          asOfDate,
-          type: activeTab,
-          items: [],
-          totals: {
-            total: 0,
-            current: 0,
-            days30_60: 0,
-            days60_90: 0,
-            over90: 0,
-          },
-        });
-      } else {
-        showError('Erreur lors du chargement de la balance âgée');
-      }
+    } catch (e: any) {
+      showError(String(e));
     } finally {
       setLoading(false);
     }
@@ -61,7 +44,7 @@ export default function AgedBalancePage() {
     return () => window.removeEventListener('bms-company-changed', handleCompanyChange);
   }, [activeTab, asOfDate]);
 
-  const nf = (v: number) => (v || 0).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const nf = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   const getPercentage = (part: number, total: number) => {
     if (total === 0) return 0;

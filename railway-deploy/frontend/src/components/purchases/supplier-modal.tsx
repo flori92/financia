@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { apiPost } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import {
   Dialog,
   DialogContent,
@@ -65,12 +64,9 @@ export default function SupplierModal({ onSupplierCreated, children }: SupplierM
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]" aria-describedby="supplier-description">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Nouveau Fournisseur</DialogTitle>
-          <p id="supplier-description" className="text-sm text-slate-600">
-            Ajoutez un nouveau fournisseur à votre base de données
-          </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">

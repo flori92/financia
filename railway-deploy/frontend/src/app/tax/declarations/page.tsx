@@ -211,15 +211,8 @@ export default function TaxDeclarationsPage() {
                   </tbody>
                 </table>
               </div>
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600">
-                <div className="font-medium text-gray-700 mb-2">✅ Fonctionnalités disponibles</div>
-                <ul className="space-y-1">
-                  <li>• Rappels automatiques des échéances</li>
-                  <li>• Relances e-mail intégrées</li>
-                  <li>• Export FEC format fiscal</li>
-                  <li>• Archivage sécurisé 10 ans</li>
-                  <li>• Télétransmission DGI</li>
-                </ul>
+              <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 text-xs text-gray-500">
+                Fonctionnalités à venir : rappels automatiques, relance e-mail, export FEC fiscal, archivage sécurisé 10 ans.
               </div>
             </div>
           )}

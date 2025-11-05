@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { apiGet, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 
 export type DashboardMetrics = {
   kpiMonth: {

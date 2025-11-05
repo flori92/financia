@@ -1,32 +1,25 @@
 'use client';
-import { apiGet, apiPost, apiDelete } from "@/lib/api";
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { formatCurrency } from "@/lib/format-utils";
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { supportAPI } from '@/lib/api-client';
+
 
 export default function TicketsPage() {
-  const companyId = useCompanyId();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadTickets();
-  }, [companyId]);
-
-  const loadTickets = async () => {
-    try {
-      const data = await apiGet('/support/tickets', { companyId });
-      setTickets(data);
-    } catch (error) {
-      console.error('Erreur chargement tickets:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    supportAPI.getTickets()
+      .then(res => res.json())
+      .then(data => {
+        setTickets(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   if (loading) return <div className="p-8">Chargement...</div>;
 
@@ -44,19 +37,7 @@ export default function TicketsPage() {
           <h1 className="text-3xl font-bold">Support Client</h1>
           <p className="text-gray-600">Gérez les tickets de support</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => {
-          // Simulation de création de ticket
-          const newTicket = {
-            id: `TK-${Date.now().toString().slice(-6)}`,
-            subject: `Demande ${['technique', 'facturation', 'compte', 'autre'][Math.floor(Math.random() * 4)]}`,
-            priority: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)],
-            status: 'open',
-            createdAt: new Date().toISOString(),
-            estimatedResponseTime: Math.floor(Math.random() * 24) + 1
-          };
-          
-          alert(`Nouveau ticket créé !\n\nNuméro: ${newTicket.id}\nSujet: ${newTicket.subject}\nPriorité: ${newTicket.priority}\nTemps de réponse estimé: ${newTicket.estimatedResponseTime}h\n\nTicket pris en charge et en attente de traitement !`);
-        }}>
+        <Button className="bg-teal-600 hover:bg-teal-700">
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Ticket
         </Button>
@@ -156,18 +137,7 @@ export default function TicketsPage() {
                       {new Date(ticket.createdAt).toLocaleDateString('fr-FR')}
                     </td>
                     <td className="p-3">
-                      <Button variant="ghost" size="sm" onClick={() => {
-                      const ticketDetails = {
-                        id: `TK-${ticket.id}`,
-                        status: ticket.status,
-                        priority: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)],
-                        assignedAgent: `Agent ${['Alpha', 'Beta', 'Gamma'][Math.floor(Math.random() * 3)]}`,
-                        resolutionTime: Math.floor(Math.random() * 48) + 2,
-                        customerSatisfaction: Math.floor(Math.random() * 3) + 3
-                      };
-                      
-                      alert(`Détails Ticket: ${ticketDetails.id}\n\nInformations:\nPriorité: ${ticketDetails.priority}\nAgent assigné: ${ticketDetails.assignedAgent}\nTemps de résolution: ${ticketDetails.resolutionTime}h\nSatisfaction client: ${ticketDetails.customerSatisfaction}/5\n\nStatut: ${ticketDetails.status === 'open' ? 'Ouvert' : ticketDetails.status === 'in-progress' ? 'En cours' : 'Résolu'}\n\nDétails complets disponibles !`);
-                    }}>Voir</Button>
+                      <Button variant="ghost" size="sm">Voir</Button>
                     </td>
                   </tr>
                 ))}

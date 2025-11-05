@@ -5,13 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, FileText, Award, Bell, AlertTriangle, Target, Activity } from 'lucide-react';
 import { apiGet, getCompanyId } from '@/lib/api';
-import { formatCurrency } from "@/lib/format-utils";
 import { useEffectiveCompanyId, useSelectedClientName, isExpertClientMode } from '@/hooks/useCompanyId';
-import { usePermissions } from '@/hooks/usePermissions';
 
-
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { ProtectedPage } from '@/components/auth/ProtectedPage';
 interface EntrepreneurData {
   kpiMonth: {
     revenue: number;
@@ -59,12 +54,10 @@ interface EntrepreneurData {
   }>;
 }
 
-function EntrepreneurDashboardContent() {
-  const companyId = useCompanyId();
+export default function EntrepreneurDashboard() {
   const [data, setData] = useState<EntrepreneurData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { userRole, canWrite } = usePermissions();
 
   useEffect(() => {
     const loadData = async () => {
@@ -135,12 +128,10 @@ function EntrepreneurDashboardContent() {
             }
           </p>
         </div>
-        {canWrite('entrepreneur') && (
-          <Button className="bg-teal-600 hover:bg-teal-700">
-            <FileText className="w-4 h-4 mr-2" />
-            Nouvelle Transaction
-          </Button>
-        )}
+        <Button className="bg-teal-600 hover:bg-teal-700">
+          <FileText className="w-4 h-4 mr-2" />
+          Nouvelle Transaction
+        </Button>
       </div>
 
       {/* Alertes */}
@@ -178,7 +169,7 @@ function EntrepreneurDashboardContent() {
             <TrendingUp className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(data.kpiMonth?.revenue || 0).toLocaleString('fr-FR')} FCFA</div>
+            <div className="text-2xl font-bold">{data.kpiMonth?.revenue?.toLocaleString() || 0} FCFA</div>
             <p className="text-xs text-green-600">Ce mois</p>
           </CardContent>
         </Card>
@@ -189,7 +180,7 @@ function EntrepreneurDashboardContent() {
             <TrendingDown className="w-4 h-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(data.kpiMonth?.expenses || 0).toLocaleString('fr-FR')} FCFA</div>
+            <div className="text-2xl font-bold">{data.kpiMonth?.expenses?.toLocaleString() || 0} FCFA</div>
             <p className="text-xs text-red-600">Ce mois</p>
           </CardContent>
         </Card>
@@ -201,7 +192,7 @@ function EntrepreneurDashboardContent() {
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${data.kpiMonth?.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {Math.abs(data.kpiMonth?.netIncome || 0).toLocaleString('fr-FR')} FCFA
+              {Math.abs(data.kpiMonth?.netIncome || 0).toLocaleString()} FCFA
             </div>
             <p className="text-xs text-gray-600">
               {data.kpiMonth?.netIncome >= 0 ? 'Bénéfice' : 'Perte'}
@@ -251,7 +242,7 @@ function EntrepreneurDashboardContent() {
             </CardHeader>
             <CardContent>
               <div className={`text-2xl font-bold ${data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {Math.abs(data.treasuryMetrics.net || 0).toLocaleString('fr-FR')} FCFA
+                {Math.abs(data.treasuryMetrics.net || 0).toLocaleString()} FCFA
               </div>
               <p className="text-xs text-gray-600">
                 {data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'Déficit' : 'Excédent'}
@@ -316,11 +307,11 @@ function EntrepreneurDashboardContent() {
                   </div>
                   <div>
                     <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-gray-600">{transaction.date ? new Date(transaction.date).toLocaleDateString('fr-FR') : '—'}</p>
+                    <p className="text-sm text-gray-600">{new Date(transaction.date).toLocaleDateString('fr-FR')}</p>
                   </div>
                 </div>
                 <div className={`font-bold ${transaction.type === 'sale' ? 'text-green-600' : 'text-red-600'}`}>
-                  {transaction.type === 'sale' ? '+' : '-'}{(transaction.amount || 0).toLocaleString('fr-FR')} FCFA
+                  {transaction.type === 'sale' ? '+' : '-'}{transaction.amount.toLocaleString()} FCFA
                 </div>
               </div>
             ))}
@@ -352,14 +343,5 @@ function EntrepreneurDashboardContent() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-
-export default function EntrepreneurDashboard() {
-  return (
-    <ProtectedPage>
-      <EntrepreneurDashboardContent />
-    </ProtectedPage>
   );
 }

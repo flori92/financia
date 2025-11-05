@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost, getCompanyId } from "@/lib/api";
-import { ArrowRightLeft, Loader2, Plus, Upload, AlertTriangle, MoreVertical, Edit, Send, XCircle, Download, History } from "lucide-react";
+import { ArrowRightLeft, Loader2, Plus, Upload, AlertTriangle } from "lucide-react";
 
 type OperationStatus = "draft" | "submitted" | "processed" | "failed";
 
@@ -75,79 +75,6 @@ export default function TreasuryOperationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [formVisible, setFormVisible] = useState(false);
   const [sending, setSending] = useState(false);
-  const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
-  const [editingOperation, setEditingOperation] = useState<string | null>(null);
-
-  // Actions Opérations Trésorerie
-  const modifyOperation = (operationId: string) => {
-    const operation = operations.find(op => op.id === operationId);
-    if (operation) {
-      setEditingOperation(operationId);
-      setFormVisible(true);
-      setShowActionMenu(null);
-    }
-  };
-
-  const submitOperation = (operationId: string) => {
-    const operation = operations.find(op => op.id === operationId);
-    if (operation && operation.status === 'draft') {
-      setOperations(operations.map(op => 
-        op.id === operationId ? { ...op, status: 'submitted' } : op
-      ));
-      alert(`Opération ${operation.reference} soumise pour traitement !`);
-      setShowActionMenu(null);
-    }
-  };
-
-  const cancelOperation = (operationId: string) => {
-    const operation = operations.find(op => op.id === operationId);
-    if (operation && (operation.status === 'draft' || operation.status === 'submitted')) {
-      setOperations(operations.filter(op => op.id !== operationId));
-      alert(`Opération ${operation.reference} annulée avec succès !`);
-      setShowActionMenu(null);
-    }
-  };
-
-  const exportOperationProof = (operationId: string) => {
-    const operation = operations.find(op => op.id === operationId);
-    if (operation) {
-      const content = `Justificatif Opération Trésorerie\n` +
-        `=====================================\n\n` +
-        `Référence: ${operation.reference}\n` +
-        `Bénéficiaire: ${operation.beneficiary}\n` +
-        `Date de paiement: ${new Date(operation.paymentDate).toLocaleDateString('fr-FR')}\n` +
-        `Montant: ${formatCurrency(operation.amount, operation.currency)}\n` +
-        `Statut: ${operation.status}\n` +
-        `Généré le: ${new Date().toLocaleString('fr-FR')}\n\n` +
-        `Ce document sert de justificatif pour l'opération de trésorerie.`;
-      
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `justificatif-${operation.reference}-${new Date().toISOString().split('T')[0]}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      setShowActionMenu(null);
-    }
-  };
-
-  const viewOperationHistory = (operationId: string) => {
-    const operation = operations.find(op => op.id === operationId);
-    if (operation) {
-      const history = [
-        `Opération ${operation.reference} créée le ${new Date().toLocaleDateString('fr-FR')}`,
-        `Bénéficiaire: ${operation.beneficiary}`,
-        `Montant: ${formatCurrency(operation.amount, operation.currency)}`,
-        `Statut actuel: ${operation.status}`,
-        `Dernière modification: ${new Date().toLocaleString('fr-FR')}`
-      ];
-      
-      alert(`Historique des modifications:\n\n${history.join('\n')}`);
-      setShowActionMenu(null);
-    }
-  };
   const [form, setForm] = useState({
     beneficiary: "",
     amount: "",
@@ -201,7 +128,7 @@ export default function TreasuryOperationsPage() {
     return { count: operations.length, total, pending };
   }, [operations]);
 
-  async function submitNewOperation() {
+  async function submitOperation() {
     const amountValue = Number(form.amount || 0);
     if (!form.beneficiary.trim() || amountValue <= 0) {
       setError("Merci de renseigner un bénéficiaire et un montant valide.");
@@ -239,7 +166,7 @@ export default function TreasuryOperationsPage() {
       setFormVisible(false);
       setForm({ beneficiary: "", amount: "", paymentDate: new Date().toISOString().slice(0, 10), reference: "" });
     } catch (err) {
-      console.error("submitNewOperation", err);
+      console.error("submitOperation", err);
       setError("Échec de l'envoi via l'API. L'opération a été enregistrée localement.");
       setOperations((prev) => [
         {
@@ -260,59 +187,6 @@ export default function TreasuryOperationsPage() {
     }
   }
 
-  async function handleImportSEPA() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.xml';
-    
-    input.onchange = async (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('companyId', getCompanyId());
-        
-        const response = await fetch('/api/v1/sepa/import', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          // Ajouter les transactions importées à la liste
-          const newOperations = result.data.transactions.map((tx: any) => ({
-            id: tx.id,
-            reference: `SEPA-${tx.id}`,
-            beneficiary: tx.creditor,
-            paymentDate: tx.executionDate,
-            amount: tx.amount,
-            currency: tx.currency,
-            status: 'draft' as OperationStatus,
-            paymentMethod: 'bank_transfer',
-          }));
-          
-          setOperations(prev => [...newOperations, ...prev]);
-          alert(`Fichier SEPA importé avec succès !\n${result.data.transactionsCount} transactions importées`);
-        } else {
-          setError(result.message || 'Erreur lors de l\'import SEPA');
-        }
-      } catch (error) {
-        console.error('Erreur import SEPA:', error);
-        setError('Erreur lors de l\'import du fichier SEPA');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    input.click();
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -323,13 +197,9 @@ export default function TreasuryOperationsPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => {
-              alert('Import SEPA - Fonctionnalité Active !\n\nCette fonctionnalité permet :\n• Importer des fichiers XML SEPA\n• Valider le format des transactions\n• Prévisualiser les montants totaux\n• Créer automatiquement les opérations\n• Générer les rapports d\'import\n\nFormats supportés: XML SEPA Credit Transfer\n\nPour utiliser:\n1. Cliquez sur "Choisir un fichier"\n2. Sélectionnez votre fichier XML\n3. Validez l\'import\n4. Les transactions seront ajoutées à votre liste');
-            }}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+            <Upload className="w-4 h-4" />
             Importer un lot SEPA
           </button>
           <button
@@ -397,10 +267,7 @@ export default function TreasuryOperationsPage() {
                 {operations.map((operation) => {
                   const badge = statusBadge(operation.status);
                   return (
-                    <tr 
-                      key={operation.id} 
-                      className="border-b border-slate-100 hover:bg-slate-50 relative"
-                    >
+                    <tr key={operation.id} className="border-b border-slate-100 hover:bg-slate-50">
                       <td className="py-3 text-slate-700 font-medium">{operation.reference}</td>
                       <td className="py-3 text-slate-600">{operation.beneficiary}</td>
                       <td className="py-3 text-slate-600">{new Date(operation.paymentDate).toLocaleDateString("fr-FR")}</td>
@@ -413,65 +280,9 @@ export default function TreasuryOperationsPage() {
                           {badge.label}
                         </span>
                       </td>
-                      <td className="py-3">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowActionMenu(showActionMenu === operation.id ? null : operation.id);
-                          }}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                      </td>
                     </tr>
                   );
                 })}
-                
-                {/* Menu d'actions Trésorerie */}
-                {showActionMenu && (
-                  <tr>
-                    <td colSpan={6} className="p-0 relative">
-                      <div className="absolute right-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 w-56">
-                        <button
-                          onClick={() => modifyOperation(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <Edit className="w-4 h-4" />
-                          Modifier les détails
-                        </button>
-                        <button
-                          onClick={() => submitOperation(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <Send className="w-4 h-4" />
-                          Soumettre pour traitement
-                        </button>
-                        <button
-                          onClick={() => cancelOperation(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          Annuler l'opération
-                        </button>
-                        <button
-                          onClick={() => exportOperationProof(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <Download className="w-4 h-4" />
-                          Exporter le justificatif
-                        </button>
-                        <button
-                          onClick={() => viewOperationHistory(showActionMenu)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <History className="w-4 h-4" />
-                          Voir l'historique
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
@@ -535,7 +346,7 @@ export default function TreasuryOperationsPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={submitNewOperation}
+                  onClick={submitOperation}
                   disabled={sending}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0D9488] text-white text-sm hover:bg-[#0B7C74] disabled:opacity-60"
                 >

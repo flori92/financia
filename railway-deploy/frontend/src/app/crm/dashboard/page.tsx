@@ -1,21 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
-import { apiGet } from "@/lib/api";
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { formatCurrency } from "@/lib/format-utils";
+import { apiGet, getCompanyId } from "@/lib/api";
 import { TrendingUp, Users, DollarSign, Target } from "lucide-react";
 import Link from "next/link";
 
 export default function CRMDashboardPage() {
-  const companyId = useCompanyId();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadData() {
-    if (!companyId) return;
+    const cid = getCompanyId();
+    if (!cid) return;
     setLoading(true);
     try {
-      const result = await apiGet('/crm/dashboard', { companyId });
+      const result = await apiGet('/api/v1/crm/dashboard', { companyId: cid });
       setData(result);
     } catch (e) {
       console.error(e);
@@ -24,7 +22,7 @@ export default function CRMDashboardPage() {
     }
   }
 
-  useEffect(() => { loadData(); }, [companyId]);
+  useEffect(() => { loadData(); }, []);
 
   if (loading) return <div className="p-8">Chargement...</div>;
   if (!data) return <div className="p-8">Aucune donnée</div>;
@@ -34,7 +32,7 @@ export default function CRMDashboardPage() {
       <h1 className="text-2xl font-bold">CRM Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-4 bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="card p-4 bg-blue-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-blue-700">Contacts</div>
@@ -44,7 +42,7 @@ export default function CRMDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-emerald-50 to-emerald-100">
+        <div className="card p-4 bg-emerald-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-emerald-700">Opportunités</div>
@@ -54,7 +52,7 @@ export default function CRMDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-purple-50 to-purple-100">
+        <div className="card p-4 bg-purple-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-purple-700">Ventes gagnées</div>
@@ -64,7 +62,7 @@ export default function CRMDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-amber-50 to-amber-100">
+        <div className="card p-4 bg-amber-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-amber-700">CA Total</div>

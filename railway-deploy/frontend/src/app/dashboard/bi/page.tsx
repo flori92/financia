@@ -1,8 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { apiGet } from "@/lib/api";
-import { useCompanyId } from '@/hooks/useCompanyId';
-import { formatCurrency } from "@/lib/format-utils";
+
+import { useState } from "react";
 import { Database, Filter, Download, RefreshCw, BarChart3, PieChart, LineChart } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Line, Area } from "recharts";
 
@@ -31,22 +29,8 @@ const PRODUCT_ANALYSIS = [
 ];
 
 export default function BIPage() {
-  const companyId = useCompanyId();
   const [selectedDim, setSelectedDim] = useState("Temps");
   const [selectedMesure, setSelectedMesure] = useState("CA");
-
-  useEffect(() => {
-    loadBI();
-  }, [companyId]);
-
-  const loadBI = async () => {
-    try {
-      const data = await apiGet('/dashboard/bi', { companyId });
-      console.log('BI data loaded:', data);
-    } catch (error) {
-      console.error('Erreur chargement BI:', error);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -172,7 +156,7 @@ export default function BIPage() {
               <div key={idx} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{geo.region}</span>
-                  <span className="text-gray-600">{geo.ca.toLocaleString('fr-FR')} FCFA ({geo.part}%)</span>
+                  <span className="text-gray-600">{geo.ca.toLocaleString()} FCFA ({geo.part}%)</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -201,7 +185,7 @@ export default function BIPage() {
                 {PRODUCT_ANALYSIS.map((prod, idx) => (
                   <tr key={idx} className="hover:bg-gray-50">
                     <td className="px-3 py-2 font-medium">{prod.produit}</td>
-                    <td className="px-3 py-2 text-right">{formatCurrency(prod.ca)}</td>
+                    <td className="px-3 py-2 text-right">{prod.ca.toLocaleString()}</td>
                     <td className="px-3 py-2 text-right text-green-600 font-medium">{prod.marge}%</td>
                     <td className="px-3 py-2 text-right">{prod.rotation}</td>
                   </tr>

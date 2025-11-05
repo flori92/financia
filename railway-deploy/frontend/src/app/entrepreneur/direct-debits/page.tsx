@@ -1,10 +1,6 @@
 'use client';
-import { getBaseUrl } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
-import { useCompanyId } from '@/hooks/useCompanyId';
 
 import React, { useState, useEffect } from 'react';
-import { ProtectedPage } from '@/components/auth/ProtectedPage';
 import {
   Plus,
   Edit2,
@@ -45,7 +41,7 @@ interface Statistics {
   upcomingCount: number;
 }
 
-function DirectDebitsPageContent() {
+export default function DirectDebitsPage() {
   const [directDebits, setDirectDebits] = useState<DirectDebit[]>([]);
   const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -77,7 +73,7 @@ function DirectDebitsPageContent() {
     notes: '',
   });
 
-  const companyId = useCompanyId();
+  const companyId = 'default-company';
 
   useEffect(() => {
     loadData();
@@ -87,8 +83,8 @@ function DirectDebitsPageContent() {
     setLoading(true);
     try {
       const [debitsRes, statsRes] = await Promise.all([
-        fetch(`${getBaseUrl()}/api/v1/treasury/direct-debits?companyId=${companyId}`),
-        fetch(`${getBaseUrl()}/api/v1/treasury/direct-debits/statistics?companyId=${companyId}`),
+        fetch(`/api/v1/treasury/direct-debits?companyId=${companyId}`),
+        fetch(`/api/v1/treasury/direct-debits/statistics?companyId=${companyId}`),
       ]);
 
       if (debitsRes.ok) setDirectDebits(await debitsRes.json());
@@ -113,8 +109,8 @@ function DirectDebitsPageContent() {
 
     try {
       const url = editingDebit
-        ? `${getBaseUrl()}/api/v1/treasury/direct-debits/${editingDebit.id}`
-        : `${getBaseUrl()}/api/v1/treasury/direct-debits`;
+        ? `/api/v1/treasury/direct-debits/${editingDebit.id}`
+        : '/api/v1/treasury/direct-debits';
       
       const response = await fetch(url, {
         method: editingDebit ? 'PUT' : 'POST',
@@ -137,7 +133,7 @@ function DirectDebitsPageContent() {
 
     try {
       const response = await fetch(
-        `${getBaseUrl()}/api/v1/treasury/direct-debits/${id}`,
+        `/api/v1/treasury/direct-debits/${id}`,
         { method: 'DELETE' }
       );
       if (response.ok) loadData();
@@ -149,7 +145,7 @@ function DirectDebitsPageContent() {
   const handleStatusChange = async (id: string, action: 'suspend' | 'reactivate' | 'cancel') => {
     try {
       const response = await fetch(
-        `${getBaseUrl()}/api/v1/treasury/direct-debits/${id}/${action}`,
+        `/api/v1/treasury/direct-debits/${id}/${action}`,
         { method: 'POST' }
       );
       if (response.ok) loadData();
@@ -312,7 +308,7 @@ function DirectDebitsPageContent() {
               <div>
                 <p className="text-sm text-gray-600">Mensuel</p>
                 <p className="text-xl font-bold text-rose-600">
-                  {statistics.monthlyAmount.toLocaleString('fr-FR')} FCFA
+                  {statistics.monthlyAmount.toLocaleString()} FCFA
                 </p>
               </div>
             </div>
@@ -350,7 +346,7 @@ function DirectDebitsPageContent() {
                   </div>
                 </td>
                 <td className="p-4 text-right font-mono font-semibold">
-                  {debit.amount.toLocaleString('fr-FR')} {debit.currency}
+                  {debit.amount.toLocaleString()} {debit.currency}
                 </td>
                 <td className="p-4">{getFrequencyLabel(debit.frequency)}</td>
                 <td className="p-4">
@@ -600,14 +596,5 @@ function DirectDebitsPageContent() {
         </div>
       )}
     </div>
-  );
-}
-
-
-export default function DirectDebitsPage() {
-  return (
-    <ProtectedPage>
-      <DirectDebitsPageContent />
-    </ProtectedPage>
   );
 }

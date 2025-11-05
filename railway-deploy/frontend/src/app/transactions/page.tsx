@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { SimpleTable } from "@/components/table/SimpleTable";
 import { KpiCard } from "@/components/kpi/KpiCard";
 import { apiGet, apiPost, apiPatch, apiDelete, getCompanyId } from "@/lib/api";
-import { formatCurrency } from "@/lib/format-utils";
 import { FileUpload } from "@/components/upload/FileUpload";
 
 function nf(v: any) {
