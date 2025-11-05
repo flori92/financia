@@ -51,6 +51,8 @@ import { RevenueModule } from './revenue/revenue.module';
 import { ControllingModule } from './controlling/controlling.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { HRModule } from './modules/hr/hr.module';
+import { CommunicationsModule } from './communications/communications.module';
+import { UsersModule } from './users/users.module';
 
 // Controllers
 import { HealthController } from './health/health.controller';
@@ -138,6 +140,8 @@ import { AppController } from './app.controller';
     InventoryModule,
     PurchasesModule,
     HRModule,
+    CommunicationsModule,
+    UsersModule,
     // Modules temporairement désactivés pour erreurs de compilation
     // ReportingModule,
     // IntegrationsModule,

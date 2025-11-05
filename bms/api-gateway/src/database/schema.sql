@@ -389,3 +389,65 @@ CREATE TABLE IF NOT EXISTS communication_templates (
 );
 
 CREATE INDEX IF NOT EXISTS idx_templates_company_type ON communication_templates(company_id, type);
+
+
+-- ==================== SUPPLIERS ====================
+
+CREATE TABLE IF NOT EXISTS suppliers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES companies(id),
+    name VARCHAR(255) NOT NULL,
+    legal_name VARCHAR(255),
+    nif VARCHAR(50),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    address TEXT,
+    contact_person VARCHAR(255),
+    payment_terms INTEGER DEFAULT 30,
+    credit_limit DECIMAL(15,2) DEFAULT 0,
+    current_balance DECIMAL(15,2) DEFAULT 0,
+    category VARCHAR(100),
+    currency VARCHAR(3),
+    is_active BOOLEAN DEFAULT TRUE,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_suppliers_company ON suppliers(company_id);
+CREATE INDEX IF NOT EXISTS idx_suppliers_active ON suppliers(company_id, is_active);
+
+
+-- ==================== USERS ====================
+
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES companies(id),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(50),
+    avatar VARCHAR(500),
+    role VARCHAR(50) DEFAULT 'user',
+    is_active BOOLEAN DEFAULT TRUE,
+    email_verified BOOLEAN DEFAULT FALSE,
+    last_login TIMESTAMP,
+    two_factor_secret VARCHAR(255),
+    two_factor_enabled BOOLEAN DEFAULT FALSE,
+    permissions TEXT[],
+    preferences JSONB,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_company ON users(company_id);
+CREATE INDEX IF NOT EXISTS idx_users_active ON users(company_id, is_active);
+
+-- User Roles junction table
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, role_id)
+);
