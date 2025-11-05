@@ -221,7 +221,7 @@ const menuItems: SidebarItem[] = [
 
 export function ModernSidebar() {
   const [isLocked, setIsLocked] = useState(false);
-  const [openMenus, setOpenMenus] = useState<string[]>(["compta"]);
+  const [openMenus, setOpenMenus] = useState<string[]>([]);
   const pathname = usePathname();
 
   const toggleMenu = (menuId: string) => {
