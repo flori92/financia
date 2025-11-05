@@ -54,6 +54,10 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 // HR & Payroll Modules
 import { EmployeeModule } from './employees/employee.module';
 
+// Profile-Specific Dashboards
+import { ExpertComptableModule } from './expert-comptable/expert-comptable.module';
+import { EntrepreneurModule } from './entrepreneur/entrepreneur.module';
+
 // Controllers
 import { HealthController } from './health/health.controller';
 import { AppController } from './app.controller';
@@ -170,6 +174,10 @@ import { AppController } from './app.controller';
     
     // HR & Payroll
     EmployeeModule,
+    
+    // Profile-Specific Dashboards
+    ExpertComptableModule,
+    EntrepreneurModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
