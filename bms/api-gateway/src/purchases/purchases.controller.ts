@@ -62,9 +62,40 @@ export class PurchasesController {
     return { success: true, message: 'Fournisseur supprimé' };
   }
 
+  @Get('orders')
+  @ApiOperation({ summary: 'Lister les bons de commande' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({ status: 200, description: 'Liste des commandes' })
+  getOrders(@Query('companyId') companyId: string) {
+    return this.service.getOrders(companyId);
+  }
+
+  @Get('orders/:id')
+  @ApiOperation({ summary: 'Récupérer un bon de commande par ID' })
+  @ApiResponse({ status: 200, description: 'Détails de la commande' })
+  getOrder(@Param('id') id: string) {
+    return this.service.getOrder(id);
+  }
+
   @Post('orders')
+  @ApiOperation({ summary: 'Créer un bon de commande' })
+  @ApiResponse({ status: 201, description: 'Commande créée' })
   createOrder(@Body() data: any) {
     return this.service.createOrder(data);
+  }
+
+  @Put('orders/:id')
+  @ApiOperation({ summary: 'Mettre à jour un bon de commande' })
+  @ApiResponse({ status: 200, description: 'Commande mise à jour' })
+  updateOrder(@Param('id') id: string, @Body() data: any) {
+    return this.service.updateOrder(id, data);
+  }
+
+  @Delete('orders/:id')
+  @ApiOperation({ summary: 'Annuler un bon de commande' })
+  @ApiResponse({ status: 200, description: 'Commande annulée' })
+  cancelOrder(@Param('id') id: string) {
+    return this.service.cancelOrder(id);
   }
 
   @Post('receipts')

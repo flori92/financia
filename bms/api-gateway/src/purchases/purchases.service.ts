@@ -13,10 +13,31 @@ export class PurchasesService {
     @InjectRepository(Invoice) private invoiceRepo: Repository<Invoice>,
   ) {}
 
+  async getOrders(companyId: string) {
+    return this.poRepo.find({
+      where: { companyId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async getOrder(id: string) {
+    return this.poRepo.findOne({ where: { id } });
+  }
+
   async createOrder(data: any) {
     const orderNumber = await this.generateOrderNumber(data.companyId);
-    const order = this.poRepo.create({ ...data, orderNumber });
+    const order = this.poRepo.create({ ...data, orderNumber, status: 'draft' });
     return this.poRepo.save(order);
+  }
+
+  async updateOrder(id: string, data: any) {
+    await this.poRepo.update(id, data);
+    return this.poRepo.findOne({ where: { id } });
+  }
+
+  async cancelOrder(id: string) {
+    await this.poRepo.update(id, { status: 'cancelled' });
+    return { success: true, message: 'Commande annulée' };
   }
 
   async createReceipt(data: any) {
