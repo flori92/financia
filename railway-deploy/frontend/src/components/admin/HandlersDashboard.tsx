@@ -34,14 +34,83 @@ export const HandlersDashboard: React.FC<HandlersDashboardProps> = ({
 
   useEffect(() => {
     loadReports();
-    
+
     if (autoRefresh) {
       const interval = setInterval(loadReports, refreshInterval);
       return () => clearInterval(interval);
     }
   }, [autoRefresh, refreshInterval]);
 
-  const globalReport = handlerReporter.generateGlobalReport();
+  // Calculate global report from cached reports instead of re-validating
+  const globalReport = React.useMemo(() => {
+    if (reports.length === 0) {
+      return {
+        totalPages: 0,
+        totalHandlers: 0,
+        totalImplemented: 0,
+        averageCompletionRate: 0,
+        averageQualityScore: 0,
+        criticalIssues: [],
+        pages: []
+      };
+    }
+
+    const totalHandlers = reports.reduce((sum, report) => sum + report.totalHandlers, 0);
+    const totalImplemented = reports.reduce((sum, report) => sum + report.implementedHandlers, 0);
+    const averageCompletionRate = Math.round(
+      reports.reduce((sum, report) => sum + report.completionRate, 0) / reports.length
+    );
+    const averageQualityScore = Math.round(
+      reports.reduce((sum, report) => sum + report.qualityScore, 0) / reports.length
+    );
+
+    const criticalIssues = reports.flatMap(report =>
+      report.handlers.filter(handler => !handler.isImplemented)
+    );
+
+    return {
+      totalPages: reports.length,
+      totalHandlers,
+      totalImplemented,
+      averageCompletionRate,
+      averageQualityScore,
+      criticalIssues,
+      pages: reports
+    };
+  }, [reports]);
+
+  // Calculate recommendations from cached globalReport instead of re-validating
+  const recommendations = React.useMemo(() => {
+    const recs: string[] = [];
+
+    if (globalReport.averageCompletionRate < 100) {
+      recs.push(`🔧 Implémenter les ${globalReport.totalHandlers - globalReport.totalImplemented} handlers manquants`);
+    }
+
+    if (globalReport.averageQualityScore < 90) {
+      recs.push('🛡️ Améliorer la gestion des erreurs dans les handlers existants');
+    }
+
+    const pagesWithIssues = reports
+      .filter(report => report.completionRate < 100 || report.qualityScore < 90)
+      .map(report => report.page);
+
+    if (pagesWithIssues.length > 0) {
+      recs.push(`📝 Prioriser les pages: ${pagesWithIssues.join(', ')}`);
+    }
+
+    const criticalIssues = globalReport.criticalIssues.length;
+    if (criticalIssues > 0) {
+      recs.push(`🚨 Résoudre les ${criticalIssues} problèmes critiques identifiés`);
+    }
+
+    if (recs.length === 0) {
+      recs.push('🎉 Tous les handlers sont fonctionnels! Continuez comme ça!');
+    }
+
+    return recs;
+  }, [globalReport, reports]);
+
   const getStatusIcon = (completionRate: number) => {
     if (completionRate === 100) return <CheckCircle className="w-4 h-4 text-green-500" />;
     if (completionRate >= 75) return <AlertCircle className="w-4 h-4 text-yellow-500" />;
@@ -251,7 +320,7 @@ export const HandlersDashboard: React.FC<HandlersDashboardProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {handlerReporter.generateRecommendations().map((recommendation: string, index: number) => (
+            {recommendations.map((recommendation: string, index: number) => (
               <div key={index} className="flex items-start gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                 <span className="text-sm">{recommendation}</span>
