@@ -83,6 +83,21 @@ const menuItems: SidebarItem[] = [
     ]
   },
   {
+    id: "rh",
+    label: "Ressources Humaines",
+    icon: Users,
+    submenu: [
+      { label: "Dashboard RH", href: "/hr", icon: LayoutDashboard },
+      { label: "Employés", href: "/hr/employees", icon: Users, badge: "12", badgeColor: "blue" },
+      { label: "Bulletins de paie", href: "/hr/payroll", icon: Receipt, badge: "36", badgeColor: "emerald" },
+      { label: "Congés", href: "/hr/leaves", icon: CalendarClock, badge: "8", badgeColor: "amber" },
+      { label: "CRA / Timesheets", href: "/hr/timesheets", icon: Activity },
+      { label: "Notes de frais", href: "/hr/expenses", icon: CreditCard },
+      { label: "Attestations", href: "/hr/certificates", icon: FileCheck },
+      { label: "Présences", href: "/hr/attendance", icon: CheckCircle }
+    ]
+  },
+  {
     id: "compta",
     label: "Comptabilité",
     icon: BookOpen,
