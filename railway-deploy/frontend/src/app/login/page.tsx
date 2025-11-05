@@ -25,7 +25,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProfile, setSelectedProfile] = useState<string>("");
 
   const profiles = [
     {
@@ -170,89 +169,16 @@ export default function LoginPage() {
     }
   }
 
-  function selectProfile(profile: any) {
-    setSelectedProfile(profile.id);
-    setEmail(profile.demoEmail);
-    setError(null);
-  }
+  // Profile selection UI retirée de la page de connexion
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
 
-      <div className="relative w-full max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-          {/* Section Profil Selection */}
-          <div className="space-y-8">
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[#0D9488] flex items-center justify-center">
-                  <Building2 className="w-7 h-7 text-white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-white">BMS ERP</h1>
-                  <p className="text-[#0D9488] text-sm">Business Management System</p>
-                </div>
-              </div>
-
-              <h2 className="text-2xl font-bold text-white mb-3">
-                Choisissez votre <span className="text-[#0D9488]">profil</span>
-              </h2>
-              <p className="text-slate-400">
-                Sélectionnez votre profil pour un accès personnalisé aux fonctionnalités adaptées à votre rôle
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {profiles.map((profile) => (
-                <div
-                  key={profile.id}
-                  onClick={() => selectProfile(profile)}
-                  className={`group relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                    selectedProfile === profile.id
-                      ? `${profile.borderColor} bg-slate-800/50`
-                      : 'border-slate-700 bg-slate-800/30 hover:border-slate-600 hover:bg-slate-800/40'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg ${profile.color} flex items-center justify-center flex-shrink-0`}>
-                      <profile.icon className="w-5 h-5 text-white" strokeWidth={1.5} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold">{profile.name}</h3>
-                      <p className="text-slate-400 text-sm">{profile.description}</p>
-                    </div>
-                    {selectedProfile === profile.id && (
-                      <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                        <div className="w-3 h-3 rounded-full bg-white"></div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {selectedProfile === profile.id && (
-                    <div className="mt-3 text-xs text-blue-400 font-medium">
-                      Compte démo: {profile.demoEmail}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-blue-600/10 border border-blue-500/20 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                <div>
-                  <h4 className="text-white font-semibold mb-1">Accès sécurisé</h4>
-                  <p className="text-slate-400 text-sm">
-                    Chaque profil dispose d'autorisations spécifiques selon votre rôle professionnel
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="relative w-full max-w-2xl">
+        <div className="flex items-center justify-center">
 
           {/* Section Login Form */}
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-8">
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-8 w-full max-w-md">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-white mb-2">Connexion</h2>
               <p className="text-slate-400">
@@ -267,7 +193,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-6" autoComplete="on">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   Email professionnel
@@ -278,6 +204,8 @@ export default function LoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    autoComplete="email"
                     className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                     placeholder="email@entreprise.bj"
                     required
@@ -295,6 +223,8 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    name="password"
+                    autoComplete="current-password"
                     className="w-full pl-10 pr-12 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                     placeholder="••••••••"
                     required
