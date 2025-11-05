@@ -69,25 +69,12 @@ export default function AIChatPage() {
 
     try {
       // Appel API backend
-      const response = await aiAPI.chat(textToSend, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: textToSend,
-          context: {
-            companyId: '1805bc61-7cfd-44e9-8a63-17187bf05dc7',
-            previousMessages: messages.slice(-5) // Derniers 5 messages pour contexte
-          }
-        })
+      const data = await aiAPI.chat(textToSend, {
+        previousMessages: messages.slice(-5).map(m => ({
+          role: m.role,
+          content: m.content
+        }))
       });
-
-      if (!response.ok) {
-        throw new Error('Erreur API');
-      }
-
-      const data = await response.json();
 
       // Ajouter la réponse de l'assistant
       const assistantMessage: Message = {

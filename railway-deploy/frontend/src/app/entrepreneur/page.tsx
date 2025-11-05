@@ -61,14 +61,14 @@ export default function EntrepreneurDashboard() {
 
   useEffect(() => {
     const loadData = async () => {
-      const companyId = useEffectiveCompanyId();
-      if (!companyId) {
-        setError("Aucune société sélectionnée");
-        setLoading(false);
-        return;
-      }
-
       try {
+        const companyId = getCompanyId();
+        if (!companyId) {
+          setError("Aucune société sélectionnée. Veuillez vous connecter.");
+          setLoading(false);
+          return;
+        }
+
         // Utiliser l'API accounting existante
         const [metrics, treasuryAlerts] = await Promise.allSettled([
           apiGet("/api/v1/accounting/dashboard/metrics", { companyId }),
@@ -76,27 +76,28 @@ export default function EntrepreneurDashboard() {
         ]);
 
         const result: EntrepreneurData = {
-      kpiMonth: { revenue: 0, expenses: 0, netIncome: 0, margin: 0 },
-      evolutionChart: [],
-      topClients: [],
-      alerts: [],
-      recentActivity: { entries: [] }
-    };
+          kpiMonth: { revenue: 0, expenses: 0, netIncome: 0, margin: 0 },
+          evolutionChart: [],
+          topClients: [],
+          alerts: [],
+          recentActivity: { entries: [] }
+        };
 
-        if (metrics.status === "fulfilled") {
-          result.kpiMonth = metrics.value.kpiMonth;
-          result.evolutionChart = metrics.value.evolutionChart;
-          result.topClients = metrics.value.topClients;
-          result.alerts = metrics.value.alerts;
-          result.recentActivity = metrics.value.recentActivity;
+        if (metrics.status === "fulfilled" && metrics.value) {
+          result.kpiMonth = metrics.value.kpiMonth || result.kpiMonth;
+          result.evolutionChart = metrics.value.evolutionChart || [];
+          result.topClients = metrics.value.topClients || [];
+          result.alerts = metrics.value.alerts || [];
+          result.recentActivity = metrics.value.recentActivity || { entries: [] };
         }
 
-        if (treasuryAlerts.status === "fulfilled") {
+        if (treasuryAlerts.status === "fulfilled" && treasuryAlerts.value) {
           result.treasuryMetrics = treasuryAlerts.value.metrics;
         }
 
         setData(result);
       } catch (err: any) {
+        console.error("[EntrepreneurDashboard] Erreur chargement:", err);
         setError(err?.message || "Impossible de charger les données");
       } finally {
         setLoading(false);
@@ -104,7 +105,7 @@ export default function EntrepreneurDashboard() {
     };
 
     loadData();
-  }, []); // La dépendance sera gérée par useEffectEffectiveCompanyId
+  }, [])
 
   if (loading) return <div className="p-8">Chargement...</div>;
   if (error) return <div className="p-8 text-red-600">Erreur: {error}</div>;
