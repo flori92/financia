@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ModernLayout } from "@/components/layout/ModernLayout";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import { PermissionProvider } from "@/components/providers/PermissionProvider";
 
 export const metadata: Metadata = {
   title: "BMS Web",
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-[#FAFBFC] text-slate-900">
         <SessionProvider>
           <ToastProvider>
-            <ModernLayout>{children}</ModernLayout>
+            <PermissionProvider>
+              <ModernLayout>{children}</ModernLayout>
+            </PermissionProvider>
           </ToastProvider>
         </SessionProvider>
       </body>

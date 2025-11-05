@@ -1,5 +1,12 @@
 export type Query = Record<string, string | number | boolean | undefined | null>;
 
+// Import pour les alertes permissions
+let showPermissionAlertCallback: ((feature?: string, requiredRole?: string) => void) | null = null;
+
+export function setPermissionAlertCallback(callback: (feature?: string, requiredRole?: string) => void) {
+  showPermissionAlertCallback = callback;
+}
+
 function buildQuery(params?: Query) {
   const p = new URLSearchParams();
   if (!params) return '';
@@ -11,8 +18,8 @@ function buildQuery(params?: Query) {
   return s ? `?${s}` : '';
 }
 
-function handleAuthError(status: number) {
-  if (status === 401 || status === 403) {
+function handleAuthError(status: number, path?: string) {
+  if (status === 401) {
     console.error(`[AUTH] Erreur d'authentification ${status} - Redirection vers login`);
     // Clear auth data
     if (typeof window !== 'undefined') {
@@ -29,6 +36,62 @@ function handleAuthError(status: number) {
       window.location.href = '/login';
     }
   }
+
+  if (status === 403) {
+    console.error(`[PERM] Erreur de permissions 403 sur ${path || 'endpoint inconnu'}`);
+    // Afficher une popup claire pour les permissions manquantes
+    if (showPermissionAlertCallback && typeof window !== 'undefined') {
+      const featureName = getFeatureNameFromPath(path);
+      const requiredRole = getRequiredRoleFromPath(path);
+      showPermissionAlertCallback(featureName, requiredRole);
+    }
+  }
+}
+
+function getFeatureNameFromPath(path?: string): string {
+  if (!path) return 'cette fonctionnalité';
+  
+  const mapping: Record<string, string> = {
+    '/api/v1/banking/transactions': 'Transactions bancaires',
+    '/api/v1/accounting': 'Comptabilité',
+    '/api/v1/invoices': 'Facturation',
+    '/api/v1/payroll': 'Paie',
+    '/api/v1/hr': 'Ressources Humaines',
+    '/api/v1/treasury': 'Trésorerie',
+    '/api/v1/tax': 'Fiscalité',
+    '/api/v1/crm': 'CRM',
+    '/api/v1/budget': 'Budget',
+    '/api/v1/support': 'Support',
+  };
+
+  for (const [key, value] of Object.entries(mapping)) {
+    if (path.startsWith(key)) return value;
+  }
+  
+  return 'cette fonctionnalité';
+}
+
+function getRequiredRoleFromPath(path?: string): string {
+  if (!path) return 'permissions appropriées';
+  
+  const mapping: Record<string, string> = {
+    '/api/v1/banking/transactions': 'Expert comptable, Comptable ou Admin',
+    '/api/v1/accounting': 'Expert comptable ou Comptable',
+    '/api/v1/invoices': 'Admin ou Comptable',
+    '/api/v1/payroll': 'RH Manager ou Admin',
+    '/api/v1/hr': 'RH Manager ou Admin',
+    '/api/v1/treasury': 'Expert comptable ou Admin',
+    '/api/v1/tax': 'Expert comptable ou Admin',
+    '/api/v1/crm': 'Manager ou Admin',
+    '/api/v1/budget': 'Manager ou Admin',
+    '/api/v1/support': 'Admin',
+  };
+
+  for (const [key, value] of Object.entries(mapping)) {
+    if (path.startsWith(key)) return value;
+  }
+  
+  return 'permissions appropriées';
 }
 
 export async function apiDelete(path: string, params?: Query, init?: RequestInit) {
@@ -44,7 +107,7 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
     ...init,
   } as RequestInit);
   if (!res.ok) {
-    handleAuthError(res.status);
+    handleAuthError(res.status, path);
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -102,7 +165,7 @@ export async function apiGet(path: string, params?: Query, init?: RequestInit) {
   } as RequestInit);
   if (!res.ok) {
     console.error(`[API] Erreur ${res.status} sur GET ${path}`);
-    handleAuthError(res.status);
+    handleAuthError(res.status, path);
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -137,7 +200,7 @@ export async function apiPost(path: string, body: any, params?: Query, init?: Re
     ...init,
   } as RequestInit);
   if (!res.ok) {
-    handleAuthError(res.status);
+    handleAuthError(res.status, path);
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -160,7 +223,7 @@ export async function apiPut(path: string, body: any, params?: Query, init?: Req
     ...init,
   } as RequestInit);
   if (!res.ok) {
-    handleAuthError(res.status);
+    handleAuthError(res.status, path);
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -183,7 +246,7 @@ export async function apiPatch(path: string, body: any, params?: Query, init?: R
     ...init,
   } as RequestInit);
   if (!res.ok) {
-    handleAuthError(res.status);
+    handleAuthError(res.status, path);
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
