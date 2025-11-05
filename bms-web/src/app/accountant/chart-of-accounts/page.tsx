@@ -60,7 +60,48 @@ export default function ChartOfAccountsPage() {
 
   const handleImport = () => {
     setActiveAction({ type: "import" });
-    triggerToast("info", "Import CSV/Excel disponible prochainement.");
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,.xlsx';
+    input.onchange = async (e: any) => {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const companyId = getCompanyId();
+        formData.append('companyId', companyId || '');
+        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const token = localStorage.getItem('bms_token');
+        
+        const response = await fetch(`${apiUrl}/api/v1/accounting/import/chart-of-accounts`, {
+          method: 'POST',
+          headers: {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: formData
+        });
+        
+        if (!response.ok) {
+          if (response.status === 403) {
+            triggerToast("error", "Vous n'avez pas les permissions pour importer le plan comptable");
+            return;
+          }
+          throw new Error('Import failed');
+        }
+        
+        const result = await response.json();
+        triggerToast("success", `Import réussi: ${result.imported || 0} comptes importés`);
+        // Recharger les données
+        window.location.reload();
+      } catch (error) {
+        console.error('Import error:', error);
+        triggerToast("error", "Erreur lors de l'import. Vérifiez le format du fichier.");
+      }
+    };
+    input.click();
   };
 
   const handleExport = async () => {

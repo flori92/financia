@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, Upload, Send, Calculator, FileText, X, Info } from "lucide-react";
+import { getCompanyId } from "@/lib/api";
 
 export default function VATPage() {
   const [vatData] = useState({
@@ -27,22 +28,40 @@ export default function VATPage() {
 
   const handleRecalculate = async () => {
     try {
-      const companyId = "default-company"; // TODO: récupérer depuis contexte
+      const companyId = getCompanyId();
+      if (!companyId) {
+        triggerToast("warning", "Aucune société sélectionnée");
+        return;
+      }
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bms_token') : null;
+      
       const response = await fetch(
-        `/api/v1/tax/vat/recalculate`,
+        `${apiUrl}/api/v1/tax/vat/recalculate`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
           body: JSON.stringify({ companyId, period: new Date().toISOString().substring(0, 7) })
         }
       );
       
-      if (!response.ok) throw new Error('Recalcul failed');
+      if (!response.ok) {
+        if (response.status === 403) {
+          triggerToast("warning", "Vous n'avez pas les permissions pour recalculer la TVA");
+          return;
+        }
+        throw new Error('Recalcul failed');
+      }
       
       const result = await response.json();
       triggerToast("success", `Recalcul TVA effectué : ${result.collected || 0} FCFA collectée, ${result.deductible || 0} FCFA déductible`);
     } catch (error) {
-      triggerToast("warning", "Recalcul TVA effectué (mode local). Connectez le backend pour le calcul réel.");
+      console.error('Recalcul error:', error);
+      triggerToast("warning", "Erreur lors du recalcul de la TVA");
     }
   };
 
@@ -52,7 +71,7 @@ export default function VATPage() {
 
   const handleExportFEC = async () => {
     try {
-      const companyId = "default-company";
+      const companyId = getCompanyId();
       const response = await fetch(
         `/api/v1/tax/export/fec?companyId=${companyId}`,
         { method: 'GET' }

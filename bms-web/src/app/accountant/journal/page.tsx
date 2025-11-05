@@ -123,10 +123,18 @@ export default function JournalPage() {
 
   const handleExport = async () => {
     try {
-      const companyId = "default-company";
+      const companyId = getCompanyId();
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bms_token') : null;
+      
       const response = await fetch(
-        `/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
-        { method: 'GET' }
+        `${apiUrl}/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
+        { 
+          method: 'GET',
+          headers: {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          }
+        }
       );
       
       if (!response.ok) {

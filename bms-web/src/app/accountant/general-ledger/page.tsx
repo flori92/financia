@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Search, Filter, Download, Calendar } from "lucide-react";
+import { getCompanyId } from "@/lib/api";
 
 export default function GeneralLedgerPage() {
   const [ledgerEntries] = useState([
@@ -8,11 +9,53 @@ export default function GeneralLedgerPage() {
     { date: "2025-01-16", account: "411000", description: "Paiement client ABC", debit: 0, credit: 120000, balance: 0 },
     { date: "2025-01-17", account: "411000", description: "Vente client XYZ", debit: 85000, credit: 0, balance: 85000 }
   ]);
-  const [toast, setToast] = useState<{ type: "success" | "info"; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "info" | "error"; message: string } | null>(null);
 
-  const triggerToast = (type: "success" | "info", message: string) => {
+  const triggerToast = (type: "success" | "info" | "error", message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 2600);
+  };
+
+  const handleExport = async () => {
+    try {
+      const companyId = getCompanyId();
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bms_token') : null;
+      
+      const response = await fetch(
+        `${apiUrl}/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          }
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          triggerToast("error", "Vous n'avez pas les permissions pour exporter le grand livre");
+          return;
+        }
+        throw new Error('Export failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `grand-livre-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      triggerToast("success", "Export réussi");
+    } catch (error) {
+      console.error('Export error:', error);
+      triggerToast("error", "Erreur lors de l'export");
+    }
   };
 
   return (
@@ -23,7 +66,7 @@ export default function GeneralLedgerPage() {
           <p className="text-gray-600">Consultation détaillée des mouvements par compte</p>
         </div>
         <button
-          onClick={() => triggerToast("success", "Export PDF/Excel disponible prochainement.")}
+          onClick={handleExport}
           className="flex items-center gap-2 px-4 py-2 bg-[#0D9488] text-white rounded-lg hover:bg-[#0B7C74]"
         >
           <Download className="w-4 h-4" />
