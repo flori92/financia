@@ -59,6 +59,19 @@ const badgeColorClasses: Record<BadgeColor, string> = {
 const menuItems: SidebarItem[] = [
   { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
   {
+    id: "crm",
+    label: "CRM & Ventes",
+    icon: Users,
+    submenu: [
+      { label: "Dashboard CRM", href: "/crm", icon: LayoutDashboard },
+      { label: "Contacts", href: "/crm/contacts", icon: Users, badge: "245", badgeColor: "blue" },
+      { label: "Opportunités", href: "/crm/opportunities", icon: Target, badge: "12", badgeColor: "emerald" },
+      { label: "Pipeline", href: "/crm/dashboard", icon: TrendingUp },
+      { label: "Activités", href: "/crm", icon: Activity },
+      { label: "Rapports", href: "/crm", icon: BarChart3 }
+    ]
+  },
+  {
     id: "compta",
     label: "Comptabilité",
     icon: BookOpen,
