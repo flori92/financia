@@ -343,6 +343,20 @@ export class SeedController {
   @ApiResponse({ status: 200, description: 'Entreprises créées et utilisateurs liés avec succès' })
   async seedCompanies() {
     try {
+      // Créer la table company_users si elle n'existe pas
+      await this.dataSource.query(`
+        CREATE TABLE IF NOT EXISTS company_users (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          company_id UUID NOT NULL,
+          user_id UUID NOT NULL,
+          role VARCHAR(50),
+          is_active BOOLEAN DEFAULT true,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(company_id, user_id)
+        );
+      `);
+
       // Récupérer les IDs des utilisateurs
       const users = await this.dataSource.query(`
         SELECT id, email FROM users WHERE email IN (
