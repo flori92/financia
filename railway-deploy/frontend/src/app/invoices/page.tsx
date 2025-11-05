@@ -56,7 +56,7 @@ export default function InvoicesPage() {
   const handleSendInvoice = async () => {
     if (!selectedInvoice) return;
     try {
-      await fetch(`/api/v1/invoices/${selectedInvoice.id}/send`, { method: 'POST' });
+      await invoicesAPI.sendInvoice(selectedInvoice.id);
       alert(`Facture ${selectedInvoice.number} envoyée par email`);
     } catch (err) {
       alert("Erreur lors de l'envoi");
