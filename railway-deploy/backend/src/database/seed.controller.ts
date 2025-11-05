@@ -333,4 +333,93 @@ export class SeedController {
       }
     };
   }
+
+  @Post('seed-companies')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Créer les entreprises et lier les utilisateurs existants',
+    description: 'Crée 3 entreprises et lie les utilisateurs seed existants via company_users'
+  })
+  @ApiResponse({ status: 200, description: 'Entreprises créées et utilisateurs liés avec succès' })
+  async seedCompanies() {
+    try {
+      // Récupérer les IDs des utilisateurs
+      const users = await this.dataSource.query(`
+        SELECT id, email FROM users WHERE email IN (
+          'admin@bms.bj', 'comptable@cabinet.bj', 'entrepreneur@test.bj', 'taxadmin@dgi.bj'
+        );
+      `);
+
+      const admin = users.find(u => u.email === 'admin@bms.bj');
+      const accountant = users.find(u => u.email === 'comptable@cabinet.bj');
+      const entrepreneur = users.find(u => u.email === 'entrepreneur@test.bj');
+
+      // Créer les entreprises
+      const company1Result = await this.dataSource.query(`
+        INSERT INTO companies (
+          name, nif, legal_form, address, city, country_code, phone, email, is_active
+        )
+        VALUES (
+          'Restaurant Le Béninois', '1234567890', 'SARL', '123 Rue de la Paix', 'Cotonou', 'BJ',
+          '+22997000010', 'contact@restaurant-beninois.bj', true
+        )
+        ON CONFLICT (nif) DO UPDATE SET name = EXCLUDED.name
+        RETURNING id;
+      `);
+      const company1Id = company1Result[0]?.id;
+
+      await this.dataSource.query(`
+        INSERT INTO companies (
+          name, nif, legal_form, address, city, country_code, phone, email, is_active
+        )
+        VALUES (
+          'Tech Afrique SARL', '0987654321', 'SARL', '456 Boulevard des Affaires', 'Porto-Novo', 'BJ',
+          '+22997000020', 'info@tech-afrique.bj', true
+        )
+        ON CONFLICT (nif) DO NOTHING;
+      `);
+
+      await this.dataSource.query(`
+        INSERT INTO companies (
+          name, nif, legal_form, address, city, country_code, phone, email, is_active
+        )
+        VALUES (
+          'Global Services SARL', '1122334455', 'SARL', '789 Avenue du Commerce', 'Parakou', 'BJ',
+          '+22997000030', 'contact@global-services.bj', true
+        )
+        ON CONFLICT (nif) DO NOTHING;
+      `);
+
+      // Lier les utilisateurs à la première entreprise
+      if (company1Id && admin && accountant && entrepreneur) {
+        await this.dataSource.query(`
+          INSERT INTO company_users (company_id, user_id, role, is_active)
+          VALUES
+            ($1, $2, 'owner', true),
+            ($1, $3, 'accountant', true),
+            ($1, $4, 'admin', true)
+          ON CONFLICT (company_id, user_id) DO NOTHING;
+        `, [company1Id, entrepreneur.id, accountant.id, admin.id]);
+      }
+
+      const companies = await this.dataSource.query(`SELECT id, name, nif FROM companies;`);
+
+      return {
+        success: true,
+        message: 'Entreprises créées et utilisateurs liés avec succès !',
+        data: {
+          companies: companies.length,
+          linkedUsers: 3,
+          companies: companies.map(c => ({ id: c.id, name: c.name, nif: c.nif }))
+        }
+      };
+    } catch (error) {
+      console.error('Erreur lors du seed des entreprises:', error);
+      return {
+        success: false,
+        message: 'Erreur lors du seed des entreprises',
+        error: error.message
+      };
+    }
+  }
 }
