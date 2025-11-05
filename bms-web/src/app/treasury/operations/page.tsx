@@ -117,6 +117,50 @@ export default function TreasuryOperationsPage() {
     }
   };
 
+  const handleImportSEPA = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      const companyId = getCompanyId();
+      if (companyId) formData.append('companyId', companyId);
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bms_token') : null;
+
+      const response = await fetch(`${apiUrl}/api/v1/treasury/import-sepa`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          setError("Vous n'avez pas les permissions pour importer des fichiers SEPA");
+          return;
+        }
+        throw new Error('Import failed');
+      }
+
+      const result = await response.json();
+      setError(null);
+      alert(`Import réussi: ${result.imported || 0} opérations importées`);
+      await loadOperations();
+      event.target.value = '';
+    } catch (error) {
+      console.error('Import SEPA error:', error);
+      setError("Erreur lors de l'import du fichier SEPA. Vérifiez le format du fichier.");
+      event.target.value = '';
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadOperations();
   }, []);
@@ -195,13 +239,16 @@ export default function TreasuryOperationsPage() {
           <p className="text-gray-600 mt-1">Virements SEPA, paiements fournisseurs et ordres de paiement</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50"
-          >
+          <label className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 cursor-pointer">
             <Upload className="w-4 h-4" />
             Importer un lot SEPA
-          </button>
+            <input
+              type="file"
+              accept=".xml,.sepa"
+              onChange={handleImportSEPA}
+              className="hidden"
+            />
+          </label>
           <button
             type="button"
             onClick={() => setFormVisible(true)}

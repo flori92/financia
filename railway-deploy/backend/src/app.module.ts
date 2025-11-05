@@ -57,6 +57,9 @@ import { EmployeeModule } from './employees/employee.module';
 // Profile-Specific Dashboards
 import { ExpertComptableModule } from './expert-comptable/expert-comptable.module';
 import { EntrepreneurModule } from './entrepreneur/entrepreneur.module';
+import { HrManagerModule } from './hr-manager/hr-manager.module';
+import { ManagerModule } from './manager/manager.module';
+import { EmployeeDashboardModule } from './employee/employee.module';
 
 // Controllers
 import { HealthController } from './health/health.controller';
@@ -178,6 +181,9 @@ import { AppController } from './app.controller';
     // Profile-Specific Dashboards
     ExpertComptableModule,
     EntrepreneurModule,
+    HrManagerModule,
+    ManagerModule,
+    EmployeeDashboardModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
