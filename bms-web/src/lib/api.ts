@@ -13,6 +13,7 @@ function buildQuery(params?: Query) {
 
 function handleAuthError(status: number) {
   if (status === 401 || status === 403) {
+    // Clear auth data
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem('bms_token');
       window.localStorage.removeItem('token');
@@ -20,6 +21,8 @@ function handleAuthError(status: number) {
       window.localStorage.removeItem('user_email');
       window.localStorage.removeItem('user_role');
       window.localStorage.removeItem('user_profile');
+
+      // Redirect to login
       window.location.href = '/login';
     }
   }
@@ -46,13 +49,16 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
   return res.text();
 }
 
+declare const process: any;
+
 export function getBaseUrl() {
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  return '';
+  const env = typeof window === 'undefined' ? (typeof process !== 'undefined' ? process.env : {}) : {};
+  return (env as any).NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
 }
 
 function getToken() {
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_TOKEN) return process.env.NEXT_PUBLIC_API_TOKEN;
+  const env = typeof window === 'undefined' ? (typeof process !== 'undefined' ? process.env : {}) : {};
+  if ((env as any).NEXT_PUBLIC_API_TOKEN) return (env as any).NEXT_PUBLIC_API_TOKEN;
   if (typeof window !== 'undefined') {
     const t = window.localStorage.getItem('bms_token') || window.localStorage.getItem('token') || '';
     return t || undefined;
@@ -61,8 +67,9 @@ function getToken() {
 }
 
 export function getCompanyId() {
-  if (typeof process !== 'undefined' && (process as any).env?.NEXT_PUBLIC_COMPANY_ID) {
-    const cid = (process as any).env.NEXT_PUBLIC_COMPANY_ID as string;
+  const env = typeof window === 'undefined' ? (typeof process !== 'undefined' ? process.env : {}) : {};
+  if ((env as any).NEXT_PUBLIC_COMPANY_ID) {
+    const cid = (env as any).NEXT_PUBLIC_COMPANY_ID as string;
     if (typeof window !== 'undefined') {
       try { window.localStorage.setItem('companyId', cid); } catch {}
     }
