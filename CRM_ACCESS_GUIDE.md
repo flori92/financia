@@ -21,32 +21,26 @@
 
 Le module existe et fonctionne, mais il n'est pas accessible via le menu de navigation.
 
-## 👥 Profils qui devraient avoir accès au CRM
+## 👥 Accès Universel - TOUS les profils ont accès
 
-### 1. **Commercial / Sales** 🎯
-- Accès complet au CRM
-- Gestion des contacts
-- Gestion des opportunités
-- Pipeline de ventes
-- Suivi des activités
+### ✅ **TOUS les utilisateurs** ont accès au CRM et Communications
 
-### 2. **Manager** 👔
-- Vue d'ensemble du CRM
-- Rapports et statistiques
-- Validation des opportunités
-- Suivi d'équipe
+**Profils avec accès:**
+- ✅ Admin
+- ✅ Comptable / Expert Comptable
+- ✅ Manager
+- ✅ Employé
+- ✅ RH Manager
+- ✅ Entrepreneur
+- ✅ Commercial
+- ✅ Tax Admin
 
-### 3. **Entrepreneur / Directeur** 💼
-- Dashboard CRM
-- KPIs commerciaux
-- Vue stratégique
-- Rapports de ventes
-
-### 4. **Admin** 👑
-- Accès complet
-- Configuration CRM
-- Gestion des utilisateurs CRM
-- Paramètres
+**Raison:** Le CRM et les Communications sont des outils transversaux utilisés par toute l'entreprise pour:
+- Gérer les relations clients
+- Communiquer en interne et externe
+- Suivre les opportunités
+- Envoyer des emails, SMS, WhatsApp
+- Collaborer entre équipes
 
 ## 📋 Fonctionnalités CRM Disponibles
 
@@ -171,11 +165,11 @@ En attendant l'ajout à la sidebar, vous pouvez accéder au CRM via:
 - 30 activités
 - Pipeline réaliste
 
-### 3. Configurer les permissions
-- Commercial: Accès complet
-- Manager: Vue + validation
-- Entrepreneur: Dashboard uniquement
-- Admin: Configuration
+### 3. Permissions universelles
+- ✅ Tous les profils: Accès complet au CRM
+- ✅ Tous les profils: Accès complet aux Communications
+- ✅ Pas de restriction par rôle
+- ✅ Collaboration facilitée
 
 ### 4. Intégrer avec les autres modules
 - Lien avec Facturation

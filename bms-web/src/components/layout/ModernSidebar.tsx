@@ -72,6 +72,17 @@ const menuItems: SidebarItem[] = [
     ]
   },
   {
+    id: "communications",
+    label: "Communications",
+    icon: Send,
+    submenu: [
+      { label: "Emails", href: "/communications/emails", icon: Send, badge: "24", badgeColor: "blue" },
+      { label: "SMS", href: "/communications/sms", icon: Smartphone, badge: "8", badgeColor: "emerald" },
+      { label: "WhatsApp", href: "/communications/whatsapp", icon: Activity, badge: "15", badgeColor: "teal" },
+      { label: "Templates", href: "/communications/templates", icon: FileText }
+    ]
+  },
+  {
     id: "compta",
     label: "Comptabilité",
     icon: BookOpen,
