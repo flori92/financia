@@ -17,7 +17,7 @@ export default function PurchasesPage() {
           <h3 className="font-semibold mb-2">Commandes</h3>
           <p className="text-sm text-slate-600">Bons de commande fournisseurs</p>
         </Link>
-        <Link href="/purchases/receipts" className="card p-6 hover:shadow-lg transition-shadow">
+        <Link href="/purchases/receptions" className="card p-6 hover:shadow-lg transition-shadow">
           <Package className="w-8 h-8 text-amber-600 mb-2" />
           <h3 className="font-semibold mb-2">Réceptions</h3>
           <p className="text-sm text-slate-600">Réception et contrôle marchandises</p>
