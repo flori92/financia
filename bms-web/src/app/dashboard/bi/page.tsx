@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Database, Filter, Download, RefreshCw, BarChart3, PieChart, LineChart } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Line, Area } from "recharts";
+import { getCompanyId } from "@/lib/api";
 
 const DIMENSIONS = ["Temps", "Géographie", "Produit", "Client", "Canal"];
 const MESURES = ["CA", "Marge", "Volume", "Coût"];
@@ -32,6 +33,37 @@ export default function BIPage() {
   const [selectedDim, setSelectedDim] = useState("Temps");
   const [selectedMesure, setSelectedMesure] = useState("CA");
 
+  const handleRefresh = async () => {
+    // Recharger les données du cube OLAP
+    alert("Actualisation des données...");
+    // TODO: Implémenter l'appel API pour rafraîchir le cube
+  };
+
+  const handleExport = () => {
+    try {
+      // Export des données du cube en CSV
+      const headers = ['Dimension', 'Mesure', 'Valeur'];
+      const rows = CUBE_DATA.map(item => [
+        item.name,
+        selectedMesure,
+        item[selectedMesure.toLowerCase() as keyof typeof item]
+      ]);
+      const csv = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bi-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export error:', error);
+      alert("Erreur lors de l'export");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -40,11 +72,11 @@ export default function BIPage() {
           <p className="text-gray-600 mt-1">Analyse OLAP et cubes de données</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50">
+          <button onClick={handleRefresh} className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50">
             <RefreshCw className="w-4 h-4" />
             Actualiser
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50">
+          <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50">
             <Download className="w-4 h-4" />
             Exporter
           </button>

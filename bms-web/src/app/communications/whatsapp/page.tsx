@@ -21,6 +21,11 @@ export default function WhatsAppPage() {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleNewMessage = () => {
+    // TODO: Ouvrir un modal ou rediriger vers la page de composition
+    alert("Fonctionnalité d'envoi WhatsApp à implémenter");
+  };
+
   useEffect(() => {
     communicationsAPI.getWhatsApp()
       .then(r => r.json())
@@ -47,7 +52,7 @@ export default function WhatsAppPage() {
           <h1 className="text-3xl font-bold">WhatsApp Business</h1>
           <p className="text-gray-600">Communiquez avec vos clients via WhatsApp</p>
         </div>
-        <Button className="bg-green-600 hover:bg-green-700">
+        <Button onClick={handleNewMessage} className="bg-green-600 hover:bg-green-700">
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Message
         </Button>

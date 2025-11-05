@@ -28,6 +28,13 @@ export default function EmailsPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState('inbox');
+  const [showCompose, setShowCompose] = useState(false);
+
+  const handleNewMessage = () => {
+    setShowCompose(true);
+    // TODO: Ouvrir un modal ou rediriger vers la page de composition
+    alert("Fonctionnalité de composition d'email à implémenter");
+  };
 
   useEffect(() => {
     Promise.all([
@@ -61,7 +68,7 @@ export default function EmailsPage() {
           <h1 className="text-3xl font-bold">Emails</h1>
           <p className="text-gray-600">Gérez vos communications par email</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button onClick={handleNewMessage} className="bg-teal-600 hover:bg-teal-700">
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Message
         </Button>

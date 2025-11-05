@@ -20,6 +20,11 @@ export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleNewTemplate = () => {
+    // TODO: Ouvrir un modal ou rediriger vers la page de création
+    alert("Fonctionnalité de création de template à implémenter");
+  };
+
   useEffect(() => {
     communicationsAPI.getTemplates()
       .then(data => {
@@ -47,7 +52,7 @@ export default function TemplatesPage() {
           <h1 className="text-3xl font-bold">Templates de Communication</h1>
           <p className="text-gray-600">Gérez vos modèles d'emails, SMS et WhatsApp</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button onClick={handleNewTemplate} className="bg-teal-600 hover:bg-teal-700">
           <Plus className="w-4 h-4 mr-2" />
           Nouveau Template
         </Button>

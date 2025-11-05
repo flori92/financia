@@ -21,6 +21,11 @@ export default function SMSPage() {
   const [messages, setMessages] = useState<SMSMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleNewSMS = () => {
+    // TODO: Ouvrir un modal ou rediriger vers la page de composition
+    alert("Fonctionnalité d'envoi de SMS à implémenter");
+  };
+
   useEffect(() => {
     communicationsAPI.getSMS()
       .then(r => r.json())
@@ -47,7 +52,7 @@ export default function SMSPage() {
           <h1 className="text-3xl font-bold">SMS</h1>
           <p className="text-gray-600">Envoyez des SMS à vos clients</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button onClick={handleNewSMS} className="bg-teal-600 hover:bg-teal-700">
           <Plus className="w-4 h-4 mr-2" />
           Nouveau SMS
         </Button>
