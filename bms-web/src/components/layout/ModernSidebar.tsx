@@ -300,7 +300,22 @@ export function ModernSidebar() {
             <div className="text-sm font-medium truncate">Jean Dupont</div>
             <div className="text-xs text-white/60">Expert-comptable</div>
           </div>
-          <LogOut className="sidebar-content w-4 h-4 text-white/60 hover:text-white cursor-pointer transition-all flex-shrink-0" strokeWidth={1.5} />
+          <LogOut 
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.localStorage.removeItem('bms_token');
+                window.localStorage.removeItem('token');
+                window.localStorage.removeItem('user_email');
+                window.localStorage.removeItem('user_data');
+                window.localStorage.removeItem('user_role');
+                window.localStorage.removeItem('user_profile');
+                window.localStorage.removeItem('companyId');
+                window.location.href = '/login';
+              }
+            }}
+            className="sidebar-content w-4 h-4 text-white/60 hover:text-white cursor-pointer transition-all flex-shrink-0" 
+            strokeWidth={1.5} 
+          />
         </div>
         <div className="sidebar-content flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg text-xs">
           <ShieldCheck className="text-green-400 w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
