@@ -145,6 +145,29 @@ export async function apiPost(path: string, body: any, params?: Query, init?: Re
   return res.text();
 }
 
+export async function apiPut(path: string, body: any, params?: Query, init?: RequestInit) {
+  const base = getBaseUrl().replace(/\/$/, '');
+  const url = `${base}${path}${buildQuery(params)}`;
+  const token = getToken();
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body ?? {}),
+    ...init,
+  } as RequestInit);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  if (ct.includes('application/json')) return res.json();
+  return res.text();
+}
+
 export async function apiPatch(path: string, body: any, params?: Query, init?: RequestInit) {
   const base = getBaseUrl().replace(/\/$/, '');
   const url = `${base}${path}${buildQuery(params)}`;
