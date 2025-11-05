@@ -175,7 +175,7 @@ export default function MobileMoneyPage() {
       kkiapay: "💚",
       fedapay: "💙",
     };
-    return icons[provider] || "📱";
+    return icons[provider] || "";
   };
 
   const handleFilterChange = (key: string, value: string) => {

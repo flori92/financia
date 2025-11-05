@@ -177,27 +177,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-emerald-600/5"></div>
-      
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+
       <div className="relative w-full max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          
+
           {/* Section Profil Selection */}
           <div className="space-y-8">
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-[#0D9488] flex items-center justify-center">
                   <Building2 className="w-7 h-7 text-white" strokeWidth={1.5} />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white">BMS ERP</h1>
-                  <p className="text-blue-400 text-sm">Business Management System</p>
+                  <p className="text-[#0D9488] text-sm">Business Management System</p>
                 </div>
               </div>
-              
+
               <h2 className="text-2xl font-bold text-white mb-3">
-                Choisissez votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">profil</span>
+                Choisissez votre <span className="text-[#0D9488]">profil</span>
               </h2>
               <p className="text-slate-400">
                 Sélectionnez votre profil pour un accès personnalisé aux fonctionnalités adaptées à votre rôle
@@ -333,7 +332,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full group relative bg-gradient-to-r from-blue-600 to-emerald-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full group relative bg-[#0D9488] text-white font-semibold py-4 rounded-xl hover:bg-[#0B7C74] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="flex items-center justify-center gap-2">
                   {loading ? (

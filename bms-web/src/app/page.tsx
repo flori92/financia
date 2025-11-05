@@ -119,14 +119,14 @@ export default function Page() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-slate-900">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-emerald-600/10"></div>
         <div className="relative max-w-7xl mx-auto px-6 py-20">
           <div className="text-center">
             <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center shadow-2xl">
+              <div className="w-24 h-24 rounded-2xl bg-[#0D9488] flex items-center justify-center shadow-2xl">
                 <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
               </div>
               <div className="text-left">
@@ -136,7 +136,7 @@ export default function Page() {
             </div>
             
             <h2 className="text-5xl font-bold text-white mb-6">
-              Solution <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Multi-Profils</span>
+              Solution <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Multi-Profils</span>
             </h2>
             <p className="text-xl text-slate-300 max-w-4xl mx-auto mb-12 leading-relaxed">
               Plateforme ERP moderne avec architecture adaptative par profil. 
@@ -146,7 +146,7 @@ export default function Page() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <button
                 onClick={() => router.push('/login')}
-                className="group inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-emerald-600 text-white text-lg font-semibold px-10 py-5 rounded-xl hover:from-blue-700 hover:to-emerald-700 transition-all shadow-2xl hover:shadow-3xl hover:scale-105"
+                className="group inline-flex items-center gap-3 bg-[#0D9488] text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-[#0B7C74] transition-all shadow-2xl hover:shadow-3xl hover:scale-105"
               >
                 Se connecter
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -171,7 +171,7 @@ export default function Page() {
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Portails <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Spécialisés</span>
+            Portails <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Spécialisés</span>
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
             Chaque profil dispose d'un portail dédié avec des fonctionnalités adaptées à ses besoins spécifiques
@@ -217,7 +217,7 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              Modules <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Intégrés</span>
+              Modules <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Intégrés</span>
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
               Fonctionnalités complètes pour la gestion de votre entreprise
@@ -243,7 +243,7 @@ export default function Page() {
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Intelligence <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Artificielle</span>
+            Intelligence <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Artificielle</span>
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
             Fonctionnalités IA avancées pour automatiser et optimiser vos processus
@@ -254,7 +254,7 @@ export default function Page() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {aiFeatures.map((feature, index) => (
               <div key={index} className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#0D9488] flex items-center justify-center flex-shrink-0">
                   <Zap className="w-5 h-5 text-white" strokeWidth={1.5} />
                 </div>
                 <span className="text-slate-200 font-medium">{feature}</span>
@@ -265,7 +265,7 @@ export default function Page() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-emerald-600 py-20">
+      <div className="bg-[#0D9488] py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Prêt à transformer votre gestion ?
@@ -297,7 +297,7 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-[#0D9488] flex items-center justify-center">
                 <Building2 className="w-6 h-6 text-white" strokeWidth={1.5} />
               </div>
               <span className="text-white font-bold text-xl">BMS ERP</span>

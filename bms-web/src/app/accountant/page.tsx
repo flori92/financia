@@ -133,7 +133,7 @@ export default function AccountantDashboardPage() {
 
       {/* KPI du Mois */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-4 bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="card p-4 bg-blue-50">
           <div className="text-sm text-blue-700 mb-1">CA du Mois</div>
           <div className="text-2xl font-bold text-blue-900">{nf(safeData.kpiMonth.revenue)} FCFA</div>
           <div className="text-xs text-blue-600 mt-1 flex items-center gap-1">
@@ -142,7 +142,7 @@ export default function AccountantDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-orange-50 to-orange-100">
+        <div className="card p-4 bg-orange-50">
           <div className="text-sm text-orange-700 mb-1">Charges du Mois</div>
           <div className="text-2xl font-bold text-orange-900">{nf(safeData.kpiMonth.expenses)} FCFA</div>
           <div className="text-xs text-orange-600 mt-1 flex items-center gap-1">
@@ -161,7 +161,7 @@ export default function AccountantDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-purple-50 to-purple-100">
+        <div className="card p-4 bg-purple-50">
           <div className="text-sm text-purple-700 mb-1">Marge Brute</div>
           <div className="text-2xl font-bold text-purple-900">{safeData.kpiMonth.margin.toFixed(1)}%</div>
           <div className="text-xs text-purple-600 mt-1">

@@ -32,7 +32,7 @@ export default function CRMDashboardPage() {
       <h1 className="text-2xl font-bold">CRM Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-4 bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="card p-4 bg-blue-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-blue-700">Contacts</div>
@@ -42,7 +42,7 @@ export default function CRMDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-emerald-50 to-emerald-100">
+        <div className="card p-4 bg-emerald-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-emerald-700">Opportunités</div>
@@ -52,7 +52,7 @@ export default function CRMDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-purple-50 to-purple-100">
+        <div className="card p-4 bg-purple-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-purple-700">Ventes gagnées</div>
@@ -62,7 +62,7 @@ export default function CRMDashboardPage() {
           </div>
         </div>
 
-        <div className="card p-4 bg-gradient-to-br from-amber-50 to-amber-100">
+        <div className="card p-4 bg-amber-50">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-amber-700">CA Total</div>

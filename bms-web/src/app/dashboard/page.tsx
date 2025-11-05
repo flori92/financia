@@ -374,7 +374,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <section className="bg-gradient-to-r from-[#0F3D3A] to-[#0D9488] rounded-xl p-8 text-white">
+      <section className="bg-[#0D9488] rounded-xl p-8 text-white">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-4">
@@ -451,7 +451,7 @@ export default function DashboardPage() {
         ].map((kpi, idx: number) => (
           <div key={idx} className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
                 {kpi.icon}
               </div>
               <span className={`text-xs font-medium px-2 py-1 rounded ${kpi.variationTone}`}>{kpi.variation}</span>
@@ -608,7 +608,7 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          <div className="bg-gradient-to-br from-[#0F3D3A] to-[#0D9488] rounded-xl p-6 text-white">
+          <div className="bg-[#0D9488] rounded-xl p-6 text-white">
             <h3 className="text-base font-semibold mb-4">Statistiques rapides</h3>
             <div className="space-y-3">
               {quickStats.map((stat: QuickStat, idx: number) => (
@@ -706,7 +706,7 @@ export default function DashboardPage() {
         </div>}
       </section>}
 
-      {isVisible("features") && <section className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 text-white space-y-6">
+      {isVisible("features") && <section className="bg-gray-900 rounded-xl p-8 text-white space-y-6">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight mb-2">Solution ERP complète et intégrée</h2>
           <p className="text-gray-300">Tous les modules pour gérer votre comptabilité, trésorerie, facturation et fiscalité</p>

@@ -221,7 +221,7 @@ export default function ProfitLossPage() {
 
       {/* KPIs Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+        <div className="bg-green-50 rounded-xl p-4 border border-green-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-700 font-medium">Total Produits</p>
@@ -233,7 +233,7 @@ export default function ProfitLossPage() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
+        <div className="bg-red-50 rounded-xl p-4 border border-red-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-red-700 font-medium">Total Charges</p>

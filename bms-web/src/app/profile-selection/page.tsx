@@ -159,13 +159,13 @@ export default function ProfileSelectionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-emerald-600/5"></div>
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+      <div className="absolute inset-0 bg-slate-800/10"></div>
       
       <div className="relative w-full max-w-4xl">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-[#0D9488] flex items-center justify-center">
               <Building2 className="w-7 h-7 text-white" strokeWidth={1.5} />
             </div>
             <div>
@@ -175,7 +175,7 @@ export default function ProfileSelectionPage() {
           </div>
           
           <h2 className="text-2xl font-bold text-white mb-3">
-            Sélectionnez vos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">profils</span>
+            Sélectionnez vos <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">profils</span>
           </h2>
           <p className="text-slate-400">
             Choisissez un ou plusieurs profils adaptés à vos responsabilités
@@ -196,7 +196,7 @@ export default function ProfileSelectionPage() {
                 className={`
                   relative p-6 rounded-xl border-2 cursor-pointer transition-all duration-200
                   ${isSelected 
-                    ? `${profile.borderColor} bg-gradient-to-br ${profile.color}/10 shadow-lg` 
+                    ? `${profile.borderColor} bg-slate-800/50` 
                     : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                   }
                 `}
@@ -258,7 +258,7 @@ export default function ProfileSelectionPage() {
             <button
               onClick={saveProfiles}
               disabled={selectedProfiles.length === 0}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-[#0D9488] text-white rounded-lg font-medium hover:bg-[#0B7C74] transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continuer
               <ArrowRight className="w-4 h-4" />
