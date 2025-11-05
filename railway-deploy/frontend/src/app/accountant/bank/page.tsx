@@ -246,7 +246,7 @@ export default function BankReconciliationPage() {
                 <tr><td colSpan={6} className="text-center py-8 text-gray-500">Chargement...</td></tr>
               ) : transactions.length === 0 ? (
                 <tr><td colSpan={6} className="text-center py-8 text-gray-500">Aucune transaction</td></tr>
-              ) : transactions.map((transaction) => (
+              ) : (transactions || []).map((transaction) => (
                 <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 text-sm">{new Date(transaction.transactionDate || transaction.date).toLocaleDateString('fr-FR')}</td>
                   <td className="py-3 px-4">{transaction.label || transaction.description}</td>
@@ -324,7 +324,7 @@ export default function BankReconciliationPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {suggestions.map((s) => (
+                      {(suggestions || []).map((s) => (
                         <tr key={s.journalEntryId} className="border-b hover:bg-gray-50">
                           <td className="py-2">{s.entryNumber}</td>
                           <td className="py-2">{new Date(s.entryDate).toLocaleDateString('fr-FR')}</td>
