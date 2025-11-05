@@ -12,10 +12,10 @@ import { TaxService } from './tax.service';
 import { PdfGeneratorService } from './services/pdf-generator.service';
 import { VatReturnDto } from './dto/vat-return.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { RolesGuard, UserRole } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Profiles } from '../auth/decorators/profile.decorator';
-import { UserRole, UserProfile } from '../auth/guards/user-profiles';
+import { UserProfile } from '../auth/guards/user-profiles';
 
 /**
  * Contrôleur pour la gestion fiscale (TVA)
@@ -24,7 +24,7 @@ import { UserRole, UserProfile } from '../auth/guards/user-profiles';
 @Controller('tax')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE, UserRole.TAX_ADMIN)
-@Profiles(UserProfile.ADMIN, UserProfile.ACCOUNTANT, UserProfile.EXPERT_COMPTABLE, UserProfile.TAX)
+@Profiles(UserProfile.ADMIN, UserProfile.ACCOUNTANT, UserProfile.EXPERT_COMPTABLE, UserProfile.ADMINISTRATION_FISCAL)
 @ApiBearerAuth()
 export class TaxController {
   constructor(

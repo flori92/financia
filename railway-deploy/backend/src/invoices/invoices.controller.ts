@@ -15,10 +15,10 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { InvoicesService } from './invoices.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { RolesGuard, UserRole } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Profiles } from '../auth/decorators/profile.decorator';
-import { UserRole, UserProfile } from '../auth/guards/user-profiles';
+import { UserProfile } from '../auth/guards/user-profiles';
 import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { CompanyId } from '../common/decorators/company-id.decorator';
 
