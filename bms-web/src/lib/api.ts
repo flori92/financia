@@ -13,8 +13,10 @@ function buildQuery(params?: Query) {
 
 function handleAuthError(status: number) {
   if (status === 401 || status === 403) {
+    console.error(`🚨 Erreur d'authentification ${status} - Redirection vers login`);
     // Clear auth data
     if (typeof window !== 'undefined') {
+      console.log('🗑️ Nettoyage des données d\'authentification...');
       window.localStorage.removeItem('bms_token');
       window.localStorage.removeItem('token');
       window.localStorage.removeItem('user_data');
@@ -23,6 +25,7 @@ function handleAuthError(status: number) {
       window.localStorage.removeItem('user_profile');
 
       // Redirect to login
+      console.log('↩️ Redirection vers /login...');
       window.location.href = '/login';
     }
   }
@@ -61,6 +64,11 @@ function getToken() {
   if ((env as any).NEXT_PUBLIC_API_TOKEN) return (env as any).NEXT_PUBLIC_API_TOKEN;
   if (typeof window !== 'undefined') {
     const t = window.localStorage.getItem('bms_token') || window.localStorage.getItem('token') || '';
+    if (t) {
+      console.log('🔑 Token trouvé:', t.substring(0, 20) + '...');
+    } else {
+      console.warn('⚠️ Aucun token trouvé dans localStorage');
+    }
     return t || undefined;
   }
   return undefined;
@@ -83,6 +91,7 @@ export async function apiGet(path: string, params?: Query, init?: RequestInit) {
   const base = getBaseUrl().replace(/\/$/, '');
   const url = `${base}${path}${buildQuery(params)}`;
   const token = getToken();
+  console.log(`📡 GET ${path}`, token ? '(avec token)' : '(sans token)');
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -92,6 +101,7 @@ export async function apiGet(path: string, params?: Query, init?: RequestInit) {
     ...init,
   } as RequestInit);
   if (!res.ok) {
+    console.error(`❌ Erreur ${res.status} sur GET ${path}`);
     handleAuthError(res.status);
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }

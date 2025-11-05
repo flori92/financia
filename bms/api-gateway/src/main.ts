@@ -21,14 +21,20 @@ async function bootstrap() {
   }));
 
   // CORS - Autorise mobile et web
+  const allowedOrigins = [
+    'http://localhost:3000', // Web admin
+    'http://localhost:19006', // Expo
+    'capacitor://localhost', // Capacitor mobile
+    'ionic://localhost',
+    /^https:\/\/.*\.bms\.com$/, // Production
+  ];
+
+  // Ajouter les origines supplémentaires depuis la variable d'environnement
+  const extraOrigins = process.env.CORS_EXTRA_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
+  allowedOrigins.push(...extraOrigins);
+
   app.enableCors({
-    origin: [
-      'http://localhost:3000', // Web admin
-      'http://localhost:19006', // Expo
-      'capacitor://localhost', // Capacitor mobile
-      'ionic://localhost',
-      /^https:\/\/.*\.bms\.com$/, // Production
-    ],
+    origin: allowedOrigins,
     credentials: true,
   });
 
