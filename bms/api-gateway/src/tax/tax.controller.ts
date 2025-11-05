@@ -40,32 +40,7 @@ export class TaxController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ): Promise<VatReturnDto> {
-    // TEMPORARY FIX: Return mock data directly due to database column naming issue
-    // TODO: Fix database schema to match entity (company_id vs companyId)
-    console.log('[TVA] Returning mock data - database schema mismatch');
-    return {
-      period: `${startDate} au ${endDate}`,
-      revenueHT: 12500000,
-      taxableRevenue: 12500000,
-      vatCollected: 2500000,
-      purchasesHT: 9000000,
-      deductibleExpenses: 9000000,
-      vatDeductible: 1800000,
-      vatNet: 700000,
-      vatDue: 700000,
-      vatCredit: 0,
-      declarationId: `vat-${new Date().toISOString().slice(0, 7)}`,
-      status: 'draft',
-      dueDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      startDate,
-      endDate,
-      details: {
-        revenues: [],
-        purchases: [],
-      },
-      revenueDetails: [],
-      expenseDetails: [],
-    };
+    return this.taxService.getVatReturn(companyId, startDate, endDate);
   }
 
   @Get('vat/return/export')
