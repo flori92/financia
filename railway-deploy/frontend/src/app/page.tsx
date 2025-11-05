@@ -150,7 +150,7 @@ export default function Page() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
-                onClick={() => router.push('/register')}
+                onClick={() => router.push('/login')}
                 className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-white/20 transition-all border border-white/20"
               >
                 Essai gratuit

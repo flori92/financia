@@ -284,7 +284,7 @@ export default function LoginPage() {
               <p className="text-slate-400 text-sm">
                 Pas encore de compte?{" "}
                 <button
-                  onClick={() => router.push('/register')}
+                  onClick={() => router.push('/contact-demo')}
                   className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
                 >
                   Demander une démo
