@@ -408,9 +408,9 @@ export class SeedController {
         success: true,
         message: 'Entreprises créées et utilisateurs liés avec succès !',
         data: {
-          companies: companies.length,
+          companiesCount: companies.length,
           linkedUsers: 3,
-          companies: companies.map(c => ({ id: c.id, name: c.name, nif: c.nif }))
+          companyList: companies.map(c => ({ id: c.id, name: c.name, nif: c.nif }))
         }
       };
     } catch (error) {
