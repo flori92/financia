@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee, EmployeeStatus } from '../employees/entities/employee.entity';
-import { LeaveRequest } from '../employees/entities/leave-request.entity';
+import { LeaveRequest, LeaveStatus } from '../employees/entities/leave-request.entity';
 
 @Injectable()
 export class ManagerDashboardService {
@@ -109,7 +109,7 @@ export class ManagerDashboardService {
         .leftJoin('leave.employee', 'employee')
         .where('employee.manager_id = :userId', { userId })
         .andWhere('employee.company_id = :companyId', { companyId })
-        .andWhere('leave.status = :status', { status: LeaveStatus.PENDING })
+        .andWhere('leave.status = :status', { status: LeaveStatus.PENDING_MANAGER })
         .getCount();
 
       return {
@@ -169,7 +169,7 @@ export class ManagerDashboardService {
         .leftJoin('leave.employee', 'employee')
         .where('employee.manager_id = :userId', { userId })
         .andWhere('employee.company_id = :companyId', { companyId })
-        .andWhere('leave.status = :status', { status: LeaveStatus.PENDING })
+        .andWhere('leave.status = :status', { status: LeaveStatus.PENDING_MANAGER })
         .getCount();
 
       if (pendingLeaves > 0) {

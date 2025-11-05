@@ -270,7 +270,7 @@ export class AdminSystemDashboardService {
         id: user.id,
         email: user.email,
         role: user.role,
-        profile: user.profile,
+        profile: user.profiles?.[0] || 'N/A',
         isActive: user.isActive,
         createdAt: user.createdAt,
       }));

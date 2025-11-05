@@ -380,7 +380,7 @@ export class FiscalAdminDashboardService {
       }
 
       return {
-        nif: company.nif || 'Non renseigné',
+        nif: 'Non renseigné', // TODO: Ajouter nif à Company entity
         vatRate: company.vatRate || 18,
         taxRegime: 'Réel Normal', // À ajouter dans Company entity
         fiscalYearEnd: '31/12', // À ajouter dans Company entity

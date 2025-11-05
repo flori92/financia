@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee } from '../employees/entities/employee.entity';
 import { LeaveRequest, LeaveStatus } from '../employees/entities/leave-request.entity';
-import { Payroll } from '../modules/hr/entities/payroll.entity';
 import { Timesheet } from '../employees/entities/timesheet.entity';
 
 @Injectable()
@@ -13,8 +12,6 @@ export class EmployeeDashboardService {
     private readonly employeeRepository: Repository<Employee>,
     @InjectRepository(LeaveRequest)
     private readonly leaveRequestRepository: Repository<LeaveRequest>,
-    @InjectRepository(Payroll)
-    private readonly payrollRepository: Repository<Payroll>,
     @InjectRepository(Timesheet)
     private readonly timesheetRepository: Repository<Timesheet>,
   ) {}
@@ -136,7 +133,7 @@ export class EmployeeDashboardService {
       const pending = await this.leaveRequestRepository.count({
         where: {
           employeeId: employee.id,
-          status: LeaveStatus.PENDING,
+          status: LeaveStatus.PENDING_MANAGER,
         },
       });
 
@@ -162,50 +159,12 @@ export class EmployeeDashboardService {
   }
 
   /**
-   * Informations paie
+   * Métriques paie
    */
   private async getPayrollMetrics(userId: string, companyId: string): Promise<any> {
     try {
-      const employee = await this.employeeRepository.findOne({
-        where: { userId, companyId },
-      });
-
-      if (!employee) {
-        return { lastSalary: 0, ytdGross: 0, ytdNet: 0, slipsCount: 0 };
-      }
-
-      // Dernière paie
-      const lastPayroll = await this.payrollRepository.findOne({
-        where: { employeeId: employee.id },
-        order: { paymentDate: 'DESC' },
-      });
-
-      const lastSalary = lastPayroll ? lastPayroll.netSalary : 0;
-
-      // Cumuls annuels
-      const now = new Date();
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-      const ytdPayrolls = await this.payrollRepository.find({
-        where: {
-          employeeId: employee.id,
-          paymentDate: { $gte: startOfYear } as any,
-        },
-      });
-
-      let ytdGross = 0;
-      let ytdNet = 0;
-      ytdPayrolls.forEach(payroll => {
-        ytdGross += payroll.grossSalary || 0;
-        ytdNet += payroll.netSalary || 0;
-      });
-
-      return {
-        lastSalary,
-        ytdGross,
-        ytdNet,
-        slipsCount: ytdPayrolls.length,
-      };
+      // TODO: Intégrer avec module Payroll quand il sera créé
+      return { lastSalary: 0, ytdGross: 0, ytdNet: 0, slipsCount: 0 };
     } catch (error) {
       return { lastSalary: 0, ytdGross: 0, ytdNet: 0, slipsCount: 0 };
     }
@@ -251,7 +210,7 @@ export class EmployeeDashboardService {
       const pendingLeaves = await this.leaveRequestRepository.count({
         where: {
           employeeId: employee.id,
-          status: LeaveStatus.PENDING,
+          status: LeaveStatus.PENDING_MANAGER,
         },
       });
 
@@ -273,25 +232,7 @@ export class EmployeeDashboardService {
         });
       }
 
-      // Fiche de paie disponible
-      const now = new Date();
-      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
-      const lastMonthPayslip = await this.payrollRepository.findOne({
-        where: {
-          employeeId: employee.id,
-          paymentDate: { $gte: lastMonth, $lte: endLastMonth } as any,
-        },
-      });
-
-      if (lastMonthPayslip) {
-        alerts.push({
-          type: 'info',
-          title: 'Fiche de paie disponible',
-          message: 'Votre dernière fiche de paie est disponible',
-        });
-      }
+      // TODO: Intégrer avec module Payroll pour fiche de paie
 
       // Message de succès
       if (alerts.length === 0) {
@@ -347,24 +288,8 @@ export class EmployeeDashboardService {
    */
   private async getRecentPayslips(userId: string, companyId: string): Promise<any[]> {
     try {
-      const employee = await this.employeeRepository.findOne({
-        where: { userId, companyId },
-      });
-
-      if (!employee) return [];
-
-      const recentPayslips = await this.payrollRepository.find({
-        where: { employeeId: employee.id },
-        order: { paymentDate: 'DESC' },
-        take: 6,
-      });
-
-      return recentPayslips.map(payslip => ({
-        month: new Date(payslip.paymentDate).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
-        grossSalary: payslip.grossSalary,
-        netSalary: payslip.netSalary,
-        paymentDate: payslip.paymentDate,
-      }));
+      // TODO: Intégrer avec module Payroll
+      return [];
     } catch (error) {
       return [];
     }

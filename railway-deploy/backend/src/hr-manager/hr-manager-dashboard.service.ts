@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee, EmployeeStatus, ContractType } from '../employees/entities/employee.entity';
 import { LeaveRequest, LeaveStatus } from '../employees/entities/leave-request.entity';
-import { Payroll } from '../modules/hr/entities/payroll.entity';
 
 @Injectable()
 export class HrManagerDashboardService {
@@ -12,8 +11,6 @@ export class HrManagerDashboardService {
     private readonly employeeRepository: Repository<Employee>,
     @InjectRepository(LeaveRequest)
     private readonly leaveRequestRepository: Repository<LeaveRequest>,
-    @InjectRepository(Payroll)
-    private readonly payrollRepository: Repository<Payroll>,
   ) {}
 
   /**
@@ -129,7 +126,7 @@ export class HrManagerDashboardService {
       // En attente de validation
       const pendingRequests = await this.leaveRequestRepository.count({
         where: {
-          status: LeaveStatus.PENDING,
+          status: LeaveStatus.PENDING_MANAGER,
         },
       });
 
@@ -167,39 +164,8 @@ export class HrManagerDashboardService {
    */
   private async getPayrollCostsMetrics(companyId: string): Promise<any> {
     try {
-      const now = new Date();
-      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
-      // Masse salariale mois en cours
-      const currentPayroll = await this.payrollRepository
-        .createQueryBuilder('payroll')
-        .where('payroll.payment_date >= :start', { start: currentMonth })
-        .andWhere('payroll.payment_date < :end', { end: new Date(now.getFullYear(), now.getMonth() + 1, 1) })
-        .select('SUM(payroll.net_salary + payroll.employer_contributions)', 'total')
-        .getRawOne();
-
-      // Masse salariale mois précédent
-      const previousPayroll = await this.payrollRepository
-        .createQueryBuilder('payroll')
-        .where('payroll.payment_date >= :start', { start: previousMonth })
-        .andWhere('payroll.payment_date <= :end', { end: endPreviousMonth })
-        .select('SUM(payroll.net_salary + payroll.employer_contributions)', 'total')
-        .getRawOne();
-
-      const currentTotal = Number(currentPayroll?.total || 0);
-      const previousTotal = Number(previousPayroll?.total || 0);
-      const variation = previousTotal > 0 
-        ? ((currentTotal - previousTotal) / previousTotal) * 100 
-        : 0;
-
-      return {
-        currentMonth: currentTotal,
-        previousMonth: previousTotal,
-        variation: Math.round(variation * 10) / 10,
-        trend: variation > 0 ? 'increase' : variation < 0 ? 'decrease' : 'stable',
-      };
+      // TODO: Intégrer avec module Payroll quand il sera créé
+      return { currentMonth: 0, previousMonth: 0, variation: 0, trend: 'stable' };
     } catch (error) {
       return { currentMonth: 0, previousMonth: 0, variation: 0, trend: 'stable' };
     }
@@ -282,7 +248,7 @@ export class HrManagerDashboardService {
     try {
       // Demandes de congé en attente
       const pendingLeaves = await this.leaveRequestRepository.count({
-        where: { status: LeaveStatus.PENDING },
+        where: { status: LeaveStatus.PENDING_MANAGER },
       });
 
       if (pendingLeaves > 0) {
@@ -302,7 +268,7 @@ export class HrManagerDashboardService {
           companyId,
           status: EmployeeStatus.ACTIVE,
           contractType: ContractType.FIXED_TERM,
-          contractEndDate: { $gte: now, $lte: in30Days } as any,
+          // TODO: Ajouter contractEndDate à Employee entity
         },
       });
 

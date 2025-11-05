@@ -323,7 +323,7 @@ export class BankPartnerDashboardService {
         return [{
           id: company.id,
           name: company.name,
-          nif: company.nif,
+          // nif: company.nif, // TODO: Ajouter nif à Company entity
           revenue: financial.revenue,
           riskLevel: risk.level,
           creditScore: score,
@@ -339,7 +339,7 @@ export class BankPartnerDashboardService {
           results.push({
             id: company.id,
             name: company.name,
-            nif: company.nif,
+            // nif: company.nif, // TODO: Ajouter nif à Company entity
             creditScore: score,
             rating: this.getRating(score),
           });
