@@ -268,16 +268,16 @@ export class AccountingController {
   @Get('reports/balance-sheet')
   @ApiOperation({ summary: 'Générer le Bilan OHADA' })
   @ApiQuery({ name: 'companyId', required: true })
-  @ApiQuery({ name: 'date', required: true, description: 'Date du bilan' })
+  @ApiQuery({ name: 'asOfDate', required: true, description: 'Date du bilan' })
   @ApiResponse({
     status: 200,
     description: 'Bilan généré',
   })
   async generateBalanceSheet(
     @Query('companyId') companyId: string,
-    @Query('date') date: string,
+    @Query('asOfDate') asOfDate: string,
   ): Promise<any> {
-    return this.accountingService.generateBalanceSheet(companyId, date);
+    return this.accountingService.generateBalanceSheet(companyId, asOfDate);
   }
 
   @Get('reports/income-statement')

@@ -115,6 +115,11 @@ export default function LoginPage() {
         window.localStorage.setItem("user_email", email);
         window.localStorage.setItem("user_data", JSON.stringify(data.user || {}));
         
+        // Stocker le companyId pour permettre au dashboard de charger les données
+        if (data.user?.companyId) {
+          window.localStorage.setItem("companyId", data.user.companyId);
+        }
+        
         // Déterminer la redirection selon le profil depuis le JWT
         const userRole = data.user?.role || 'user';
         const userProfile = data.user?.profile || 'entrepreneur';

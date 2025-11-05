@@ -332,45 +332,51 @@ export class AccountingService {
     const accounts = await this.findAllAccounts(companyId);
 
     // Actif (Classes 2, 3, 4, 5)
-    const assets = {
-      immobilisations: this.filterAccountsByClass(accounts, 2), // Classe 2
-      stocks: this.filterAccountsByClass(accounts, 3), // Classe 3
-      creances: this.filterAccountsByClass(accounts, 4).filter(
-        (a) => a.balance > 0,
-      ), // Classe 4 (débiteur)
-      tresorerie: this.filterAccountsByClass(accounts, 5), // Classe 5
-    };
+    const immobilisations = this.filterAccountsByClass(accounts, 2); // Classe 2
+    const stocks = this.filterAccountsByClass(accounts, 3); // Classe 3
+    const creances = this.filterAccountsByClass(accounts, 4).filter(
+      (a) => a.balance > 0,
+    ); // Classe 4 (débiteur)
+    const tresorerie = this.filterAccountsByClass(accounts, 5); // Classe 5
+
+    // Combine stocks and creances as actifCirculant
+    const actifCirculant = [...stocks, ...creances];
 
     // Passif (Classes 1, 4)
-    const liabilities = {
-      capitaux: this.filterAccountsByClass(accounts, 1), // Classe 1
-      dettes: this.filterAccountsByClass(accounts, 4).filter(
-        (a) => a.balance < 0,
-      ), // Classe 4 (créditeur)
-    };
+    const capitauxPropres = this.filterAccountsByClass(accounts, 1); // Classe 1
+    const dettes = this.filterAccountsByClass(accounts, 4).filter(
+      (a) => a.balance < 0,
+    ); // Classe 4 (créditeur)
 
-    const totalAssets = this.calculateTotalBalance(
-      Object.values(assets).flat(),
-    );
-    const totalLiabilities = this.calculateTotalBalance(
-      Object.values(liabilities).flat(),
-    );
+    // Split dettes into long-term and short-term (simplified: all as short-term for now)
+    const dettesLongTerme = [];
+    const dettesCourtTerme = dettes;
+
+    const totalActif = this.calculateTotalBalance([
+      ...immobilisations,
+      ...actifCirculant,
+      ...tresorerie,
+    ]);
+    const totalPassif = this.calculateTotalBalance([
+      ...capitauxPropres,
+      ...dettes,
+    ]);
 
     return {
-      date,
-      actif: {
-        immobilisations: this.summarizeAccounts(assets.immobilisations),
-        stocks: this.summarizeAccounts(assets.stocks),
-        creances: this.summarizeAccounts(assets.creances),
-        tresorerie: this.summarizeAccounts(assets.tresorerie),
-        total: totalAssets,
+      asOfDate: date,
+      companyName: 'Société', // TODO: Get from company table
+      assets: {
+        immobilisations: this.summarizeAccounts(immobilisations),
+        actifCirculant: this.summarizeAccounts(actifCirculant),
+        tresorerie: this.summarizeAccounts(tresorerie),
+        totalActif: totalActif,
       },
-      passif: {
-        capitaux: this.summarizeAccounts(liabilities.capitaux),
-        dettes: this.summarizeAccounts(liabilities.dettes),
-        total: totalLiabilities,
+      liabilities: {
+        capitauxPropres: this.summarizeAccounts(capitauxPropres),
+        dettesLongTerme: this.summarizeAccounts(dettesLongTerme),
+        dettesCourtTerme: this.summarizeAccounts(dettesCourtTerme),
+        totalPassif: totalPassif,
       },
-      equilibre: Math.abs(totalAssets - totalLiabilities) < 0.01,
     };
   }
 
@@ -631,11 +637,12 @@ export class AccountingService {
    */
   private summarizeAccounts(
     accounts: Account[],
-  ): Array<{ number: string; name: string; balance: number }> {
+  ): Array<{ accountNumber: string; accountName: string; amount: number; syscohadaClass: number }> {
     return accounts.map((a) => ({
-      number: a.accountNumber,
-      name: a.accountName,
-      balance: Number(a.balance),
+      accountNumber: a.accountNumber,
+      accountName: a.accountName,
+      amount: Number(a.balance),
+      syscohadaClass: parseInt(a.accountNumber.charAt(0)) || 0,
     }));
   }
 
