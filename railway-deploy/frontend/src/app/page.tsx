@@ -318,7 +318,7 @@ export default function Page() {
           </div>
           
           <div className="mt-8 pt-8 border-t border-slate-800 text-center text-slate-400 text-sm">
-            <p>© 2024 BMS ERP. Tous droits réservés. Solution de gestion d'entreprise multi-profils.</p>
+            <p>© 2025 BMS ERP. Tous droits réservés. Solution de gestion d'entreprise multi-profils.</p>
           </div>
         </div>
       </div>
