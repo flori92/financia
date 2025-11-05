@@ -50,6 +50,7 @@ import { QuotesModule } from './quotes/quotes.module';
 import { RevenueModule } from './revenue/revenue.module';
 import { ControllingModule } from './controlling/controlling.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { HRModule } from './modules/hr/hr.module';
 
 // Controllers
 import { HealthController } from './health/health.controller';
@@ -136,6 +137,7 @@ import { AppController } from './app.controller';
     BudgetModule,
     InventoryModule,
     PurchasesModule,
+    HRModule,
     // Modules temporairement désactivés pour erreurs de compilation
     // ReportingModule,
     // IntegrationsModule,
