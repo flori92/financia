@@ -62,6 +62,70 @@ export default function BankReconciliationPage() {
     }
   };
 
+  const handleExportCSV = () => {
+    try {
+      const header = ['Date', 'Description', 'Montant', 'Statut', 'Référence'];
+      const rows = transactions.map(tx => [
+        new Date(tx.transactionDate || tx.date).toLocaleDateString('fr-FR'),
+        (tx.label || tx.description || '').replace(/\n|\r|;/g, ' '),
+        tx.amount.toString(),
+        tx.status === 'reconciled' ? 'Rapproché' : 'En attente',
+        tx.id || ''
+      ]);
+      const csv = [header.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '');
+      a.href = url;
+      a.download = `transactions_bancaires_${timestamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      show({ title: 'Export CSV réussi', description: `${transactions.length} transactions exportées`, variant: 'success' });
+    } catch (error) {
+      console.error('Export error:', error);
+      show({ title: 'Erreur d\'export', variant: 'error' });
+    }
+  };
+
+  const handleImportCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const csvContent = await file.text();
+      const lines = csvContent.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        show({ title: 'Fichier vide', description: 'Le fichier CSV ne contient pas de données', variant: 'error' });
+        return;
+      }
+
+      // Appel API pour importer (le backend parse le CSV)
+      const response = await bankingAPI.importTransactions(companyId, csvContent);
+      
+      await loadTransactions();
+      show({ 
+        title: 'Import réussi', 
+        description: `Transactions importées avec succès`, 
+        variant: 'success' 
+      });
+      
+      // Reset input
+      event.target.value = '';
+    } catch (error: any) {
+      console.error('Import error:', error);
+      if (error?.message === 'PERMISSION_DENIED') {
+        show({ title: 'Permission refusée', description: 'Vous n\'avez pas les droits pour importer des transactions', variant: 'error' });
+      } else {
+        show({ title: 'Erreur d\'import', description: error?.message || 'Impossible d\'importer le fichier', variant: 'error' });
+      }
+      event.target.value = '';
+    }
+  };
+
   const handleAutoMatch = async () => {
     if (matching) return;
     setMatching(true);
@@ -200,6 +264,23 @@ export default function BankReconciliationPage() {
               className="w-20 border rounded px-2 py-1 text-sm"
             />
           </div>
+          <label className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <Upload className="w-4 h-4 text-gray-700" />
+            <span className="text-sm text-gray-700">Importer CSV</span>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="hidden"
+            />
+          </label>
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            <Download className="w-4 h-4 text-gray-700" />
+            <span className="text-sm text-gray-700">Exporter CSV</span>
+          </button>
           <button
             onClick={handleSync}
             disabled={syncing}

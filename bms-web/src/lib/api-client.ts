@@ -299,6 +299,9 @@ export const bankingAPI = {
   getTransactions: (companyId: string) =>
     apiClient.get('/api/v1/banking/transactions', { companyId }),
   
+  importTransactions: (companyId: string, csvContent: string) =>
+    apiClient.post('/api/v1/banking/import', { companyId, csvContent }),
+  
   autoMatch: (companyId: string) =>
     apiClient.post('/api/v1/banking/auto-match', { companyId }),
   
