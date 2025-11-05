@@ -10,6 +10,7 @@ interface UnauthorizedAccessProps {
   currentRole?: string;
   resourceName?: string;
   onContactAdmin?: () => void;
+  backdropVariant?: 'blur' | 'gradient' | 'solid';
 }
 
 export default function UnauthorizedAccess({
@@ -19,6 +20,7 @@ export default function UnauthorizedAccess({
   currentRole = "Employé",
   resourceName = "cette page ou cette fonctionnalité",
   onContactAdmin,
+  backdropVariant = 'blur',
 }: UnauthorizedAccessProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -37,12 +39,50 @@ export default function UnauthorizedAccess({
 
   if (!isOpen) return null;
 
+  // Styles de backdrop selon la variante
+  const getBackdropStyles = () => {
+    switch (backdropVariant) {
+      case 'blur':
+        return {
+          className: "absolute inset-0 bg-gradient-to-br from-[#0D9488]/40 via-emerald-600/30 to-teal-500/40 backdrop-blur-xl",
+          style: {
+            backgroundImage: 'linear-gradient(135deg, rgba(13, 148, 136, 0.5) 0%, rgba(16, 185, 129, 0.4) 50%, rgba(20, 184, 166, 0.5) 100%)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+          }
+        };
+      case 'gradient':
+        return {
+          className: "absolute inset-0 bg-gradient-to-br from-[#0D9488] via-emerald-600 to-teal-500",
+          style: {
+            backgroundImage: 'linear-gradient(135deg, rgba(13, 148, 136, 0.85) 0%, rgba(16, 185, 129, 0.75) 50%, rgba(20, 184, 166, 0.85) 100%)',
+          }
+        };
+      case 'solid':
+        return {
+          className: "absolute inset-0 bg-gradient-to-br from-[#0D9488] to-emerald-700",
+          style: {
+            backgroundColor: 'rgba(13, 148, 136, 0.95)',
+          }
+        };
+      default:
+        return {
+          className: "absolute inset-0 bg-gradient-to-br from-[#0D9488]/40 via-emerald-600/30 to-teal-500/40 backdrop-blur-xl",
+          style: {
+            backdropFilter: 'blur(20px) saturate(180%)',
+          }
+        };
+    }
+  };
+
+  const backdropStyles = getBackdropStyles();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
-      {/* Overlay avec dégradé vert BMS */}
+      {/* Overlay avec différentes variantes de backdrop */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-[#0D9488]/20 via-[#0D9488]/10 to-emerald-500/20 backdrop-blur-sm"
+        className={backdropStyles.className}
         onClick={onClose}
+        style={backdropStyles.style}
       />
 
       {/* Contenu */}

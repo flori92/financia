@@ -65,6 +65,7 @@ function MyComponent() {
 | `currentRole` | `string` | ❌ | `"Employé"` | Rôle actuel de l'utilisateur |
 | `resourceName` | `string` | ❌ | `"cette page ou cette fonctionnalité"` | Nom de la ressource protégée |
 | `onContactAdmin` | `() => void` | ❌ | Email par défaut | Action personnalisée pour contacter l'admin |
+| `backdropVariant` | `'blur' \| 'gradient' \| 'solid'` | ❌ | `'blur'` | Style de fond derrière le modal |
 
 ## 🔧 Avec les Hooks Personnalisés
 
@@ -381,6 +382,108 @@ Vérifiez que les styles `jsx` sont bien compilés. Si nécessaire, utilisez un 
 ### Le scroll ne se bloque pas
 
 Le composant gère automatiquement `overflow: hidden` sur le body. Vérifiez qu'aucun autre composant n'interfère.
+
+## 🎨 Variantes de Backdrop
+
+Le composant propose 3 styles de fond différents via la prop `backdropVariant` :
+
+### 1. **Blur** (Défaut) - Page floue
+
+```tsx
+<UnauthorizedAccess
+  backdropVariant="blur"
+  // ... autres props
+/>
+```
+
+**Caractéristiques** :
+- ✅ Page en arrière-plan floue (20px de flou)
+- ✅ Dégradé vert BMS transparent (40-30% opacité)
+- ✅ Saturation augmentée (180%)
+- ✅ Meilleure lisibilité du contenu
+- 🎯 **Recommandé** pour la plupart des cas
+
+**Effet visuel** :
+```
+Flou de 20px + Dégradé vert transparent
+→ On voit la page derrière mais floue
+→ Focus sur le modal
+```
+
+### 2. **Gradient** - Dégradé vert semi-transparent
+
+```tsx
+<UnauthorizedAccess
+  backdropVariant="gradient"
+  // ... autres props
+/>
+```
+
+**Caractéristiques** :
+- ✅ Dégradé vert BMS semi-opaque (75-85% opacité)
+- ✅ Pas de flou, juste une couche colorée
+- ✅ Couleurs BMS très visibles
+- 🎨 Idéal pour une **identité visuelle forte**
+
+**Effet visuel** :
+```
+Dégradé vert #0D9488 → emerald → teal
+→ Page masquée par le dégradé
+→ Branding BMS très présent
+```
+
+### 3. **Solid** - Fond vert opaque
+
+```tsx
+<UnauthorizedAccess
+  backdropVariant="solid"
+  // ... autres props
+/>
+```
+
+**Caractéristiques** :
+- ✅ Fond vert BMS presque opaque (95% opacité)
+- ✅ Page complètement masquée
+- ✅ Focus total sur le modal
+- 🔒 Idéal pour **bloquer complètement l'accès**
+
+**Effet visuel** :
+```
+Fond vert solide #0D9488 → emerald-700
+→ Page complètement cachée
+→ Attention maximale sur le message
+```
+
+### Comparaison Visuelle
+
+| Variante | Opacité | Flou | Visibilité page | Branding | Usage recommandé |
+|----------|---------|------|-----------------|----------|------------------|
+| **blur** | 30-40% | 20px | ⭐⭐⭐ | ⭐⭐ | Général |
+| **gradient** | 75-85% | Non | ⭐ | ⭐⭐⭐ | Branding fort |
+| **solid** | 95% | Non | ❌ | ⭐⭐⭐ | Accès critique bloqué |
+
+### Exemple avec Choix Dynamique
+
+```tsx
+function MyApp() {
+  const [backdropStyle, setBackdropStyle] = useState<'blur' | 'gradient' | 'solid'>('blur');
+  
+  // Changer le style selon le contexte
+  const handleCriticalAction = () => {
+    setBackdropStyle('solid'); // Blocage complet
+    showUnauthorized();
+  };
+  
+  return (
+    <UnauthorizedAccess
+      isOpen={isOpen}
+      onClose={onClose}
+      backdropVariant={backdropStyle}
+      {...otherProps}
+    />
+  );
+}
+```
 
 ## 🤝 Contribution
 

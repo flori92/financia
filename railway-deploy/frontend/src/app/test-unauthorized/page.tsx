@@ -6,6 +6,7 @@ import { Lock, Shield, Users, Settings, FileText, DollarSign } from "lucide-reac
 
 export default function TestUnauthorizedPage() {
   const [isOpen, setIsOpen] = useState(false);
+  const [backdropVariant, setBackdropVariant] = useState<'blur' | 'gradient' | 'solid'>('blur');
   const [scenario, setScenario] = useState<{
     requiredRoles: string[];
     currentRole: string;
@@ -74,6 +75,94 @@ export default function TestUnauthorizedPage() {
           <p className="text-xl text-gray-600">
             Testez le composant UnauthorizedAccess avec Po le Panda triste
           </p>
+        </div>
+
+        {/* Sélecteur de variante Backdrop */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            🎨 Style de fond (Backdrop)
+          </h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Choisissez le style de fond qui apparaît derrière le modal
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Blur */}
+            <button
+              onClick={() => setBackdropVariant('blur')}
+              className={`relative p-6 rounded-xl border-2 transition-all ${
+                backdropVariant === 'blur'
+                  ? 'border-[#0D9488] bg-[#0D9488]/5'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="absolute inset-0 rounded-xl overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-[#0D9488]/40 via-emerald-600/30 to-teal-500/40 backdrop-blur-xl" 
+                     style={{ backdropFilter: 'blur(20px)' }}
+                />
+              </div>
+              <div className="relative z-10">
+                <h3 className="font-semibold text-gray-900 mb-1">Flou (Blur)</h3>
+                <p className="text-sm text-gray-600">
+                  Page floue + dégradé transparent
+                </p>
+                {backdropVariant === 'blur' && (
+                  <div className="mt-2 px-2 py-1 bg-[#0D9488] text-white text-xs rounded-full inline-block">
+                    ✓ Sélectionné
+                  </div>
+                )}
+              </div>
+            </button>
+
+            {/* Gradient */}
+            <button
+              onClick={() => setBackdropVariant('gradient')}
+              className={`relative p-6 rounded-xl border-2 transition-all overflow-hidden ${
+                backdropVariant === 'gradient'
+                  ? 'border-[#0D9488] bg-[#0D9488]/5'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="absolute inset-0">
+                <div className="w-full h-full bg-gradient-to-br from-[#0D9488]/85 via-emerald-600/75 to-teal-500/85" />
+              </div>
+              <div className="relative z-10">
+                <h3 className="font-semibold text-white mb-1">Dégradé</h3>
+                <p className="text-sm text-white/90">
+                  Dégradé vert BMS semi-transparent
+                </p>
+                {backdropVariant === 'gradient' && (
+                  <div className="mt-2 px-2 py-1 bg-white text-[#0D9488] text-xs rounded-full inline-block">
+                    ✓ Sélectionné
+                  </div>
+                )}
+              </div>
+            </button>
+
+            {/* Solid */}
+            <button
+              onClick={() => setBackdropVariant('solid')}
+              className={`relative p-6 rounded-xl border-2 transition-all overflow-hidden ${
+                backdropVariant === 'solid'
+                  ? 'border-[#0D9488] bg-[#0D9488]/5'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="absolute inset-0">
+                <div className="w-full h-full bg-gradient-to-br from-[#0D9488] to-emerald-700" />
+              </div>
+              <div className="relative z-10">
+                <h3 className="font-semibold text-white mb-1">Solide</h3>
+                <p className="text-sm text-white/90">
+                  Fond vert BMS opaque
+                </p>
+                {backdropVariant === 'solid' && (
+                  <div className="mt-2 px-2 py-1 bg-white text-[#0D9488] text-xs rounded-full inline-block">
+                    ✓ Sélectionné
+                  </div>
+                )}
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Scénarios de test */}
@@ -232,6 +321,7 @@ function MyComponent() {
         requiredRoles={scenario.requiredRoles}
         currentRole={scenario.currentRole}
         resourceName={scenario.resourceName}
+        backdropVariant={backdropVariant}
         onContactAdmin={() => {
           alert("Demande d'accès envoyée à l'administrateur !");
           setIsOpen(false);

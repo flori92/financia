@@ -128,6 +128,37 @@ function MyComponent() {
 - ❌ Bouton de fermeture (X)
 - 📱 100% responsive
 
+### 3 Styles de Backdrop 🎨
+
+Le composant propose 3 variantes de fond :
+
+#### 1. **Blur** (Défaut)
+- Page en arrière-plan floue (20px)
+- Dégradé vert BMS transparent
+- ⭐ Recommandé pour la plupart des cas
+
+```tsx
+<UnauthorizedAccess backdropVariant="blur" />
+```
+
+#### 2. **Gradient**
+- Dégradé vert BMS semi-opaque (75-85%)
+- Branding fort
+- Idéal pour identité visuelle marquée
+
+```tsx
+<UnauthorizedAccess backdropVariant="gradient" />
+```
+
+#### 3. **Solid**
+- Fond vert BMS opaque (95%)
+- Page complètement masquée
+- Idéal pour blocage critique
+
+```tsx
+<UnauthorizedAccess backdropVariant="solid" />
+```
+
 ## 📖 Props Disponibles
 
 | Prop | Type | Description | Exemple |
@@ -137,6 +168,7 @@ function MyComponent() {
 | `requiredRoles` | `string[]` | Rôles nécessaires | `["Admin", "Manager"]` |
 | `currentRole` | `string` | Rôle de l'utilisateur | `"Employé"` |
 | `resourceName` | `string` | Nom de la ressource | `"cette page"` |
+| `backdropVariant` | `'blur' \| 'gradient' \| 'solid'` | Style de fond | `"blur"` |
 | `onContactAdmin` | `() => void` | Action custom admin | `() => sendEmail()` |
 
 ## 🎯 Cas d'Usage Pratiques
