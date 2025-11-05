@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Mail, MessageSquare, MessageCircle, Edit, Trash2 } from 'lucide-react';
+import { communicationsAPI } from '@/lib/api-client';
 
 interface Template {
   id: string;
@@ -20,8 +21,7 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://bms-production-d9e9.up.railway.app/api/v1/communications/templates')
-      .then(r => r.json())
+    communicationsAPI.getTemplates()
       .then(data => {
         setTemplates(data);
         setLoading(false);

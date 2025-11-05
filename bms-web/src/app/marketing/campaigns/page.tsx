@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Mail, Users, TrendingUp, Eye } from 'lucide-react';
+import { marketingAPI } from '@/lib/api-client';
+
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://bms-production-d9e9.up.railway.app/api/v1/marketing/campaigns')
+    marketingAPI.getCampaigns()
       .then(res => res.json())
       .then(data => {
         setCampaigns(data);

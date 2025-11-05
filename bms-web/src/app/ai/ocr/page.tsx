@@ -84,7 +84,7 @@ export default function OcrPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(`https://bms-production-d9e9.up.railway.app/api/v1/ai/ocr/${selectedType}`, {
+      const response = await fetch(`/api/v1/ai/ocr/${selectedType}`, {
         method: "POST",
         body: formData,
       });

@@ -72,7 +72,7 @@ export function FileUpload({
       const formData = new FormData();
       formData.append('file', fileToUpload);
 
-      let url = `https://bms-production-d9e9.up.railway.app/api/v1/uploads?`;
+      let url = `/api/v1/uploads?`;
       if (entityType) url += `entityType=${entityType}&`;
       if (entityId) url += `entityId=${entityId}&`;
       if (companyId) url += `companyId=${companyId}&`;

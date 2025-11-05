@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ImportButton } from "@/components/shared/ImportButton";
 import { ExportButton } from "@/components/shared/ExportButton";
 import { apiGet, getCompanyId } from "@/lib/api";
+import { accountingAPI } from "@/lib/api-client";
 
 export default function JournalPage() {
   const searchParams = useSearchParams();
@@ -73,18 +74,22 @@ export default function JournalPage() {
   const handleAddEntry = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
+    const companyId = getCompanyId();
+    if (!companyId) {
+      triggerToast("error", "Aucune société sélectionnée");
+      return;
+    }
+    
     const entry = {
+      companyId,
       description: formData.get('description'),
       debit: { account: formData.get('debitAccount'), amount: Number(formData.get('debitAmount')) },
       credit: { account: formData.get('creditAccount'), amount: Number(formData.get('creditAmount')) }
     };
     
     try {
-      await fetch('https://bms-production-d9e9.up.railway.app/api/v1/accounting/journal-entries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry)
-      });
+      await accountingAPI.createJournalEntry(entry);
       setShowAddForm(false);
       loadData();
       triggerToast("success", "Écriture ajoutée avec succès");
@@ -120,7 +125,7 @@ export default function JournalPage() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `https://bms-production-d9e9.up.railway.app/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
+        `/api/v1/accounting/export/journal-entries?companyId=${companyId}`,
         { method: 'GET' }
       );
       

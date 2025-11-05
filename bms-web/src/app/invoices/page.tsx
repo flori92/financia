@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react";
 import { EmailDialog } from "@/components/shared/EmailDialog";
+import { invoicesAPI } from '@/lib/api-client';
+
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -18,14 +20,8 @@ export default function InvoicesPage() {
   const loadData = async () => {
     try {
       const [invoicesRes, clientsRes] = await Promise.all([
-        fetch('https://bms-production-d9e9.up.railway.app/api/v1/invoices').then(r => {
-          if (!r.ok) return [];
-          return r.json();
-        }).catch(() => []),
-        fetch('https://bms-production-d9e9.up.railway.app/api/v1/crm/contacts').then(r => {
-          if (!r.ok) return [];
-          return r.json();
-        }).catch(() => [])
+        invoicesAPI.getInvoices().catch(() => []),
+        crmAPI.getContacts().catch(() => [])
       ]);
       setInvoices(Array.isArray(invoicesRes) ? invoicesRes : []);
       setClients(Array.isArray(clientsRes) ? clientsRes : []);
@@ -49,11 +45,7 @@ export default function InvoicesPage() {
     };
     
     try {
-      await fetch('https://bms-production-d9e9.up.railway.app/api/v1/invoices', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(invoice)
-      });
+      await invoicesAPI.createInvoice(invoice);
       setShowAddForm(false);
       loadData();
     } catch (err) {
@@ -64,7 +56,7 @@ export default function InvoicesPage() {
   const handleSendInvoice = async () => {
     if (!selectedInvoice) return;
     try {
-      await fetch(`https://bms-production-d9e9.up.railway.app/api/v1/invoices/${selectedInvoice.id}/send`, { method: 'POST' });
+      await fetch(`/api/v1/invoices/${selectedInvoice.id}/send`, { method: 'POST' });
       alert(`Facture ${selectedInvoice.number} envoyée par email`);
     } catch (err) {
       alert("Erreur lors de l'envoi");

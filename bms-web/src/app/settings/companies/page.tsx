@@ -5,6 +5,8 @@ import { Building2, Plus, Mail, Download, Upload, Search } from "lucide-react";
 import { ExportButton } from "@/components/shared/ExportButton";
 import { ImportButton } from "@/components/shared/ImportButton";
 import { EmailDialog } from "@/components/shared/EmailDialog";
+import { companiesAPI } from '@/lib/api-client';
+
 
 type Company = {
   id: string;
@@ -25,7 +27,7 @@ export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch('https://bms-production-d9e9.up.railway.app/api/v1/companies')
+    companiesAPI.getCompanies()
       .then(res => res.json())
       .then(setCompanies);
   }, []);
@@ -35,16 +37,12 @@ export default function CompaniesPage() {
     const formData = new FormData(e.currentTarget);
     const newCompany = Object.fromEntries(formData);
     
-    fetch('https://bms-production-d9e9.up.railway.app/api/v1/companies', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCompany)
-    })
-      .then(res => res.json())
+    companiesAPI.createCompany(newCompany)
       .then(company => {
         setCompanies([...companies, company]);
         setShowAddForm(false);
-      });
+      })
+      .catch(err => console.error(err));
   };
 
   const handleExport = () => {

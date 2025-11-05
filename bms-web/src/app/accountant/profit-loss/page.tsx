@@ -78,7 +78,7 @@ export default function ProfitLossPage() {
   const handleExport = async () => {
     try {
       const companyId = getCompanyId();
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const response = await fetch(
         `${apiUrl}/api/v1/accounting/reports/income-statement?companyId=${companyId}&startDate=${startDate}&endDate=${endDate}&format=csv`,
         {

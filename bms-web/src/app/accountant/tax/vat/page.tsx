@@ -29,7 +29,7 @@ export default function VATPage() {
     try {
       const companyId = "default-company"; // TODO: récupérer depuis contexte
       const response = await fetch(
-        `https://bms-production-d9e9.up.railway.app/api/v1/tax/vat/recalculate`,
+        `/api/v1/tax/vat/recalculate`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -54,7 +54,7 @@ export default function VATPage() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `https://bms-production-d9e9.up.railway.app/api/v1/tax/export/fec?companyId=${companyId}`,
+        `/api/v1/tax/export/fec?companyId=${companyId}`,
         { method: 'GET' }
       );
       
@@ -80,7 +80,7 @@ export default function VATPage() {
     try {
       const companyId = "default-company";
       const response = await fetch(
-        `https://bms-production-d9e9.up.railway.app/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`,
+        `/api/v1/tax/generate-ca3-pdf?companyId=${companyId}`,
         { method: 'GET' }
       );
       

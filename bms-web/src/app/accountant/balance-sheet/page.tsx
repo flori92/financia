@@ -70,7 +70,7 @@ export default function BalanceSheetPage() {
   const handleExport = async () => {
     try {
       const companyId = getCompanyId();
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const response = await fetch(
         `${apiUrl}/api/v1/accounting/reports/balance-sheet?companyId=${companyId}&asOfDate=${selectedDate}&format=csv`,
         {

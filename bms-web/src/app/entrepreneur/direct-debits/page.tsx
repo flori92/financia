@@ -83,8 +83,8 @@ export default function DirectDebitsPage() {
     setLoading(true);
     try {
       const [debitsRes, statsRes] = await Promise.all([
-        fetch(`https://bms-production-d9e9.up.railway.app/api/v1/treasury/direct-debits?companyId=${companyId}`),
-        fetch(`https://bms-production-d9e9.up.railway.app/api/v1/treasury/direct-debits/statistics?companyId=${companyId}`),
+        fetch(`/api/v1/treasury/direct-debits?companyId=${companyId}`),
+        fetch(`/api/v1/treasury/direct-debits/statistics?companyId=${companyId}`),
       ]);
 
       if (debitsRes.ok) setDirectDebits(await debitsRes.json());
@@ -109,8 +109,8 @@ export default function DirectDebitsPage() {
 
     try {
       const url = editingDebit
-        ? `https://bms-production-d9e9.up.railway.app/api/v1/treasury/direct-debits/${editingDebit.id}`
-        : 'https://bms-production-d9e9.up.railway.app/api/v1/treasury/direct-debits';
+        ? `/api/v1/treasury/direct-debits/${editingDebit.id}`
+        : '/api/v1/treasury/direct-debits';
       
       const response = await fetch(url, {
         method: editingDebit ? 'PUT' : 'POST',
@@ -133,7 +133,7 @@ export default function DirectDebitsPage() {
 
     try {
       const response = await fetch(
-        `https://bms-production-d9e9.up.railway.app/api/v1/treasury/direct-debits/${id}`,
+        `/api/v1/treasury/direct-debits/${id}`,
         { method: 'DELETE' }
       );
       if (response.ok) loadData();
@@ -145,7 +145,7 @@ export default function DirectDebitsPage() {
   const handleStatusChange = async (id: string, action: 'suspend' | 'reactivate' | 'cancel') => {
     try {
       const response = await fetch(
-        `https://bms-production-d9e9.up.railway.app/api/v1/treasury/direct-debits/${id}/${action}`,
+        `/api/v1/treasury/direct-debits/${id}/${action}`,
         { method: 'POST' }
       );
       if (response.ok) loadData();

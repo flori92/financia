@@ -1,0 +1,1192 @@
+{
+  "date": "2025-11-05T09:45:31.260Z",
+  "totalButtons": 227,
+  "totalFiles": 141,
+  "issues": [
+    {
+      "file": "components/expert/ClientSelector.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "",
+      "handler": "() => {\n                      selectClient(null);\n                      setIsOpen(false);\n                    "
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "×",
+      "handler": "() => setViewMode(null)"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "×",
+      "handler": "() => setViewMode(null)"
+    },
+    {
+      "file": "app/settings/users/page.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "",
+      "handler": "() => {\n            setEditingUser(null);\n            setShowForm(!showForm);\n          "
+    },
+    {
+      "file": "app/purchases/orders/page.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "",
+      "handler": "() => {\n            setEditingOrder(null);\n            setShowForm(!showForm);\n          "
+    },
+    {
+      "file": "app/hr/payroll/page.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "",
+      "handler": "() => {\n            setEditingPayroll(null);\n            setShowForm(!showForm);\n          "
+    },
+    {
+      "file": "app/ai/ocr/page.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "Supprimer",
+      "handler": "() => setFile(null)"
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "type": "UNDEFINED_HANDLER",
+      "label": "",
+      "handler": "() => setSelectedTransaction(null)"
+    }
+  ],
+  "buttons": [
+    {
+      "file": "components/ProfileSwitcher.tsx",
+      "handler": "() => setIsOpen(!isOpen)",
+      "label": ""
+    },
+    {
+      "file": "components/ProfileSwitcher.tsx",
+      "handler": "() => switchProfile(profileId)",
+      "label": ""
+    },
+    {
+      "file": "components/ProfileSwitcher.tsx",
+      "handler": "() => router.push('/profile-selection')",
+      "label": ""
+    },
+    {
+      "file": "components/upload/FileUpload.tsx",
+      "handler": "handleRemove",
+      "label": ""
+    },
+    {
+      "file": "components/upload/FileUpload.tsx",
+      "handler": "handleRemove",
+      "label": ""
+    },
+    {
+      "file": "components/upload/FileUpload.tsx",
+      "handler": "handleRemove",
+      "label": ""
+    },
+    {
+      "file": "components/ui/tabs.tsx",
+      "handler": "() => set(t.id)",
+      "label": "{t.label}"
+    },
+    {
+      "file": "components/ui/tabs.tsx",
+      "handler": "() => ctx?.onValueChange(value)",
+      "label": "{children}"
+    },
+    {
+      "file": "components/shared/ImportButton.tsx",
+      "handler": "() => inputRef.current?.click()",
+      "label": ""
+    },
+    {
+      "file": "components/shared/ExportButton.tsx",
+      "handler": "onExport",
+      "label": ""
+    },
+    {
+      "file": "components/shared/EmailDialog.tsx",
+      "handler": "onClose",
+      "label": ""
+    },
+    {
+      "file": "components/shared/EmailDialog.tsx",
+      "handler": "onClose",
+      "label": "Annuler"
+    },
+    {
+      "file": "components/shared/EmailDialog.tsx",
+      "handler": "handleSend",
+      "label": "Envoyer"
+    },
+    {
+      "file": "components/purchases/supplier-modal.tsx",
+      "handler": "() => setOpen(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "components/layout/Topbar.tsx",
+      "handler": "(e) => {\n            e.preventDefault();\n            e.stopPropagation();\n            router.push('/accountant/journal');\n          ",
+      "label": "Nouvelle écriture"
+    },
+    {
+      "file": "components/layout/Topbar.tsx",
+      "handler": "(e) => toggleNotifications(e)",
+      "label": ""
+    },
+    {
+      "file": "components/layout/Topbar.tsx",
+      "handler": "(e) => {\n              e.preventDefault();\n              e.stopPropagation();\n              setShowProfileMenu(!showProfileMenu);\n            ",
+      "label": ""
+    },
+    {
+      "file": "components/layout/Topbar.tsx",
+      "handler": "handleLogout",
+      "label": ""
+    },
+    {
+      "file": "components/layout/Sidebar.tsx",
+      "handler": "() => setIsLocked(!isLocked)",
+      "label": "{isLocked ?"
+    },
+    {
+      "file": "components/layout/Sidebar.tsx",
+      "handler": "() => setRevenueMenuOpen(!revenueMenuOpen)",
+      "label": ""
+    },
+    {
+      "file": "components/layout/ModernTopbar.tsx",
+      "handler": "toggleNotifications",
+      "label": ""
+    },
+    {
+      "file": "components/layout/ModernTopbar.tsx",
+      "handler": "toggleHelp",
+      "label": ""
+    },
+    {
+      "file": "components/layout/ModernTopbar.tsx",
+      "handler": "() => router.push(\"/help/documentation\")",
+      "label": "Documentation"
+    },
+    {
+      "file": "components/layout/ModernTopbar.tsx",
+      "handler": "() => router.push(\"/help/support\")",
+      "label": "Contacter le support"
+    },
+    {
+      "file": "components/layout/ModernTopbar.tsx",
+      "handler": "() => router.push(\"/help/shortcuts\")",
+      "label": "Raccourcis clavier"
+    },
+    {
+      "file": "components/layout/ModernTopbar.tsx",
+      "handler": "goToNewEntry",
+      "label": ""
+    },
+    {
+      "file": "components/layout/ModernSidebar.tsx",
+      "handler": "() => setIsLocked(!isLocked)",
+      "label": ""
+    },
+    {
+      "file": "components/expert/ClientSelector.tsx",
+      "handler": "switchToExpertMode",
+      "label": "Vue Cabinet"
+    },
+    {
+      "file": "components/expert/ClientSelector.tsx",
+      "handler": "() => setIsOpen(!isOpen)",
+      "label": ""
+    },
+    {
+      "file": "components/expert/ClientSelector.tsx",
+      "handler": "() => {\n                      selectClient(null);\n                      setIsOpen(false);\n                    ",
+      "label": ""
+    },
+    {
+      "file": "components/expert/ClientSelector.tsx",
+      "handler": "() => {\n                        selectClient(client);\n                        setIsOpen(false);\n                      ",
+      "label": ""
+    },
+    {
+      "file": "components/dashboard/DashboardCustomizer.tsx",
+      "handler": "() => setIsOpen(true)",
+      "label": ""
+    },
+    {
+      "file": "components/dashboard/DashboardCustomizer.tsx",
+      "handler": "() => setIsOpen(false)",
+      "label": ""
+    },
+    {
+      "file": "components/dashboard/DashboardCustomizer.tsx",
+      "handler": "() => toggleWidget(widget.id)",
+      "label": "{widget.visible ?"
+    },
+    {
+      "file": "components/dashboard/DashboardCustomizer.tsx",
+      "handler": "() => setIsOpen(false)",
+      "label": "Fermer"
+    },
+    {
+      "file": "app/page.tsx",
+      "handler": "() => router.push('/login')",
+      "label": "Se connecter"
+    },
+    {
+      "file": "app/page.tsx",
+      "handler": "() => router.push('/register')",
+      "label": "Essai gratuit"
+    },
+    {
+      "file": "app/page.tsx",
+      "handler": "() => router.push('/register')",
+      "label": "Commencer l'essai gratuit"
+    },
+    {
+      "file": "app/page.tsx",
+      "handler": "() => router.push('/demo')",
+      "label": "Demander une démo"
+    },
+    {
+      "file": "app/treasury/page.tsx",
+      "handler": "loadTreasuryData",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/treasury/operations/page.tsx",
+      "handler": "() => setFormVisible(true)",
+      "label": ""
+    },
+    {
+      "file": "app/treasury/operations/page.tsx",
+      "handler": "loadOperations",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/treasury/operations/page.tsx",
+      "handler": "() => setFormVisible(false)",
+      "label": "×"
+    },
+    {
+      "file": "app/treasury/operations/page.tsx",
+      "handler": "() => setFormVisible(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/treasury/operations/page.tsx",
+      "handler": "submitOperation",
+      "label": "{sending &&"
+    },
+    {
+      "file": "app/treasury/forecast/page.tsx",
+      "handler": "() => changeHorizon(value)",
+      "label": "{value === \"7\" ? \"7 jours\" : value === \"30\" ? \"30 jours\" : \"90 jours\"}"
+    },
+    {
+      "file": "app/treasury/forecast/page.tsx",
+      "handler": "() => loadForecast(horizon)",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "() => row.onView && row.onView()",
+      "label": "Voir"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "() => row.onJustif && row.onJustif()",
+      "label": "Justif"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "handleCreate",
+      "label": "Ajouter"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "exportCsv",
+      "label": "Exporter CSV"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "() => setViewMode(null)",
+      "label": "×"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "() => setViewMode(null)",
+      "label": "×"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "()=> renameAttachment(a.id, a.originalName)",
+      "label": "Renommer"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "()=> deleteAttachment(a.id)",
+      "label": "Supprimer"
+    },
+    {
+      "file": "app/transactions/page.tsx",
+      "handler": "deleteSelectedAttachments",
+      "label": "Supprimer la sélection"
+    },
+    {
+      "file": "app/tax/declarations/page.tsx",
+      "handler": "() => setActiveStep(step.id)",
+      "label": ""
+    },
+    {
+      "file": "app/tax/declarations/page.tsx",
+      "handler": "() => setSelectedType(type.id)",
+      "label": ""
+    },
+    {
+      "file": "app/settings/users/page.tsx",
+      "handler": "loadUsers",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/settings/users/page.tsx",
+      "handler": "() => {\n            setEditingUser(null);\n            setShowForm(!showForm);\n          ",
+      "label": ""
+    },
+    {
+      "file": "app/settings/users/page.tsx",
+      "handler": "closeForm",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/settings/users/page.tsx",
+      "handler": "() => toggleUserStatus(user)",
+      "label": "{user.isActive ? \"Actif\" : \"Inactif\"}"
+    },
+    {
+      "file": "app/settings/users/page.tsx",
+      "handler": "() => handleEdit(user)",
+      "label": ""
+    },
+    {
+      "file": "app/settings/users/page.tsx",
+      "handler": "() => handleDelete(user.id)",
+      "label": ""
+    },
+    {
+      "file": "app/settings/companies/page.tsx",
+      "handler": "() => setShowAddForm(true)",
+      "label": ""
+    },
+    {
+      "file": "app/settings/companies/page.tsx",
+      "handler": "() => {\n                        setSelectedCompany(company);\n                        setShowEmailDialog(true);\n                      ",
+      "label": ""
+    },
+    {
+      "file": "app/settings/companies/page.tsx",
+      "handler": "() => setShowAddForm(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/purchases/orders/page.tsx",
+      "handler": "loadData",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/purchases/orders/page.tsx",
+      "handler": "() => {\n            setEditingOrder(null);\n            setShowForm(!showForm);\n          ",
+      "label": ""
+    },
+    {
+      "file": "app/purchases/orders/page.tsx",
+      "handler": "closeForm",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/purchases/orders/page.tsx",
+      "handler": "() => handleEdit(order)",
+      "label": ""
+    },
+    {
+      "file": "app/purchases/orders/page.tsx",
+      "handler": "() => handleCancel(order.id)",
+      "label": ""
+    },
+    {
+      "file": "app/profile-selection/page.tsx",
+      "handler": "(e) => {\n                      e.stopPropagation();\n                      setAsPrimary(profile.id);\n                    ",
+      "label": "{isPrimary ? '✓ Profil Principal' : 'Définir comme principal'}"
+    },
+    {
+      "file": "app/profile-selection/page.tsx",
+      "handler": "() => router.push('/login')",
+      "label": "Retour"
+    },
+    {
+      "file": "app/profile-selection/page.tsx",
+      "handler": "saveProfiles",
+      "label": "Continuer"
+    },
+    {
+      "file": "app/login/page.tsx",
+      "handler": "() => setShowPassword(!showPassword)",
+      "label": "{showPassword ? ("
+    },
+    {
+      "file": "app/login/page.tsx",
+      "handler": "() => router.push('/register')",
+      "label": "Demander une démo"
+    },
+    {
+      "file": "app/invoices/page.tsx",
+      "handler": "handleExport",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/page.tsx",
+      "handler": "() => setShowAddForm(true)",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/page.tsx",
+      "handler": "() => {\n                          setSelectedInvoice(invoice);\n                          setShowEmailDialog(true);\n                        ",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/page.tsx",
+      "handler": "() => setShowAddForm(false)",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/page.tsx",
+      "handler": "() => setShowAddForm(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/invoices/reminders/page.tsx",
+      "handler": "loadReminders",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/invoices/reminders/page.tsx",
+      "handler": "() => setFilter(option)",
+      "label": "{option === \"all\"\n                    ? \"Toutes\"\n                    : option === \"critical\"\n                    ? \"Critiques\"\n                    : option === \"warning\"\n                    ? \"A surveiller\"\n                    : \"Toujours en attente\"}"
+    },
+    {
+      "file": "app/invoices/reminders/page.tsx",
+      "handler": "() => quickAction(item.party, \"email\")",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/reminders/page.tsx",
+      "handler": "() => quickAction(item.party, \"call\")",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/reminders/page.tsx",
+      "handler": "() => markAsDone(item.party)",
+      "label": "{processing === item.party ?"
+    },
+    {
+      "file": "app/invoices/payments/page.tsx",
+      "handler": "exportCsv",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/payments/page.tsx",
+      "handler": "() => setShowForm(true)",
+      "label": ""
+    },
+    {
+      "file": "app/invoices/payments/page.tsx",
+      "handler": "loadPayments",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/invoices/payments/page.tsx",
+      "handler": "() => setShowForm(false)",
+      "label": "×"
+    },
+    {
+      "file": "app/invoices/payments/page.tsx",
+      "handler": "() => setShowForm(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/invoices/payments/page.tsx",
+      "handler": "handleCreate",
+      "label": "{saving &&"
+    },
+    {
+      "file": "app/hr/payroll/page.tsx",
+      "handler": "loadData",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/hr/payroll/page.tsx",
+      "handler": "() => {\n            setEditingPayroll(null);\n            setShowForm(!showForm);\n          ",
+      "label": ""
+    },
+    {
+      "file": "app/hr/payroll/page.tsx",
+      "handler": "closeForm",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/hr/payroll/page.tsx",
+      "handler": "() => handleGeneratePayslip(payroll.id)",
+      "label": ""
+    },
+    {
+      "file": "app/hr/payroll/page.tsx",
+      "handler": "() => handleEdit(payroll)",
+      "label": ""
+    },
+    {
+      "file": "app/hr/payroll/page.tsx",
+      "handler": "() => handleDelete(payroll.id)",
+      "label": ""
+    },
+    {
+      "file": "app/formalization/page.tsx",
+      "handler": "() => setShowForm(true)",
+      "label": "Nouvelle demande"
+    },
+    {
+      "file": "app/formalization/page.tsx",
+      "handler": "() => setShowForm(true)",
+      "label": "Démarrer ma demande"
+    },
+    {
+      "file": "app/formalization/page.tsx",
+      "handler": "handleCreateRequest",
+      "label": "Créer la demande"
+    },
+    {
+      "file": "app/formalization/page.tsx",
+      "handler": "() => setShowForm(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/formalization/page.tsx",
+      "handler": "()=> handleDeleteDocument(doc.key)",
+      "label": "Supprimer"
+    },
+    {
+      "file": "app/formalization/page.tsx",
+      "handler": "handleSubmit",
+      "label": "Soumettre à la DGI"
+    },
+    {
+      "file": "app/expert/page.tsx",
+      "handler": "loadDashboard",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/expert/page.tsx",
+      "handler": "() => window.open(`/entrepreneur?clientId=${selectedClient.id",
+      "label": ""
+    },
+    {
+      "file": "app/expert/page.tsx",
+      "handler": "() => window.open(`/accountant?companyId=${selectedClient.id",
+      "label": ""
+    },
+    {
+      "file": "app/expert/page.tsx",
+      "handler": "() => window.open(`/treasury?companyId=${selectedClient.id",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => {\n            resetForm();\n            setShowModal(true);\n          ",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => handleStatusChange(debit.id, 'suspend')",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => handleStatusChange(debit.id, 'reactivate')",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => openEditModal(debit)",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => handleStatusChange(debit.id, 'cancel')",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => handleDelete(debit.id)",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => {\n                  setShowModal(false);\n                  resetForm();\n                ",
+      "label": ""
+    },
+    {
+      "file": "app/entrepreneur/direct-debits/page.tsx",
+      "handler": "() => {\n                    setShowModal(false);\n                    resetForm();\n                  ",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/demo-simple/page.tsx",
+      "handler": "() => window.location.reload()",
+      "label": ""
+    },
+    {
+      "file": "app/demo-simple/page.tsx",
+      "handler": "() => setActiveTab('dashboard')",
+      "label": "📊 Dashboard Comptable"
+    },
+    {
+      "file": "app/demo-simple/page.tsx",
+      "handler": "() => setActiveTab('mobile-money')",
+      "label": ""
+    },
+    {
+      "file": "app/demo-simple/page.tsx",
+      "handler": "() => setActiveTab('aged-balance')",
+      "label": ""
+    },
+    {
+      "file": "app/demo/page.tsx",
+      "handler": "() => setActiveType('receivables')",
+      "label": ""
+    },
+    {
+      "file": "app/demo/page.tsx",
+      "handler": "() => setActiveType('payables')",
+      "label": ""
+    },
+    {
+      "file": "app/demo/page.tsx",
+      "handler": "() => window.location.reload()",
+      "label": ""
+    },
+    {
+      "file": "app/demo/page.tsx",
+      "handler": "() => setActiveTab('dashboard')",
+      "label": "📊 Dashboard Comptable"
+    },
+    {
+      "file": "app/demo/page.tsx",
+      "handler": "() => setActiveTab('mobile-money')",
+      "label": ""
+    },
+    {
+      "file": "app/demo/page.tsx",
+      "handler": "() => setActiveTab('aged-balance')",
+      "label": ""
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "reload",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "reload",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "reload",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "(e) => {\n                  e.preventDefault();\n                  setChartPeriod('1month');\n                ",
+      "label": "Mois"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "(e) => {\n                  e.preventDefault();\n                  setChartPeriod('3months');\n                ",
+      "label": "3 mois"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "(e) => {\n                  e.preventDefault();\n                  setChartPeriod('6months');\n                ",
+      "label": "6 mois"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "(e) => {\n                  e.preventDefault();\n                  setChartPeriod('year');\n                ",
+      "label": "Année"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "(e) => {\n                  e.preventDefault();\n                  setChartPeriod('multi');\n                ",
+      "label": "Multi-années"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "handler": "() => window.location.href = '/dashboard/alerts'",
+      "label": "Voir toutes les alertes →"
+    },
+    {
+      "file": "app/dashboard/bi/page.tsx",
+      "handler": "() => setSelectedDim(dim)",
+      "label": "{dim}"
+    },
+    {
+      "file": "app/dashboard/bi/page.tsx",
+      "handler": "() => setSelectedMesure(mes)",
+      "label": "{mes}"
+    },
+    {
+      "file": "app/crm/contacts/page.tsx",
+      "handler": "loadContacts",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/crm/contacts/page.tsx",
+      "handler": "() => handleDelete(contact.id)",
+      "label": ""
+    },
+    {
+      "file": "app/crm/contacts/page.tsx",
+      "handler": "() => setPage(page - 1)",
+      "label": "Précédent"
+    },
+    {
+      "file": "app/crm/contacts/page.tsx",
+      "handler": "() => setPage(page + 1)",
+      "label": "= total}\n                className=\"px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed\"\n              >\n                Suivant"
+    },
+    {
+      "file": "app/crm/contacts/new/page.tsx",
+      "handler": "() => router.back()",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/communications/emails/page.tsx",
+      "handler": "() => setSelectedFolder(folder.id)",
+      "label": ""
+    },
+    {
+      "file": "app/budget/page.tsx",
+      "handler": "loadBudgets",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/budget/page.tsx",
+      "handler": "() => setShowRevision(true)",
+      "label": ""
+    },
+    {
+      "file": "app/budget/page.tsx",
+      "handler": "() => setShowNewBudget(true)",
+      "label": ""
+    },
+    {
+      "file": "app/budget/page.tsx",
+      "handler": "() => setShowRevision(false)",
+      "label": ""
+    },
+    {
+      "file": "app/budget/page.tsx",
+      "handler": "() => setShowRevision(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/budget/page.tsx",
+      "handler": "() => setShowNewBudget(false)",
+      "label": ""
+    },
+    {
+      "file": "app/budget/page.tsx",
+      "handler": "() => setShowNewBudget(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/ai/ocr/page.tsx",
+      "handler": "() => setSelectedType(type.value)",
+      "label": ""
+    },
+    {
+      "file": "app/ai/ocr/page.tsx",
+      "handler": "() => setFile(null)",
+      "label": "Supprimer"
+    },
+    {
+      "file": "app/ai/ocr/page.tsx",
+      "handler": "handleUpload",
+      "label": "{uploading ? ("
+    },
+    {
+      "file": "app/ai/ocr/page.tsx",
+      "handler": "handleSaveEdit",
+      "label": ""
+    },
+    {
+      "file": "app/ai/ocr/page.tsx",
+      "handler": "handleCancelEdit",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/ai/ocr/page.tsx",
+      "handler": "handleEdit",
+      "label": ""
+    },
+    {
+      "file": "app/ai/chat/page.tsx",
+      "handler": "() => handlePromptClick(suggestion.prompt)",
+      "label": ""
+    },
+    {
+      "file": "app/ai/chat/page.tsx",
+      "handler": "() => handleSend()",
+      "label": "{isLoading ? ("
+    },
+    {
+      "file": "app/accountant/page.tsx",
+      "handler": "loadDashboard",
+      "label": "Actualiser"
+    },
+    {
+      "file": "app/accountant/validation/page.tsx",
+      "handler": "()=>approveInvoice(i.id)",
+      "label": "Approuver"
+    },
+    {
+      "file": "app/accountant/validation/page.tsx",
+      "handler": "()=>rejectInvoice(i.id)",
+      "label": "Refuser"
+    },
+    {
+      "file": "app/accountant/validation/page.tsx",
+      "handler": "()=>approvePayment(p.id)",
+      "label": "Approuver"
+    },
+    {
+      "file": "app/accountant/validation/page.tsx",
+      "handler": "()=>rejectPayment(p.id)",
+      "label": "Refuser"
+    },
+    {
+      "file": "app/accountant/trial-balance/page.tsx",
+      "handler": "loadTrialBalance",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/accountant/trial-balance/page.tsx",
+      "handler": "handlePrint",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/trial-balance/page.tsx",
+      "handler": "handleExport",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "handleRecalculate",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "handleTransmit",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "() => setShowGenerateModal(true)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "() => triggerToast(\"info\", \"Import DEB/DES connecté aux flux douanes (à venir).\")",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "handleExportFEC",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "() => setShowTransmitModal(false)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "() => setShowTransmitModal(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "() => {\n                  triggerToast(\"success\", \"Télétransmission simulée : référence DGI #DGI-2025-CA3-1021.\");\n                  setShowTransmitModal(false);\n                ",
+      "label": "Envoyer la déclaration"
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "() => setShowGenerateModal(false)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "() => setShowGenerateModal(false)",
+      "label": "Fermer"
+    },
+    {
+      "file": "app/accountant/tax/vat/page.tsx",
+      "handler": "handleGeneratePDF",
+      "label": "Générer PDF"
+    },
+    {
+      "file": "app/accountant/profit-loss/page.tsx",
+      "handler": "loadIncomeStatement",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/accountant/profit-loss/page.tsx",
+      "handler": "handleExport",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/multi-dimensional-analysis/page.tsx",
+      "handler": "() => setSelectedDimension(dim.key)",
+      "label": "{getDimensionIcon(dim.key)}\n                {dim.label}"
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "handler": "loadTransactions",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "handler": "() => setShowFilters(!showFilters)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "handler": "clearFilters",
+      "label": "Effacer les filtres"
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "handler": "() => setSelectedTransaction(transaction)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "handler": "() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) ",
+      "label": "Précédent"
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "handler": "() => setPagination(prev => ({ ...prev, page: Math.min(prev.pages, prev.page + 1) ",
+      "label": "Suivant"
+    },
+    {
+      "file": "app/accountant/mobile-money/page.tsx",
+      "handler": "() => setSelectedTransaction(null)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/ml-forecast/page.tsx",
+      "handler": "handleRetrainModels",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setFilters(prev => ({ ...prev, status: '' ",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setShowAddForm(true)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setShowFilters(prev => !prev)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => {\n                  setFilters({ startDate: \"\", endDate: \"\", account: \"\", minAmount: \"\", maxAmount: \"\", status: \"\" ",
+      "label": "Réinitialiser"
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setShowFilters(false)",
+      "label": "Appliquer"
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setShowOcrModal(false)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => triggerToast(\"success\", \"Extraction OCR simulée : données prêtes à être validées.\")",
+      "label": "Lancer l&apos;extraction"
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setShowOcrModal(false)",
+      "label": "Fermer"
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => {\n                  triggerToast(\"info\", \"Intégration API OCR planifiée sprint Q1.\");\n                  setShowOcrModal(false);\n                ",
+      "label": "Notifier l&apos;équipe produit"
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setShowAddForm(false)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/journal/page.tsx",
+      "handler": "() => setShowAddForm(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/accountant/general-ledger/page.tsx",
+      "handler": "() => triggerToast(\"success\", \"Export PDF/Excel disponible prochainement.\")",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/close/page.tsx",
+      "handler": "calculatePreview",
+      "label": "{loading ? 'Calcul...' : 'Calculer le résultat'}"
+    },
+    {
+      "file": "app/accountant/close/page.tsx",
+      "handler": "() => setShowConfirm(true)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/close/page.tsx",
+      "handler": "() => setShowConfirm(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/accountant/close/page.tsx",
+      "handler": "handleClose",
+      "label": "{loading ? 'Clôture...' : 'Confirmer la clôture'}"
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "loadAccounts",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "handleImport",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "handleExport",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "openCreateModal",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "() => openEditModal(account)",
+      "label": "Modifier"
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "closeModal",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "closeModal",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/accountant/chart-of-accounts/page.tsx",
+      "handler": "handleSave",
+      "label": "{saving &&"
+    },
+    {
+      "file": "app/accountant/bank/page.tsx",
+      "handler": "handleSync",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/bank/page.tsx",
+      "handler": "handleAutoMatch",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/bank/page.tsx",
+      "handler": "() => openSuggestions(transaction)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/bank/page.tsx",
+      "handler": "() => setSuggestionsOpen(false)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/bank/page.tsx",
+      "handler": "() => reconcileWithEntry(s.journalEntryId)",
+      "label": "Rapprocher"
+    },
+    {
+      "file": "app/accountant/bank/page.tsx",
+      "handler": "() => setSuggestionsOpen(false)",
+      "label": "Fermer"
+    },
+    {
+      "file": "app/accountant/balance-sheet/page.tsx",
+      "handler": "loadBalanceSheet",
+      "label": "Réessayer"
+    },
+    {
+      "file": "app/accountant/balance-sheet/page.tsx",
+      "handler": "handleExport",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/assets/page.tsx",
+      "handler": "() => setShowModal(true)",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/assets/page.tsx",
+      "handler": "loadAssets",
+      "label": "Recharger"
+    },
+    {
+      "file": "app/accountant/assets/page.tsx",
+      "handler": "() => setShowModal(false)",
+      "label": "×"
+    },
+    {
+      "file": "app/accountant/assets/page.tsx",
+      "handler": "() => setShowModal(false)",
+      "label": "Annuler"
+    },
+    {
+      "file": "app/accountant/aged-balance/page.tsx",
+      "handler": "() => setActiveTab('receivables')",
+      "label": ""
+    },
+    {
+      "file": "app/accountant/aged-balance/page.tsx",
+      "handler": "() => setActiveTab('payables')",
+      "label": ""
+    }
+  ]
+}

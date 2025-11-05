@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, MessageSquare, Send, Users, TrendingUp } from 'lucide-react';
+import { communicationsAPI } from '@/lib/api-client';
+
 
 interface SMSMessage {
   id: string;
@@ -20,7 +22,7 @@ export default function SMSPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://bms-production-d9e9.up.railway.app/api/v1/communications/sms')
+    communicationsAPI.getSMS()
       .then(r => r.json())
       .then(data => {
         setMessages(data);

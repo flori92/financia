@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, MessageCircle, Check, CheckCheck, Clock } from 'lucide-react';
+import { communicationsAPI } from '@/lib/api-client';
+
 
 interface WhatsAppMessage {
   id: string;
@@ -20,7 +22,7 @@ export default function WhatsAppPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://bms-production-d9e9.up.railway.app/api/v1/communications/whatsapp')
+    communicationsAPI.getWhatsApp()
       .then(r => r.json())
       .then(data => {
         setMessages(data);

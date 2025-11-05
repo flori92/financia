@@ -30,8 +30,8 @@ export default function EmailsPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('https://bms-production-d9e9.up.railway.app/api/v1/communications/emails').then(r => r.json()),
-      fetch('https://bms-production-d9e9.up.railway.app/api/v1/communications/templates').then(r => r.json())
+      communicationsAPI.getEmails().catch(() => []),
+      communicationsAPI.getTemplates().catch(() => [])
     ]).then(([emailsData, templatesData]) => {
       setEmails(emailsData);
       setTemplates(templatesData);

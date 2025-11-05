@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { supportAPI } from '@/lib/api-client';
+
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://bms-production-d9e9.up.railway.app/api/v1/support/tickets')
+    supportAPI.getTickets()
       .then(res => res.json())
       .then(data => {
         setTickets(data);

@@ -67,7 +67,7 @@ export default function ChartOfAccountsPage() {
     setActiveAction({ type: "export" });
     try {
       const companyId = getCompanyId();
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const response = await fetch(
         `${apiUrl}/api/v1/accounting/export/chart-of-accounts?companyId=${companyId}`,
         {
