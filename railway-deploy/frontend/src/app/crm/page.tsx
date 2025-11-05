@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Users, TrendingUp, DollarSign, Activity } from 'lucide-react';
 import Link from 'next/link';
+import { getCompanyId } from '@/lib/api';
 
 export default function CRMDashboard() {
   const [stats, setStats] = useState({
@@ -21,10 +22,25 @@ export default function CRMDashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/crm/stats');
+      const companyId = getCompanyId();
+      const token = typeof window !== 'undefined' ? window.localStorage.getItem('bms_token') : null;
+      
+      if (!companyId) {
+        console.warn('CompanyId non disponible');
+        return;
+      }
+
+      const res = await fetch(`/api/crm/stats?companyId=${companyId}`, {
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+      
       if (res.ok) {
         const data = await res.json();
         setStats(data);
+      } else {
+        console.error('Erreur API CRM:', res.status, res.statusText);
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error);
