@@ -30,55 +30,55 @@ export default function Page() {
       name: "Expert Comptable",
       description: "Gestion comptable avancée, audit, conseil fiscal",
       icon: Calculator,
-      color: "from-blue-600 to-blue-800",
+      color: "bg-blue-600",
       features: ["Comptabilité OHADA", "Audit financier", "Conseil fiscal", "Reporting expert"],
-      gradient: "from-blue-500/20 to-blue-600/20",
-      borderColor: "border-blue-500/30"
+      bgColor: "bg-slate-800",
+      borderColor: "border-slate-700"
     },
     {
       name: "Entrepreneur",
       description: "Pilotage d'entreprise, décisions stratégiques",
       icon: Briefcase,
-      color: "from-emerald-600 to-emerald-800",
+      color: "bg-[#0D9488]",
       features: ["Dashboard stratégique", "KPIs temps réel", "Prévisions", "Business Intelligence"],
-      gradient: "from-emerald-500/20 to-emerald-600/20",
-      borderColor: "border-emerald-500/30"
+      bgColor: "bg-slate-800",
+      borderColor: "border-slate-700"
     },
     {
       name: "Banque",
       description: "Opérations bancaires, conformité réglementaire",
       icon: Building,
-      color: "from-purple-600 to-purple-800",
+      color: "bg-purple-600",
       features: ["API bancaires", "Conformité", "Risk Management", "Transactions sécurisées"],
-      gradient: "from-purple-500/20 to-purple-600/20",
-      borderColor: "border-purple-500/30"
+      bgColor: "bg-slate-800",
+      borderColor: "border-slate-700"
     },
     {
       name: "Administration Fiscale",
       description: "Gestion fiscale, déclarations, contrôles",
       icon: Crown,
-      color: "from-amber-600 to-amber-800",
+      color: "bg-amber-600",
       features: ["Télédéclarations", "Contrôles fiscaux", "Optimisation", "Conformité"],
-      gradient: "from-amber-500/20 to-amber-600/20",
-      borderColor: "border-amber-500/30"
+      bgColor: "bg-slate-800",
+      borderColor: "border-slate-700"
     },
     {
       name: "RH Manager",
       description: "Gestion RH, paie, talent management",
       icon: Users,
-      color: "from-rose-600 to-rose-800",
+      color: "bg-rose-600",
       features: ["Paie automatisée", "Talent acquisition", "Performance", "Engagement"],
-      gradient: "from-rose-500/20 to-rose-600/20",
-      borderColor: "border-rose-500/30"
+      bgColor: "bg-slate-800",
+      borderColor: "border-slate-700"
     },
     {
       name: "Manager",
       description: "Management d'équipe, productivité",
       icon: UserCheck,
-      color: "from-indigo-600 to-indigo-800",
+      color: "bg-indigo-600",
       features: ["Team management", "Productivité", "Objectifs", "Collaboration"],
-      gradient: "from-indigo-500/20 to-indigo-600/20",
-      borderColor: "border-indigo-500/30"
+      bgColor: "bg-slate-800",
+      borderColor: "border-slate-700"
     }
   ];
 
@@ -121,22 +121,20 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-emerald-600/10"></div>
+      <div className="relative overflow-hidden bg-slate-800/50">
         <div className="relative max-w-7xl mx-auto px-6 py-20">
           <div className="text-center">
-            <div className="inline-flex items-center gap-4 mb-8">
-              <div className="w-24 h-24 rounded-2xl bg-[#0D9488] flex items-center justify-center shadow-2xl">
+            {/* Logo et Titre centrés */}
+            <div className="flex flex-col items-center mb-12">
+              <div className="w-24 h-24 rounded-2xl bg-[#0D9488] flex items-center justify-center shadow-2xl mb-6">
                 <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
               </div>
-              <div className="text-left">
-                <h1 className="text-7xl font-bold text-white tracking-tight mb-2">BMS ERP</h1>
-                <p className="text-xl text-blue-400 font-medium">Business Management System</p>
-              </div>
+              <h1 className="text-7xl font-bold text-white tracking-tight mb-2">BMS ERP</h1>
+              <p className="text-xl text-slate-400 font-medium">Business Management System</p>
             </div>
             
             <h2 className="text-5xl font-bold text-white mb-6">
-              Solution <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Multi-Profils</span>
+              Solution <span className="text-[#0D9488]">Multi-Profils</span>
             </h2>
             <p className="text-xl text-slate-300 max-w-4xl mx-auto mb-12 leading-relaxed">
               Plateforme ERP moderne avec architecture adaptative par profil. 
@@ -171,7 +169,7 @@ export default function Page() {
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Portails <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Spécialisés</span>
+            Portails <span className="text-[#0D9488]">Spécialisés</span>
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
             Chaque profil dispose d'un portail dédié avec des fonctionnalités adaptées à ses besoins spécifiques
@@ -182,11 +180,11 @@ export default function Page() {
           {profiles.map((profile, index) => (
             <div 
               key={index}
-              className={`group relative bg-gradient-to-br ${profile.gradient} rounded-2xl p-8 border ${profile.borderColor} hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer`}
+              className={`group relative ${profile.bgColor} rounded-2xl p-8 border ${profile.borderColor} hover:shadow-2xl hover:border-[#0D9488]/50 transition-all duration-300 cursor-pointer`}
               onClick={() => router.push('/login')}
             >
               <div className="absolute top-4 right-4">
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${profile.color} flex items-center justify-center`}>
+                <div className={`w-12 h-12 rounded-full ${profile.color} flex items-center justify-center`}>
                   <profile.icon className="w-6 h-6 text-white" strokeWidth={1.5} />
                 </div>
               </div>
@@ -203,7 +201,7 @@ export default function Page() {
                 ))}
               </div>
               
-              <div className="mt-6 flex items-center gap-2 text-blue-400 group-hover:text-blue-300 transition-colors">
+              <div className="mt-6 flex items-center gap-2 text-[#0D9488] group-hover:text-[#0B7C74] transition-colors">
                 <span className="text-sm font-medium">Accéder au portail</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -213,11 +211,11 @@ export default function Page() {
       </div>
 
       {/* Core Modules Section */}
-      <div className="bg-slate-800/50 backdrop-blur-sm py-20">
+      <div className="bg-slate-800/50 py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              Modules <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Intégrés</span>
+              Modules <span className="text-[#0D9488]">Intégrés</span>
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
               Fonctionnalités complètes pour la gestion de votre entreprise
@@ -243,14 +241,14 @@ export default function Page() {
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Intelligence <span className="text-transparent bg-clip-text bg-gradient-to-r text-[#0D9488]">Artificielle</span>
+            Intelligence <span className="text-[#0D9488]">Artificielle</span>
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
             Fonctionnalités IA avancées pour automatiser et optimiser vos processus
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-600/10 to-emerald-600/10 rounded-3xl p-12 border border-blue-500/20">
+        <div className="bg-slate-800 rounded-3xl p-12 border border-slate-700">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {aiFeatures.map((feature, index) => (
               <div key={index} className="flex items-center gap-4">
@@ -265,26 +263,26 @@ export default function Page() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-[#0D9488] py-20">
+      <div className="bg-slate-800 py-20 border-t border-slate-700">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Prêt à transformer votre gestion ?
           </h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
             Rejoignez les centaines d'entreprises qui font confiance à BMS ERP pour leur gestion quotidienne
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button
               onClick={() => router.push('/register')}
-              className="group inline-flex items-center gap-3 bg-white text-blue-600 text-lg font-semibold px-10 py-5 rounded-xl hover:bg-blue-50 transition-all shadow-2xl hover:scale-105"
+              className="group inline-flex items-center gap-3 bg-[#0D9488] text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-[#0B7C74] transition-all shadow-2xl hover:scale-105"
             >
               Commencer l'essai gratuit
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
               onClick={() => router.push('/demo')}
-              className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-white/30 transition-all border border-white/30"
+              className="inline-flex items-center gap-3 bg-slate-700 text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-slate-600 transition-all border border-slate-600"
             >
               Demander une démo
             </button>
