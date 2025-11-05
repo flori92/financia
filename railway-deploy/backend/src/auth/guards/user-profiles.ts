@@ -343,6 +343,10 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'accounting.vat',
     'accounting.bank',
     'accounting.reports',
+    // 🆕 Trésorerie
+    'treasury.overview',
+    'treasury.forecast',
+    'treasury.alerts',
     // 🆕 Facturation
     'invoices.create',
     'invoices.read',
