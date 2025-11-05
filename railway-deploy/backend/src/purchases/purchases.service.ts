@@ -17,10 +17,15 @@ export class PurchasesService {
 
   // Méthodes pour les fournisseurs
   async getSuppliers(companyId: string): Promise<Supplier[]> {
-    return this.supplierRepo.find({ 
-      where: { companyId },
-      order: { createdAt: 'DESC' }
-    });
+    try {
+      return await this.supplierRepo.find({
+        where: { companyId },
+        order: { createdAt: 'DESC' }
+      });
+    } catch (error) {
+      console.error('[PurchasesService] Erreur getSuppliers:', error);
+      throw error;
+    }
   }
 
   async createSupplier(supplierData: any): Promise<Supplier> {
@@ -33,15 +38,14 @@ export class PurchasesService {
   }
 
   async getSupplier(id: string, companyId: string): Promise<Supplier> {
-    const supplier = await this.supplierRepo.findOne({ 
-      where: { id, companyId },
-      relations: ['purchaseOrders']
+    const supplier = await this.supplierRepo.findOne({
+      where: { id, companyId }
     });
-    
+
     if (!supplier) {
       throw new NotFoundException('Fournisseur non trouvé');
     }
-    
+
     return supplier;
   }
 

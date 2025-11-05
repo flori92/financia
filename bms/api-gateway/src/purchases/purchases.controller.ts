@@ -19,10 +19,18 @@ export class PurchasesController {
   @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'Liste des fournisseurs', type: [Supplier] })
   async getSuppliers(@Query('companyId') companyId: string) {
-    return this.suppliersRepo.find({
-      where: { companyId },
-      order: { createdAt: 'DESC' },
-    });
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    try {
+      return await this.suppliersRepo.find({
+        where: { companyId },
+        order: { createdAt: 'DESC' },
+      });
+    } catch (error) {
+      console.error('[PurchasesController] Erreur getSuppliers:', error);
+      throw error;
+    }
   }
 
   @Get('suppliers/:id')
