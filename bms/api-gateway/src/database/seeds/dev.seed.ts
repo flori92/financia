@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { seedPermissions } from './permissions.seed';
+import { assignRolesToUsers } from './assign-roles.seed';
 
 /**
  * Seed data for development
@@ -407,12 +409,18 @@ export async function runDevSeed(dataSource: DataSource) {
     }
 
     await queryRunner.commitTransaction();
+    // Seed permissions et rôles RBAC
+    await seedPermissions(dataSource);
+    
+    // Assigner les rôles aux utilisateurs
+    await assignRolesToUsers(dataSource);
+    
     console.log('✅ Development seed completed successfully!');
     
     console.log('\n📝 Test Credentials:');
     console.log('Admin: admin@bms.bj / password123');
     console.log('Tax Admin: taxadmin@dgi.bj / password123');
-    console.log('Accountant: comptable@cabinet.bj / password123');
+    console.log('Accountant: comptable@cabinet.bj / password123 (avec rôle RBAC)');
     console.log('Entrepreneur: entrepreneur@test.bj / password123');
     
   } catch (error) {
