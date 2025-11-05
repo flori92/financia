@@ -74,6 +74,14 @@ export async function runDevSeed(dataSource: DataSource) {
     if (company1Id) {
       console.log('✅ Company 1 created:', company1Id);
 
+      // Associer l'entreprise aux utilisateurs
+      await queryRunner.query(`
+        INSERT INTO company_users (company_id, user_id, role, is_active)
+        VALUES ($1, $2, 'owner', true), ($1, $3, 'accountant', true), ($1, $4, 'admin', true)
+        ON CONFLICT (company_id, user_id) DO NOTHING;
+      `, [company1Id, entrepreneur.id, accountant.id, admin.id]);
+      console.log('✅ Users linked to Company 1');
+
       // 3. Créer des factures
       console.log('Creating test invoices...');
       
@@ -150,6 +158,14 @@ export async function runDevSeed(dataSource: DataSource) {
     const company2Id = company2?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Tech Afrique']))?.[0]?.id;
     if (company2Id) {
       console.log('✅ Company 2 created:', company2Id);
+
+      // Associer l'entreprise aux utilisateurs
+      await queryRunner.query(`
+        INSERT INTO company_users (company_id, user_id, role, is_active)
+        VALUES ($1, $2, 'owner', true), ($1, $3, 'accountant', true)
+        ON CONFLICT (company_id, user_id) DO NOTHING;
+      `, [company2Id, entrepreneur.id, accountant.id]);
+      console.log('✅ Users linked to Company 2');
       const [inv2_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
@@ -223,6 +239,14 @@ export async function runDevSeed(dataSource: DataSource) {
     const company3Id = company3?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Global Services SARL']))?.[0]?.id;
     if (company3Id) {
       console.log('✅ Company 3 created:', company3Id);
+
+      // Associer l'entreprise aux utilisateurs
+      await queryRunner.query(`
+        INSERT INTO company_users (company_id, user_id, role, is_active)
+        VALUES ($1, $2, 'owner', true), ($1, $3, 'accountant', true)
+        ON CONFLICT (company_id, user_id) DO NOTHING;
+      `, [company3Id, entrepreneur.id, accountant.id]);
+      console.log('✅ Users linked to Company 3');
       const [inv3_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
