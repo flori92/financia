@@ -70,7 +70,7 @@ export default function TreasuryPage() {
       setForecast(forecastData.forecast || forecastData || []);
       setAlerts(alertsData.alerts || alertsData || []);
     } catch (err: any) {
-      console.error("Erreur chargement trésorerie:", err);
+      console.debug("Erreur chargement trésorerie:", err);
       setError(err.message || "Erreur lors du chargement des données de trésorerie");
     } finally {
       setLoading(false);

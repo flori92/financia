@@ -20,7 +20,7 @@ function buildQuery(params?: Query) {
 
 function handleAuthError(status: number, path?: string) {
   if (status === 401) {
-    console.error(`[AUTH] Erreur d'authentification ${status} - Redirection vers login`);
+    console.debug(`[AUTH] Erreur d'authentification ${status} - Redirection vers login`);
     // Clear auth data
     if (typeof window !== 'undefined') {
       console.log('[AUTH] Nettoyage des données d\'authentification...');
@@ -38,7 +38,7 @@ function handleAuthError(status: number, path?: string) {
   }
 
   if (status === 403) {
-    console.error(`[PERM] Erreur de permissions 403 sur ${path || 'endpoint inconnu'}`);
+    console.debug(`[PERM] Erreur de permissions 403 sur ${path || 'endpoint inconnu'}`);
     // Afficher une popup claire pour les permissions manquantes
     if (showPermissionAlertCallback && typeof window !== 'undefined') {
       const featureName = getFeatureNameFromPath(path);
@@ -164,7 +164,7 @@ export async function apiGet(path: string, params?: Query, init?: RequestInit) {
     ...init,
   } as RequestInit);
   if (!res.ok) {
-    console.error(`[API] Erreur ${res.status} sur GET ${path}`);
+    console.debug(`[API] Erreur ${res.status} sur GET ${path}`);
     handleAuthError(res.status, path);
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
