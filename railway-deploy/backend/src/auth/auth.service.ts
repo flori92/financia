@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
@@ -12,6 +12,7 @@ export class AuthService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private jwtService: JwtService,
+    private dataSource: DataSource,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -46,7 +47,7 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userRepository.findOne({ 
+    const user = await this.userRepository.findOne({
       where: { email },
       select: ['id', 'email', 'password'] // Sélection minimale pour validation
     });
@@ -59,6 +60,22 @@ export class AuthService {
       });
 
       const enriched: any = { ...fullUser };
+
+      // Récupérer le companyId depuis company_users
+      try {
+        const companyUserResult = await this.dataSource.query(`
+          SELECT company_id FROM company_users
+          WHERE user_id = $1 AND is_active = true
+          ORDER BY created_at DESC
+          LIMIT 1
+        `, [user.id]);
+
+        if (companyUserResult && companyUserResult.length > 0) {
+          enriched.companyId = companyUserResult[0].company_id;
+        }
+      } catch (error) {
+        console.warn('Erreur lors de la récupération du companyId:', error);
+      }
 
       // 🆕 Compatibilité ascendante : si l'utilisateur n'a pas les nouveaux champs
       if (!enriched.profiles || enriched.profiles.length === 0) {
@@ -92,6 +109,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        companyId: user.companyId, // Inclure le companyId
         uxLevel: user.uxLevel,
         profiles: user.profiles, // 🆕 Profils multiples
         primaryProfile: user.primaryProfile, // 🆕 Profil principal
