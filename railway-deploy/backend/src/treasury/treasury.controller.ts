@@ -15,9 +15,31 @@ import { UserProfile } from '../auth/guards/user-profiles';
 @ApiBearerAuth()
 @Controller('treasury')
 @UseGuards(JwtAuthGuard, RolesGuard, ProfileGuard)
-@RequirePermissions('treasury:read')
 export class TreasuryController {
   constructor(private readonly treasuryService: TreasuryService) {}
+
+  @Get('dashboard')
+  @Profiles(UserProfile.EXPERT_COMPTABLE, UserProfile.ACCOUNTANT)
+  @Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
+  @ApiOperation({ summary: 'Dashboard complet de trésorerie' })
+  @ApiQuery({ name: 'companyId', required: true })
+  @ApiResponse({ status: 200, description: 'Données du dashboard' })
+  async getDashboard(@Query('companyId') companyId: string) {
+    // Données des 90 derniers jours par défaut
+    const endDate = new Date().toISOString().split('T')[0];
+    const startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    const [summary, timeseries] = await Promise.all([
+      this.treasuryService.getSummary(companyId, startDate, endDate),
+      this.treasuryService.getTimeseries(companyId, startDate, endDate, 'month'),
+    ]);
+
+    return {
+      summary,
+      timeseries,
+      period: { startDate, endDate }
+    };
+  }
 
   @Get('summary')
   @ApiOperation({ summary: 'Résumé de trésorerie (solde initial/final, entrées/sorties, net)' })
