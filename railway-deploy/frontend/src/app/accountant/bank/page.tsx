@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, Link2, X } from "lucide-react";
 import { useToast } from "@/components/providers/ToastProvider";
-import { bankingAPI } from "@/lib/api-client";
+import { apiGet, apiPost, getCompanyId } from "@/lib/api";
 
 export default function BankReconciliationPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -13,28 +13,19 @@ export default function BankReconciliationPage() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [selectedTx, setSelectedTx] = useState<any | null>(null);
   const [note, setNote] = useState("");
-  const [companyId, setCompanyId] = useState<string>("default-company");
   const { show } = useToast();
   const [matching, setMatching] = useState(false);
   const [threshold, setThreshold] = useState<number>(0.8);
   const [limit, setLimit] = useState<number>(100);
 
   useEffect(() => {
-    // Récupérer companyId depuis localStorage si présent
-    if (typeof window !== 'undefined') {
-      const cid = window.localStorage.getItem('company_id') || window.localStorage.getItem('user_company_id');
-      if (cid) setCompanyId(cid);
-    }
-  }, []);
-
-  useEffect(() => {
     loadTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId]);
+  }, [getCompanyId()]);
 
   const loadTransactions = async () => {
     try {
-      const data = await bankingAPI.getTransactions(companyId);
+      const data = await apiGet('/api/v1/banking/transactions', { companyId: getCompanyId() });
       setTransactions(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
@@ -60,7 +51,7 @@ export default function BankReconciliationPage() {
     if (matching) return;
     setMatching(true);
     try {
-      const data = await bankingAPI.autoMatch(companyId);
+      const data = await apiGet('/api/v1/banking/auto-match', { companyId: getCompanyId(), threshold, limit });
       await loadTransactions();
       const variant = data.matched > 0 ? 'success' : 'info';
       show({
@@ -106,9 +97,7 @@ export default function BankReconciliationPage() {
     setSuggestionsLoading(true);
     setSuggestions([]);
     try {
-      const res = await fetch(`/api/v1/banking/transactions/${tx.id}/entry-suggest?companyId=${companyId}`);
-      if (!res.ok) throw new Error('Erreur récupération suggestions');
-      const data = await res.json();
+      const data = await apiGet(`/api/v1/banking/transactions/${tx.id}/entry-suggest`, { companyId: getCompanyId() });
       setSuggestions(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
@@ -121,17 +110,12 @@ export default function BankReconciliationPage() {
   const reconcileWithEntry = async (journalEntryId: string) => {
     if (!selectedTx) return;
     try {
-      const res = await fetch('/api/v1/banking/reconcile-entry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          companyId,
-          bankTransactionId: selectedTx.id,
-          journalEntryId,
-          notes: note || undefined,
-        }),
+      await apiPost('/api/v1/banking/reconcile-entry', {
+        companyId: getCompanyId(),
+        bankTransactionId: selectedTx.id,
+        journalEntryId,
+        notes: note || undefined,
       });
-      if (!res.ok) throw new Error('Erreur rapprochement');
       setSuggestionsOpen(false);
       setNote("");
       await loadTransactions();

@@ -203,6 +203,8 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'banking.anomaly-detection',
     'banking.credit-scoring',
     'banking.provider-management',
+    'banking.transactions',
+    'banking.reconciliation',
     // 🆕 Reporting & Analytics
     'reporting.custom-dashboards',
     'reporting.financial-ratios',
