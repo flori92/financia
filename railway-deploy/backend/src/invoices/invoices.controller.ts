@@ -15,11 +15,18 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { InvoicesService } from './invoices.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Profiles } from '../auth/decorators/profile.decorator';
+import { UserRole, UserProfile } from '../auth/guards/user-profiles';
 import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { CompanyId } from '../common/decorators/company-id.decorator';
 
 @ApiTags('invoices')
 @Controller('invoices')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE)
+@Profiles(UserProfile.ADMIN, UserProfile.ACCOUNTANT, UserProfile.EXPERT_COMPTABLE)
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 

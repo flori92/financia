@@ -342,7 +342,24 @@ const PROFILE_MODULES_BASE: Record<UserProfile, string[]> = {
     'accounting.balance-sheet',
     'accounting.vat',
     'accounting.bank',
-    'accounting.reports'
+    'accounting.reports',
+    // 🆕 Facturation
+    'invoices.create',
+    'invoices.read',
+    'invoices.update',
+    'invoices.validate',
+    'invoices.send',
+    // 🆕 Taxe
+    'tax.vat-declarations',
+    'tax.corporate-tax',
+    'tax.annual-returns',
+    'tax.audit-logs',
+    // 🆕 CRM
+    'crm.contacts',
+    'crm.activities',
+    'crm.opportunities',
+    'crm.lead-scoring',
+    'crm.reports'
   ],
   [UserProfile.MANAGER]: [
     'manager.dashboard',

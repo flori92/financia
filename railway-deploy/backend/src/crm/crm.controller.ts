@@ -29,12 +29,20 @@ import { Contact } from './entities/contact.entity';
 import { Tag } from './entities/tag.entity';
 import { LeadScoringService } from './lead-scoring.service';
 import { FormalizationService } from './formalization.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Profiles } from '../auth/decorators/profile.decorator';
+import { UserRole, UserProfile } from '../auth/guards/user-profiles';
 
 /**
  * Contrôleur pour la gestion CRM (Contacts, Opportunités, Activités)
  */
 @ApiTags('CRM')
 @Controller('crm')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE, UserRole.MANAGER)
+@Profiles(UserProfile.ADMIN, UserProfile.ACCOUNTANT, UserProfile.EXPERT_COMPTABLE, UserProfile.MANAGER)
 @ApiBearerAuth()
 export class CrmController {
   constructor(

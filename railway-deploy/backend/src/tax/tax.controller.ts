@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Header, Body, Res } from '@nestjs/common';
+import { Controller, Get, Post, Query, Header, Body, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import {
   ApiTags,
@@ -11,13 +11,20 @@ import {
 import { TaxService } from './tax.service';
 import { PdfGeneratorService } from './services/pdf-generator.service';
 import { VatReturnDto } from './dto/vat-return.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Profiles } from '../auth/decorators/profile.decorator';
+import { UserRole, UserProfile } from '../auth/guards/user-profiles';
 
 /**
  * Contrôleur pour la gestion fiscale (TVA)
  */
 @ApiTags('Tax')
 @Controller('tax')
-// @UseGuards(JwtAuthGuard) // À décommenter quand l'auth est configurée
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.EXPERT_COMPTABLE, UserRole.TAX_ADMIN)
+@Profiles(UserProfile.ADMIN, UserProfile.ACCOUNTANT, UserProfile.EXPERT_COMPTABLE, UserProfile.TAX)
 @ApiBearerAuth()
 export class TaxController {
   constructor(
