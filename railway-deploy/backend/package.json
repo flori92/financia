@@ -30,6 +30,7 @@
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-node": "^4.22.0",
     "@types/multer": "^2.0.0",
+    "@types/nodemailer": "^7.0.3",
     "@types/pdfkit": "^0.17.3",
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",

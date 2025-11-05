@@ -50,6 +50,7 @@ import { QuotesModule } from './quotes/quotes.module';
 import { RevenueModule } from './revenue/revenue.module';
 import { ControllingModule } from './controlling/controlling.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { ContactModule } from './contact/contact.module';
 
 // HR & Payroll Modules
 import { EmployeeModule } from './employees/employee.module';
@@ -164,6 +165,7 @@ import { AppController } from './app.controller';
 
     // New Modules
     CommonModule,
+    ContactModule,
     GdprModule,
     AutomationModule,
     RbacModule,

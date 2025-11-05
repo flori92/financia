@@ -274,14 +274,14 @@ export default function Page() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button
-              onClick={() => router.push('/register')}
+              onClick={() => router.push('/login')}
               className="group inline-flex items-center gap-3 bg-[#0D9488] text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-[#0B7C74] transition-all shadow-2xl hover:scale-105"
             >
               Commencer l'essai gratuit
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              onClick={() => router.push('/demo')}
+              onClick={() => router.push('/contact-demo')}
               className="inline-flex items-center gap-3 bg-slate-700 text-white text-lg font-semibold px-10 py-5 rounded-xl hover:bg-slate-600 transition-all border border-slate-600"
             >
               Demander une démo
