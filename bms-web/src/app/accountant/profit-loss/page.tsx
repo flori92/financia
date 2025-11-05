@@ -140,6 +140,11 @@ export default function ProfitLossPage() {
     );
   }
 
+  // Vérification de la structure des données avant utilisation
+  const revenue = incomeStatement.revenue || { totalRevenue: 0, ventesProduitsServices: [], autresProduits: [], produitsFinanciers: [] };
+  const expenses = incomeStatement.expenses || { totalExpenses: 0, achatsConsommes: [], chargesPersonnel: [], chargesExternes: [], autresCharges: [], chargesFinancieres: [] };
+  const netIncome = netIncome || 0;
+
   const renderSection = (
     title: string,
     items: IncomeStatementItem[],
@@ -172,8 +177,8 @@ export default function ProfitLossPage() {
     </div>
   );
 
-  const margin = incomeStatement.revenue.totalRevenue > 0
-    ? ((incomeStatement.netIncome / incomeStatement.revenue.totalRevenue) * 100).toFixed(2)
+  const margin = revenue.totalRevenue > 0
+    ? ((netIncome / revenue.totalRevenue) * 100).toFixed(2)
     : "0.00";
 
   return (
@@ -226,7 +231,7 @@ export default function ProfitLossPage() {
             <div>
               <p className="text-sm text-green-700 font-medium">Total Produits</p>
               <p className="text-2xl font-bold text-green-900">
-                {new Intl.NumberFormat("fr-FR").format(incomeStatement.revenue.totalRevenue)} FCFA
+                {new Intl.NumberFormat("fr-FR").format(revenue.totalRevenue)} FCFA
               </p>
             </div>
             <TrendingUp className="w-8 h-8 text-green-600" />
@@ -238,25 +243,25 @@ export default function ProfitLossPage() {
             <div>
               <p className="text-sm text-red-700 font-medium">Total Charges</p>
               <p className="text-2xl font-bold text-red-900">
-                {new Intl.NumberFormat("fr-FR").format(incomeStatement.expenses.totalExpenses)} FCFA
+                {new Intl.NumberFormat("fr-FR").format(expenses.totalExpenses)} FCFA
               </p>
             </div>
             <TrendingDown className="w-8 h-8 text-red-600" />
           </div>
         </div>
 
-        <div className={`bg-gradient-to-br ${incomeStatement.netIncome >= 0 ? "from-blue-50 to-blue-100 border-blue-200" : "from-orange-50 to-orange-100 border-orange-200"} rounded-xl p-4 border`}>
+        <div className={`bg-gradient-to-br ${netIncome >= 0 ? "from-blue-50 to-blue-100 border-blue-200" : "from-orange-50 to-orange-100 border-orange-200"} rounded-xl p-4 border`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-sm font-medium ${incomeStatement.netIncome >= 0 ? "text-blue-700" : "text-orange-700"}`}>
+              <p className={`text-sm font-medium ${netIncome >= 0 ? "text-blue-700" : "text-orange-700"}`}>
                 Résultat Net ({margin}%)
               </p>
-              <p className={`text-2xl font-bold ${incomeStatement.netIncome >= 0 ? "text-blue-900" : "text-orange-900"}`}>
-                {incomeStatement.netIncome >= 0 ? "+" : ""}
-                {new Intl.NumberFormat("fr-FR").format(incomeStatement.netIncome)} FCFA
+              <p className={`text-2xl font-bold ${netIncome >= 0 ? "text-blue-900" : "text-orange-900"}`}>
+                {netIncome >= 0 ? "+" : ""}
+                {new Intl.NumberFormat("fr-FR").format(netIncome)} FCFA
               </p>
             </div>
-            {incomeStatement.netIncome >= 0 ? (
+            {netIncome >= 0 ? (
               <TrendingUp className="w-8 h-8 text-blue-600" />
             ) : (
               <TrendingDown className="w-8 h-8 text-orange-600" />
@@ -275,17 +280,17 @@ export default function ProfitLossPage() {
 
             {renderSection(
               "Ventes de Produits et Services",
-              incomeStatement.revenue.ventesProduitsServices,
+              revenue.ventesProduitsServices,
               "green"
             )}
             {renderSection(
               "Autres Produits d'Exploitation",
-              incomeStatement.revenue.autresProduits,
+              revenue.autresProduits,
               "green"
             )}
             {renderSection(
               "Produits Financiers",
-              incomeStatement.revenue.produitsFinanciers,
+              revenue.produitsFinanciers,
               "green"
             )}
 
@@ -293,7 +298,7 @@ export default function ProfitLossPage() {
               <span>TOTAL PRODUITS</span>
               <span>
                 {new Intl.NumberFormat("fr-FR").format(
-                  incomeStatement.revenue.totalRevenue
+                  revenue.totalRevenue
                 )}{" "}
                 FCFA
               </span>
@@ -308,27 +313,27 @@ export default function ProfitLossPage() {
 
             {renderSection(
               "Achats Consommés",
-              incomeStatement.expenses.achatsConsommes,
+              expenses.achatsConsommes,
               "red"
             )}
             {renderSection(
               "Charges de Personnel",
-              incomeStatement.expenses.chargesPersonnel,
+              expenses.chargesPersonnel,
               "red"
             )}
             {renderSection(
               "Charges Externes",
-              incomeStatement.expenses.chargesExternes,
+              expenses.chargesExternes,
               "red"
             )}
             {renderSection(
               "Autres Charges d'Exploitation",
-              incomeStatement.expenses.autresCharges,
+              expenses.autresCharges,
               "red"
             )}
             {renderSection(
               "Charges Financières",
-              incomeStatement.expenses.chargesFinancieres,
+              expenses.chargesFinancieres,
               "red"
             )}
 
@@ -336,7 +341,7 @@ export default function ProfitLossPage() {
               <span>TOTAL CHARGES</span>
               <span>
                 {new Intl.NumberFormat("fr-FR").format(
-                  incomeStatement.expenses.totalExpenses
+                  expenses.totalExpenses
                 )}{" "}
                 FCFA
               </span>
@@ -347,13 +352,13 @@ export default function ProfitLossPage() {
         <div className="mt-8 pt-6 border-t-4 border-gray-300">
           <div
             className={`flex justify-between text-2xl font-bold ${
-              incomeStatement.netIncome >= 0 ? "text-green-600" : "text-red-600"
+              netIncome >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
             <span>RÉSULTAT NET DE L'EXERCICE</span>
             <span>
-              {incomeStatement.netIncome >= 0 ? "+" : ""}
-              {new Intl.NumberFormat("fr-FR").format(incomeStatement.netIncome)} FCFA
+              {netIncome >= 0 ? "+" : ""}
+              {new Intl.NumberFormat("fr-FR").format(netIncome)} FCFA
             </span>
           </div>
           <p className="text-sm text-gray-500 mt-2">
