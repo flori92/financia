@@ -354,24 +354,24 @@ export class SeedController {
       const accountant = users.find(u => u.email === 'comptable@cabinet.bj');
       const entrepreneur = users.find(u => u.email === 'entrepreneur@test.bj');
 
-      // Créer les entreprises avec colonnes minimales
+      // Créer les entreprises avec colonnes ultra-minimales
       const company1Result = await this.dataSource.query(`
-        INSERT INTO companies (name, nif, email, is_active)
-        VALUES ('Restaurant Le Béninois', '1234567890', 'contact@restaurant-beninois.bj', true)
+        INSERT INTO companies (name, nif, email)
+        VALUES ('Restaurant Le Béninois', '1234567890', 'contact@restaurant-beninois.bj')
         ON CONFLICT (nif) DO UPDATE SET name = EXCLUDED.name
         RETURNING id;
       `);
       const company1Id = company1Result[0]?.id;
 
       await this.dataSource.query(`
-        INSERT INTO companies (name, nif, email, is_active)
-        VALUES ('Tech Afrique SARL', '0987654321', 'info@tech-afrique.bj', true)
+        INSERT INTO companies (name, nif, email)
+        VALUES ('Tech Afrique SARL', '0987654321', 'info@tech-afrique.bj')
         ON CONFLICT (nif) DO NOTHING;
       `);
 
       await this.dataSource.query(`
-        INSERT INTO companies (name, nif, email, is_active)
-        VALUES ('Global Services SARL', '1122334455', 'contact@global-services.bj', true)
+        INSERT INTO companies (name, nif, email)
+        VALUES ('Global Services SARL', '1122334455', 'contact@global-services.bj')
         ON CONFLICT (nif) DO NOTHING;
       `);
 
