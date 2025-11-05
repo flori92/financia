@@ -136,10 +136,14 @@ export function useDashboardData() {
 
       if (agedReceivables.status === "fulfilled") {
         next.agedReceivables = agedReceivables.value as AgedBalance;
+      } else {
+        console.warn('[Dashboard] aged-balance receivables non disponible (endpoint backend manquant)');
       }
 
       if (agedPayables.status === "fulfilled") {
         next.agedPayables = agedPayables.value as AgedBalance;
+      } else {
+        console.warn('[Dashboard] aged-balance payables non disponible (endpoint backend manquant)');
       }
 
       if (bankingTx.status === "fulfilled") {

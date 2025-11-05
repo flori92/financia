@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { LayoutDashboard, FileText, Wallet, ArrowLeftRight, Users, LineChart, Landmark, GraduationCap, FileCheck, Settings, Building2, Receipt, Lock, Clock, UserCheck, Menu, X, Factory, ShoppingCart, Briefcase, FolderKanban, Repeat, Brain, BarChart3, TrendingUp, ArrowRightLeft, ChevronDown, ChevronRight, MessageSquare, GitBranch } from "lucide-react";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -25,6 +25,8 @@ const ACCOUNTANT_NAV = [
   { href: "/accountant/validation", label: "Centre de Validation", icon: FileCheck },
   { href: "/crm/contacts", label: "CRM", icon: Users },
   { href: "/hr", label: "RH", icon: Briefcase },
+  { href: "/communications/emails", label: "Communications", icon: MessageSquare },
+  { href: "/treasury/operations", label: "Opérations", icon: GitBranch },
   { href: "/accountant/chart-of-accounts", label: "Plan Comptable SYSCOHADA", icon: Landmark },
   { href: "/accountant/journal", label: "Journal des Écritures", icon: FileText },
   { href: "/accountant/general-ledger", label: "Grand Livre", icon: LayoutDashboard },
