@@ -146,7 +146,10 @@ export function getCompanyId() {
     }
     return cid;
   }
-  if (typeof window !== 'undefined') return window.localStorage.getItem('companyId') || undefined;
+  if (typeof window !== 'undefined') {
+    // Chercher d'abord 'companyId', puis fallback sur 'company_id' (ancien format)
+    return window.localStorage.getItem('companyId') || window.localStorage.getItem('company_id') || undefined;
+  }
   return undefined;
 }
 
