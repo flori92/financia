@@ -11,7 +11,7 @@ export class ContactService {
   constructor(private configService: ConfigService) {
     // Configuration du transporteur email
     // Utilise les variables d'environnement pour la configuration SMTP
-    this.transporter = nodemailer.createTransporter({
+    this.transporter = nodemailer.createTransport({
       host: this.configService.get('SMTP_HOST', 'smtp.gmail.com'),
       port: this.configService.get('SMTP_PORT', 587),
       secure: false, // true pour 465, false pour les autres ports
