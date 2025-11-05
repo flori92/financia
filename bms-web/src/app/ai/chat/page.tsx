@@ -69,7 +69,7 @@ export default function AIChatPage() {
 
     try {
       // Appel API backend
-      const response = await aiAPI.chat(message, {
+      const response = await aiAPI.chat(textToSend, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

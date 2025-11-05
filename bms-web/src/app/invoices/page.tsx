@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Send, Eye, Edit, X } from "lucide-react";
 import { EmailDialog } from "@/components/shared/EmailDialog";
 import { invoicesAPI } from '@/lib/api-client';
+import { apiGet } from '@/lib/api';
 
 
 export default function InvoicesPage() {
@@ -21,7 +22,7 @@ export default function InvoicesPage() {
     try {
       const [invoicesRes, clientsRes] = await Promise.all([
         invoicesAPI.getInvoices().catch(() => []),
-        crmAPI.getContacts().catch(() => [])
+        apiGet('/api/v1/crm/contacts').catch(() => [])
       ]);
       setInvoices(Array.isArray(invoicesRes) ? invoicesRes : []);
       setClients(Array.isArray(clientsRes) ? clientsRes : []);

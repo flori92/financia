@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiGet } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Mail, Send, Inbox, Archive, Trash2, Star, Paperclip } from 'lucide-react';
@@ -30,8 +31,8 @@ export default function EmailsPage() {
 
   useEffect(() => {
     Promise.all([
-      communicationsAPI.getEmails().catch(() => []),
-      communicationsAPI.getTemplates().catch(() => [])
+      apiGet('/api/v1/communications/emails').catch(() => []),
+      apiGet('/api/v1/communications/templates').catch(() => [])
     ]).then(([emailsData, templatesData]) => {
       setEmails(emailsData);
       setTemplates(templatesData);
