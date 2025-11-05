@@ -11,6 +11,20 @@ function buildQuery(params?: Query) {
   return s ? `?${s}` : '';
 }
 
+function handleAuthError(status: number) {
+  if (status === 401 || status === 403) {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('bms_token');
+      window.localStorage.removeItem('token');
+      window.localStorage.removeItem('user_data');
+      window.localStorage.removeItem('user_email');
+      window.localStorage.removeItem('user_role');
+      window.localStorage.removeItem('user_profile');
+      window.location.href = '/login';
+    }
+  }
+}
+
 export async function apiDelete(path: string, params?: Query, init?: RequestInit) {
   const base = getBaseUrl().replace(/\/$/, '');
   const url = `${base}${path}${buildQuery(params)}`;
@@ -23,7 +37,10 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
     },
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
@@ -67,7 +84,10 @@ export async function apiGet(path: string, params?: Query, init?: RequestInit) {
     },
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
@@ -99,7 +119,10 @@ export async function apiPost(path: string, body: any, params?: Query, init?: Re
     body: JSON.stringify(body ?? {}),
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
@@ -119,7 +142,10 @@ export async function apiPatch(path: string, body: any, params?: Query, init?: R
     body: JSON.stringify(body ?? {}),
     ...init,
   } as RequestInit);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    handleAuthError(res.status);
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
   return res.text();
