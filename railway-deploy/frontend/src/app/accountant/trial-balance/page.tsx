@@ -225,7 +225,7 @@ export default function TrialBalancePage() {
               </tr>
             </thead>
             <tbody>
-              {trialBalance.items.map((item, idx) => (
+              {(trialBalance?.items || []).map((item, idx) => (
                 <tr
                   key={idx}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
