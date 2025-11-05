@@ -431,10 +431,10 @@ export default function [Profile]DashboardPage() {
 2. ✅ Dashboard Expert Comptable - COMPLÉTÉ (/expert-comptable/dashboard)
 3. ✅ Dashboard Entrepreneur - COMPLÉTÉ (/entrepreneur/dashboard)
 
-### **Phase 2 - Important** (Semaine prochaine)
-4. 🔧 Dashboard RH Manager - À créer/améliorer
-5. 🔧 Dashboard Manager - À créer/améliorer
-6. 🔧 Dashboard Employé - À créer/améliorer
+### **Phase 2 - Important** ✅ COMPLÈTE
+4. ✅ Dashboard RH Manager - COMPLÉTÉ (/hr-manager/dashboard)
+5. ✅ Dashboard Manager - COMPLÉTÉ (/manager-space/dashboard)
+6. ✅ Dashboard Employé - COMPLÉTÉ (/employee-space/dashboard)
 
 ### **Phase 3 - Secondaire** (Dans 2 semaines)
 7. 🔧 Dashboard Administration Fiscale - À créer
