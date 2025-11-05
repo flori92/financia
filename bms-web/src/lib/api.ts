@@ -12,8 +12,8 @@ function buildQuery(params?: Query) {
 }
 
 function handleAuthError(status: number) {
-  if (status === 401 || status === 403) {
-    console.error(`[AUTH] Erreur d'authentification ${status} - Redirection vers login`);
+  if (status === 401) {
+    console.error(`[AUTH] Erreur d'authentification 401 - Session expirée`);
     // Clear auth data
     if (typeof window !== 'undefined') {
       console.log('[AUTH] Nettoyage des données d\'authentification...');
@@ -29,6 +29,7 @@ function handleAuthError(status: number) {
       window.location.href = '/login';
     }
   }
+  // 403 is handled by throwing an error with a clear message
 }
 
 export async function apiDelete(path: string, params?: Query, init?: RequestInit) {
@@ -45,6 +46,9 @@ export async function apiDelete(path: string, params?: Query, init?: RequestInit
   } as RequestInit);
   if (!res.ok) {
     handleAuthError(res.status);
+    if (res.status === 403) {
+      throw new Error('PERMISSION_DENIED');
+    }
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -103,6 +107,9 @@ export async function apiGet(path: string, params?: Query, init?: RequestInit) {
   if (!res.ok) {
     console.error(`[API] Erreur ${res.status} sur GET ${path}`);
     handleAuthError(res.status);
+    if (res.status === 403) {
+      throw new Error('PERMISSION_DENIED');
+    }
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -138,6 +145,9 @@ export async function apiPost(path: string, body: any, params?: Query, init?: Re
   } as RequestInit);
   if (!res.ok) {
     handleAuthError(res.status);
+    if (res.status === 403) {
+      throw new Error('PERMISSION_DENIED');
+    }
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -161,6 +171,9 @@ export async function apiPut(path: string, body: any, params?: Query, init?: Req
   } as RequestInit);
   if (!res.ok) {
     handleAuthError(res.status);
+    if (res.status === 403) {
+      throw new Error('PERMISSION_DENIED');
+    }
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';
@@ -184,6 +197,9 @@ export async function apiPatch(path: string, body: any, params?: Query, init?: R
   } as RequestInit);
   if (!res.ok) {
     handleAuthError(res.status);
+    if (res.status === 403) {
+      throw new Error('PERMISSION_DENIED');
+    }
     throw new Error(`Erreur ${res.status}: ${res.statusText}`);
   }
   const ct = res.headers.get('content-type') || '';

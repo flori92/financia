@@ -7,6 +7,7 @@ import {
   Query,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,13 +24,14 @@ import { BankAccount } from './entities/bank-account.entity';
 import { ReconcileEntryDto } from './dto/reconcile-entry.dto';
 import { AutoMatchDto } from './dto/auto-match.dto';
 import { BankReconciliation } from './entities/bank-reconciliation.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 /**
  * Contrôleur pour la gestion bancaire
  */
 @ApiTags('Banking')
 @Controller('banking')
-// @UseGuards(JwtAuthGuard) // À décommenter quand l'auth est configurée
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class BankingController {
   constructor(private readonly bankingService: BankingService) {}

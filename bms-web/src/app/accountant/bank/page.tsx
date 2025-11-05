@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Download, Upload, RefreshCw, CheckCircle, AlertCircle, Link2, X } from "lucide-react";
 import { useToast } from "@/components/providers/ToastProvider";
 import { bankingAPI } from "@/lib/api-client";
+import { PermissionDenied } from "@/components/ui/permission-denied";
 
 export default function BankReconciliationPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -18,6 +19,7 @@ export default function BankReconciliationPage() {
   const [matching, setMatching] = useState(false);
   const [threshold, setThreshold] = useState<number>(0.8);
   const [limit, setLimit] = useState<number>(100);
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
     // Récupérer companyId depuis localStorage si présent
@@ -36,8 +38,12 @@ export default function BankReconciliationPage() {
     try {
       const data = await bankingAPI.getTransactions(companyId);
       setTransactions(Array.isArray(data) ? data : []);
-    } catch (err) {
+      setPermissionDenied(false);
+    } catch (err: any) {
       console.error(err);
+      if (err?.message === 'PERMISSION_DENIED') {
+        setPermissionDenied(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -147,6 +153,21 @@ export default function BankReconciliationPage() {
   const difference = Math.abs(bankBalance - bookBalance);
   const reconciledCount = transactions.filter(t => t.status === 'reconciled').length;
   const pendingCount = transactions.filter(t => t.status === 'pending').length;
+
+  if (permissionDenied) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold">Rapprochement bancaire</h1>
+          <p className="text-gray-600">Lettrage automatique et rapprochement intelligent</p>
+        </div>
+        <PermissionDenied 
+          feature="Rapprochement bancaire"
+          message="Votre profil ne dispose pas des permissions nécessaires pour accéder aux transactions bancaires."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
