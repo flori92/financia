@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SimpleTestSeedService } from './seeds/simple-test.seed';
+import { runDevSeed } from './seeds/dev.seed';
 import * as bcrypt from 'bcrypt';
 
 @ApiTags('Database Seeds')
@@ -303,5 +304,33 @@ export class SeedController {
         stack: error.stack
       };
     }
+  }
+
+  @Post('seed-demo-data')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Initialiser toutes les données de démonstration',
+    description: 'Crée des utilisateurs, entreprises, factures, paiements et plan comptable OHADA complet'
+  })
+  @ApiResponse({ status: 200, description: 'Données de démonstration créées avec succès' })
+  async seedDemoData() {
+    await runDevSeed(this.dataSource);
+
+    return {
+      success: true,
+      message: 'Données de démonstration créées avec succès !',
+      data: {
+        users: 4,
+        companies: 3,
+        invoices: 'Multiple',
+        accounts: '40+ comptes OHADA',
+        credentials: [
+          { email: 'admin@bms.bj', password: 'password123', role: 'Admin' },
+          { email: 'comptable@cabinet.bj', password: 'password123', role: 'Comptable' },
+          { email: 'entrepreneur@test.bj', password: 'password123', role: 'Entrepreneur' },
+          { email: 'taxadmin@dgi.bj', password: 'password123', role: 'Administration Fiscale' },
+        ]
+      }
+    };
   }
 }

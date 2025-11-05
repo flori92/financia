@@ -20,36 +20,36 @@ export async function runDevSeed(dataSource: DataSource) {
     
     // Admin
     const [admin] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
-      VALUES ('admin@bms.bj', $1, 'Admin', 'BMS', 'admin', 'admin', '+22997000001', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'admin', primary_profile = 'admin'
+      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
+      VALUES ('admin@bms.bj', $1, 'Admin', 'BMS', 'admin', '+22997000001', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'admin'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Admin created:', admin.id);
 
     // Tax Admin
     const [taxAdmin] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
-      VALUES ('taxadmin@dgi.bj', $1, 'Tax', 'Admin', 'tax_admin', 'tax_admin', '+22997000002', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'tax_admin', primary_profile = 'tax_admin'
+      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
+      VALUES ('taxadmin@dgi.bj', $1, 'Tax', 'Admin', 'tax_admin', '+22997000002', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'tax_admin'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Tax Admin created:', taxAdmin.id);
 
     // Accountant
     const [accountant] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
-      VALUES ('comptable@cabinet.bj', $1, 'Jean', 'Comptable', 'accountant', 'accountant', '+22997000003', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'accountant', primary_profile = 'accountant'
+      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
+      VALUES ('comptable@cabinet.bj', $1, 'Jean', 'Comptable', 'accountant', '+22997000003', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'accountant'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Accountant created:', accountant.id);
 
     // Entrepreneur
     const [entrepreneur] = await queryRunner.query(`
-      INSERT INTO users (email, password, first_name, last_name, role, primary_profile, phone, email_verified, is_active)
-      VALUES ('entrepreneur@test.bj', $1, 'Marie', 'Entrepreneur', 'user', 'entrepreneur', '+22997000004', true, true)
-      ON CONFLICT (email) DO UPDATE SET role = 'user', primary_profile = 'entrepreneur'
+      INSERT INTO users (email, password, first_name, last_name, role, phone, email_verified, is_active)
+      VALUES ('entrepreneur@test.bj', $1, 'Marie', 'Entrepreneur', 'user', '+22997000004', true, true)
+      ON CONFLICT (email) DO UPDATE SET role = 'user'
       RETURNING id;
     `, [hashedPassword]);
     console.log('✅ Entrepreneur created:', entrepreneur.id);
@@ -73,6 +73,14 @@ export async function runDevSeed(dataSource: DataSource) {
     const company1Id = company1?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Restaurant Le Béninois']))?.[0]?.id;
     if (company1Id) {
       console.log('✅ Company 1 created:', company1Id);
+
+      // Associer l'entreprise aux utilisateurs
+      await queryRunner.query(`
+        INSERT INTO company_users (company_id, user_id, role, is_active)
+        VALUES ($1, $2, 'owner', true), ($1, $3, 'accountant', true), ($1, $4, 'admin', true)
+        ON CONFLICT (company_id, user_id) DO NOTHING;
+      `, [company1Id, entrepreneur.id, accountant.id, admin.id]);
+      console.log('✅ Users linked to Company 1');
 
       // 3. Créer des factures
       console.log('Creating test invoices...');
@@ -150,6 +158,14 @@ export async function runDevSeed(dataSource: DataSource) {
     const company2Id = company2?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Tech Afrique']))?.[0]?.id;
     if (company2Id) {
       console.log('✅ Company 2 created:', company2Id);
+
+      // Associer l'entreprise aux utilisateurs
+      await queryRunner.query(`
+        INSERT INTO company_users (company_id, user_id, role, is_active)
+        VALUES ($1, $2, 'owner', true), ($1, $3, 'accountant', true)
+        ON CONFLICT (company_id, user_id) DO NOTHING;
+      `, [company2Id, entrepreneur.id, accountant.id]);
+      console.log('✅ Users linked to Company 2');
       const [inv2_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
@@ -223,6 +239,14 @@ export async function runDevSeed(dataSource: DataSource) {
     const company3Id = company3?.id || (await queryRunner.query(`SELECT id FROM companies WHERE name = $1 LIMIT 1;`, ['Global Services SARL']))?.[0]?.id;
     if (company3Id) {
       console.log('✅ Company 3 created:', company3Id);
+
+      // Associer l'entreprise aux utilisateurs
+      await queryRunner.query(`
+        INSERT INTO company_users (company_id, user_id, role, is_active)
+        VALUES ($1, $2, 'owner', true), ($1, $3, 'accountant', true)
+        ON CONFLICT (company_id, user_id) DO NOTHING;
+      `, [company3Id, entrepreneur.id, accountant.id]);
+      console.log('✅ Users linked to Company 3');
       const [inv3_1] = await queryRunner.query(`
         INSERT INTO invoices (
           company_id, invoice_number, invoice_type, invoice_date, due_date,
