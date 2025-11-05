@@ -30,16 +30,25 @@ class ApiClient {
     };
   }
 
+  private getToken(): string | undefined {
+    if (typeof window !== 'undefined') {
+      return window.localStorage.getItem('bms_token') || window.localStorage.getItem('token') || undefined;
+    }
+    return undefined;
+  }
+
   private async request<T = any>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    const token = this.getToken();
     
     const config: RequestInit = {
       ...options,
       headers: {
         ...this.defaultHeaders,
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...options.headers,
       },
     };
@@ -54,6 +63,12 @@ class ApiClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        if (response.status === 401 && typeof window !== 'undefined') {
+          // Clear auth and redirect to login
+          window.localStorage.removeItem('bms_token');
+          window.localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
