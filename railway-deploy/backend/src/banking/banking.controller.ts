@@ -41,7 +41,6 @@ import { RequirePermissions } from '../rbac/decorators/require-permissions.decor
 @Controller('banking')
 @UseGuards(JwtAuthGuard, RolesGuard, ProfileGuard)
 @ApiBearerAuth()
-@RequirePermissions('banking:read')
 export class BankingController {
   constructor(private readonly bankingService: BankingService) {}
 
