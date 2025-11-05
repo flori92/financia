@@ -1,14 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../rbac/guards/permissions.guard';
 import { RequirePermissions } from '../rbac/decorators/permissions.decorator';
-import { GetCompany } from '../common/decorators/get-company.decorator';
+import { CompanyId } from '../common/decorators/company-id.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dto/create-user.dto';
 
 @ApiTags('Users')
-@Controller('api/v1/users')
+@Controller('users')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiBearerAuth()
 export class UsersController {
@@ -17,25 +17,28 @@ export class UsersController {
   @Get()
   @RequirePermissions('users:read')
   @ApiOperation({ summary: 'Get all users' })
+  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'List of users' })
-  async findAll(@GetCompany() companyId: string) {
+  async findAll(@Query('companyId') companyId: string) {
     return this.usersService.findAll(companyId);
   }
 
   @Get('stats')
   @RequirePermissions('users:read')
   @ApiOperation({ summary: 'Get user statistics' })
+  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'User statistics' })
-  async getStatistics(@GetCompany() companyId: string) {
+  async getStatistics(@Query('companyId') companyId: string) {
     return this.usersService.getStatistics(companyId);
   }
 
   @Get(':id')
   @RequirePermissions('users:read')
   @ApiOperation({ summary: 'Get user by ID' })
+  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'User details' })
   async findOne(
-    @GetCompany() companyId: string,
+    @Query('companyId') companyId: string,
     @Param('id') id: string,
   ) {
     return this.usersService.findOne(companyId, id);
@@ -46,7 +49,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Create new user' })
   @ApiResponse({ status: 201, description: 'User created' })
   async create(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @Body() createUserDto: CreateUserDto,
   ) {
     return this.usersService.create(companyId, createUserDto);
@@ -55,9 +58,10 @@ export class UsersController {
   @Put(':id')
   @RequirePermissions('users:write')
   @ApiOperation({ summary: 'Update user' })
+  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'User updated' })
   async update(
-    @GetCompany() companyId: string,
+    @Query('companyId') companyId: string,
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
@@ -67,9 +71,10 @@ export class UsersController {
   @Post(':id/change-password')
   @RequirePermissions('users:write')
   @ApiOperation({ summary: 'Change user password' })
+  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'Password changed' })
   async changePassword(
-    @GetCompany() companyId: string,
+    @Query('companyId') companyId: string,
     @Param('id') id: string,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
@@ -80,9 +85,10 @@ export class UsersController {
   @Delete(':id')
   @RequirePermissions('users:delete')
   @ApiOperation({ summary: 'Delete user (soft delete)' })
+  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'User deleted' })
   async delete(
-    @GetCompany() companyId: string,
+    @Query('companyId') companyId: string,
     @Param('id') id: string,
   ) {
     await this.usersService.delete(companyId, id);
@@ -92,9 +98,10 @@ export class UsersController {
   @Delete(':id/hard')
   @RequirePermissions('users:delete')
   @ApiOperation({ summary: 'Permanently delete user' })
+  @ApiQuery({ name: 'companyId', required: true })
   @ApiResponse({ status: 200, description: 'User permanently deleted' })
   async hardDelete(
-    @GetCompany() companyId: string,
+    @Query('companyId') companyId: string,
     @Param('id') id: string,
   ) {
     await this.usersService.hardDelete(companyId, id);

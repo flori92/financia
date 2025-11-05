@@ -1,807 +1,600 @@
 # BMS Immediate Action Plan
-**Start Date:** Today  
-**Duration:** 2 Weeks  
-**Goal:** Fix critical issues and stabilize the platform
+**Date:** November 5, 2025  
+**Status:** Post-Analysis - Ready for Implementation
 
 ---
 
-## DAY 1: Database & Infrastructure Setup
+## ✅ COMPLETED
+- Controller route standardization (removed `api/v1` prefix from decorators)
 
-### Morning (4 hours)
+---
+
+## 🔥 CRITICAL ACTIONS (Next 48 Hours)
+
+### 1. Enable Redis Caching (4 hours)
+**Why:** Performance and scalability  
+**Impact:** HIGH
+
 ```bash
-# 1. Fix TypeORM configuration
 cd bms/api-gateway
-
-# Create ormconfig.ts
-cat > ormconfig.ts << 'EOF'
-import { DataSource } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
-
-const configService = new ConfigService();
-
-export default new DataSource({
-  type: 'postgres',
-  host: configService.get('DB_HOST', 'localhost'),
-  port: parseInt(configService.get('DB_PORT', '5432')),
-  username: configService.get('DB_USER', 'postgres'),
-  password: configService.get('DB_PASSWORD', 'postgres'),
-  database: configService.get('DB_NAME', 'bms'),
-  entities: ['src/**/*.entity.ts'],
-  migrations: ['src/database/migrations/*.ts'],
-  synchronize: false,
-  logging: true,
-});
-EOF
-
-# 2. Generate initial migration
-npm run typeorm migration:generate -- -n InitialSchema
-
-# 3. Run migrations
-npm run typeorm migration:run
-
-# 4. Verify database
-psql -U postgres -d bms -c "\dt"
+npm install @nestjs/cache-manager cache-manager cache-manager-redis-store
 ```
 
-### Afternoon (4 hours)
-```bash
-# 5. Setup Redis
-docker run -d --name bms-redis -p 6379:6379 redis:alpine
-
-# 6. Enable Redis in AppModule
-# Edit bms/api-gateway/src/app.module.ts
-# Uncomment Redis cache configuration
-
-# 7. Install cache dependencies
-npm install cache-manager cache-manager-redis-store
-
-# 8. Test Redis connection
-redis-cli ping
-```
-
----
-
-## DAY 2: Security Hardening
-
-### Morning (4 hours)
-```bash
-# 1. Implement rate limiting
-cd bms/api-gateway/src/common/guards
-cat > rate-limit.guard.ts << 'EOF'
-import { Injectable, CanActivate, ExecutionContext, HttpException } from '@nestjs/common';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-
-@Injectable()
-export class RateLimitGuard implements CanActivate {
-  constructor(@InjectRedis() private redis: Redis) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const ip = request.ip;
-    const key = `rate-limit:${ip}`;
-    
-    const requests = await this.redis.incr(key);
-    if (requests === 1) {
-      await this.redis.expire(key, 60);
-    }
-    
-    if (requests > 100) {
-      throw new HttpException('Too many requests', 429);
-    }
-    
-    return true;
-  }
-}
-EOF
-
-# 2. Add to app.module.ts providers
-# {
-#   provide: APP_GUARD,
-#   useClass: RateLimitGuard,
-# }
-
-# 3. Install dependencies
-npm install @nestjs-modules/ioredis ioredis
-```
-
-### Afternoon (4 hours)
-```bash
-# 4. Implement comprehensive error handling
-cd bms/api-gateway/src/common/filters
-cat > all-exceptions.filter.ts << 'EOF'
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
-
-@Catch()
-export class AllExceptionsFilter implements ExceptionFilter {
-  private readonly logger = new Logger('ExceptionFilter');
-
-  catch(exception: unknown, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
-
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const message = exception instanceof HttpException
-      ? exception.getResponse()
-      : 'Internal server error';
-
-    const errorResponse = {
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      method: request.method,
-      message: typeof message === 'string' ? message : (message as any).message,
-    };
-
-    this.logger.error(`${request.method} ${request.url}`, exception instanceof Error ? exception.stack : 'Unknown error');
-
-    response.status(status).json(errorResponse);
-  }
-}
-EOF
-
-# 5. Register in main.ts
-# app.useGlobalFilters(new AllExceptionsFilter());
-```
-
----
-
-## DAY 3: Storage & File Management
-
-### Morning (4 hours)
-```bash
-# 1. Setup MinIO
-docker run -d \
-  -p 9000:9000 \
-  -p 9001:9001 \
-  --name bms-minio \
-  -e "MINIO_ROOT_USER=minioadmin" \
-  -e "MINIO_ROOT_PASSWORD=minioadmin" \
-  minio/minio server /data --console-address ":9001"
-
-# 2. Create MinIO provider
-cd bms/api-gateway/src/uploads/providers
-cat > minio.provider.ts << 'EOF'
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as Minio from 'minio';
-import { StorageProvider } from './storage-provider.interface';
-
-@Injectable()
-export class MinioProvider implements StorageProvider {
-  private client: Minio.Client;
-  private bucket: string;
-
-  constructor(private config: ConfigService) {
-    this.client = new Minio.Client({
-      endPoint: config.get('MINIO_ENDPOINT', 'localhost'),
-      port: parseInt(config.get('MINIO_PORT', '9000')),
-      useSSL: config.get('MINIO_USE_SSL') === 'true',
-      accessKey: config.get('MINIO_ACCESS_KEY', 'minioadmin'),
-      secretKey: config.get('MINIO_SECRET_KEY', 'minioadmin'),
-    });
-    this.bucket = config.get('MINIO_BUCKET', 'bms-documents');
-    this.ensureBucket();
-  }
-
-  private async ensureBucket() {
-    const exists = await this.client.bucketExists(this.bucket);
-    if (!exists) {
-      await this.client.makeBucket(this.bucket, 'us-east-1');
-    }
-  }
-
-  async saveFile(buffer: Buffer, fileName: string): Promise<string> {
-    await this.client.putObject(this.bucket, fileName, buffer);
-    return fileName;
-  }
-
-  async getFile(filePath: string): Promise<Buffer> {
-    const stream = await this.client.getObject(this.bucket, filePath);
-    const chunks: Buffer[] = [];
-    return new Promise((resolve, reject) => {
-      stream.on('data', chunk => chunks.push(chunk));
-      stream.on('end', () => resolve(Buffer.concat(chunks)));
-      stream.on('error', reject);
-    });
-  }
-
-  async deleteFile(filePath: string): Promise<void> {
-    await this.client.removeObject(this.bucket, filePath);
-  }
-
-  async getSignedUrl(filePath: string, expirySeconds = 3600): Promise<string> {
-    return this.client.presignedGetObject(this.bucket, filePath, expirySeconds);
-  }
-}
-EOF
-
-# 3. Update uploads.module.ts to provide MinioProvider
-```
-
-### Afternoon (4 hours)
-```bash
-# 4. Test file upload
-curl -X POST http://localhost:3001/api/v1/uploads \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "file=@test.pdf"
-
-# 5. Verify in MinIO console
-open http://localhost:9001
-
-# 6. Test file download
-curl http://localhost:3001/api/v1/uploads/FILE_ID \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -o downloaded.pdf
-```
-
----
-
-## DAY 4-5: Complete Banking Integrations
-
-### Bridge API Implementation
-```bash
-cd bms/api-gateway/src/integrations/banking
-cat > bridge-api.service.ts << 'EOF'
-import { Injectable, HttpException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
-
-@Injectable()
-export class BridgeApiService {
-  private readonly baseUrl = 'https://api.bridgeapi.io/v2';
-  private readonly clientId: string;
-  private readonly clientSecret: string;
-
-  constructor(private config: ConfigService) {
-    this.clientId = config.get('BRIDGE_API_CLIENT_ID');
-    this.clientSecret = config.get('BRIDGE_API_CLIENT_SECRET');
-  }
-
-  async authenticate(): Promise<string> {
-    try {
-      const response = await axios.post(`${this.baseUrl}/authenticate`, {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-      });
-      return response.data.access_token;
-    } catch (error) {
-      throw new HttpException('Bridge API authentication failed', 500);
-    }
-  }
-
-  async getBanks(): Promise<any[]> {
-    const token = await this.authenticate();
-    const response = await axios.get(`${this.baseUrl}/banks`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data.resources;
-  }
-
-  async connectBank(userId: string, bankId: number, credentials: any): Promise<any> {
-    const token = await this.authenticate();
-    const response = await axios.post(
-      `${this.baseUrl}/connect/items/add`,
-      {
-        prefill_email: userId,
-        bank_id: bankId,
-        ...credentials,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return response.data;
-  }
-
-  async getAccounts(itemId: string): Promise<any[]> {
-    const token = await this.authenticate();
-    const response = await axios.get(`${this.baseUrl}/accounts`, {
-      params: { item_id: itemId },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data.resources;
-  }
-
-  async getTransactions(accountId: string, since?: Date): Promise<any[]> {
-    const token = await this.authenticate();
-    const response = await axios.get(`${this.baseUrl}/transactions`, {
-      params: {
-        account_id: accountId,
-        since: since?.toISOString(),
-        limit: 500,
-      },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data.resources;
-  }
-
-  async syncTransactions(itemId: string): Promise<void> {
-    const token = await this.authenticate();
-    await axios.post(
-      `${this.baseUrl}/connect/items/${itemId}/refresh`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-  }
-}
-EOF
-
-# Add to banking.module.ts providers
-```
-
----
-
-## DAY 6-7: E-commerce Integrations
-
-### WooCommerce Integration
-```bash
-cd bms/api-gateway/src/integrations/ecommerce
-
-# Install WooCommerce SDK
-npm install @woocommerce/woocommerce-rest-api
-
-cat > woocommerce.service.ts << 'EOF'
-import { Injectable } from '@nestjs/common';
-import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api';
-
-@Injectable()
-export class WooCommerceService {
-  private api: WooCommerceRestApi;
-
-  constructor(storeUrl: string, consumerKey: string, consumerSecret: string) {
-    this.api = new WooCommerceRestApi({
-      url: storeUrl,
-      consumerKey,
-      consumerSecret,
-      version: 'wc/v3',
-    });
-  }
-
-  async getOrders(status?: string): Promise<any[]> {
-    const response = await this.api.get('orders', { status, per_page: 100 });
-    return response.data;
-  }
-
-  async getProducts(): Promise<any[]> {
-    const response = await this.api.get('products', { per_page: 100 });
-    return response.data;
-  }
-
-  async getCustomers(): Promise<any[]> {
-    const response = await this.api.get('customers', { per_page: 100 });
-    return response.data;
-  }
-
-  async updateStock(productId: number, quantity: number): Promise<void> {
-    await this.api.put(`products/${productId}`, {
-      stock_quantity: quantity,
-    });
-  }
-
-  async syncOrders(companyId: string): Promise<number> {
-    const orders = await this.getOrders('processing');
-    let synced = 0;
-    
-    for (const order of orders) {
-      // Create invoice from order
-      const invoiceData = this.transformOrderToInvoice(order, companyId);
-      // Save to database
-      synced++;
-    }
-    
-    return synced;
-  }
-
-  private transformOrderToInvoice(order: any, companyId: string): any {
-    return {
-      companyId,
-      customerName: `${order.billing.first_name} ${order.billing.last_name}`,
-      customerEmail: order.billing.email,
-      items: order.line_items.map((item: any) => ({
-        description: item.name,
-        quantity: item.quantity,
-        unitPrice: parseFloat(item.price),
-        total: parseFloat(item.total),
-      })),
-      total: parseFloat(order.total),
-      currency: order.currency,
-      externalId: order.id.toString(),
-      externalSource: 'woocommerce',
-    };
-  }
-}
-EOF
-```
-
----
-
-## DAY 8-9: Monitoring & Logging
-
-### Setup Prometheus Metrics
-```bash
-# Install dependencies
-npm install @willsoto/nestjs-prometheus prom-client
-
-# Update app.module.ts
-# Add PrometheusModule
-
-# Create metrics service
-cd bms/api-gateway/src/monitoring
-cat > metrics.service.ts << 'EOF'
-import { Injectable } from '@nestjs/common';
-import { Counter, Histogram, Gauge, register } from 'prom-client';
-
-@Injectable()
-export class MetricsService {
-  private httpRequestsTotal: Counter;
-  private httpRequestDuration: Histogram;
-  private activeUsers: Gauge;
-
-  constructor() {
-    this.httpRequestsTotal = new Counter({
-      name: 'http_requests_total',
-      help: 'Total number of HTTP requests',
-      labelNames: ['method', 'path', 'status'],
-    });
-
-    this.httpRequestDuration = new Histogram({
-      name: 'http_request_duration_seconds',
-      help: 'Duration of HTTP requests in seconds',
-      labelNames: ['method', 'path'],
-      buckets: [0.1, 0.5, 1, 2, 5],
-    });
-
-    this.activeUsers = new Gauge({
-      name: 'active_users',
-      help: 'Number of active users',
-    });
-  }
-
-  recordRequest(method: string, path: string, statusCode: number, duration: number) {
-    this.httpRequestsTotal.inc({ method, path, status: statusCode });
-    this.httpRequestDuration.observe({ method, path }, duration / 1000);
-  }
-
-  setActiveUsers(count: number) {
-    this.activeUsers.set(count);
-  }
-
-  getMetrics(): string {
-    return register.metrics();
-  }
-}
-EOF
-
-# Add metrics endpoint
-# GET /api/v1/metrics
-```
-
-### Setup Winston Logging
-```bash
-npm install winston winston-daily-rotate-file
-
-cd bms/api-gateway/src/common/services
-cat > logger.service.ts << 'EOF'
-import { Injectable } from '@nestjs/common';
-import * as winston from 'winston';
-import 'winston-daily-rotate-file';
-
-@Injectable()
-export class LoggerService {
-  private logger: winston.Logger;
-
-  constructor() {
-    this.logger = winston.createLogger({
-      level: 'info',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.json()
-      ),
-      transports: [
-        new winston.transports.DailyRotateFile({
-          filename: 'logs/application-%DATE%.log',
-          datePattern: 'YYYY-MM-DD',
-          maxSize: '20m',
-          maxFiles: '14d',
-        }),
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()
-          ),
-        }),
-      ],
-    });
-  }
-
-  log(message: string, context?: string) {
-    this.logger.info(message, { context });
-  }
-
-  error(message: string, trace?: string, context?: string) {
-    this.logger.error(message, { trace, context });
-  }
-
-  warn(message: string, context?: string) {
-    this.logger.warn(message, { context });
-  }
-
-  debug(message: string, context?: string) {
-    this.logger.debug(message, { context });
-  }
-}
-EOF
-```
-
----
-
-## DAY 10: Testing & Validation
-
-### Run All Tests
-```bash
-# Backend tests
-cd bms/api-gateway
-npm run test
-npm run test:e2e
-
-# Frontend tests
-cd bms-web
-npm run test
-npm run test:e2e
-
-# Check for errors
-npm run lint
-npm run build
-```
-
-### Verify All Endpoints
-```bash
-# Create test script
-cat > test-endpoints.sh << 'EOF'
-#!/bin/bash
-
-API_URL="http://localhost:3001/api/v1"
-TOKEN="YOUR_JWT_TOKEN"
-
-echo "Testing endpoints..."
-
-# Health check
-curl -s $API_URL/health | jq
-
-# Auth
-curl -s -X POST $API_URL/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password"}' | jq
-
-# Companies
-curl -s $API_URL/companies \
-  -H "Authorization: Bearer $TOKEN" | jq
-
-# Invoices
-curl -s $API_URL/invoices \
-  -H "Authorization: Bearer $TOKEN" | jq
-
-# CRM
-curl -s $API_URL/crm/contacts \
-  -H "Authorization: Bearer $TOKEN" | jq
-
-# Banking
-curl -s $API_URL/banking/transactions \
-  -H "Authorization: Bearer $TOKEN" | jq
-
-echo "All tests completed!"
-EOF
-
-chmod +x test-endpoints.sh
-./test-endpoints.sh
-```
-
----
-
-## DAY 11-12: Documentation
-
-### API Documentation
-```bash
-# Swagger is already configured
-# Access at http://localhost:3001/api/docs
-
-# Add missing decorators
-# Example:
-@ApiTags('invoices')
-@ApiOperation({ summary: 'Get all invoices' })
-@ApiResponse({ status: 200, description: 'Returns all invoices' })
-@Get()
-async getInvoices() { ... }
-```
-
-### Create README files
-```bash
-# Backend README
-cat > bms/api-gateway/README.md << 'EOF'
-# BMS API Gateway
-
-## Setup
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Configure environment:
-```bash
-cp .env.example .env
-# Edit .env with your settings
-```
-
-3. Setup database:
-```bash
-npm run typeorm migration:run
-```
-
-4. Start server:
-```bash
-npm run start:dev
-```
-
-## API Documentation
-
-Visit http://localhost:3001/api/docs
-
-## Testing
-
-```bash
-npm run test
-npm run test:e2e
-```
-EOF
-
-# Frontend README
-cat > bms-web/README.md << 'EOF'
-# BMS Web Frontend
-
-## Setup
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Configure environment:
-```bash
-cp .env.example .env.local
-# Edit .env.local with your API URL
-```
-
-3. Start development server:
-```bash
-npm run dev
-```
-
-4. Build for production:
-```bash
-npm run build
-npm run start
-```
-
-## Testing
-
-```bash
-npm run test
-npm run test:e2e
-```
-EOF
-```
-
----
-
-## DAY 13-14: Performance Optimization
-
-### Database Optimization
-```sql
--- Add missing indexes
-CREATE INDEX idx_invoices_company_date ON invoices(company_id, invoice_date DESC);
-CREATE INDEX idx_transactions_account_date ON bank_transactions(bank_account_id, transaction_date DESC);
-CREATE INDEX idx_journal_entries_company_date ON journal_entries(company_id, entry_date DESC);
-CREATE INDEX idx_contacts_company_name ON crm_contacts(company_id, name);
-
--- Analyze tables
-ANALYZE invoices;
-ANALYZE bank_transactions;
-ANALYZE journal_entries;
-ANALYZE crm_contacts;
-```
-
-### Enable Query Caching
+**File:** `bms/api-gateway/src/app.module.ts`
 ```typescript
-// In services, add caching
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+
+// Add to imports array:
+CacheModule.register({
+  isGlobal: true,
+  store: redisStore,
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT) || 6379,
+  ttl: 600, // 10 minutes
+}),
+```
+
+---
+
+### 2. Add Environment Variable Validation (2 hours)
+**Why:** Prevent runtime errors  
+**Impact:** CRITICAL
+
+**Create:** `bms/api-gateway/src/config/env.validation.ts`
+```typescript
+import { plainToClass } from 'class-transformer';
+import { IsString, IsNumber, IsUrl, validateSync } from 'class-validator';
+
+export class EnvironmentVariables {
+  @IsString()
+  DATABASE_HOST: string;
+
+  @IsNumber()
+  DATABASE_PORT: number;
+
+  @IsString()
+  DATABASE_USER: string;
+
+  @IsString()
+  DATABASE_PASSWORD: string;
+
+  @IsString()
+  DATABASE_NAME: string;
+
+  @IsString()
+  JWT_SECRET: string;
+
+  @IsString()
+  REDIS_HOST: string;
+
+  @IsNumber()
+  REDIS_PORT: number;
+}
+
+export function validate(config: Record<string, unknown>) {
+  const validatedConfig = plainToClass(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
+  
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false,
+  });
+
+  if (errors.length > 0) {
+    throw new Error(`Config validation error: ${errors.toString()}`);
+  }
+  
+  return validatedConfig;
+}
+```
+
+**Update:** `bms/api-gateway/src/app.module.ts`
+```typescript
+import { validate } from './config/env.validation';
+
+ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: '.env',
+  validate, // Add this
+}),
+```
+
+---
+
+### 3. Set Up Database Backups (4 hours)
+**Why:** Data protection  
+**Impact:** CRITICAL
+
+**Create:** `scripts/backup-database.sh`
+```bash
+#!/bin/bash
+set -e
+
+# Configuration
+BACKUP_DIR="/var/backups/bms"
+DB_NAME="${DATABASE_NAME:-bms}"
+DB_USER="${DATABASE_USER:-postgres}"
+DB_HOST="${DATABASE_HOST:-localhost}"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_DIR}/bms_backup_${TIMESTAMP}.sql.gz"
+
+# Create backup directory
+mkdir -p ${BACKUP_DIR}
+
+# Perform backup
+echo "Starting backup of ${DB_NAME}..."
+PGPASSWORD="${DATABASE_PASSWORD}" pg_dump \
+  -h ${DB_HOST} \
+  -U ${DB_USER} \
+  -d ${DB_NAME} \
+  --format=custom \
+  --compress=9 \
+  | gzip > ${BACKUP_FILE}
+
+echo "Backup completed: ${BACKUP_FILE}"
+
+# Keep only last 30 days of backups
+find ${BACKUP_DIR} -name "bms_backup_*.sql.gz" -mtime +30 -delete
+
+# Upload to S3 (optional)
+if [ ! -z "${AWS_S3_BACKUP_BUCKET}" ]; then
+  aws s3 cp ${BACKUP_FILE} s3://${AWS_S3_BACKUP_BUCKET}/backups/
+  echo "Backup uploaded to S3"
+fi
+```
+
+**Create:** `scripts/restore-database.sh`
+```bash
+#!/bin/bash
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: ./restore-database.sh <backup_file>"
+  exit 1
+fi
+
+BACKUP_FILE=$1
+DB_NAME="${DATABASE_NAME:-bms}"
+DB_USER="${DATABASE_USER:-postgres}"
+DB_HOST="${DATABASE_HOST:-localhost}"
+
+echo "Restoring ${DB_NAME} from ${BACKUP_FILE}..."
+
+# Drop existing database (WARNING!)
+PGPASSWORD="${DATABASE_PASSWORD}" dropdb -h ${DB_HOST} -U ${DB_USER} ${DB_NAME} || true
+
+# Create new database
+PGPASSWORD="${DATABASE_PASSWORD}" createdb -h ${DB_HOST} -U ${DB_USER} ${DB_NAME}
+
+# Restore backup
+gunzip -c ${BACKUP_FILE} | PGPASSWORD="${DATABASE_PASSWORD}" pg_restore \
+  -h ${DB_HOST} \
+  -U ${DB_USER} \
+  -d ${DB_NAME} \
+  --no-owner \
+  --no-acl
+
+echo "Restore completed!"
+```
+
+**Set up cron job:**
+```bash
+# Add to crontab
+0 2 * * * /path/to/scripts/backup-database.sh >> /var/log/bms-backup.log 2>&1
+```
+
+---
+
+### 4. Add Database Indexes (2 hours)
+**Why:** Query performance  
+**Impact:** HIGH
+
+**Create:** `bms/api-gateway/src/database/migrations/add-performance-indexes.sql`
+```sql
+-- Performance indexes for common queries
+
+-- Users
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_company_active ON users(company_id, is_active);
+
+-- Invoices
+CREATE INDEX IF NOT EXISTS idx_invoices_company_status ON invoices(company_id, status);
+CREATE INDEX IF NOT EXISTS idx_invoices_customer ON invoices(customer_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_date ON invoices(invoice_date DESC);
+CREATE INDEX IF NOT EXISTS idx_invoices_due_date ON invoices(due_date) WHERE status != 'paid';
+
+-- Journal Entries
+CREATE INDEX IF NOT EXISTS idx_journal_entries_company_date ON journal_entries(company_id, entry_date DESC);
+CREATE INDEX IF NOT EXISTS idx_journal_entries_status ON journal_entries(status);
+CREATE INDEX IF NOT EXISTS idx_journal_entry_lines_account ON journal_entry_lines(account_id);
+CREATE INDEX IF NOT EXISTS idx_journal_entry_lines_reconciliation ON journal_entry_lines(reconciliation_key) WHERE reconciliation_key IS NOT NULL;
+
+-- Bank Transactions
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_account_date ON bank_transactions(bank_account_id, transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_reconciled ON bank_transactions(is_reconciled) WHERE is_reconciled = false;
+
+-- Customers
+CREATE INDEX IF NOT EXISTS idx_customers_company ON customers(company_id);
+CREATE INDEX IF NOT EXISTS idx_customers_active ON customers(company_id, is_active);
+
+-- Audit Log
+CREATE INDEX IF NOT EXISTS idx_audit_log_company_created ON audit_log(company_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON audit_log(entity_type, entity_id);
+
+-- Composite indexes for common queries
+CREATE INDEX IF NOT EXISTS idx_invoices_company_customer_date ON invoices(company_id, customer_id, invoice_date DESC);
+CREATE INDEX IF NOT EXISTS idx_journal_entries_company_status_date ON journal_entries(company_id, status, entry_date DESC);
+```
+
+**Run migration:**
+```bash
+psql $DATABASE_URL < bms/api-gateway/src/database/migrations/add-performance-indexes.sql
+```
+
+---
+
+## 📋 WEEK 1 PRIORITIES (Next 5 Days)
+
+### Day 1-2: Core Accounting Implementation
+**Goal:** Complete journal entry posting
+
+**Create:** `bms/api-gateway/src/accounting/services/journal-entry.service.ts`
+```typescript
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { JournalEntry } from '../entities/journal-entry.entity';
+import { JournalEntryLine } from '../entities/journal-entry-line.entity';
+
 @Injectable()
-export class InvoicesService {
+export class JournalEntryService {
   constructor(
-    @InjectRepository(Invoice) private repo: Repository<Invoice>,
-    @Inject(CACHE_MANAGER) private cache: Cache,
+    @InjectRepository(JournalEntry)
+    private journalEntryRepo: Repository<JournalEntry>,
+    @InjectRepository(JournalEntryLine)
+    private journalEntryLineRepo: Repository<JournalEntryLine>,
   ) {}
 
-  async findAll(companyId: string): Promise<Invoice[]> {
-    const cacheKey = `invoices:${companyId}`;
+  async createEntry(companyId: string, dto: CreateJournalEntryDto) {
+    // Validate balanced entry (debit = credit)
+    const totalDebit = dto.lines.reduce((sum, line) => sum + line.debit, 0);
+    const totalCredit = dto.lines.reduce((sum, line) => sum + line.credit, 0);
     
-    // Try cache first
-    const cached = await this.cache.get<Invoice[]>(cacheKey);
-    if (cached) return cached;
-    
-    // Query database
-    const invoices = await this.repo.find({ where: { companyId } });
-    
-    // Cache for 5 minutes
-    await this.cache.set(cacheKey, invoices, 300);
-    
-    return invoices;
+    if (Math.abs(totalDebit - totalCredit) > 0.01) {
+      throw new Error('Journal entry must be balanced');
+    }
+
+    // Create entry
+    const entry = this.journalEntryRepo.create({
+      companyId,
+      entryDate: dto.entryDate,
+      reference: dto.reference,
+      description: dto.description,
+      journalCode: dto.journalCode,
+      status: 'draft',
+    });
+
+    await this.journalEntryRepo.save(entry);
+
+    // Create lines
+    const lines = dto.lines.map(line => 
+      this.journalEntryLineRepo.create({
+        entryId: entry.id,
+        accountId: line.accountId,
+        debit: line.debit,
+        credit: line.credit,
+        label: line.label,
+        analyticalSectionId: line.analyticalSectionId,
+      })
+    );
+
+    await this.journalEntryLineRepo.save(lines);
+
+    return this.findOne(entry.id);
+  }
+
+  async postEntry(entryId: string, userId: string) {
+    const entry = await this.journalEntryRepo.findOne({
+      where: { id: entryId },
+      relations: ['lines'],
+    });
+
+    if (entry.status !== 'draft') {
+      throw new Error('Only draft entries can be posted');
+    }
+
+    entry.status = 'posted';
+    entry.postedAt = new Date();
+    entry.postedBy = userId;
+
+    await this.journalEntryRepo.save(entry);
+
+    // Update account balances
+    await this.updateAccountBalances(entry);
+
+    return entry;
+  }
+
+  private async updateAccountBalances(entry: JournalEntry) {
+    // Update account balances based on entry lines
+    for (const line of entry.lines) {
+      // Implementation depends on your account balance tracking strategy
+    }
+  }
+
+  async getGeneralLedger(companyId: string, accountId: string, dateRange: DateRange) {
+    return this.journalEntryLineRepo
+      .createQueryBuilder('line')
+      .innerJoin('line.entry', 'entry')
+      .where('entry.companyId = :companyId', { companyId })
+      .andWhere('line.accountId = :accountId', { accountId })
+      .andWhere('entry.status = :status', { status: 'posted' })
+      .andWhere('entry.entryDate BETWEEN :startDate AND :endDate', dateRange)
+      .orderBy('entry.entryDate', 'ASC')
+      .getMany();
   }
 }
 ```
 
-### Frontend Optimization
+---
+
+### Day 3-4: Payment Gateway Integration
+**Goal:** Stripe integration working
+
+**Create:** `bms/api-gateway/src/payments/providers/stripe.service.ts`
 ```typescript
-// Add React Query for caching
-npm install @tanstack/react-query
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import Stripe from 'stripe';
 
-// Wrap app with QueryClientProvider
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+@Injectable()
+export class StripeService {
+  private stripe: Stripe;
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-    },
-  },
-});
+  constructor(private config: ConfigService) {
+    this.stripe = new Stripe(this.config.get('STRIPE_SECRET_KEY'), {
+      apiVersion: '2023-10-16',
+    });
+  }
 
-// Use in components
-const { data, isLoading } = useQuery(['invoices'], () => 
-  invoicesAPI.getInvoices()
-);
+  async createPaymentIntent(
+    amount: number,
+    currency: string,
+    metadata: Record<string, string>,
+  ) {
+    return this.stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: currency.toLowerCase(),
+      metadata,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+  }
+
+  async createCustomer(email: string, name: string, metadata: Record<string, string>) {
+    return this.stripe.customers.create({
+      email,
+      name,
+      metadata,
+    });
+  }
+
+  async createSubscription(customerId: string, priceId: string) {
+    return this.stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: priceId }],
+    });
+  }
+
+  async handleWebhook(signature: string, payload: Buffer) {
+    const webhookSecret = this.config.get('STRIPE_WEBHOOK_SECRET');
+    
+    try {
+      const event = this.stripe.webhooks.constructEvent(
+        payload,
+        signature,
+        webhookSecret,
+      );
+
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          await this.handlePaymentSuccess(event.data.object);
+          break;
+        case 'payment_intent.payment_failed':
+          await this.handlePaymentFailed(event.data.object);
+          break;
+        case 'customer.subscription.created':
+          await this.handleSubscriptionCreated(event.data.object);
+          break;
+      }
+
+      return { received: true };
+    } catch (err) {
+      throw new Error(`Webhook Error: ${err.message}`);
+    }
+  }
+
+  private async handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
+    // Update invoice status
+    // Create accounting entry
+    // Send notification
+  }
+
+  private async handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
+    // Log failure
+    // Send notification
+  }
+
+  private async handleSubscriptionCreated(subscription: Stripe.Subscription) {
+    // Create recurring invoice
+  }
+}
+```
+
+**Create:** `bms/api-gateway/src/payments/webhooks.controller.ts`
+```typescript
+import { Controller, Post, Headers, RawBodyRequest, Req } from '@nestjs/common';
+import { Request } from 'express';
+import { StripeService } from './providers/stripe.service';
+
+@Controller('webhooks')
+export class WebhooksController {
+  constructor(private stripeService: StripeService) {}
+
+  @Post('stripe')
+  async handleStripeWebhook(
+    @Headers('stripe-signature') signature: string,
+    @Req() request: RawBodyRequest<Request>,
+  ) {
+    return this.stripeService.handleWebhook(signature, request.rawBody);
+  }
+}
 ```
 
 ---
 
-## VERIFICATION CHECKLIST
+### Day 5: Testing & Documentation
+**Goal:** Ensure everything works
 
-After 2 weeks, verify:
+1. **Test Redis caching**
+```bash
+# Connect to Redis
+redis-cli
+> KEYS *
+> GET <key>
+```
 
-- [ ] Database migrations working
-- [ ] Redis caching enabled and working
-- [ ] Rate limiting active
-- [ ] File uploads working with MinIO
-- [ ] Bridge API integration complete
-- [ ] WooCommerce integration complete
-- [ ] Prometheus metrics exposed
-- [ ] Winston logging active
-- [ ] All endpoints tested
-- [ ] API documentation complete
-- [ ] Performance optimized
-- [ ] No critical errors in logs
+2. **Test database backups**
+```bash
+./scripts/backup-database.sh
+./scripts/restore-database.sh /var/backups/bms/bms_backup_<timestamp>.sql.gz
+```
+
+3. **Test journal entries**
+```bash
+curl -X POST http://localhost:3001/api/v1/accounting/journal-entries \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "entryDate": "2025-11-05",
+    "reference": "JE-001",
+    "description": "Test entry",
+    "journalCode": "GEN",
+    "lines": [
+      { "accountId": "...", "debit": 1000, "credit": 0, "label": "Debit" },
+      { "accountId": "...", "debit": 0, "credit": 1000, "label": "Credit" }
+    ]
+  }'
+```
+
+4. **Test Stripe payment**
+```bash
+curl -X POST http://localhost:3001/api/v1/payments/create-intent \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 100.00,
+    "currency": "EUR",
+    "invoiceId": "..."
+  }'
+```
+
+5. **Update documentation**
+- Add API examples to Swagger
+- Update README with new features
+- Document environment variables
 
 ---
 
-## NEXT STEPS (Week 3+)
+## 🎯 SUCCESS CRITERIA
 
-1. Build mobile apps
-2. Add GraphQL API
-3. Implement advanced monitoring
-4. Add comprehensive testing
-5. Setup CI/CD pipeline
+### Week 1 Complete When:
+- ✅ Redis caching is enabled and working
+- ✅ Environment validation prevents startup with missing vars
+- ✅ Database backups run automatically daily
+- ✅ Performance indexes are added
+- ✅ Journal entries can be created and posted
+- ✅ Stripe payments work end-to-end
+- ✅ All tests pass
+- ✅ Documentation is updated
 
 ---
 
-## SUPPORT
+## 📊 METRICS TO TRACK
 
-If you encounter issues:
-1. Check logs: `tail -f bms/api-gateway/logs/application-*.log`
-2. Verify environment variables
-3. Check database connections
-4. Review API documentation
-5. Run diagnostic script: `npm run diagnose`
+### Performance
+- API response time (target: < 200ms p95)
+- Database query time (target: < 50ms p95)
+- Cache hit rate (target: > 70%)
+
+### Reliability
+- Backup success rate (target: 100%)
+- API uptime (target: > 99.9%)
+- Error rate (target: < 0.1%)
+
+### Business
+- Journal entries created per day
+- Payments processed successfully
+- Invoice processing time
+
+---
+
+## 🚨 BLOCKERS & RISKS
+
+### Potential Issues
+1. **Redis connection issues** - Ensure Redis is running
+2. **Database migration conflicts** - Test in staging first
+3. **Stripe webhook verification** - Need HTTPS in production
+4. **Performance degradation** - Monitor query times
+
+### Mitigation
+- Set up staging environment
+- Add comprehensive error logging
+- Implement circuit breakers
+- Add health checks for all services
+
+---
+
+## 📞 SUPPORT & RESOURCES
+
+### Documentation
+- NestJS: https://docs.nestjs.com
+- TypeORM: https://typeorm.io
+- Stripe: https://stripe.com/docs/api
+- Redis: https://redis.io/docs
+
+### Tools
+- Database GUI: pgAdmin or DBeaver
+- Redis GUI: RedisInsight
+- API Testing: Postman or Insomnia
+- Monitoring: Prometheus + Grafana
+
+---
+
+## ✅ CHECKLIST
+
+### Before Starting
+- [ ] Review comprehensive analysis document
+- [ ] Set up development environment
+- [ ] Ensure all dependencies are installed
+- [ ] Create feature branch: `feature/week-1-critical-fixes`
+
+### During Implementation
+- [ ] Write tests for each feature
+- [ ] Update API documentation
+- [ ] Add error handling
+- [ ] Log important events
+- [ ] Test in isolation
+
+### Before Merging
+- [ ] All tests pass
+- [ ] Code review completed
+- [ ] Documentation updated
+- [ ] Performance tested
+- [ ] Security reviewed
+
+---
+
+**Ready to start? Begin with enabling Redis caching!**
