@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Employee } from '../employees/entities/employee.entity';
+import { Employee, EmployeeStatus } from '../employees/entities/employee.entity';
 import { LeaveRequest } from '../employees/entities/leave-request.entity';
 
 @Injectable()
@@ -58,7 +58,7 @@ export class ManagerDashboardService {
       const teamMembers = await this.employeeRepository.count({
         where: {
           companyId,
-          status: 'active',
+          status: EmployeeStatus.ACTIVE,
           managerId: userId,
         },
       });
@@ -70,7 +70,7 @@ export class ManagerDashboardService {
       const newThisMonth = await this.employeeRepository.count({
         where: {
           companyId,
-          status: 'active',
+          status: EmployeeStatus.ACTIVE,
           managerId: userId,
           hireDate: { $gte: startOfMonth } as any,
         },
@@ -98,7 +98,7 @@ export class ManagerDashboardService {
         .leftJoin('leave.employee', 'employee')
         .where('employee.manager_id = :userId', { userId })
         .andWhere('employee.company_id = :companyId', { companyId })
-        .andWhere('leave.status = :status', { status: 'approved' })
+        .andWhere('leave.status = :status', { status: LeaveStatus.APPROVED })
         .andWhere('leave.start_date <= :now', { now })
         .andWhere('leave.end_date >= :now', { now })
         .getCount();
@@ -109,7 +109,7 @@ export class ManagerDashboardService {
         .leftJoin('leave.employee', 'employee')
         .where('employee.manager_id = :userId', { userId })
         .andWhere('employee.company_id = :companyId', { companyId })
-        .andWhere('leave.status = :status', { status: 'pending' })
+        .andWhere('leave.status = :status', { status: LeaveStatus.PENDING })
         .getCount();
 
       return {
@@ -169,7 +169,7 @@ export class ManagerDashboardService {
         .leftJoin('leave.employee', 'employee')
         .where('employee.manager_id = :userId', { userId })
         .andWhere('employee.company_id = :companyId', { companyId })
-        .andWhere('leave.status = :status', { status: 'pending' })
+        .andWhere('leave.status = :status', { status: LeaveStatus.PENDING })
         .getCount();
 
       if (pendingLeaves > 0) {
@@ -213,7 +213,7 @@ export class ManagerDashboardService {
       const members = await this.employeeRepository.find({
         where: {
           companyId,
-          status: 'active',
+          status: EmployeeStatus.ACTIVE,
           managerId: userId,
         },
         take: 20,
@@ -245,7 +245,7 @@ export class ManagerDashboardService {
         .leftJoinAndSelect('leave.employee', 'employee')
         .where('employee.manager_id = :userId', { userId })
         .andWhere('employee.company_id = :companyId', { companyId })
-        .andWhere('leave.status = :status', { status: 'approved' })
+        .andWhere('leave.status = :status', { status: LeaveStatus.APPROVED })
         .andWhere('leave.start_date >= :now', { now })
         .andWhere('leave.start_date <= :in7Days', { in7Days })
         .orderBy('leave.start_date', 'ASC')

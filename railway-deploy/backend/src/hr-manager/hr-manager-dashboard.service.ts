@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Employee } from '../employees/entities/employee.entity';
-import { LeaveRequest } from '../employees/entities/leave-request.entity';
-import { Payroll } from '../employees/entities/payroll.entity';
+import { Employee, EmployeeStatus, ContractType } from '../employees/entities/employee.entity';
+import { LeaveRequest, LeaveStatus } from '../employees/entities/leave-request.entity';
+import { Payroll } from '../modules/hr/entities/payroll.entity';
 
 @Injectable()
 export class HrManagerDashboardService {
@@ -65,7 +65,7 @@ export class HrManagerDashboardService {
       const totalActive = await this.employeeRepository.count({
         where: { 
           companyId,
-          status: 'active',
+          status: EmployeeStatus.ACTIVE,
         },
       });
 
@@ -73,16 +73,16 @@ export class HrManagerDashboardService {
       const cdi = await this.employeeRepository.count({
         where: { 
           companyId,
-          status: 'active',
-          contractType: 'cdi',
+          status: EmployeeStatus.ACTIVE,
+          contractType: ContractType.PERMANENT,
         },
       });
 
       const cdd = await this.employeeRepository.count({
         where: { 
           companyId,
-          status: 'active',
-          contractType: 'cdd',
+          status: EmployeeStatus.ACTIVE,
+          contractType: ContractType.FIXED_TERM,
         },
       });
 
@@ -93,7 +93,7 @@ export class HrManagerDashboardService {
       const newThisMonth = await this.employeeRepository.count({
         where: { 
           companyId,
-          status: 'active',
+          status: EmployeeStatus.ACTIVE,
           hireDate: { $gte: startOfMonth } as any,
         },
       });
@@ -120,7 +120,7 @@ export class HrManagerDashboardService {
       // Absences en cours (aujourd'hui)
       const currentAbsences = await this.leaveRequestRepository.count({
         where: {
-          status: 'approved',
+          status: LeaveStatus.APPROVED,
           startDate: { $lte: now } as any,
           endDate: { $gte: now } as any,
         },
@@ -129,7 +129,7 @@ export class HrManagerDashboardService {
       // En attente de validation
       const pendingRequests = await this.leaveRequestRepository.count({
         where: {
-          status: 'pending',
+          status: LeaveStatus.PENDING,
         },
       });
 
@@ -139,7 +139,7 @@ export class HrManagerDashboardService {
 
       const monthAbsences = await this.leaveRequestRepository.find({
         where: {
-          status: 'approved',
+          status: LeaveStatus.APPROVED,
           startDate: { $gte: startOfMonth, $lte: endOfMonth } as any,
         },
       });
@@ -218,7 +218,7 @@ export class HrManagerDashboardService {
       const departuresThisMonth = await this.employeeRepository.count({
         where: { 
           companyId,
-          status: 'terminated',
+          status: EmployeeStatus.TERMINATED,
           endDate: { $gte: startOfMonth } as any,
         },
       });
@@ -227,14 +227,14 @@ export class HrManagerDashboardService {
       const departuresThisYear = await this.employeeRepository.count({
         where: { 
           companyId,
-          status: 'terminated',
+          status: EmployeeStatus.TERMINATED,
           endDate: { $gte: startOfYear } as any,
         },
       });
 
       // Effectif moyen
       const totalActive = await this.employeeRepository.count({
-        where: { companyId, status: 'active' },
+        where: { companyId, status: EmployeeStatus.ACTIVE },
       });
 
       // Taux de turnover annuel
@@ -282,7 +282,7 @@ export class HrManagerDashboardService {
     try {
       // Demandes de congé en attente
       const pendingLeaves = await this.leaveRequestRepository.count({
-        where: { status: 'pending' },
+        where: { status: LeaveStatus.PENDING },
       });
 
       if (pendingLeaves > 0) {
@@ -300,8 +300,8 @@ export class HrManagerDashboardService {
       const expiringContracts = await this.employeeRepository.count({
         where: {
           companyId,
-          status: 'active',
-          contractType: 'cdd',
+          status: EmployeeStatus.ACTIVE,
+          contractType: ContractType.FIXED_TERM,
           contractEndDate: { $gte: now, $lte: in30Days } as any,
         },
       });
@@ -345,7 +345,7 @@ export class HrManagerDashboardService {
   private async getDepartmentBreakdown(companyId: string): Promise<any[]> {
     try {
       const employees = await this.employeeRepository.find({
-        where: { companyId, status: 'active' },
+        where: { companyId, status: EmployeeStatus.ACTIVE },
       });
 
       const departmentMap = new Map<string, number>();
@@ -383,7 +383,7 @@ export class HrManagerDashboardService {
         const workforce = await this.employeeRepository.count({
           where: {
             companyId,
-            status: 'active',
+            status: EmployeeStatus.ACTIVE,
             hireDate: { $lte: endOfMonth } as any,
           },
         });
@@ -401,7 +401,7 @@ export class HrManagerDashboardService {
         const departures = await this.employeeRepository.count({
           where: {
             companyId,
-            status: 'terminated',
+            status: EmployeeStatus.TERMINATED,
             endDate: { $gte: startOfMonth, $lte: endOfMonth } as any,
           },
         });
@@ -426,7 +426,7 @@ export class HrManagerDashboardService {
   private async getTopPositions(companyId: string): Promise<any[]> {
     try {
       const employees = await this.employeeRepository.find({
-        where: { companyId, status: 'active' },
+        where: { companyId, status: EmployeeStatus.ACTIVE },
       });
 
       const positionMap = new Map<string, number>();

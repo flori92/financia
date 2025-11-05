@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee } from '../employees/entities/employee.entity';
-import { LeaveRequest } from '../employees/entities/leave-request.entity';
-import { Payroll } from '../employees/entities/payroll.entity';
+import { LeaveRequest, LeaveStatus } from '../employees/entities/leave-request.entity';
+import { Payroll } from '../modules/hr/entities/payroll.entity';
 import { Timesheet } from '../employees/entities/timesheet.entity';
 
 @Injectable()
@@ -110,7 +110,7 @@ export class EmployeeDashboardService {
       }
 
       // Solde de congés (simulé, à adapter selon votre logique)
-      const balance = employee.leaveBalance || 25; // 25 jours par défaut
+      const balance = 25; // 25 jours par défaut (TODO: ajouter leaveBalance à Employee entity)
 
       // Congés utilisés cette année
       const now = new Date();
@@ -119,7 +119,7 @@ export class EmployeeDashboardService {
       const usedLeaves = await this.leaveRequestRepository.find({
         where: {
           employeeId: employee.id,
-          status: 'approved',
+          status: LeaveStatus.APPROVED,
           startDate: { $gte: startOfYear } as any,
         },
       });
@@ -136,7 +136,7 @@ export class EmployeeDashboardService {
       const pending = await this.leaveRequestRepository.count({
         where: {
           employeeId: employee.id,
-          status: 'pending',
+          status: LeaveStatus.PENDING,
         },
       });
 
@@ -144,7 +144,7 @@ export class EmployeeDashboardService {
       const approved = await this.leaveRequestRepository.count({
         where: {
           employeeId: employee.id,
-          status: 'approved',
+          status: LeaveStatus.APPROVED,
           startDate: { $gte: now } as any,
         },
       });
@@ -251,7 +251,7 @@ export class EmployeeDashboardService {
       const pendingLeaves = await this.leaveRequestRepository.count({
         where: {
           employeeId: employee.id,
-          status: 'pending',
+          status: LeaveStatus.PENDING,
         },
       });
 
@@ -324,7 +324,7 @@ export class EmployeeDashboardService {
       const upcomingLeaves = await this.leaveRequestRepository.find({
         where: {
           employeeId: employee.id,
-          status: 'approved',
+          status: LeaveStatus.APPROVED,
           startDate: { $gte: now } as any,
         },
         order: { startDate: 'ASC' },
