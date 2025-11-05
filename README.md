@@ -68,14 +68,11 @@
 
 | Document | Description |
 |----------|-------------|
-| **[INDEX_DOCUMENTATION.md](INDEX_DOCUMENTATION.md)** | 📚 Index complet de la doc |
-| **[README_DEMARRAGE_RAPIDE.md](README_DEMARRAGE_RAPIDE.md)** | 🚀 Guide de démarrage |
-| **[ETAT_PROJET_FINAL.md](ETAT_PROJET_FINAL.md)** | 📊 État complet du projet |
-| **[CORRECTIONS_EFFECTUEES.md](CORRECTIONS_EFFECTUEES.md)** | 📝 Changelog détaillé |
-| **[ACCES_FONCTIONNALITES.md](ACCES_FONCTIONNALITES.md)** | 🎯 Guide d'accès |
-| **[API_IMPLEMENTATION_COMPLETE.md](API_IMPLEMENTATION_COMPLETE.md)** | 🔧 Documentation API |
-| **[FINALISATION_100_POURCENT.md](FINALISATION_100_POURCENT.md)** | 🎉 Finalisation 100% |
-| **[LISTE_COMPLETE_PAGES.md](LISTE_COMPLETE_PAGES.md)** | 📄 Liste des 69 pages |
+| **[RAILWAY_DEPLOY_GUIDE.md](RAILWAY_DEPLOY_GUIDE.md)** | 🚂 Guide de déploiement Railway |
+| **[BUTTONS-FINAL-REPORT.md](BUTTONS-FINAL-REPORT.md)** | 🎯 Rapport final des boutons |
+| **[COMMANDES_RAPIDES.md](COMMANDES_RAPIDES.md)** | ⚡ Commandes utiles |
+| **[Cahier des charges.md](Cahier des charges.md)** | 📋 Spécifications fonctionnelles |
+| **[BMS_COMMERCIAL_EMAIL.md](BMS_COMMERCIAL_EMAIL.md)** | 📧 Email commercial |
 
 ---
 
@@ -300,10 +297,10 @@ Pour contribuer:
 ## 📞 Support
 
 ### Documentation
-Consulter [INDEX_DOCUMENTATION.md](INDEX_DOCUMENTATION.md)
+Consulter [RAILWAY_DEPLOY_GUIDE.md](RAILWAY_DEPLOY_GUIDE.md)
 
 ### Problèmes
-Consulter [README_DEMARRAGE_RAPIDE.md](README_DEMARRAGE_RAPIDE.md) section "Dépannage"
+Consulter [COMMANDES_RAPIDES.md](COMMANDES_RAPIDES.md) section "Dépannage"
 
 ### Questions
 Ouvrir une issue sur GitHub
