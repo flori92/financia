@@ -60,6 +60,9 @@ import { EntrepreneurModule } from './entrepreneur/entrepreneur.module';
 import { HrManagerModule } from './hr-manager/hr-manager.module';
 import { ManagerModule } from './manager/manager.module';
 import { EmployeeDashboardModule } from './employee/employee.module';
+import { FiscalAdminModule } from './fiscal-admin/fiscal-admin.module';
+import { AdminSystemModule } from './admin-system/admin-system.module';
+import { BankPartnerModule } from './bank-partner/bank-partner.module';
 
 // Controllers
 import { HealthController } from './health/health.controller';
@@ -184,6 +187,9 @@ import { AppController } from './app.controller';
     HrManagerModule,
     ManagerModule,
     EmployeeDashboardModule,
+    FiscalAdminModule,
+    AdminSystemModule,
+    BankPartnerModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
