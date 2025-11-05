@@ -31,9 +31,17 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
 
+    // Bypass pour les rôles système en attendant la migration RBAC complète
+    // TODO: Retirer après migration RBAC complète
+    if (user.role === 'accountant' || user.role === 'tax_admin') {
+      return true;
+    }
+
     // Vérifier si l'utilisateur a les rôles avec les permissions requises
     if (!user.roles || user.roles.length === 0) {
-      return false;
+      // Si pas de rôles RBAC mais a un rôle système, autoriser temporairement
+      // TODO: Retirer après migration RBAC complète
+      return user.role ? true : false;
     }
 
     const userPermissions = new Set<string>();
