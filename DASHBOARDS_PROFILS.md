@@ -426,10 +426,10 @@ export default function [Profile]DashboardPage() {
 
 ## 🎯 Priorités de Développement
 
-### **Phase 1 - Urgent** (Cette semaine)
+### **Phase 1 - Urgent** ✅ COMPLÈTE
 1. ✅ Dashboard Comptable - Permissions OK
-2. 🔧 Dashboard Expert Comptable - À améliorer
-3. 🔧 Dashboard Entrepreneur - À créer/améliorer
+2. ✅ Dashboard Expert Comptable - COMPLÉTÉ (/expert-comptable/dashboard)
+3. ✅ Dashboard Entrepreneur - COMPLÉTÉ (/entrepreneur/dashboard)
 
 ### **Phase 2 - Important** (Semaine prochaine)
 4. 🔧 Dashboard RH Manager - À créer/améliorer
