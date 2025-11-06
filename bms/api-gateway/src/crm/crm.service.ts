@@ -238,7 +238,7 @@ export class CrmService {
     contact.opportunityCount = opportunities.length;
 
     // Compter les factures (via opportunités gagnées)
-    const wonOpportunities = opportunities.filter(opp => opp.status === 'won');
+    const wonOpportunities = opportunities.filter(opp => opp.status === OpportunityStatus.WON);
     contact.invoiceCount = wonOpportunities.length;
 
     // Calculer la valeur vie client
@@ -304,6 +304,12 @@ export class CrmService {
     const revenue = wonOpps.reduce((sum, opp) => sum + (opp.amount || 0), 0);
 
     // Pipeline par étape
+    const excludedStatuses: OpportunityStatus[] = [
+      OpportunityStatus.WON,
+      OpportunityStatus.LOST,
+      OpportunityStatus.ABANDONED,
+    ];
+
     const pipelineData = await this.opportunityRepository
       .createQueryBuilder('opp')
       .select('opp.status', 'stage')
@@ -311,7 +317,7 @@ export class CrmService {
       .addSelect('SUM(opp.amount)', 'value')
       .where('opp.companyId = :companyId', { companyId })
       .andWhere('opp.status NOT IN (:...excludedStatuses)', {
-        excludedStatuses: ['won', 'lost', 'cancelled'],
+        excludedStatuses,
       })
       .groupBy('opp.status')
       .getRawMany();
