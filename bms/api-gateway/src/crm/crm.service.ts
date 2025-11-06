@@ -4,7 +4,7 @@ import { Repository, Like, In } from 'typeorm';
 import { Contact, ContactType, ContactStatus } from './entities/contact.entity';
 import { Tag } from './entities/tag.entity';
 import { Activity } from './entities/activity.entity';
-import { Opportunity } from './entities/opportunity.entity';
+import { Opportunity, OpportunityStatus } from './entities/opportunity.entity';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { FilterContactsDto } from './dto/filter-contacts.dto';
@@ -293,12 +293,12 @@ export class CrmService {
     });
 
     const wonDeals = await this.opportunityRepository.count({
-      where: { companyId, status: 'won' },
+      where: { companyId, status: OpportunityStatus.WON },
     });
 
     // Revenus des opportunités gagnées
     const wonOpps = await this.opportunityRepository.find({
-      where: { companyId, status: 'won' },
+      where: { companyId, status: OpportunityStatus.WON },
       select: ['amount'],
     });
     const revenue = wonOpps.reduce((sum, opp) => sum + (opp.amount || 0), 0);
