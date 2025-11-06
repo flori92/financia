@@ -223,6 +223,68 @@ export class CrmController {
     );
   }
 
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Dashboard CRM complet avec métriques, pipeline et activités récentes' })
+  @ApiQuery({ name: 'companyId', required: true, description: 'ID de la société' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard CRM complet',
+    schema: {
+      type: 'object',
+      properties: {
+        stats: {
+          type: 'object',
+          properties: {
+            totalContacts: { type: 'number' },
+            activeOpportunities: { type: 'number' },
+            wonDeals: { type: 'number' },
+            revenue: { type: 'number' },
+          },
+        },
+        pipeline: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              stage: { type: 'string' },
+              count: { type: 'number' },
+              value: { type: 'number' },
+            },
+          },
+        },
+        recentActivities: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              contactId: { type: 'string' },
+              contactName: { type: 'string' },
+              description: { type: 'string' },
+              date: { type: 'string', format: 'date-time' },
+              type: { type: 'string' },
+            },
+          },
+        },
+        topContacts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              value: { type: 'number' },
+              lastActivity: { type: 'string', format: 'date-time' },
+            },
+          },
+        },
+      },
+    },
+  })
+  async getCrmDashboard(@Query('companyId') companyId: string) {
+    return this.crmService.getDashboard(companyId);
+  }
+
   @Get('stats')
   @ApiOperation({ summary: 'Obtenir les statistiques CRM globales' })
   @ApiQuery({ name: 'companyId', required: true, description: 'ID de la société' })

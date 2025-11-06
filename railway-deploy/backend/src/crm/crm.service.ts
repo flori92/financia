@@ -256,6 +256,120 @@ export class CrmService {
     await this.contactRepository.save(contact);
   }
 
+  async getDashboard(companyId: string): Promise<{
+    stats: {
+      totalContacts: number;
+      activeOpportunities: number;
+      wonDeals: number;
+      revenue: number;
+    };
+    pipeline: Array<{
+      stage: string;
+      count: number;
+      value: number;
+    }>;
+    recentActivities: Array<{
+      id: string;
+      contactId: string;
+      contactName: string;
+      description: string;
+      date: Date;
+      type: string;
+    }>;
+    topContacts: Array<{
+      id: string;
+      name: string;
+      value: number;
+      lastActivity: Date;
+    }>;
+  }> {
+    this.logger.log(`Récupération dashboard CRM pour société ${companyId}`);
+
+    // Statistiques de base
+    const totalContacts = await this.contactRepository.count({ where: { companyId } });
+
+    const activeOpportunities = await this.opportunityRepository.count({
+      where: { companyId, status: In(['qualification', 'proposition', 'negotiation']) },
+    });
+
+    const wonDeals = await this.opportunityRepository.count({
+      where: { companyId, status: 'won' },
+    });
+
+    // Revenus des opportunités gagnées
+    const wonOpps = await this.opportunityRepository.find({
+      where: { companyId, status: 'won' },
+      select: ['amount'],
+    });
+    const revenue = wonOpps.reduce((sum, opp) => sum + (opp.amount || 0), 0);
+
+    // Pipeline par étape
+    const pipelineData = await this.opportunityRepository
+      .createQueryBuilder('opp')
+      .select('opp.status', 'stage')
+      .addSelect('COUNT(*)', 'count')
+      .addSelect('SUM(opp.amount)', 'value')
+      .where('opp.companyId = :companyId', { companyId })
+      .andWhere('opp.status NOT IN (:...excludedStatuses)', {
+        excludedStatuses: ['won', 'lost', 'cancelled'],
+      })
+      .groupBy('opp.status')
+      .getRawMany();
+
+    const pipeline = pipelineData.map(item => ({
+      stage: item.stage,
+      count: parseInt(item.count),
+      value: parseFloat(item.value) || 0,
+    }));
+
+    // Activités récentes (10 dernières)
+    const activities = await this.activityRepository.find({
+      where: { companyId },
+      relations: ['contact'],
+      order: { createdAt: 'DESC' },
+      take: 10,
+    });
+
+    const recentActivities = activities.map(activity => ({
+      id: activity.id,
+      contactId: activity.contactId,
+      contactName: activity.contact
+        ? `${activity.contact.firstName || ''} ${activity.contact.lastName || ''}`.trim() || activity.contact.companyName
+        : 'Contact inconnu',
+      description: activity.description || '',
+      date: activity.createdAt,
+      type: activity.type || 'other',
+    }));
+
+    // Top contacts par valeur vie client
+    const topContactsData = await this.contactRepository
+      .createQueryBuilder('contact')
+      .where('contact.companyId = :companyId', { companyId })
+      .andWhere('contact.lifetimeValue > 0')
+      .orderBy('contact.lifetimeValue', 'DESC')
+      .take(5)
+      .getMany();
+
+    const topContacts = topContactsData.map(contact => ({
+      id: contact.id,
+      name: `${contact.firstName || ''} ${contact.lastName || ''}`.trim() || contact.companyName || 'Sans nom',
+      value: contact.lifetimeValue || 0,
+      lastActivity: contact.lastContactDate || contact.updatedAt,
+    }));
+
+    return {
+      stats: {
+        totalContacts,
+        activeOpportunities,
+        wonDeals,
+        revenue,
+      },
+      pipeline,
+      recentActivities,
+      topContacts,
+    };
+  }
+
   async getContactStats(companyId: string): Promise<{
     total: number;
     byType: Record<ContactType, number>;
