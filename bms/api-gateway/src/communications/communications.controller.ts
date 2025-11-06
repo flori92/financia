@@ -2,9 +2,9 @@ import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } fro
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../rbac/guards/permissions.guard';
-import { RequirePermissions } from '../rbac/decorators/permissions.decorator';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { GetUser } from '../auth/decorators/get-user.decorator';
-import { GetCompany } from '../common/decorators/get-company.decorator';
+import { CompanyId } from '../common/decorators/company-id.decorator';
 import { EmailsService } from './services/emails.service';
 import { SmsService } from './services/sms.service';
 import { WhatsAppService } from './services/whatsapp.service';
@@ -17,7 +17,7 @@ import { CreateTemplateDto, UpdateTemplateDto } from './dto/create-template.dto'
 import { BulkCommunicationDto } from './dto/bulk-communication.dto';
 
 @ApiTags('Communications')
-@Controller('api/v1/communications')
+@Controller('communications')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class CommunicationsController {
   constructor(
@@ -34,7 +34,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:read')
   @ApiOperation({ summary: 'Get all emails' })
   async getEmails(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @Query('folder') folder?: string,
   ) {
     return this.emailsService.findAll(companyId, folder);
@@ -44,7 +44,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:write')
   @ApiOperation({ summary: 'Send email' })
   async sendEmail(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @GetUser() userId: string,
     @Body() emailData: SendEmailDto,
   ) {
@@ -55,7 +55,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:read')
   @ApiOperation({ summary: 'Get email by ID' })
   async getEmail(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @Param('id') id: string,
   ) {
     return this.emailsService.findOne(companyId, id);
@@ -67,7 +67,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:read')
   @ApiOperation({ summary: 'Get all SMS messages' })
   async getSmsMessages(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
   ) {
     return this.smsService.findAll(companyId);
   }
@@ -76,7 +76,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:write')
   @ApiOperation({ summary: 'Send SMS' })
   async sendSms(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @GetUser() userId: string,
     @Body() smsData: SendSmsDto,
   ) {
@@ -89,7 +89,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:read')
   @ApiOperation({ summary: 'Get WhatsApp conversations' })
   async getWhatsAppConversations(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
   ) {
     return this.whatsAppService.findAll(companyId);
   }
@@ -98,7 +98,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:write')
   @ApiOperation({ summary: 'Send WhatsApp message' })
   async sendWhatsApp(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @GetUser() userId: string,
     @Body() whatsAppData: SendWhatsAppDto,
   ) {
@@ -111,7 +111,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:read')
   @ApiOperation({ summary: 'Get all communication templates' })
   async getTemplates(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @Query('type') type?: string,
   ) {
     return this.templatesService.findAll(companyId, type);
@@ -121,7 +121,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:write')
   @ApiOperation({ summary: 'Create communication template' })
   async createTemplate(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @GetUser() userId: string,
     @Body() templateData: CreateTemplateDto,
   ) {
@@ -132,7 +132,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:read')
   @ApiOperation({ summary: 'Get template by ID' })
   async getTemplate(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @Param('id') id: string,
   ) {
     return this.templatesService.findOne(companyId, id);
@@ -142,7 +142,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:write')
   @ApiOperation({ summary: 'Update template' })
   async updateTemplate(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @Param('id') id: string,
     @Body() templateData: UpdateTemplateDto,
   ) {
@@ -153,7 +153,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:delete')
   @ApiOperation({ summary: 'Delete template' })
   async deleteTemplate(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
     @Param('id') id: string,
   ) {
     await this.templatesService.delete(companyId, id);
@@ -166,8 +166,8 @@ export class CommunicationsController {
   @RequirePermissions('communications:write')
   @ApiOperation({ summary: 'Send bulk communications' })
   async sendBulk(
-    @GetCompany() companyId: string,
-    @GetUser() userId: string,
+    @CompanyId() companyId: string,
+    @GetUser('userId') userId: string,
     @Body() bulkData: BulkCommunicationDto,
   ) {
     return this.communicationsService.sendBulkCommunication(companyId, userId, bulkData);
@@ -177,7 +177,7 @@ export class CommunicationsController {
   @RequirePermissions('communications:read')
   @ApiOperation({ summary: 'Get communication statistics' })
   async getStats(
-    @GetCompany() companyId: string,
+    @CompanyId() companyId: string,
   ) {
     return this.communicationsService.getCommunicationStats(companyId);
   }

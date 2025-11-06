@@ -29,33 +29,62 @@ export class CommunicationsService {
 
     for (const recipient of params.recipients) {
       try {
+        let success = false;
+        let message = params.message;
+
         switch (params.type) {
-          case 'email':
-            await this.emailsService.sendEmail(companyId, userId, {
+          case 'email': {
+            const email = await this.emailsService.sendEmail(companyId, userId, {
               to: recipient,
               subject: params.subject,
               body: params.message,
             });
+            success = ['sent', 'delivered'].includes(email.status);
+            if (!success) {
+              message = `Envoi email en échec (statut: ${email.status})`;
+            }
             break;
-          case 'sms':
-            await this.smsService.sendSms(companyId, userId, {
+          }
+          case 'sms': {
+            const sms = await this.smsService.sendSms(companyId, userId, {
               to: recipient,
               message: params.message,
             });
+            success = ['sent', 'delivered'].includes(sms.status);
+            if (!success) {
+              message = sms.errorMessage || 'Envoi SMS en échec';
+            }
             break;
-          case 'whatsapp':
-            await this.whatsAppService.sendMessage(companyId, userId, {
+          }
+          case 'whatsapp': {
+            const whatsapp = await this.whatsAppService.sendMessage(companyId, userId, {
               to: recipient,
               message: params.message,
             });
+            success = ['sent', 'delivered'].includes(whatsapp.status);
+            if (!success) {
+              message = whatsapp.errorMessage || 'Envoi WhatsApp en échec';
+            }
             break;
+          }
+          default:
+            throw new Error(`Type de communication non supporté: ${params.type}`);
         }
-        results.sent++;
+
+        if (success) {
+          results.sent++;
+        } else {
+          results.failed++;
+          results.errors.push({
+            recipient,
+            error: message,
+          });
+        }
       } catch (error) {
         results.failed++;
         results.errors.push({
           recipient,
-          error: error.message,
+          error: error?.message || 'Erreur inconnue lors de l\'envoi',
         });
       }
     }

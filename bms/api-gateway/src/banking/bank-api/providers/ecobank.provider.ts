@@ -8,7 +8,7 @@ import {
 } from '../interfaces/bank-provider.interface';
 import { BankAccountDto, BankTransactionDto } from '../dto/bank-api.dto';
 
-export class EcobankProvider implements BankProvider {
+export default class EcobankProvider implements BankProvider {
     private readonly baseUrl = 'https://developer.ecobank.com/api/v1';
     private readonly authUrl = 'https://developer.ecobank.com/oauth/authorize';
     private readonly tokenUrl = 'https://developer.ecobank.com/oauth/token';

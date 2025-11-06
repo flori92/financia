@@ -8,16 +8,38 @@ export class MinioStorageProvider implements StorageProvider {
   private bucket: string;
 
   constructor() {
-    const endpoint = process.env.MINIO_ENDPOINT || 'localhost:9000';
-    const [host, port] = endpoint.replace('http://', '').replace('https://', '').split(':');
+    const rawEndpoint = process.env.MINIO_ENDPOINT || 'http://minio:9000';
+    const endpointUrl = rawEndpoint.startsWith('http')
+      ? new URL(rawEndpoint)
+      : new URL(`http://${rawEndpoint}`);
 
-    this.client = new Minio.Client({
-      endPoint: host,
-      port: parseInt(port || '9000', 10),
-      useSSL: process.env.MINIO_USE_SSL === 'true',
+    const useSSL = process.env.MINIO_USE_SSL
+      ? process.env.MINIO_USE_SSL === 'true'
+      : endpointUrl.protocol === 'https:';
+
+    const config: Minio.ClientOptions = {
+      endPoint: endpointUrl.hostname,
       accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
       secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin123',
-    });
+      useSSL,
+    };
+
+    const port = endpointUrl.port ? parseInt(endpointUrl.port, 10) : undefined;
+    if (port) {
+      config.port = port;
+    }
+
+    const region = process.env.MINIO_REGION;
+    if (region) {
+      config.region = region;
+    }
+
+    const forcePathStyle = (process.env.MINIO_FORCE_PATH_STYLE || 'false') === 'true';
+    if (forcePathStyle) {
+      config.pathStyle = true;
+    }
+
+    this.client = new Minio.Client(config);
 
     this.bucket = process.env.MINIO_BUCKET || 'bms-uploads';
   }
@@ -45,6 +67,7 @@ export class MinioStorageProvider implements StorageProvider {
 
   getPublicUrl(filePath: string): string {
     const endpoint = process.env.MINIO_ENDPOINT || 'http://localhost:9000';
-    return `${endpoint}/${this.bucket}/${filePath}`;
+    const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+    return `${baseUrl}/${this.bucket}/${filePath}`;
   }
 }

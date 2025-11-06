@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SMS } from '../entities/sms.entity';
 import { SendSmsDto } from '../dto/send-sms.dto';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 @Injectable()
 export class SmsService {
@@ -11,6 +12,7 @@ export class SmsService {
   constructor(
     @InjectRepository(SMS)
     private smsRepository: Repository<SMS>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async findAll(companyId: string): Promise<SMS[]> {
@@ -30,23 +32,34 @@ export class SmsService {
     const sms = this.smsRepository.create({
       companyId,
       to: smsData.to,
-      from: smsData.from || process.env.SMS_FROM || 'BMS',
+      from: smsData.from,
       message: smsData.message,
       status: 'pending',
       createdBy: userId,
     });
 
     const savedSms = await this.smsRepository.save(sms);
-    
-    // TODO: Implement actual SMS sending with configured provider (Twilio, etc.)
-    // For now, just log and mark as sent
-    this.logger.log(`SMS queued to ${smsData.to}`);
-    
-    // Update status to sent (in production, this would be done by the SMS provider callback)
-    savedSms.status = 'sent';
-    savedSms.sentAt = new Date();
+
+    const sent = await this.notificationsService.sendSMS({
+      to: smsData.to,
+      message: smsData.message,
+      data: {
+        from: smsData.from,
+      },
+    });
+
+    if (sent) {
+      savedSms.status = 'sent';
+      savedSms.providerName = 'africastalking';
+      savedSms.sentAt = new Date();
+    } else {
+      savedSms.status = 'failed';
+      savedSms.providerName = 'africastalking';
+      savedSms.errorMessage = 'Africa\'s Talking sending failed';
+    }
+
     await this.smsRepository.save(savedSms);
-    
+
     return savedSms;
   }
 }

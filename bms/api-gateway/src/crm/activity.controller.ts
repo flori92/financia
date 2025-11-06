@@ -21,7 +21,7 @@ import { AuditLog } from '../audit/decorators/audit-log.decorator';
 
 @ApiTags('CRM - Activities')
 @ApiBearerAuth()
-@Controller('api/v1/crm/activities')
+@Controller('crm/activities')
 @UseGuards(JwtAuthGuard)
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}

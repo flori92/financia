@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Employee } from './employee.entity';
 
 @Entity('payrolls')
 export class Payroll {
@@ -10,6 +19,10 @@ export class Payroll {
 
   @Column()
   employeeId: string;
+
+  @ManyToOne(() => Employee, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'employee_id' })
+  employee?: Employee | null;
 
   @Column()
   employeeName: string;
@@ -43,6 +56,21 @@ export class Payroll {
 
   @Column({ default: 'calculated' })
   status: 'calculated' | 'approved' | 'paid' | 'cancelled';
+
+  @Column({ name: 'payslip_file_name', length: 255, nullable: true })
+  payslipFileName?: string;
+
+  @Column({ name: 'payslip_mime_type', length: 50, nullable: true })
+  payslipMimeType?: string;
+
+  @Column({ name: 'payslip_file_size', type: 'int', nullable: true })
+  payslipFileSize?: number;
+
+  @Column({ name: 'payslip_file', type: 'bytea', nullable: true, select: false })
+  payslipFile?: Buffer;
+
+  @Column({ name: 'payslip_generated_at', type: 'timestamp', nullable: true })
+  payslipGeneratedAt?: Date;
 
   @CreateDateColumn()
   createdAt: Date;

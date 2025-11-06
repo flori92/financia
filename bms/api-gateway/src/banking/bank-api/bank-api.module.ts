@@ -2,16 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { BankApiService } from './services/bank-api.service';
-import { BankConnectionService } from './services/bank-connection.service';
-import { BankSyncService } from './services/bank-sync.service';
-import { BankAnalyticsService } from './services/bank-analytics.service';
+import { BankConnectionService } from '../bank-connection/services/bank-connection.service';
 import { BankApiController } from './controllers/bank-api.controller';
-import { BankWebhookController } from './controllers/bank-webhook.controller';
-import { BankConnection } from './entities/bank-connection.entity';
+import { BankConnection } from '../bank-connection/entities/bank-connection.entity';
 import { BankAccount } from './entities/bank-account.entity';
 import { BankTransaction } from './entities/bank-transaction.entity';
 import { BankAnomaly } from './entities/bank-anomaly.entity';
-import { BankWebhookEvent } from './entities/bank-webhook-event.entity';
 import { BullModule } from '@nestjs/bull';
 import { NotificationsModule } from '../../notifications/notifications.module';
 import { AIModule } from '../../ai/ai.module';
@@ -22,8 +18,7 @@ import { AIModule } from '../../ai/ai.module';
       BankConnection,
       BankAccount,
       BankTransaction,
-      BankAnomaly,
-      BankWebhookEvent
+      BankAnomaly
     ]),
     BullModule.registerQueue({
       name: 'bank-sync',
@@ -33,35 +28,30 @@ import { AIModule } from '../../ai/ai.module';
     AIModule
   ],
   controllers: [
-    BankApiController,
-    BankWebhookController
+    BankApiController
   ],
   providers: [
     BankApiService,
     BankConnectionService,
-    BankSyncService,
-    BankAnalyticsService,
     // Providers spécifiques aux banques
     {
       provide: 'BANK_API_PROVIDERS',
       useValue: {
-        // Afrique de l'Ouest
-        'ECOBANK': () => import('./providers/ecobank.provider'),
-        'BOA': () => import('./providers/boa.provider'),
-        'ORABANK': () => import('./providers/orabank.provider'),
-        'BCEAO': () => import('./providers/bceao.provider'),
-        // Mobile Money
-        'MTN': () => import('./providers/mtn.provider'),
-        'ORANGE': () => import('./providers/orange.provider'),
-        'MOOV': () => import('./providers/moov.provider'),
+        // Banques Afrique de l'Ouest
+        ECOBANK: () => import('./providers/ecobank.provider'),
+        BOA: () => import('./providers/boa.provider'),
+        ORABANK: () => import('./providers/orabank.provider'),
+        BCEAO: () => import('./providers/bceao.provider'),
+        UBA_BENIN: () => import('./providers/uba-benin.provider'),
+        SG_BENIN: () => import('./providers/societe-generale-benin.provider'),
+        // Banques France
+        BNP_PARIBAS_FR: () => import('./providers/bnp-paribas.provider'),
       }
     }
   ],
   exports: [
     BankApiService,
-    BankConnectionService,
-    BankSyncService,
-    BankAnalyticsService
+    BankConnectionService
   ]
 })
 export class BankApiModule {}

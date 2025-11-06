@@ -19,6 +19,10 @@ export class BankSyncProcessor {
         private readonly notificationsService: NotificationsService
     ) {}
 
+    private get repositories() {
+        return this.bankApiService.repositories;
+    }
+
     @Process('sync-transactions')
     async handleTransactionSync(job: Job<SyncJobData>) {
         const { connectionId, accountId } = job.data;
@@ -68,14 +72,16 @@ export class BankSyncProcessor {
 
         try {
             // Récupérer toutes les connexions actives
-            const activeConnections = await this.bankApiService.bankConnectionRepo.find({
+            const { bankConnectionRepo, bankAccountRepo, bankSyncQueue } = this.repositories;
+
+            const activeConnections = await bankConnectionRepo.find({
                 where: { status: 'active' }
             });
 
             // Pour chaque connexion
             for (const connection of activeConnections) {
                 // Récupérer les comptes qui n'ont pas été synchronisés récemment
-                const accounts = await this.bankApiService.bankAccountRepo.find({
+                const accounts = await bankAccountRepo.find({
                     where: {
                         connectionId: connection.id,
                         status: 'active'
@@ -91,7 +97,7 @@ export class BankSyncProcessor {
                         : 24;
 
                     if (hoursSinceLastSync >= 6) { // Re-synchroniser si > 6 heures
-                        await this.bankApiService.bankSyncQueue.add('sync-transactions', {
+                        await bankSyncQueue.add('sync-transactions', {
                             connectionId: connection.id,
                             accountId: account.id
                         });
@@ -114,8 +120,10 @@ export class BankSyncProcessor {
         const { connectionId } = job.data;
         this.logger.debug(`Démarrage du rafraîchissement des tokens pour la connexion ${connectionId}`);
 
+        const { bankConnectionRepo } = this.repositories;
+
         try {
-            const connection = await this.bankApiService.bankConnectionRepo.findOneOrFail({
+            const connection = await bankConnectionRepo.findOneOrFail({
                 where: { id: connectionId }
             });
 
@@ -129,7 +137,7 @@ export class BankSyncProcessor {
             connection.refreshToken = tokens.refreshToken;
             connection.tokenExpiresAt = new Date(Date.now() + tokens.expiresIn * 1000);
 
-            await this.bankApiService.bankConnectionRepo.save(connection);
+            await bankConnectionRepo.save(connection);
 
             this.logger.debug(`Rafraîchissement des tokens réussi pour la connexion ${connectionId}`);
         } catch (error) {
@@ -140,7 +148,7 @@ export class BankSyncProcessor {
 
             // Si l'erreur indique que le refresh token est invalide, marquer la connexion comme révoquée
             if (error.message.includes('invalid_grant') || error.message.includes('invalid_token')) {
-                await this.bankApiService.bankConnectionRepo.update(connectionId, {
+                await bankConnectionRepo.update(connectionId, {
                     status: 'revoked'
                 });
 

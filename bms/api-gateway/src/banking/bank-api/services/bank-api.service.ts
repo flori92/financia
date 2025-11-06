@@ -8,8 +8,8 @@ import { BankConnection } from '../entities/bank-connection.entity';
 import { BankAccount } from '../entities/bank-account.entity';
 import { BankTransaction } from '../entities/bank-transaction.entity';
 import { BankAnomaly } from '../entities/bank-anomaly.entity';
-import { NotificationsService } from '../../notifications/notifications.service';
-import { AIService } from '../../ai/ai.service';
+import { NotificationsService } from '../../../notifications/notifications.service';
+import { AIService } from '../../../ai/ai.service';
 import { 
     CreateBankConnectionDto,
     BankAccountDto,

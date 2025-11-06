@@ -1,14 +1,14 @@
 import axios from 'axios';
 import * as qs from 'qs';
-import { 
+import {
     BankProvider,
     BankAuthOptions,
     BankAuthResult,
-    BankTokens 
+    BankTokens
 } from '../interfaces/bank-provider.interface';
 import { BankAccountDto, BankTransactionDto } from '../dto/bank-api.dto';
 
-export class BOAProvider implements BankProvider {
+export default class BOAProvider implements BankProvider {
     private readonly baseUrl = 'https://api.boagroup.com/v1';
     private readonly authUrl = 'https://auth.boagroup.com/oauth2/authorize';
     private readonly tokenUrl = 'https://auth.boagroup.com/oauth2/token';

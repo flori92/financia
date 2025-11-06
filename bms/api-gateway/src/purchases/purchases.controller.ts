@@ -46,7 +46,7 @@ export class PurchasesController {
   async createSupplier(@Body() supplierData: Partial<Supplier>) {
     const supplier = this.suppliersRepo.create({
       ...supplierData,
-      status: supplierData.status || 'active',
+      isActive: supplierData.isActive ?? true,
     });
     return this.suppliersRepo.save(supplier);
   }

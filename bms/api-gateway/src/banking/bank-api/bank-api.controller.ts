@@ -15,7 +15,7 @@ import { CreateBankConnectionDto, BankSyncOptionsDto } from './dto/bank-api.dto'
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { BankApiException } from './exceptions/bank-api.exception';
 
-@Controller('api/banking')
+@Controller('banking')
 @UseGuards(JwtAuthGuard)
 export class BankApiController {
     constructor(private readonly bankApiService: BankApiService) {}

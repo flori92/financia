@@ -14,7 +14,6 @@ import {
   Smartphone
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { usePermissions } from "@/hooks/usePermissions";
 
 type BadgeColor =
   | "teal"
@@ -43,7 +42,6 @@ type SidebarItem = {
   icon: LucideIcon;
   href?: string;
   submenu?: SidebarSubItem[];
-  requiredPermissions?: string[]; // Permissions requises pour afficher cet item
 };
 
 const badgeColorClasses: Record<BadgeColor, string> = {
@@ -216,18 +214,8 @@ const menuItems: SidebarItem[] = [
     icon: Settings,
     submenu: [
       { label: "Paramètres", href: "/settings", icon: Settings },
-      { 
-        label: "Utilisateurs & droits", 
-        href: "/settings/users", 
-        icon: UserCog,
-        requiredPermissions: ["users:read", "users:write"] // Admin et Manager uniquement
-      },
-      { 
-        label: "Audit & traçabilité", 
-        href: "/settings/audit", 
-        icon: Shield,
-        requiredPermissions: ["settings:read"] // Admin et Manager uniquement
-      }
+      { label: "Utilisateurs & droits", href: "/settings/users", icon: UserCog },
+      { label: "Audit & traçabilité", href: "/settings/audit", icon: Shield }
     ]
   }
 ];
@@ -236,46 +224,12 @@ export function ModernSidebar() {
   const [isLocked, setIsLocked] = useState(false);
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const pathname = usePathname();
-  const { hasAnyPermission } = usePermissions();
 
   const toggleMenu = (menuId: string) => {
     setOpenMenus(prev =>
       prev.includes(menuId) ? prev.filter(id => id !== menuId) : [...prev, menuId]
     );
   };
-
-  // Filtrer les items de menu selon les permissions
-  const filterMenuItems = (items: SidebarItem[]): SidebarItem[] => {
-    return items
-      .map(item => {
-        // Si l'item a des permissions requises, vérifier
-        if (item.requiredPermissions && !hasAnyPermission(item.requiredPermissions)) {
-          return null;
-        }
-
-        // Si l'item a un submenu, filtrer les sous-items
-        if (item.submenu) {
-          const filteredSubmenu = item.submenu.filter(subItem => {
-            if (subItem.requiredPermissions) {
-              return hasAnyPermission(subItem.requiredPermissions);
-            }
-            return true;
-          });
-
-          // Si le submenu est vide après filtrage, ne pas afficher l'item parent
-          if (filteredSubmenu.length === 0) {
-            return null;
-          }
-
-          return { ...item, submenu: filteredSubmenu };
-        }
-
-        return item;
-      })
-      .filter((item): item is SidebarItem => item !== null);
-  };
-
-  const filteredMenuItems = filterMenuItems(menuItems);
 
   return (
     <div
@@ -303,7 +257,7 @@ export function ModernSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
-        {filteredMenuItems.map((item) => (
+        {menuItems.map((item) => (
           <div key={item.id}>
             {item.submenu ? (
               <>

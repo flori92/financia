@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request, Qu
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../rbac/guards/permissions.guard';
-import { RequirePermissions } from '../rbac/decorators/permissions.decorator';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { CompanyId } from '../common/decorators/company-id.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dto/create-user.dto';

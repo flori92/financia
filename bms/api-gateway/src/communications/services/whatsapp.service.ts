@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WhatsAppMessage } from '../entities/whatsapp.entity';
 import { SendWhatsAppDto } from '../dto/send-whatsapp.dto';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 @Injectable()
 export class WhatsAppService {
@@ -11,6 +12,7 @@ export class WhatsAppService {
   constructor(
     @InjectRepository(WhatsAppMessage)
     private whatsAppRepository: Repository<WhatsAppMessage>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async findAll(companyId: string): Promise<any[]> {
@@ -45,16 +47,27 @@ export class WhatsAppService {
     });
 
     const savedMessage = await this.whatsAppRepository.save(message);
-    
-    // TODO: Implement actual WhatsApp sending with configured provider (Twilio, Meta, etc.)
-    // For now, just log and mark as sent
-    this.logger.log(`WhatsApp message queued to ${whatsAppData.to}`);
-    
-    // Update status to sent (in production, this would be done by the WhatsApp provider callback)
-    savedMessage.status = 'sent';
-    savedMessage.sentAt = new Date();
+
+    const sent = await this.notificationsService.sendWhatsApp({
+      to: whatsAppData.to,
+      message: whatsAppData.message,
+      data: {
+        from: whatsAppData.from,
+        type: whatsAppData.type,
+        mediaUrl: whatsAppData.mediaUrl,
+      },
+    });
+
+    if (sent) {
+      savedMessage.status = 'sent';
+      savedMessage.sentAt = new Date();
+    } else {
+      savedMessage.status = 'failed';
+      savedMessage.errorMessage = 'WhatsApp sending failed';
+    }
+
     await this.whatsAppRepository.save(savedMessage);
-    
+
     return savedMessage;
   }
 

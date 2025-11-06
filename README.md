@@ -66,13 +66,23 @@
 
 ## 📚 Documentation
 
+### 📖 Documentation Générale
 | Document | Description |
 |----------|-------------|
+| **[INDEX_DOCUMENTATION.md](INDEX_DOCUMENTATION.md)** | 📚 Index complet de la documentation |
 | **[RAILWAY_DEPLOY_GUIDE.md](RAILWAY_DEPLOY_GUIDE.md)** | 🚂 Guide de déploiement Railway |
 | **[BUTTONS-FINAL-REPORT.md](BUTTONS-FINAL-REPORT.md)** | 🎯 Rapport final des boutons |
 | **[COMMANDES_RAPIDES.md](COMMANDES_RAPIDES.md)** | ⚡ Commandes utiles |
 | **[Cahier des charges.md](Cahier des charges.md)** | 📋 Spécifications fonctionnelles |
 | **[BMS_COMMERCIAL_EMAIL.md](BMS_COMMERCIAL_EMAIL.md)** | 📧 Email commercial |
+
+### 🆕 Module Congés (Nouveau!)
+| Document | Description |
+|----------|-------------|
+| **[QUICK_START_CONGES.md](QUICK_START_CONGES.md)** | 🚀 Démarrage rapide (15 min) |
+| **[GUIDE_IMPLEMENTATION_CONGES.md](GUIDE_IMPLEMENTATION_CONGES.md)** | 🔧 Guide technique complet |
+| **[MODULE_CONGES_IMPLEMENTATION.md](MODULE_CONGES_IMPLEMENTATION.md)** | 📖 Documentation exhaustive |
+| **[ROADMAP_PROCHAINES_ETAPES.md](ROADMAP_PROCHAINES_ETAPES.md)** | 🗺️ Roadmap 4 semaines |
 
 ---
 
@@ -149,8 +159,12 @@ Vue d'ensemble avec KPIs et graphiques
 ### 👨💼 RH
 - Gestion employés
 - Calcul de paie
-- Congés et absences
-- Notes de frais
+- **Congés et absences** ✨ NOUVEAU - Interface complète
+  - Création de demandes
+  - Workflow d'approbation multi-niveaux
+  - Gestion des soldes
+  - Vue calendrier
+- Notes de frais (à venir)
 
 ### 📊 Projets
 - Suivi de progression

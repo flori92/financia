@@ -29,6 +29,8 @@ interface Payroll {
   createdAt: string;
 }
 
+const DEFAULT_ISSUED_BY = "Service RH";
+
 const STATUS_COLORS = {
   calculated: 'bg-blue-100 text-blue-700',
   approved: 'bg-green-100 text-green-700',
@@ -162,8 +164,18 @@ export default function PayrollPage() {
 
   const handleGeneratePayslip = async (payrollId: string) => {
     try {
-      await apiPost(`/api/v1/hr/payroll/${payrollId}/payslip`, {});
+      const companyId = getCompanyId();
+      if (!companyId) {
+        triggerToast("error", "Aucune société sélectionnée");
+        return;
+      }
+
+      await apiPost(`/api/v1/hr/payroll/${payrollId}/payslip`, {
+        companyId,
+        issuedBy: DEFAULT_ISSUED_BY,
+      });
       triggerToast("success", "Fiche de paie générée !");
+      await loadData();
     } catch (err: any) {
       triggerToast("error", "Erreur lors de la génération");
     }

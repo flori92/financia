@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Activity, ActivityType, ActivityStatus } from './entities/activity.entity';
 import { Contact } from './entities/contact.entity';
-import * as nodemailer from 'nodemailer';
+import { NotificationsService } from '../notifications/notifications.service';
 
 /**
  * Service d'intégration email pour le CRM
@@ -12,25 +12,14 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class EmailIntegrationService {
   private readonly logger = new Logger(EmailIntegrationService.name);
-  private transporter: nodemailer.Transporter;
 
   constructor(
     @InjectRepository(Activity)
     private activityRepo: Repository<Activity>,
     @InjectRepository(Contact)
     private contactRepo: Repository<Contact>,
-  ) {
-    // Configuration SMTP
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-      },
-    });
-  }
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   /**
    * Envoyer un email à un contact et logger l'activité
@@ -51,13 +40,16 @@ export class EmailIntegrationService {
         return { success: false, error: 'Contact ou email introuvable' };
       }
 
-      // Envoyer l'email
-      await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || 'noreply@bms.com',
+      const sent = await this.notificationsService.sendEmail({
         to: contact.email,
         subject,
-        html: body,
+        message: body,
       });
+
+      if (!sent) {
+        this.logger.error(`Échec d'envoi email à ${contact.email}`);
+        return { success: false, error: 'Échec d\'envoi de l\'email' };
+      }
 
       // Logger l'activité
       const activity = this.activityRepo.create({

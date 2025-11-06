@@ -1,35 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as sgMail from '@sendgrid/mail';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 /**
- * Service d'envoi d'emails via SendGrid
+ * Service d'envoi d'emails CRM via NotificationsService
  */
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private initialized = false;
 
-  constructor() {
-    this.initializeSendGrid();
-  }
-
-  /**
-   * Initialiser SendGrid avec la clé API
-   */
-  private initializeSendGrid(): void {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    
-    if (apiKey) {
-      sgMail.setApiKey(apiKey);
-      this.initialized = true;
-      this.logger.log('SendGrid initialisé avec succès');
-    } else {
-      this.logger.warn(
-        'SENDGRID_API_KEY non définie. Les emails ne seront pas envoyés. ' +
-        'Définissez SENDGRID_API_KEY dans vos variables d\'environnement.',
-      );
-    }
-  }
+  constructor(private readonly notificationsService: NotificationsService) {}
 
   /**
    * Envoyer un email simple
@@ -41,23 +20,27 @@ export class EmailService {
     html?: string;
     from?: string;
   }): Promise<boolean> {
-    if (!this.initialized) {
-      this.logger.warn('SendGrid non initialisé. Email non envoyé.');
-      return false;
-    }
-
     try {
-      const msg = {
-        to: options.to,
-        from: options.from || process.env.SENDGRID_FROM_EMAIL || 'noreply@bms.app',
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-      };
+      const recipients = Array.isArray(options.to) ? options.to : [options.to];
+      let allSucceeded = true;
 
-      await sgMail.send(msg);
-      this.logger.log(`Email envoyé avec succès à ${options.to}`);
-      return true;
+      for (const recipient of recipients) {
+        const success = await this.notificationsService.sendEmail({
+          to: recipient,
+          subject: options.subject,
+          message: options.html || options.text || '',
+          data: {
+            from: options.from,
+          },
+        });
+
+        if (!success) {
+          allSucceeded = false;
+          this.logger.error(`Échec envoi email à ${recipient}`);
+        }
+      }
+
+      return allSucceeded;
     } catch (error) {
       this.logger.error(`Erreur lors de l'envoi d'email:`, error);
       return false;

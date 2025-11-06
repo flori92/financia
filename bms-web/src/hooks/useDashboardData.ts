@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
+import { apiGet } from "@/lib/api";
+import { getEffectiveCompanyId } from "@/hooks/useCompanyId";
 
 export type DashboardMetrics = {
   kpiMonth: {
@@ -83,7 +84,7 @@ export function useDashboardData() {
   const [data, setData] = useState<DashboardData | null>(null);
 
   const load = useCallback(async () => {
-    const companyId = getCompanyId();
+    const companyId = getEffectiveCompanyId();
     if (!companyId) {
       setError("Aucune société sélectionnée");
       setData(null);

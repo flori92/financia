@@ -1,22 +1,22 @@
 import { getCompanyId } from '@/lib/api';
 
+export function getEffectiveCompanyId(): string | null {
+  if (typeof window !== 'undefined') {
+    const selectedClientId = window.localStorage.getItem('expert_selected_client_id');
+    if (selectedClientId) {
+      return selectedClientId;
+    }
+  }
+
+  return getCompanyId() || null;
+}
+
 /**
  * Hook pour obtenir l'ID de l'entreprise à utiliser
  * Prend en compte le mode expert avec client sélectionné
  */
 export function useEffectiveCompanyId(): string | null {
-  // Vérifier si on est en mode expert avec un client sélectionné
-  const selectedClientId = typeof window !== 'undefined' 
-    ? localStorage.getItem('expert_selected_client_id') 
-    : null;
-  
-  // Si un client expert est sélectionné, utiliser son ID
-  if (selectedClientId) {
-    return selectedClientId;
-  }
-  
-  // Sinon utiliser l'ID de l'entreprise connectée
-  return getCompanyId() || null;
+  return getEffectiveCompanyId();
 }
 
 /**

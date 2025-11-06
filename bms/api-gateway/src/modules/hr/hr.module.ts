@@ -7,10 +7,24 @@ import { ExpenseService } from './expense.service';
 import { RecruitmentService } from './recruitment.service';
 import { Employee } from './entities/employee.entity';
 import { Payroll } from './entities/payroll.entity';
+import { HrCertificate } from './entities/hr-certificate.entity';
+import { HrLeave } from './entities/hr-leave.entity';
+import { HrLeaveBalance } from './entities/hr-leave-balance.entity';
+import { HrLeaveApproval } from './entities/hr-leave-approval.entity';
+import { HrCertificateService } from './hr-certificate.service';
+import { Company } from '../../companies/entities/company.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Employee, Payroll]),
+    TypeOrmModule.forFeature([
+      Employee,
+      Payroll,
+      HrCertificate,
+      HrLeave,
+      HrLeaveBalance,
+      HrLeaveApproval,
+      Company,
+    ]),
   ],
   controllers: [HRController],
   providers: [
@@ -18,7 +32,8 @@ import { Payroll } from './entities/payroll.entity';
     LeaveService,
     ExpenseService,
     RecruitmentService,
+    HrCertificateService,
   ],
-  exports: [PayrollService],
+  exports: [PayrollService, HrCertificateService],
 })
 export class HRModule {}

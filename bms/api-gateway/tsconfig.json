@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "moduleResolution": "node",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -21,11 +22,9 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/banking/bank-api/**",
     "src/**/__tests__/**",
     "src/ai/models/**",
     "src/ai/processors/**",
-    "src/ai/services/anomaly-detection.service.ts",
-    "src/auth/**"
+    "src/ai/services/anomaly-detection.service.ts"
   ]
 }

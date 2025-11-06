@@ -18,13 +18,228 @@ export class AIService {
   }
 
   async analyzeData(data: any) {
-    // TODO: Implement full anomaly detection
-    return { status: 'not_implemented', message: 'Anomaly detection coming soon' };
+    const transactions = Array.isArray(data?.transactions)
+      ? data.transactions.filter((tx) => typeof tx?.amount === 'number' && !Number.isNaN(tx.amount))
+      : [];
+
+    if (transactions.length === 0) {
+      return {
+        status: 'no_data',
+        message: 'Aucune transaction exploitable fournie',
+      };
+    }
+
+    const absoluteAmounts = transactions.map((tx) => Math.abs(tx.amount));
+    const totalAmount = absoluteAmounts.reduce((acc, amount) => acc + amount, 0);
+    const averageAmount = totalAmount / transactions.length;
+    const stdDeviation = this.calculateStandardDeviation(absoluteAmounts, averageAmount);
+    const upperThreshold = averageAmount + 2 * stdDeviation;
+
+    const anomalies = transactions
+      .filter((tx) => Math.abs(tx.amount) > upperThreshold)
+      .map((tx) => ({
+        ...tx,
+        reason: `Montant ${tx.amount.toFixed(2)} supérieur au seuil ${upperThreshold.toFixed(2)}`,
+      }));
+
+    const byCategory = this.groupByKey(transactions, (tx) => tx.category ?? 'unknown');
+    const byType = this.groupByKey(transactions, (tx) => tx.type ?? 'unspecified');
+
+    const dailyTotals = this.aggregateDailyTotals(transactions);
+    const trend = this.buildTrendInsights(dailyTotals);
+
+    return {
+      status: 'success',
+      summary: {
+        transactions: transactions.length,
+        totalAmount,
+        averageAmount,
+        standardDeviation: stdDeviation,
+        upperThreshold,
+      },
+      distribution: {
+        byCategory,
+        byType,
+      },
+      anomalies,
+      trend,
+    };
+  }
+
+  /**
+   * Analyse une transaction bancaire et retourne un score d'anomalie entre 0 et 1.
+   * Implémentation heuristique légère en attendant un moteur IA dédié.
+   */
+  async analyzeBankTransaction(transaction: {
+    amount: number;
+    description?: string;
+    type?: string;
+    category?: string;
+  }): Promise<number> {
+    const amount = Math.abs(transaction.amount || 0);
+
+    // Heuristique simple : montants très élevés => score plus fort
+    const amountScore = Math.min(amount / 1_000_000, 1);
+
+    // Heuristique basique sur la description
+    const riskyKeywords = ['fraude', 'fraud', 'suspicious', 'soupçon'];
+    const descriptionScore = transaction.description
+      ? riskyKeywords.some((kw) => transaction.description!.toLowerCase().includes(kw))
+        ? 0.8
+        : 0
+      : 0;
+
+    // Moyenne pondérée
+    const score = Math.min(amountScore * 0.6 + descriptionScore * 0.4, 1);
+    this.logger.debug(`Analyse transaction bancaire - score=${score.toFixed(2)} amount=${amount}`);
+
+    return score;
   }
 
   async getPrediction(data: any) {
-    // TODO: Implement prediction service
-    return { status: 'not_implemented', message: 'Prediction service coming soon' };
+    const transactions = Array.isArray(data?.transactions)
+      ? data.transactions.filter((tx) => typeof tx?.amount === 'number' && tx?.date)
+      : [];
+
+    if (transactions.length === 0) {
+      return {
+        status: 'no_data',
+        message: 'Aucune transaction horodatée pour réaliser une projection',
+      };
+    }
+
+    const horizonDays = Number.isInteger(data?.horizonDays) ? Math.max(1, data.horizonDays) : 7;
+    const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const dailyTotals = this.aggregateDailyTotals(sorted);
+
+    if (dailyTotals.length === 0) {
+      return {
+        status: 'no_data',
+        message: 'Impossible de calculer une série temporelle consolidée',
+      };
+    }
+
+    const movingAverageWindow = Math.min(7, dailyTotals.length);
+    const movingAverages = this.computeMovingAverage(dailyTotals, movingAverageWindow);
+    const lastKnown = dailyTotals[dailyTotals.length - 1];
+
+    const forecast = Array.from({ length: horizonDays }).map((_, index) => {
+      const baseDate = new Date(lastKnown.date);
+      baseDate.setDate(baseDate.getDate() + index + 1);
+      const reference = movingAverages[movingAverages.length - 1] ?? lastKnown.total;
+      const seasonalFactor = this.estimateSeasonalityFactor(dailyTotals, baseDate.getDay());
+      return {
+        date: baseDate.toISOString().split('T')[0],
+        expectedAmount: Number((reference * seasonalFactor).toFixed(2)),
+      };
+    });
+
+    const averageDailyAmount = dailyTotals.reduce((acc, item) => acc + item.total, 0) / dailyTotals.length;
+
+    return {
+      status: 'success',
+      horizonDays,
+      averageDailyAmount,
+      forecast,
+    };
+  }
+
+  private calculateStandardDeviation(values: number[], mean: number): number {
+    if (values.length <= 1) {
+      return 0;
+    }
+    const variance = values.reduce((acc, value) => acc + Math.pow(value - mean, 2), 0) / values.length;
+    return Math.sqrt(variance);
+  }
+
+  private groupByKey<T extends Record<string, any>>(items: T[], keySelector: (item: T) => string) {
+    return items.reduce<Record<string, { count: number; totalAmount: number }>>((acc, item) => {
+      const key = keySelector(item);
+      if (!acc[key]) {
+        acc[key] = { count: 0, totalAmount: 0 };
+      }
+      acc[key].count += 1;
+      acc[key].totalAmount += Math.abs(item.amount ?? 0);
+      return acc;
+    }, {});
+  }
+
+  private aggregateDailyTotals(transactions: Array<{ date?: string | Date; amount: number }>) {
+    const totals = new Map<string, number>();
+
+    transactions.forEach((tx) => {
+      const date = tx.date ? new Date(tx.date) : null;
+      if (!date || Number.isNaN(date.getTime())) {
+        return;
+      }
+      const key = date.toISOString().split('T')[0];
+      const current = totals.get(key) ?? 0;
+      totals.set(key, current + tx.amount);
+    });
+
+    return Array.from(totals.entries())
+      .map(([date, total]) => ({ date, total }))
+      .sort((a, b) => (a.date < b.date ? -1 : 1));
+  }
+
+  private buildTrendInsights(dailyTotals: Array<{ date: string; total: number }>) {
+    if (dailyTotals.length === 0) {
+      return { trend: 'stable', variation: 0 };
+    }
+
+    const firstHalf = dailyTotals.slice(0, Math.floor(dailyTotals.length / 2));
+    const secondHalf = dailyTotals.slice(Math.floor(dailyTotals.length / 2));
+    const avgFirst = firstHalf.reduce((acc, item) => acc + item.total, 0) / (firstHalf.length || 1);
+    const avgSecond = secondHalf.reduce((acc, item) => acc + item.total, 0) / (secondHalf.length || 1);
+    const variation = avgFirst === 0 ? 0 : ((avgSecond - avgFirst) / Math.abs(avgFirst)) * 100;
+
+    let trend = 'stable';
+    if (variation > 10) {
+      trend = 'upward';
+    } else if (variation < -10) {
+      trend = 'downward';
+    }
+
+    return {
+      trend,
+      variation,
+      latestTotal: dailyTotals[dailyTotals.length - 1]?.total ?? 0,
+    };
+  }
+
+  private computeMovingAverage(series: Array<{ total: number }>, window: number) {
+    if (series.length === 0 || window <= 1) {
+      return series.map((item) => item.total);
+    }
+
+    const result: number[] = [];
+    for (let i = 0; i < series.length; i++) {
+      const start = Math.max(0, i - window + 1);
+      const slice = series.slice(start, i + 1);
+      const average = slice.reduce((acc, item) => acc + item.total, 0) / slice.length;
+      result.push(average);
+    }
+    return result;
+  }
+
+  private estimateSeasonalityFactor(series: Array<{ date: string; total: number }>, weekday: number) {
+    const totalsForWeekday = series
+      .filter((item) => new Date(item.date).getDay() === weekday)
+      .map((item) => Math.abs(item.total));
+
+    if (totalsForWeekday.length === 0) {
+      return 1;
+    }
+
+    const overallAverage = series.reduce((acc, item) => acc + Math.abs(item.total), 0) / series.length;
+    const weekdayAverage = totalsForWeekday.reduce((acc, value) => acc + value, 0) / totalsForWeekday.length;
+
+    if (overallAverage === 0) {
+      return 1;
+    }
+
+    const factor = weekdayAverage / overallAverage;
+    return Math.min(Math.max(factor, 0.5), 1.5);
   }
 
   async chatResponse(content: string, context?: any) {
