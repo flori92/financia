@@ -13,8 +13,9 @@ export function useLeaveBalance(companyId: string, employeeId: string) {
   const fetchBalance = async () => {
     try {
       setLoading(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const response = await fetch(
-        `https://bms-production-d9e9.up.railway.app/api/v1/hr/leaves/balance?companyId=${companyId}&employeeId=${employeeId}`,
+        `${apiUrl}/api/v1/hr/leaves/balance?companyId=${companyId}&employeeId=${employeeId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,

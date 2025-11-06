@@ -27,7 +27,8 @@ export function useLeaves(options: UseLeavesOptions) {
         ...(options.type && { type: options.type }),
       });
 
-      const response = await fetch(`https://bms-production-d9e9.up.railway.app/api/v1/hr/leaves?${params}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/v1/hr/leaves?${params}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -47,7 +48,8 @@ export function useLeaves(options: UseLeavesOptions) {
 
   const createLeave = async (data: Partial<Leave>) => {
     try {
-      const response = await fetch('https://bms-production-d9e9.up.railway.app/api/v1/hr/leaves', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/v1/hr/leaves`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +70,8 @@ export function useLeaves(options: UseLeavesOptions) {
 
   const submitLeave = async (leaveId: string, notes?: string) => {
     try {
-      const response = await fetch(`https://bms-production-d9e9.up.railway.app/api/v1/hr/leaves/${leaveId}/submit`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/v1/hr/leaves/${leaveId}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
