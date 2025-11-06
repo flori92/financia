@@ -61,14 +61,14 @@ export default function EntrepreneurDashboard() {
 
   useEffect(() => {
     const loadData = async () => {
-      const companyId = useEffectiveCompanyId();
-      if (!companyId) {
-        setError("Aucune société sélectionnée");
-        setLoading(false);
-        return;
-      }
-
       try {
+        const companyId = getCompanyId();
+        if (!companyId) {
+          setError("Aucune société sélectionnée. Veuillez vous connecter.");
+          setLoading(false);
+          return;
+        }
+
         // Utiliser l'API accounting existante
         const [metrics, treasuryAlerts] = await Promise.allSettled([
           apiGet("/api/v1/accounting/dashboard/metrics", { companyId }),
@@ -76,27 +76,28 @@ export default function EntrepreneurDashboard() {
         ]);
 
         const result: EntrepreneurData = {
-      kpiMonth: { revenue: 0, expenses: 0, netIncome: 0, margin: 0 },
-      evolutionChart: [],
-      topClients: [],
-      alerts: [],
-      recentActivity: { entries: [] }
-    };
+          kpiMonth: { revenue: 0, expenses: 0, netIncome: 0, margin: 0 },
+          evolutionChart: [],
+          topClients: [],
+          alerts: [],
+          recentActivity: { entries: [] }
+        };
 
-        if (metrics.status === "fulfilled") {
-          result.kpiMonth = metrics.value.kpiMonth;
-          result.evolutionChart = metrics.value.evolutionChart;
-          result.topClients = metrics.value.topClients;
-          result.alerts = metrics.value.alerts;
-          result.recentActivity = metrics.value.recentActivity;
+        if (metrics.status === "fulfilled" && metrics.value) {
+          result.kpiMonth = metrics.value.kpiMonth || result.kpiMonth;
+          result.evolutionChart = metrics.value.evolutionChart || [];
+          result.topClients = metrics.value.topClients || [];
+          result.alerts = metrics.value.alerts || [];
+          result.recentActivity = metrics.value.recentActivity || { entries: [] };
         }
 
-        if (treasuryAlerts.status === "fulfilled") {
+        if (treasuryAlerts.status === "fulfilled" && treasuryAlerts.value) {
           result.treasuryMetrics = treasuryAlerts.value.metrics;
         }
 
         setData(result);
       } catch (err: any) {
+        console.error("[EntrepreneurDashboard] Erreur chargement:", err);
         setError(err?.message || "Impossible de charger les données");
       } finally {
         setLoading(false);
@@ -104,31 +105,63 @@ export default function EntrepreneurDashboard() {
     };
 
     loadData();
-  }, []); // La dépendance sera gérée par useEffectEffectiveCompanyId
+  }, [])
 
-  if (loading) return <div className="p-8">Chargement...</div>;
-  if (error) return <div className="p-8 text-red-600">Erreur: {error}</div>;
-  if (!data) return <div className="p-8">Aucune donnée disponible</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Chargement du dashboard entrepreneur...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-8 h-8 text-red-600" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Erreur de chargement</h3>
+          <p className="text-slate-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-600">Aucune donnée disponible</p>
+        </div>
+      </div>
+    );
+  }
 
   // Récupérer le nom du client si on est en mode expert
   const selectedClientName = useSelectedClientName();
   const isExpertMode = isExpertClientMode();
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-8 space-y-6 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold text-slate-900">
             {isExpertMode ? `Gestion Client: ${selectedClientName}` : 'Tableau de Bord Entrepreneur'}
           </h1>
-          <p className="text-gray-600">
-            {isExpertMode 
-              ? 'Vous naviguez dans l\'espace de ce client en tant qu\'expert-comptable' 
+          <p className="text-slate-600 mt-1">
+            {isExpertMode
+              ? 'Vous naviguez dans l\'espace de ce client en tant qu\'expert-comptable'
               : 'Vue d\'ensemble de votre activité'
             }
           </p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-300">
           <FileText className="w-4 h-4 mr-2" />
           Nouvelle Transaction
         </Button>
@@ -136,212 +169,268 @@ export default function EntrepreneurDashboard() {
 
       {/* Alertes */}
       {data.alerts && data.alerts.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {data.alerts.map((alert, index) => (
-            <Card key={index} className={`border-l-4 ${
-              alert.type === 'danger' ? 'border-red-500 bg-red-50' :
-              alert.type === 'warning' ? 'border-yellow-500 bg-yellow-50' :
-              'border-blue-500 bg-blue-50'
+            <div key={index} className={`relative overflow-hidden rounded-xl shadow-lg p-5 transition-all hover:shadow-xl ${
+              alert.type === 'danger' ? 'bg-gradient-to-r from-rose-500 to-rose-600' :
+              alert.type === 'warning' ? 'bg-gradient-to-r from-amber-500 to-amber-600' :
+              'bg-gradient-to-r from-blue-500 to-blue-600'
             }`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className={`w-5 h-5 ${
-                    alert.type === 'danger' ? 'text-red-600' :
-                    alert.type === 'warning' ? 'text-yellow-600' :
-                    'text-blue-600'
-                  }`} />
-                  <div>
-                    <p className="font-semibold">{alert.title}</p>
-                    <p className="text-sm text-gray-600">{alert.message}</p>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+              <div className="relative z-10 flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-white" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex-1">
+                  <h4 className="text-white font-bold text-lg mb-1">{alert.title}</h4>
+                  <p className="text-white/90">{alert.message}</p>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Chiffre d'Affaires</CardTitle>
-            <TrendingUp className="w-4 h-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.kpiMonth?.revenue?.toLocaleString() || 0} FCFA</div>
-            <p className="text-xs text-green-600">Ce mois</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Dépenses</CardTitle>
-            <TrendingDown className="w-4 h-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.kpiMonth?.expenses?.toLocaleString() || 0} FCFA</div>
-            <p className="text-xs text-red-600">Ce mois</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Résultat Net</CardTitle>
-            <DollarSign className="w-4 h-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${data.kpiMonth?.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {Math.abs(data.kpiMonth?.netIncome || 0).toLocaleString()} FCFA
+        {/* Revenue Card */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-teal-100 text-sm font-medium uppercase tracking-wide">Chiffre d'Affaires</div>
+              <TrendingUp className="w-6 h-6 text-teal-200" />
             </div>
-            <p className="text-xs text-gray-600">
-              {data.kpiMonth?.netIncome >= 0 ? 'Bénéfice' : 'Perte'}
-            </p>
-          </CardContent>
-        </Card>
+            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
+              {data.kpiMonth?.revenue?.toLocaleString() || 0}
+            </div>
+            <div className="text-sm text-teal-100 font-medium">FCFA</div>
+            <div className="mt-3 flex items-center text-teal-100 text-xs">
+              <span>Ce mois</span>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Marge</CardTitle>
-            <Target className="w-4 h-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.kpiMonth?.margin?.toFixed(1) || 0}%</div>
-            <p className="text-xs text-purple-600">
-              {data.kpiMonth?.margin >= 20 ? 'Excellente' : 
+        {/* Expenses Card */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-orange-100 text-sm font-medium uppercase tracking-wide">Dépenses</div>
+              <TrendingDown className="w-6 h-6 text-orange-200" />
+            </div>
+            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
+              {data.kpiMonth?.expenses?.toLocaleString() || 0}
+            </div>
+            <div className="text-sm text-orange-100 font-medium">FCFA</div>
+            <div className="mt-3 flex items-center text-orange-100 text-xs">
+              <span>Ce mois</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Net Income Card */}
+        <div className={`relative overflow-hidden rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
+          data.kpiMonth?.netIncome >= 0
+            ? 'bg-gradient-to-br from-emerald-500 to-emerald-600'
+            : 'bg-gradient-to-br from-rose-500 to-rose-600'
+        }`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`text-sm font-medium uppercase tracking-wide ${
+                data.kpiMonth?.netIncome >= 0 ? 'text-emerald-100' : 'text-rose-100'
+              }`}>
+                Résultat Net
+              </div>
+              <DollarSign className={`w-6 h-6 ${
+                data.kpiMonth?.netIncome >= 0 ? 'text-emerald-200' : 'text-rose-200'
+              }`} />
+            </div>
+            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
+              {Math.abs(data.kpiMonth?.netIncome || 0).toLocaleString()}
+            </div>
+            <div className={`text-sm font-medium ${
+              data.kpiMonth?.netIncome >= 0 ? 'text-emerald-100' : 'text-rose-100'
+            }`}>
+              FCFA
+            </div>
+            <div className={`mt-3 flex items-center text-xs ${
+              data.kpiMonth?.netIncome >= 0 ? 'text-emerald-100' : 'text-rose-100'
+            }`}>
+              <span>{data.kpiMonth?.netIncome >= 0 ? 'Bénéfice' : 'Perte'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Margin Card */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-purple-100 text-sm font-medium uppercase tracking-wide">Marge</div>
+              <Target className="w-6 h-6 text-purple-200" />
+            </div>
+            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
+              {data.kpiMonth?.margin?.toFixed(1) || 0}%
+            </div>
+            <div className="text-sm text-purple-100 font-medium">
+              {data.kpiMonth?.margin >= 20 ? 'Excellente' :
                data.kpiMonth?.margin >= 10 ? 'Bonne' : 'Faible'}
-            </p>
-          </CardContent>
-        </Card>
+            </div>
+            <div className="mt-3 flex items-center text-purple-100 text-xs">
+              <span>Performance</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Métriques trésorerie */}
       {data.treasuryMetrics && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Runway Trésorerie</CardTitle>
-              <Activity className="w-4 h-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${
-                data.treasuryMetrics.runway && data.treasuryMetrics.runway < 0 ? 'text-red-600' :
-                data.treasuryMetrics.runway && data.treasuryMetrics.runway < 15 ? 'text-yellow-600' :
-                'text-green-600'
-              }`}>
-                {data.treasuryMetrics.runway !== undefined ? `${data.treasuryMetrics.runway} jours` : 'N/A'}
+          {/* Runway Card */}
+          <div className={`relative overflow-hidden rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
+            data.treasuryMetrics.runway && data.treasuryMetrics.runway < 0 ? 'bg-gradient-to-br from-rose-500 to-rose-600' :
+            data.treasuryMetrics.runway && data.treasuryMetrics.runway < 15 ? 'bg-gradient-to-br from-amber-500 to-amber-600' :
+            'bg-gradient-to-br from-emerald-500 to-emerald-600'
+          }`}>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-white text-sm font-medium uppercase tracking-wide">Runway Trésorerie</div>
+                <Activity className="w-6 h-6 text-white/80" />
               </div>
-              <p className="text-xs text-gray-600">Jours de couverture</p>
-            </CardContent>
-          </Card>
+              <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
+                {data.treasuryMetrics.runway !== undefined ? `${data.treasuryMetrics.runway}` : 'N/A'}
+              </div>
+              <div className="text-sm text-white/90 font-medium">
+                {data.treasuryMetrics.runway !== undefined ? 'jours' : ''}
+              </div>
+              <div className="mt-3 flex items-center text-white/80 text-xs">
+                <span>Jours de couverture</span>
+              </div>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Net Trésorerie (90j)</CardTitle>
-              <DollarSign className="w-4 h-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {Math.abs(data.treasuryMetrics.net || 0).toLocaleString()} FCFA
+          {/* Net Treasury Card */}
+          <div className={`relative overflow-hidden rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
+            data.treasuryMetrics.net && data.treasuryMetrics.net < 0
+              ? 'bg-gradient-to-br from-rose-500 to-rose-600'
+              : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
+          }`}>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-white text-sm font-medium uppercase tracking-wide">Net Trésorerie (90j)</div>
+                <DollarSign className="w-6 h-6 text-white/80" />
               </div>
-              <p className="text-xs text-gray-600">
-                {data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'Déficit' : 'Excédent'}
-              </p>
-            </CardContent>
-          </Card>
+              <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
+                {Math.abs(data.treasuryMetrics.net || 0).toLocaleString()}
+              </div>
+              <div className="text-sm text-white/90 font-medium">FCFA</div>
+              <div className="mt-3 flex items-center text-white/80 text-xs">
+                <span>{data.treasuryMetrics.net && data.treasuryMetrics.net < 0 ? 'Déficit' : 'Excédent'}</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Statut Formalisation */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Statut de Formalisation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
-                  ✓
-                </div>
-                <div>
-                  <p className="font-medium">NIF Obtenu</p>
-                  <p className="text-sm text-gray-600">Numéro: {data?.nif}</p>
-                </div>
+      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <h3 className="text-xl font-bold text-slate-900 mb-6">Statut de Formalisation</h3>
+        <div className="space-y-4">
+          <div className="relative overflow-hidden flex items-center justify-between p-5 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-md">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                <Award className="w-6 h-6 text-white" />
               </div>
-              <span className="px-3 py-1 bg-green-600 text-white rounded-full text-sm">Actif</span>
+              <div>
+                <p className="font-bold text-white text-lg">NIF Obtenu</p>
+                <p className="text-sm text-white/90">Numéro: {data?.nif || 'Non renseigné'}</p>
+              </div>
             </div>
+            <span className="relative z-10 px-4 py-2 bg-white/20 text-white rounded-full text-sm font-semibold">Actif</span>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 border rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">RCCM</p>
-                <p className="font-medium">{data?.rccm || 'En cours'}</p>
-              </div>
-              <div className="p-4 border rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Régime Fiscal</p>
-                <p className="font-medium">{data?.taxRegime}</p>
-              </div>
-              <div className="p-4 border rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Statut Juridique</p>
-                <p className="font-medium">{data?.legalStatus}</p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 border-2 border-slate-200 rounded-xl hover:border-slate-300 transition-colors bg-slate-50">
+              <p className="text-sm text-slate-600 mb-2 font-medium uppercase tracking-wide">RCCM</p>
+              <p className="font-bold text-slate-900">{data?.rccm || 'En cours'}</p>
+            </div>
+            <div className="p-5 border-2 border-slate-200 rounded-xl hover:border-slate-300 transition-colors bg-slate-50">
+              <p className="text-sm text-slate-600 mb-2 font-medium uppercase tracking-wide">Régime Fiscal</p>
+              <p className="font-bold text-slate-900">{data?.taxRegime || 'Non défini'}</p>
+            </div>
+            <div className="p-5 border-2 border-slate-200 rounded-xl hover:border-slate-300 transition-colors bg-slate-50">
+              <p className="text-sm text-slate-600 mb-2 font-medium uppercase tracking-wide">Statut Juridique</p>
+              <p className="font-bold text-slate-900">{data?.legalStatus || 'Non défini'}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Transactions Récentes */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Transactions Récentes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {data?.recentTransactions?.map((transaction: any) => (
-              <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    transaction.type === 'sale' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <h3 className="text-xl font-bold text-slate-900 mb-6">Transactions Récentes</h3>
+        <div className="space-y-3">
+          {data?.recentTransactions && data.recentTransactions.length > 0 ? (
+            data.recentTransactions.map((transaction: any) => (
+              <div key={transaction.id} className="flex items-center justify-between p-4 border-2 border-slate-100 rounded-xl hover:border-slate-200 hover:bg-slate-50 transition-all group">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-transform group-hover:scale-110 ${
+                    transaction.type === 'sale' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'
                   }`}>
                     {transaction.type === 'sale' ? '+' : '-'}
                   </div>
                   <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-gray-600">{new Date(transaction.date).toLocaleDateString('fr-FR')}</p>
+                    <p className="font-semibold text-slate-900">{transaction.description}</p>
+                    <p className="text-sm text-slate-600">{new Date(transaction.date).toLocaleDateString('fr-FR')}</p>
                   </div>
                 </div>
-                <div className={`font-bold ${transaction.type === 'sale' ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`font-bold text-lg tabular-nums ${transaction.type === 'sale' ? 'text-emerald-600' : 'text-rose-600'}`}>
                   {transaction.type === 'sale' ? '+' : '-'}{transaction.amount.toLocaleString()} FCFA
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            ))
+          ) : (
+            <div className="text-center py-8 text-slate-500">
+              <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p>Aucune transaction récente</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Alertes et Notifications */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5" />
-            Notifications
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {data?.notifications?.map((notif: any) => (
-              <div key={notif.id} className={`p-3 rounded-lg border-l-4 ${
-                notif.type === 'warning' ? 'bg-orange-50 border-orange-500' :
+      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <div className="flex items-center gap-3 mb-6">
+          <Bell className="w-6 h-6 text-slate-700" />
+          <h3 className="text-xl font-bold text-slate-900">Notifications</h3>
+        </div>
+        <div className="space-y-3">
+          {data?.notifications && data.notifications.length > 0 ? (
+            data.notifications.map((notif: any) => (
+              <div key={notif.id} className={`relative overflow-hidden p-4 rounded-xl border-l-4 transition-all hover:shadow-md ${
+                notif.type === 'warning' ? 'bg-amber-50 border-amber-500' :
                 notif.type === 'info' ? 'bg-blue-50 border-blue-500' :
-                'bg-green-50 border-green-500'
+                'bg-emerald-50 border-emerald-500'
               }`}>
-                <p className="font-medium text-sm">{notif.title}</p>
-                <p className="text-sm text-gray-600 mt-1">{notif.message}</p>
+                <p className="font-bold text-slate-900">{notif.title}</p>
+                <p className="text-sm text-slate-600 mt-1">{notif.message}</p>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            ))
+          ) : (
+            <div className="text-center py-8 text-slate-500">
+              <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p>Aucune notification</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
