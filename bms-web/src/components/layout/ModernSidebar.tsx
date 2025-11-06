@@ -222,7 +222,7 @@ const menuItems: SidebarItem[] = [
 
 export function ModernSidebar() {
   const [isLocked, setIsLocked] = useState(false);
-  const [openMenus, setOpenMenus] = useState<string[]>([]);
+  const [openMenus, setOpenMenus] = useState<string[]>(['rh', 'crm', 'communications']); // Ouvrir RH, CRM et Communications par défaut
   const pathname = usePathname();
 
   const toggleMenu = (menuId: string) => {
