@@ -6,6 +6,7 @@ Service Flask avec Prophet, scikit-learn et intégration LLM local
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import requests
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -26,6 +27,8 @@ CORS(app)
 # Configuration Railway
 PORT = int(os.environ.get('PORT', 8000))
 LLM_SERVICE_URL = os.environ.get('LLM_SERVICE_URL', 'http://localhost:8001')
+LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'simplified')  # 'simplified' | 'free' | 'ollama'
+OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', 'llama2:7b')
 
 class BMSAIAnalytics:
     def __init__(self):
@@ -158,6 +161,54 @@ class BMSAIAnalytics:
 # Initialiser le service
 ai_service = BMSAIAnalytics()
 
+def build_company_context(company_data: dict) -> str:
+    name = company_data.get('name', 'Entreprise')
+    industry = company_data.get('industry', 'Secteur')
+    country = company_data.get('country', 'Pays')
+    total_debit = company_data.get('total_debit', 0)
+    total_credit = company_data.get('total_credit', 0)
+    entry_count = company_data.get('entry_count', 0)
+    last_entry_date = company_data.get('last_entry_date', 'N/A')
+
+    return (
+        f"Entreprise: {name} | Secteur: {industry} | Pays: {country}\n"
+        f"Débits: {total_debit} | Crédits: {total_credit} | Écritures: {entry_count} | Dernière écriture: {last_entry_date}"
+    )
+
+def call_llm_generate(prompt: str, context: str):
+    base = LLM_SERVICE_URL.rstrip('/')
+    if LLM_PROVIDER == 'ollama':
+        url = f"{base}/api/generate"
+        payload = {
+            'model': OLLAMA_MODEL,
+            'prompt': f"Contexte:\n{context}\n\nQuestion:\n{prompt}",
+            'stream': False
+        }
+    else:
+        # simplified ou free utilisent /generate avec {prompt, context}
+        url = f"{base}/generate"
+        payload = {'prompt': prompt, 'context': context}
+    return requests.post(url, json=payload, timeout=8)
+
+def call_llm_chat(question: str, company_data: dict):
+    base = LLM_SERVICE_URL.rstrip('/')
+    if LLM_PROVIDER == 'ollama':
+        url = f"{base}/api/chat"
+        context_msg = build_company_context(company_data)
+        payload = {
+            'model': OLLAMA_MODEL,
+            'messages': [
+                {'role': 'system', 'content': context_msg},
+                {'role': 'user', 'content': question}
+            ],
+            'stream': False
+        }
+    else:
+        # simplified/free: /chat avec {question, companyData}
+        url = f"{base}/chat"
+        payload = {'question': question, 'companyData': company_data}
+    return requests.post(url, json=payload, timeout=8)
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Vérification de santé du service"""
@@ -186,8 +237,95 @@ def models_status():
         'models': ['prophet', 'kmeans', 'random_forest'],
         'status': 'ready',
         'llm_service': LLM_SERVICE_URL,
+        'llm_provider': LLM_PROVIDER,
+        'ollama_model': OLLAMA_MODEL if LLM_PROVIDER == 'ollama' else None,
         'railway': True
     })
+
+@app.route('/api/llm/generate', methods=['POST'])
+def llm_generate():
+    """Proxy vers LLM /generate (prompt/context)"""
+    try:
+        data = request.get_json() or {}
+        prompt = data.get('prompt', '')
+        context = data.get('context', '')
+
+        if not prompt:
+            return jsonify({'error': 'Champ "prompt" requis'}), 400
+
+        resp = call_llm_generate(prompt, context)
+
+        if resp.status_code == 200:
+            return jsonify(resp.json())
+        else:
+            return jsonify({'error': 'LLM generate a échoué', 'status': resp.status_code, 'details': resp.text}), 502
+
+    except Exception as e:
+        return jsonify({'error': f'Exception proxy generate: {str(e)}'}), 502
+
+@app.route('/api/llm/chat', methods=['POST'])
+def llm_chat():
+    """Proxy vers LLM /chat (question/companyData), fallback sur /generate"""
+    try:
+        data = request.get_json() or {}
+        question = data.get('question', '')
+        company_data = data.get('companyData', {})
+
+        if not question:
+            return jsonify({'error': 'Champ "question" requis'}), 400
+
+        # Essai endpoint /chat selon provider
+        chat_resp = call_llm_chat(question, company_data)
+
+        if chat_resp.status_code == 200:
+            return jsonify(chat_resp.json())
+
+        # Fallback vers /generate avec un contexte simple basé sur companyData
+        context = build_company_context(company_data)
+        gen_resp = call_llm_generate(question, context)
+
+        if gen_resp.status_code == 200:
+            return jsonify(gen_resp.json())
+        else:
+            return jsonify({
+                'error': 'LLM chat/generate a échoué',
+                'chat_status': chat_resp.status_code,
+                'generate_status': gen_resp.status_code,
+                'chat_details': chat_resp.text,
+                'generate_details': gen_resp.text
+            }), 502
+
+    except Exception as e:
+        return jsonify({'error': f'Exception proxy chat: {str(e)}'}), 502
+
+@app.route('/api/llm/proxy', methods=['POST'])
+def llm_proxy():
+    """Proxy générique vers le service LLM: body { path, payload }"""
+    try:
+        data = request.get_json() or {}
+        path = data.get('path', '')
+        payload = data.get('payload', {})
+
+        if not path or not isinstance(path, str) or not path.startswith('/'):
+            return jsonify({'error': 'Champ "path" requis et doit commencer par /'}), 400
+
+        url = f"{LLM_SERVICE_URL.rstrip('/')}{path}"
+        resp = requests.post(url, json=payload, timeout=8)
+
+        # Passe la réponse telle quelle si possible
+        try:
+            body = resp.json()
+        except Exception:
+            body = {'raw': resp.text}
+
+        status = resp.status_code
+        if status == 200:
+            return jsonify(body)
+        else:
+            return jsonify({'error': 'LLM proxy a échoué', 'status': status, 'body': body}), 502
+
+    except Exception as e:
+        return jsonify({'error': f'Exception proxy LLM: {str(e)}'}), 502
 
 if __name__ == '__main__':
     print("Demarrage du service BMS AI Analytics sur Railway...")
