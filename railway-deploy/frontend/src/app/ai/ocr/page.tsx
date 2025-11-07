@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info, PenTool } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Upload, FileText, Receipt, Building2, CheckCircle, AlertCircle, Camera, Download, Sparkles, Info, PenTool, Circle } from "lucide-react";
 import { formatCurrency, detectCurrency, type CurrencyCode } from "@/lib/currency";
 import { CurrencyBadge } from "@/components/ui/currency-badge";
-import { aiAPI } from "@/lib/api-client";
+import apiClient, { aiAPI } from "@/lib/api-client";
 
 type DocumentType = "invoice" | "receipt" | "bank_statement";
 
@@ -25,6 +25,19 @@ export default function OcrPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any>(null);
   const [modifiedFields, setModifiedFields] = useState<Set<string>>(new Set());
+  const [aiHealthy, setAiHealthy] = useState<'unknown' | 'ok' | 'down'>('unknown');
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const status = await apiClient.get('/api/v1/ai/ocr/status', undefined, { skipAuthRedirect: true });
+        setAiHealthy(status?.status ? 'ok' : 'down');
+      } catch (e) {
+        setAiHealthy('down');
+      }
+    };
+    checkHealth();
+  }, []);
 
   // Helper pour formater les montants selon la devise
   const formatAmount = (amount: number, currency?: string): string => {
@@ -435,11 +448,19 @@ export default function OcrPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">OCR - Extraction de documents</h1>
-        <p className="text-gray-600 mt-1">
-          Numérisez vos factures, reçus et relevés bancaires automatiquement
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">OCR - Extraction de documents</h1>
+          <p className="text-gray-600 mt-1">
+            Numérisez vos factures, reçus et relevés bancaires automatiquement
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border">
+          <Circle className={`h-3 w-3 ${aiHealthy === 'ok' ? 'text-green-600' : aiHealthy === 'down' ? 'text-red-600' : 'text-gray-400'}`} />
+          <span className={`${aiHealthy === 'ok' ? 'text-green-700' : aiHealthy === 'down' ? 'text-red-700' : 'text-gray-600'}`}>
+            {aiHealthy === 'ok' ? 'Service IA: opérationnel' : aiHealthy === 'down' ? 'Service IA: indisponible' : 'Vérification du service…'}
+          </span>
+        </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Sparkles, Loader2, MessageCircle, FileText, TrendingUp, HelpCircle } from 'lucide-react';
-import { aiAPI } from '@/lib/api-client';
+import { Send, Bot, User, Sparkles, Loader2, MessageCircle, FileText, TrendingUp, HelpCircle, Circle } from 'lucide-react';
+import apiClient, { aiAPI } from '@/lib/api-client';
 
 
 interface Message {
@@ -42,6 +42,7 @@ export default function AIChatPage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [aiHealthy, setAiHealthy] = useState<'unknown' | 'ok' | 'down'>('unknown');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,6 +51,19 @@ export default function AIChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Vérifier la santé du service IA (OCR status est un GET simple)
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const status = await apiClient.get('/api/v1/ai/ocr/status', undefined, { skipAuthRedirect: true });
+        setAiHealthy(status?.status ? 'ok' : 'down');
+      } catch (e) {
+        setAiHealthy('down');
+      }
+    };
+    checkHealth();
+  }, []);
 
   const handleSend = async (messageText?: string) => {
     const textToSend = messageText || input;
@@ -122,6 +136,12 @@ export default function AIChatPage() {
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
             <Sparkles className="h-3 w-3" />
             IA Avancée
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 ml-2 rounded-full text-xs font-medium border">
+            <Circle className={`h-3 w-3 ${aiHealthy === 'ok' ? 'text-green-600' : aiHealthy === 'down' ? 'text-red-600' : 'text-gray-400'}`} />
+            <span className={`${aiHealthy === 'ok' ? 'text-green-700' : aiHealthy === 'down' ? 'text-red-700' : 'text-gray-600'}`}>
+              {aiHealthy === 'ok' ? 'Service IA: opérationnel' : aiHealthy === 'down' ? 'Service IA: indisponible' : 'Vérification du service…'}
+            </span>
           </span>
         </div>
       </div>

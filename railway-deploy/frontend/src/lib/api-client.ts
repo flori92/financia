@@ -16,6 +16,8 @@ interface ApiResponse<T = any> {
   error?: string;
 }
 
+type RequestOptions = RequestInit & { skipAuthRedirect?: boolean };
+
 class ApiClient {
   private baseURL: string;
   private timeout: number;
@@ -26,13 +28,13 @@ class ApiClient {
     this.timeout = config.timeout || 30000;
     this.defaultHeaders = {
       'Content-Type': 'application/json',
-      ...config.headers,
+      ...(config.headers || {}),
     };
   }
 
   private async request<T = any>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestOptions = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
@@ -40,7 +42,7 @@ class ApiClient {
     const token = this.getToken();
     const headers: Record<string, string> = {
       ...this.defaultHeaders,
-      ...options.headers,
+      ...this.normalizeHeaders(options.headers),
     };
 
     if (token && !headers['Authorization']) {
@@ -63,12 +65,15 @@ class ApiClient {
 
       if (!response.ok) {
         // Handle 401 Unauthorized - redirect to login
-        if (response.status === 401 && typeof window !== 'undefined') {
-          window.localStorage.removeItem('bms_token');
-          window.localStorage.removeItem('token');
-          window.localStorage.removeItem('bms_access_token');
-          window.localStorage.removeItem('user_data');
-          window.location.href = '/login';
+        if (response.status === 401 && typeof window !== 'undefined' && !options.skipAuthRedirect) {
+          try {
+            window.localStorage.removeItem('bms_token');
+            window.localStorage.removeItem('token');
+            window.localStorage.removeItem('bms_access_token');
+            window.localStorage.removeItem('user_data');
+          } finally {
+            window.location.href = '/login';
+          }
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -82,20 +87,48 @@ class ApiClient {
       } else {
         return await response.blob() as T;
       }
-    } catch (error) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId);
       
-      if (error.name === 'AbortError') {
+      const e = err as any;
+      if (e && e.name === 'AbortError') {
         throw new Error('Request timeout');
       }
       
-      console.error(`API Request failed: ${url}`, error);
-      throw error;
+      console.error(`API Request failed: ${url}`, err);
+      if (err instanceof Error) {
+        throw err;
+      }
+      throw new Error(String(err));
     }
   }
 
+  // Normalize HeadersInit to a plain object
+  private normalizeHeaders(headers?: HeadersInit): Record<string, string> {
+    const result: Record<string, string> = {};
+    if (!headers) return result;
+    if (headers instanceof Headers) {
+      headers.forEach((value, key) => {
+        result[key] = String(value);
+      });
+      return result;
+    }
+    if (Array.isArray(headers)) {
+      for (const entry of headers) {
+        const [key, value] = entry;
+        result[key] = String(value);
+      }
+      return result;
+    }
+    // headers is Record<string, string>
+    for (const [key, value] of Object.entries(headers)) {
+      result[key] = String(value);
+    }
+    return result;
+  }
+
   // HTTP Methods
-  async get<T = any>(endpoint: string, params?: Record<string, any>): Promise<T> {
+  async get<T = any>(endpoint: string, params?: Record<string, any>, options?: { skipAuthRedirect?: boolean }): Promise<T> {
     let url = endpoint;
     
     if (params) {
@@ -108,32 +141,35 @@ class ApiClient {
       url += `?${searchParams.toString()}`;
     }
 
-    return this.request<T>(url, { method: 'GET' });
+    return this.request<T>(url, { method: 'GET', skipAuthRedirect: options?.skipAuthRedirect });
   }
 
-  async post<T = any>(endpoint: string, data?: any): Promise<T> {
+  async post<T = any>(endpoint: string, data?: any, options?: { skipAuthRedirect?: boolean }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
+      skipAuthRedirect: options?.skipAuthRedirect,
     });
   }
 
-  async put<T = any>(endpoint: string, data?: any): Promise<T> {
+  async put<T = any>(endpoint: string, data?: any, options?: { skipAuthRedirect?: boolean }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
+      skipAuthRedirect: options?.skipAuthRedirect,
     });
   }
 
-  async patch<T = any>(endpoint: string, data?: any): Promise<T> {
+  async patch<T = any>(endpoint: string, data?: any, options?: { skipAuthRedirect?: boolean }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
+      skipAuthRedirect: options?.skipAuthRedirect,
     });
   }
 
-  async delete<T = any>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  async delete<T = any>(endpoint: string, options?: { skipAuthRedirect?: boolean }): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE', skipAuthRedirect: options?.skipAuthRedirect });
   }
 
   // File upload
@@ -195,7 +231,8 @@ class ApiClient {
 
 // Create and export the API client instance
 const apiClient = new ApiClient({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '',
+  // Fallback vers la passerelle Railway si la variable n'est pas définie
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app',
   timeout: 30000,
 });
 
