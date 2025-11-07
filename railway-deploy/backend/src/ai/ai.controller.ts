@@ -87,6 +87,10 @@ export class AIController {
   @Post('chat')
   @ApiOperation({ summary: 'Assistant virtuel conversationnel' })
   async chat(@Body() message: { content: string; context?: any }) {
+    // Validation stricte du body pour éviter les erreurs 500 côté service
+    if (!message || typeof message.content !== 'string' || message.content.trim() === '') {
+      throw new BadRequestException('Le champ "content" est requis et doit être une chaîne non vide');
+    }
     return this.aiService.chatResponse(message.content, message.context);
   }
 

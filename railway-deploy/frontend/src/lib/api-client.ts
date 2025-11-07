@@ -386,7 +386,7 @@ export const taxAPI = {
 
 export const aiAPI = {
   chat: (message: string, context?: any) =>
-    apiClient.post('/api/v1/ai/chat', { message, context }),
+    apiClient.post('/api/v1/ai/chat', { content: message, context }),
   
   ocr: (file: File, type: string) => {
     const formData = new FormData();

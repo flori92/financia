@@ -32,7 +32,8 @@ export class AIService {
   }
 
   async chatResponse(content: string, context?: any) {
-    this.logger.log(`💬 Chat request: "${content.substring(0, 50)}..."`);
+    const safeContent = typeof content === 'string' ? content : '';
+    this.logger.log(`💬 Chat request: "${safeContent.substring(0, 50)}..."`);
 
     // Essayer d'utiliser Ollama RAG pour une réponse intelligente
     try {
@@ -51,7 +52,7 @@ export class AIService {
     }
 
     // Fallback: Assistant virtuel basé sur mots-clés
-    const lowerContent = content.toLowerCase();
+    const lowerContent = safeContent.toLowerCase();
     
     // Réponses contextuelles basées sur les mots-clés
     if (lowerContent.includes('facture') || lowerContent.includes('invoice')) {
