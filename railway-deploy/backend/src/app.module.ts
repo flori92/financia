@@ -5,9 +5,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { TerminusModule } from '@nestjs/terminus';
+import { CacheModule } from '@nestjs/cache-manager';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { PermissionsGuard } from './rbac/guards/permissions.guard';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { CacheInvalidationInterceptor } from './common/interceptors/cache-invalidation.interceptor';
 
 // Core Modules
 import { AuthModule } from './auth/auth.module';
@@ -65,9 +68,15 @@ import { FiscalAdminModule } from './fiscal-admin/fiscal-admin.module';
 import { AdminSystemModule } from './admin-system/admin-system.module';
 import { BankPartnerModule } from './bank-partner/bank-partner.module';
 
+// Dashboard Module
+import { DashboardModule } from './dashboard/dashboard.module';
+
 // Controllers
 import { HealthController } from './health/health.controller';
 import { AppController } from './app.controller';
+
+// Health Module
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -115,21 +124,91 @@ import { AppController } from './app.controller';
       },
     }),
 
-    // Redis Cache (désactivé temporairement)
+    // Redis Cache - Activé avec support Railway
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        // Railway fournit REDIS_URL ou REDIS_HOST/REDIS_PORT
+        const redisUrl = config.get('REDIS_URL');
+        
+        if (redisUrl) {
+          // Parse REDIS_URL (format: redis://user:pass@host:port)
+          try {
+            const url = new URL(redisUrl);
+            const configResult = {
+              host: url.hostname,
+              port: parseInt(url.port) || 6379,
+              password: url.password || undefined,
+              ttl: parseInt(config.get('CACHE_TTL_DEFAULT', '300')),
+              max: parseInt(config.get('CACHE_MAX_ITEMS', '1000')),
+            };
+            if (config.get('NODE_ENV') !== 'production') {
+              console.log(`✅ Redis configured from REDIS_URL: ${url.hostname}:${configResult.port}`);
+            }
+            return configResult;
+          } catch (error) {
+            if (config.get('NODE_ENV') !== 'production') {
+              console.warn('⚠️ Invalid REDIS_URL, falling back to individual variables:', error);
+            }
+          }
+        }
+        
+        // Fallback pour variables individuelles
+        const fallbackConfig = {
+          host: config.get('REDIS_HOST', 'localhost'),
+          port: parseInt(config.get('REDIS_PORT', '6379')),
+          password: config.get('REDIS_PASSWORD') || config.get('REDISPASSWORD'),
+          ttl: parseInt(config.get('CACHE_TTL_DEFAULT', '300')),
+          max: parseInt(config.get('CACHE_MAX_ITEMS', '1000')),
+        };
+        if (config.get('NODE_ENV') !== 'production') {
+          console.log(`✅ Redis configured from individual variables: ${fallbackConfig.host}:${fallbackConfig.port}`);
+        }
+        return fallbackConfig;
+      },
+    }),
 
-    // Bull Queue (pour sync async)
+    // Event Emitter pour invalidation de cache
+    EventEmitterModule.forRoot(),
+
+    // Bull Queue (pour sync async) - Utilise Redis
     BullModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (config: ConfigService) => {
+        // Utiliser REDIS_URL si disponible, sinon variables individuelles
+        const redisUrl = config.get('REDIS_URL');
+        
+        if (redisUrl) {
+          try {
+            const url = new URL(redisUrl);
+            return {
+              redis: {
+                host: url.hostname,
+                port: parseInt(url.port) || 6379,
+                password: url.password || undefined,
+              },
+            };
+            } catch (error) {
+            if (config.get('NODE_ENV') !== 'production') {
+              console.warn('⚠️ Invalid REDIS_URL for Bull, using fallback');
+            }
+          }
+        }
+        
+        return {
         redis: {
           host: config.get('REDIS_HOST', 'localhost'),
-          port: config.get('REDIS_PORT', 6379),
+            port: parseInt(config.get('REDIS_PORT', '6379')),
+            password: config.get('REDIS_PASSWORD') || config.get('REDISPASSWORD'),
+          },
+        };
         },
-      }),
     }),
 
     // Health Check
     TerminusModule,
+    HealthModule,
 
     // Scheduler (cron jobs)
     ScheduleModule.forRoot(),
@@ -192,8 +271,11 @@ import { AppController } from './app.controller';
     FiscalAdminModule,
     AdminSystemModule,
     BankPartnerModule,
+    
+    // Dashboard Module (avec cache et temps réel)
+    DashboardModule,
   ],
-  controllers: [AppController, HealthController],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,
@@ -202,6 +284,10 @@ import { AppController } from './app.controller';
     {
       provide: APP_INTERCEPTOR,
       useClass: AuditInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInvalidationInterceptor,
     },
   ],
 })

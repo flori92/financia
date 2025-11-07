@@ -46,24 +46,31 @@ async function bootstrap() {
   // Prefix API
   app.setGlobalPrefix('api/v1');
 
-  // Swagger Documentation
-  const config = new DocumentBuilder()
-    .setTitle('BMS API')
-    .setDescription('API Gateway pour BMS - Business Management System')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .addTag('auth', 'Authentification et autorisation')
-    .addTag('companies', 'Gestion des entreprises')
-    .addTag('invoices', 'Facturation')
-    .addTag('payments', 'Paiements et Mobile Money')
-    .addTag('accounting', 'Comptabilité OHADA')
-    .addTag('sync', 'Synchronisation offline')
-    .build();
+  // Swagger Documentation (désactivé en production)
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  const port = process.env.PORT || 3001;
+  
+  if (nodeEnv !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('BMS API')
+      .setDescription('API Gateway pour BMS - Business Management System')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addTag('auth', 'Authentification et autorisation')
+      .addTag('companies', 'Gestion des entreprises')
+      .addTag('invoices', 'Facturation')
+      .addTag('payments', 'Paiements et Mobile Money')
+      .addTag('accounting', 'Comptabilité OHADA')
+      .addTag('sync', 'Synchronisation offline')
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
-
-  const port = process.env.PORT || 8080;
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+    console.log(`📚 Swagger documentation available at: http://localhost:${port}/api/docs`);
+  } else {
+    console.log('📚 Swagger documentation disabled in production');
+  }
+  
   await app.listen(port);
 
   console.log(`
@@ -71,12 +78,18 @@ async function bootstrap() {
 ║                                                       ║
 ║   💼 BMS - API Gateway                               ║
 ║                                                       ║
-║   🚀 Server running on: http://localhost:${port}      ║
-║   📚 API Docs: http://localhost:${port}/api/docs      ║
-║   🌍 Environment: ${process.env.NODE_ENV || 'development'}              ║
+║   🚀 Server running on port: ${port}                  ║
+║   🌍 Environment: ${nodeEnv}                         ║
+║   📚 Swagger: ${nodeEnv !== 'production' ? `http://localhost:${port}/api/docs` : 'Disabled in production'} ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
   `);
+  
+  if (nodeEnv === 'production') {
+    console.log('✅ Production mode enabled');
+    console.log('✅ Database logging disabled');
+    console.log('✅ Swagger documentation disabled');
+  }
 }
 
 bootstrap();

@@ -64,6 +64,46 @@ export class PurchasesController {
     return this.service.updateOrder(id, data, companyId);
   }
 
+  @Delete('orders/:id')
+  @ApiOperation({ summary: 'Supprimer une commande d\'achat' })
+  @ApiResponse({ status: 200, description: 'Commande supprimée' })
+  deleteOrder(@Param('id') id: string, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.service.deleteOrder(id, companyId);
+  }
+
+  @Post('orders/:id/send')
+  @ApiOperation({ summary: 'Envoyer une commande au fournisseur' })
+  @ApiResponse({ status: 200, description: 'Commande envoyée' })
+  sendOrder(@Param('id') id: string, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.service.sendOrder(id, companyId);
+  }
+
+  @Post('orders/:id/approve')
+  @ApiOperation({ summary: 'Approuver une commande' })
+  @ApiResponse({ status: 200, description: 'Commande approuvée' })
+  approveOrder(@Param('id') id: string, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.service.approveOrder(id, companyId);
+  }
+
+  @Post('orders/:id/cancel')
+  @ApiOperation({ summary: 'Annuler une commande' })
+  @ApiResponse({ status: 200, description: 'Commande annulée' })
+  cancelOrder(@Param('id') id: string, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.service.cancelOrder(id, companyId);
+  }
+
   @Post('receipts')
   @ApiOperation({ summary: 'Créer un réception de marchandise' })
   @ApiResponse({ status: 201, description: 'Réception créée avec succès' })

@@ -5,9 +5,19 @@ import { ApiExcludeEndpoint, ApiOperation, ApiResponse } from '@nestjs/swagger';
 export class AppController {
   @Get()
   @ApiExcludeEndpoint()
-  @Redirect('/api/docs', 302)
   getRoot() {
-    // Redirection automatique vers Swagger
+    const nodeEnv = process.env.NODE_ENV || 'development';
+    if (nodeEnv === 'production') {
+      return {
+        name: 'BMS - Business Management System',
+        version: '1.0.0',
+        status: 'online',
+        environment: 'production',
+        health: '/api/v1/health',
+      };
+    }
+    // Redirection vers Swagger uniquement en développement
+    return { redirect: '/api/docs' };
   }
 
   @Get('health')

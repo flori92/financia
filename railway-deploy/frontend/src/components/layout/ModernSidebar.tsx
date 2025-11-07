@@ -11,7 +11,8 @@ import {
   ScanSearch, Sparkles, GitBranch, Receipt, FilePlus2, FileCheck,
   ShieldCheck, CalendarClock, FileBarChart, Gauge, Monitor, Database,
   AlertTriangle, UserCog, Shield, LogOut, ListTree, ScrollText, Scan,
-  Smartphone
+  Smartphone, MessageSquare, Mail, Phone, Briefcase, Calendar, Clock,
+  DollarSign, FileCheck as FileCheckIcon, MessageCircle, UserCircle
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -84,6 +85,55 @@ const menuItems: SidebarItem[] = [
       { label: "Prévisionnel trésorerie", href: "/treasury/forecast", icon: TrendingUp },
       { label: "Opérations", href: "/treasury/operations", icon: ArrowRightLeft, badge: "SEPA", badgeColor: "emerald" },
       { label: "Cash Management", href: "/treasury", icon: Wallet }
+    ]
+  },
+  {
+    id: "operations",
+    label: "Opérations",
+    icon: ArrowRightLeft,
+    submenu: [
+      { label: "Opérations trésorerie", href: "/treasury/operations", icon: ArrowRightLeft, badge: "SEPA", badgeColor: "emerald" },
+      { label: "Transactions", href: "/transactions", icon: GitBranch },
+      { label: "Virements", href: "/treasury/operations", icon: Send },
+      { label: "Prélèvements", href: "/entrepreneur/direct-debits", icon: CreditCard }
+    ]
+  },
+  {
+    id: "crm",
+    label: "CRM",
+    icon: UserCircle,
+    submenu: [
+      { label: "Dashboard CRM", href: "/crm/dashboard", icon: LayoutDashboard },
+      { label: "Contacts", href: "/crm/contacts", icon: Users },
+      { label: "Opportunités", href: "/crm/opportunities", icon: Target },
+      { label: "Pipeline", href: "/crm/opportunities", icon: TrendingUp },
+      { label: "Activités", href: "/crm", icon: Activity }
+    ]
+  },
+  {
+    id: "communications",
+    label: "Communications",
+    icon: MessageSquare,
+    submenu: [
+      { label: "Emails", href: "/communications/emails", icon: Mail },
+      { label: "SMS", href: "/communications/sms", icon: Phone },
+      { label: "WhatsApp", href: "/communications/whatsapp", icon: MessageCircle },
+      { label: "Templates", href: "/communications/templates", icon: FileText }
+    ]
+  },
+  {
+    id: "rh",
+    label: "Ressources Humaines",
+    icon: Briefcase,
+    submenu: [
+      { label: "Dashboard RH", href: "/hr", icon: LayoutDashboard },
+      { label: "Employés", href: "/hr/employees", icon: Users },
+      { label: "Bulletins de paie", href: "/hr/payroll", icon: DollarSign, badge: "36", badgeColor: "emerald" },
+      { label: "Attestations", href: "/hr/certificates", icon: FileCheckIcon },
+      { label: "CRA / Timesheets", href: "/hr/timesheets", icon: Clock },
+      { label: "Congés", href: "/hr/leaves", icon: Calendar, badge: "8", badgeColor: "amber" },
+      { label: "Notes de frais", href: "/hr/expenses", icon: CreditCard },
+      { label: "Présences", href: "/hr/attendance", icon: CheckCircle }
     ]
   },
   {

@@ -89,6 +89,38 @@ export class PurchasesService {
     return this.poRepo.save(order);
   }
 
+  async deleteOrder(id: string, companyId: string): Promise<void> {
+    const order = await this.getOrder(id, companyId);
+    await this.poRepo.remove(order);
+  }
+
+  async sendOrder(id: string, companyId: string): Promise<PurchaseOrder> {
+    const order = await this.getOrder(id, companyId);
+    if (order.status !== 'draft') {
+      throw new Error('Seules les commandes en brouillon peuvent être envoyées');
+    }
+    order.status = 'submitted';
+    return this.poRepo.save(order);
+  }
+
+  async approveOrder(id: string, companyId: string): Promise<PurchaseOrder> {
+    const order = await this.getOrder(id, companyId);
+    if (order.status !== 'submitted') {
+      throw new Error('Seules les commandes soumises peuvent être approuvées');
+    }
+    order.status = 'approved';
+    return this.poRepo.save(order);
+  }
+
+  async cancelOrder(id: string, companyId: string): Promise<PurchaseOrder> {
+    const order = await this.getOrder(id, companyId);
+    if (order.status === 'received') {
+      throw new Error('Les commandes reçues ne peuvent pas être annulées');
+    }
+    order.status = 'cancelled';
+    return this.poRepo.save(order);
+  }
+
   // Méthodes pour les réceptions
   async getReceipts(companyId: string): Promise<PurchaseReceipt[]> {
     return this.receiptRepo.find({ 

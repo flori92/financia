@@ -20,6 +20,46 @@ export class InventoryController {
     return this.inventoryService.findAll(companyId);
   }
 
+  @Post('items')
+  @ApiOperation({ summary: 'Créer un nouveau produit' })
+  @ApiResponse({ status: 201, description: 'Produit créé avec succès' })
+  async createProduct(@Body() data: any, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.inventoryService.create(data, companyId);
+  }
+
+  @Get('items/:id')
+  @ApiOperation({ summary: 'Récupérer un produit par ID' })
+  @ApiResponse({ status: 200, description: 'Produit trouvé' })
+  async getProduct(@Param('id') id: string, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.inventoryService.findOne(id, companyId);
+  }
+
+  @Post('items/:id')
+  @ApiOperation({ summary: 'Mettre à jour un produit' })
+  @ApiResponse({ status: 200, description: 'Produit mis à jour' })
+  async updateProduct(@Param('id') id: string, @Body() data: any, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.inventoryService.update(id, data, companyId);
+  }
+
+  @Post('items/:id/delete')
+  @ApiOperation({ summary: 'Supprimer un produit' })
+  @ApiResponse({ status: 200, description: 'Produit supprimé' })
+  async deleteProduct(@Param('id') id: string, @Query('companyId') companyId: string) {
+    if (!companyId) {
+      throw new Error('companyId est requis');
+    }
+    return this.inventoryService.remove(id, companyId);
+  }
+
   @Post('warehouses')
   @ApiOperation({ summary: 'Créer un entrepôt' })
   @ApiResponse({ status: 201, description: 'Entrepôt créé avec succès' })
