@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
+import { apiGet, apiGetWithFallback, getCompanyId } from "@/lib/api";
 import { Calendar, Download, Loader2, AlertCircle } from "lucide-react";
 
 interface BalanceSheetItem {
@@ -51,7 +51,11 @@ export default function BalanceSheetPage() {
         return;
       }
 
-      const data = await apiGet("/api/v1/accounting/reports/balance-sheet", {
+      const data = await apiGetWithFallback([
+        "/api/v1/accounting/balance-sheet",
+        "/api/v1/accounting/reports/balance-sheet",
+        "/accounting/balance-sheet"
+      ], {
         companyId,
         asOfDate: selectedDate,
       });
@@ -71,18 +75,28 @@ export default function BalanceSheetPage() {
     try {
       const companyId = getCompanyId();
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      const response = await fetch(
-        `${apiUrl}/api/v1/accounting/reports/balance-sheet?companyId=${companyId}&asOfDate=${selectedDate}&format=csv`,
-        {
-          method: 'GET',
-          headers: {
-            'Accept': 'text/csv',
-            'Authorization': `Bearer ${localStorage.getItem('bms_token')}`
-          }
-        }
-      );
+      const endpoints = [
+        "/api/v1/accounting/balance-sheet",
+        "/api/v1/accounting/reports/balance-sheet",
+        "/accounting/balance-sheet"
+      ];
 
-      if (!response.ok) throw new Error('Export failed');
+      let response: Response | null = null;
+      for (const path of endpoints) {
+        response = await fetch(
+          `${apiUrl}${path}?companyId=${companyId}&asOfDate=${selectedDate}&format=csv`,
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'text/csv',
+              'Authorization': `Bearer ${localStorage.getItem('bms_token')}`
+            }
+          }
+        );
+        if (response.ok) break;
+      }
+
+      if (!response || !response.ok) throw new Error('Export failed');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

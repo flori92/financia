@@ -22,7 +22,17 @@ async function checkBackendHealth(): Promise<boolean> {
     isBackendAvailable = response.ok;
     return isBackendAvailable;
   } catch (error) {
-    console.log('Backend indisponible, basculement en mode démo:', error instanceof Error ? error.message : String(error));
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        console.log('⏰ Health check timeout - Backend non répondu dans les 5 secondes');
+      } else if (error.message.includes('fetch')) {
+        console.log('🔌 Erreur réseau - Backend inaccessible:', error.message);
+      } else {
+        console.log('❌ Erreur inattendue lors du health check:', error.message);
+      }
+    } else {
+      console.log('❌ Erreur inconnue lors du health check:', String(error));
+    }
     isBackendAvailable = false;
     return false;
   }
@@ -38,7 +48,7 @@ async function ensureBackendHealth(): Promise<boolean> {
   return isBackendAvailable;
 }
 
-// Fonction API générique avec fallback démo
+// Fonction API générique avec fallback démo et gestion d'erreurs améliorée
 async function apiCall<T>(
   endpoint: string, 
   demoData: T, 
@@ -75,12 +85,40 @@ async function apiCall<T>(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      let errorMessage = `Erreur ${response.status}: ${response.statusText}`;
+      
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch {
+        // Si on ne peut pas parser la réponse d'erreur, utiliser le message par défaut
+      }
+      
+      // Gestion spécifique des erreurs d'authentification
+      if (response.status === 401) {
+        console.warn('🚫 Token expiré ou invalide');
+        // Optionnel: déclencher un refresh token ici
+      } else if (response.status === 403) {
+        console.warn('🔒 Accès refusé');
+      } else if (response.status >= 500) {
+        console.error('💥 Erreur serveur détectée');
+      }
+      
+      throw new Error(errorMessage);
     }
 
     return await response.json();
   } catch (error) {
     console.error(`Erreur API ${endpoint}:`, error);
+    
+    // Gestion détaillée des erreurs
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        console.error(`⏰ Timeout sur ${endpoint} - Le serveur ne répond pas`);
+      } else if (error.message.includes('fetch')) {
+        console.error(`🔌 Erreur réseau sur ${endpoint} - Serveur inaccessible`);
+      }
+    }
     
     // En production, on ne bascule en mode démo qu'en cas d'erreur critique
     if (!FORCE_PRODUCTION_MODE) {

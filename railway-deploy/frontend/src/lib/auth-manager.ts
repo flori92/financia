@@ -89,7 +89,15 @@ class AuthManager {
 
   private async refreshTokenIfNeeded() {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app'}/api/v1/auth/refresh`, {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      
+      if (!backendUrl) {
+        console.error('❌ Erreur: NEXT_PUBLIC_API_URL non définie pour le refresh token');
+        await this.logout();
+        return;
+      }
+      
+      const response = await fetch(`${backendUrl}/api/v1/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,12 +110,21 @@ class AuthManager {
       if (response.ok) {
         const data = await response.json();
         this.updateTokens(data);
-      } else {
+      } else if (response.status === 401 || response.status === 403) {
+        console.warn('🚫 Token expiré ou invalide, déconnexion');
         await this.logout();
+      } else {
+        console.warn(`⚠️ Erreur serveur ${response.status}, tentative de reconnexion`);
+        // Ne pas déconnecter immédiatement, attendre la prochaine tentative
       }
     } catch (error) {
-      console.warn('Erreur refresh token:', error);
-      await this.logout();
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('❌ Erreur réseau lors du refresh token:', error);
+        // Ne pas déconnecter en cas d'erreur réseau, attendre la reconnexion
+      } else {
+        console.warn('Erreur refresh token:', error);
+        await this.logout();
+      }
     }
   }
 
@@ -115,7 +132,13 @@ class AuthManager {
     this.setState({ isLoading: true, error: null });
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app'}/api/v1/auth/login`, {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      
+      if (!backendUrl) {
+        throw new Error('Configuration API manquante');
+      }
+      
+      const response = await fetch(`${backendUrl}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +149,27 @@ class AuthManager {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Identifiants invalides');
+        let errorMessage = 'Identifiants invalides';
+        
+        // Gestion détaillée des codes d'erreur
+        switch (response.status) {
+          case 401:
+            errorMessage = data.message || 'Email ou mot de passe incorrect';
+            break;
+          case 403:
+            errorMessage = data.message || 'Accès refusé - Vérifiez vos permissions';
+            break;
+          case 404:
+            errorMessage = data.message || 'Service d\'authentification non disponible';
+            break;
+          case 500:
+            errorMessage = data.message || 'Erreur serveur - Réessayez plus tard';
+            break;
+          default:
+            errorMessage = data.message || `Erreur ${response.status}`;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Valider la structure des tokens
@@ -138,7 +181,7 @@ class AuthManager {
       };
 
       if (!tokens.access_token || !tokens.refresh_token) {
-        throw new Error('Réponse serveur invalide');
+        throw new Error('Réponse serveur invalide - Tokens manquants');
       }
 
       this.updateTokens(tokens);
@@ -149,8 +192,16 @@ class AuthManager {
       window.location.href = redirectUrl;
       
     } catch (error) {
+      let errorMessage = 'Erreur de connexion';
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = 'Impossible de contacter le serveur - Vérifiez votre connexion';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       this.setState({ 
-        error: error instanceof Error ? error.message : 'Erreur de connexion',
+        error: errorMessage,
         isLoading: false 
       });
       throw error;

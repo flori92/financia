@@ -134,9 +134,9 @@ export default function AccountantDashboardPage() {
             <div
               key={idx}
               className={`relative overflow-hidden rounded-xl shadow-lg p-5 transition-all hover:shadow-xl ${
-                alert.type === 'danger' ? 'bg-gradient-to-r from-rose-500 to-rose-600' :
-                alert.type === 'warning' ? 'bg-gradient-to-r from-amber-500 to-amber-600' :
-                'bg-gradient-to-r from-blue-500 to-blue-600'
+                alert.type === 'danger' ? 'bg-rose-500' :
+                alert.type === 'warning' ? 'bg-amber-500' :
+                'bg-blue-500'
               }`}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
@@ -161,90 +161,76 @@ export default function AccountantDashboardPage() {
       {/* KPI du Mois */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Revenue Card */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-blue-100 text-sm font-medium uppercase tracking-wide">CA du Mois</div>
-              <DollarSign className="w-6 h-6 text-blue-200" />
-            </div>
-            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
-              {nf(safeData.kpiMonth.revenue)}
-            </div>
-            <div className="text-sm text-blue-100 font-medium">FCFA</div>
-            <div className="mt-3 flex items-center text-blue-100 text-xs">
-              <TrendingUp className="w-4 h-4 mr-1" />
-              <span>Produits (classe 7)</span>
-            </div>
+        <div className="card p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-slate-600 text-sm font-medium uppercase tracking-wide">CA du Mois</div>
+            <DollarSign className="w-6 h-6 text-blue-600" />
+          </div>
+          <div className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums mb-2">
+            {nf(safeData.kpiMonth.revenue)}
+          </div>
+          <div className="text-sm text-slate-600 font-medium">FCFA</div>
+          <div className="mt-3 flex items-center text-slate-500 text-xs">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span>Produits (classe 7)</span>
           </div>
         </div>
 
         {/* Expenses Card */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-orange-100 text-sm font-medium uppercase tracking-wide">Charges</div>
-              <Receipt className="w-6 h-6 text-orange-200" />
-            </div>
-            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
-              {nf(safeData.kpiMonth.expenses)}
-            </div>
-            <div className="text-sm text-orange-100 font-medium">FCFA</div>
-            <div className="mt-3 flex items-center text-orange-100 text-xs">
-              <TrendingDown className="w-4 h-4 mr-1" />
-              <span>Charges (classe 6)</span>
-            </div>
+        <div className="card p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-slate-600 text-sm font-medium uppercase tracking-wide">Charges</div>
+            <Receipt className="w-6 h-6 text-orange-600" />
+          </div>
+          <div className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums mb-2">
+            {nf(safeData.kpiMonth.expenses)}
+          </div>
+          <div className="text-sm text-slate-600 font-medium">FCFA</div>
+          <div className="mt-3 flex items-center text-slate-500 text-xs">
+            <TrendingDown className="w-4 h-4 mr-1" />
+            <span>Charges (classe 6)</span>
           </div>
         </div>
 
         {/* Net Income Card */}
-        <div className={`relative overflow-hidden rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
-          safeData.kpiMonth.netIncome >= 0
-            ? 'bg-gradient-to-br from-emerald-500 to-emerald-600'
-            : 'bg-gradient-to-br from-rose-500 to-rose-600'
+        <div className={`card p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
+          safeData.kpiMonth.netIncome >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'
         }`}>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className={`text-sm font-medium uppercase tracking-wide ${
-                safeData.kpiMonth.netIncome >= 0 ? 'text-emerald-100' : 'text-rose-100'
-              }`}>Résultat Net</div>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                safeData.kpiMonth.netIncome >= 0 ? 'bg-emerald-400/30' : 'bg-rose-400/30'
-              }`}>
-                {safeData.kpiMonth.netIncome >= 0 ? '✓' : '✕'}
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
-              {nf(Math.abs(safeData.kpiMonth.netIncome))}
-            </div>
-            <div className="text-sm text-white font-medium">FCFA</div>
-            <div className={`mt-3 text-xs font-medium ${
-              safeData.kpiMonth.netIncome >= 0 ? 'text-emerald-100' : 'text-rose-100'
+          <div className="flex items-center justify-between mb-3">
+            <div className={`text-sm font-medium uppercase tracking-wide ${
+              safeData.kpiMonth.netIncome >= 0 ? 'text-emerald-700' : 'text-rose-700'
+            }`}>Résultat Net</div>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              safeData.kpiMonth.netIncome >= 0 ? 'bg-emerald-100' : 'bg-rose-100'
             }`}>
-              {safeData.kpiMonth.netIncome >= 0 ? '✓ Bénéfice' : '✕ Perte'}
+              {safeData.kpiMonth.netIncome >= 0 ? '✓' : '✕'}
             </div>
+          </div>
+          <div className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums mb-2">
+            {nf(Math.abs(safeData.kpiMonth.netIncome))}
+          </div>
+          <div className="text-sm text-slate-600 font-medium">FCFA</div>
+          <div className={`mt-3 text-xs font-medium ${
+            safeData.kpiMonth.netIncome >= 0 ? 'text-emerald-600' : 'text-rose-600'
+          }`}>
+            {safeData.kpiMonth.netIncome >= 0 ? '✓ Bénéfice' : '✕ Perte'}
           </div>
         </div>
 
         {/* Margin Card */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-purple-100 text-sm font-medium uppercase tracking-wide">Marge Brute</div>
-              <div className="w-8 h-8 rounded-full bg-purple-400/30 flex items-center justify-center">
-                <span className="text-white font-bold text-xs">%</span>
-              </div>
+        <div className="card p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-slate-600 text-sm font-medium uppercase tracking-wide">Marge Brute</div>
+            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+              <span className="text-purple-700 font-bold text-xs">%</span>
             </div>
-            <div className="text-3xl font-bold text-white tracking-tight tabular-nums mb-2">
-              {safeData.kpiMonth.margin.toFixed(1)}%
-            </div>
-            <div className="text-sm text-purple-100 font-medium">Taux de marge</div>
-            <div className="mt-3 text-xs text-purple-100 font-medium">
-              {safeData.kpiMonth.margin >= 20 ? '⭐ Excellente' : safeData.kpiMonth.margin >= 10 ? '✓ Bonne' : '⚠ Faible'}
-            </div>
+          </div>
+          <div className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums mb-2">
+            {safeData.kpiMonth.margin.toFixed(1)}%
+          </div>
+          <div className="text-sm text-slate-600 font-medium">Taux de marge</div>
+          <div className="mt-3 text-xs text-slate-500 font-medium">
+            {safeData.kpiMonth.margin >= 20 ? '⭐ Excellente' : safeData.kpiMonth.margin >= 10 ? '✓ Bonne' : '⚠ Faible'}
           </div>
         </div>
       </div>
@@ -262,12 +248,12 @@ export default function AccountantDashboardPage() {
               <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
                 <div className="w-full flex gap-1.5">
                   <div
-                    className="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all group-hover:from-blue-600 group-hover:to-blue-500 cursor-pointer"
+                    className="flex-1 bg-[#0D9488] rounded-t-lg transition-all group-hover:bg-[#0D9488]/80 cursor-pointer"
                     style={{ height: `${revenueHeight * 2.4}px`, minHeight: '4px' }}
                     title={`CA: ${nf(month.revenue)} FCFA`}
                   />
                   <div
-                    className="flex-1 bg-gradient-to-t from-orange-500 to-orange-400 rounded-t-lg transition-all group-hover:from-orange-600 group-hover:to-orange-500 cursor-pointer"
+                    className="flex-1 bg-orange-500 rounded-t-lg transition-all group-hover:bg-orange-500/80 cursor-pointer"
                     style={{ height: `${expensesHeight * 2.4}px`, minHeight: '4px' }}
                     title={`Charges: ${nf(month.expenses)} FCFA`}
                   />
@@ -281,11 +267,11 @@ export default function AccountantDashboardPage() {
         </div>
         <div className="flex justify-center gap-8 mt-6 pt-6 border-t border-slate-200">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-blue-400 rounded shadow-sm" />
+            <div className="w-4 h-4 bg-[#0D9488] rounded shadow-sm" />
             <span className="text-sm font-medium text-slate-700">Produits</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gradient-to-br from-orange-500 to-orange-400 rounded shadow-sm" />
+            <div className="w-4 h-4 bg-orange-500 rounded shadow-sm" />
             <span className="text-sm font-medium text-slate-700">Charges</span>
           </div>
         </div>
@@ -307,12 +293,12 @@ export default function AccountantDashboardPage() {
               {safeData.topClients.map((client: any, idx: number) => (
                 <div key={idx} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-emerald-700 font-bold text-sm">{idx + 1}</span>
+                    <div className="w-8 h-8 rounded-full bg-[#0D9488]/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#0D9488] font-bold text-sm">{idx + 1}</span>
                     </div>
                     <span className="font-medium text-slate-900">{client.name}</span>
                   </div>
-                  <span className="text-emerald-700 font-bold tabular-nums">{nf(client.amount)} FCFA</span>
+                  <span className="text-[#0D9488] font-bold tabular-nums">{nf(client.amount)} FCFA</span>
                 </div>
               ))}
             </div>
@@ -333,12 +319,12 @@ export default function AccountantDashboardPage() {
               {safeData.topSuppliers.map((supplier: any, idx: number) => (
                 <div key={idx} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-orange-700 font-bold text-sm">{idx + 1}</span>
+                    <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-orange-500 font-bold text-sm">{idx + 1}</span>
                     </div>
                     <span className="font-medium text-slate-900">{supplier.name}</span>
                   </div>
-                  <span className="text-orange-700 font-bold tabular-nums">{nf(supplier.amount)} FCFA</span>
+                  <span className="text-orange-500 font-bold tabular-nums">{nf(supplier.amount)} FCFA</span>
                 </div>
               ))}
             </div>
@@ -350,14 +336,14 @@ export default function AccountantDashboardPage() {
       <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
         <h3 className="text-xl font-bold text-slate-900 mb-6">Ratios Financiers</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="p-6 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200">
-            <div className="text-sm font-medium text-indigo-700 uppercase tracking-wide mb-3">
+          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-3">
               Ratio de Liquidité Générale
             </div>
-            <div className="text-4xl font-bold text-indigo-900 mb-2 tabular-nums">
+            <div className="text-4xl font-bold text-slate-900 mb-2 tabular-nums">
               {safeData.financialRatios.liquidityRatio.toFixed(2)}
             </div>
-            <div className="text-xs text-indigo-600 mb-4">
+            <div className="text-xs text-slate-600 mb-4">
               Actif circulant / Passif circulant
             </div>
             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${
@@ -372,14 +358,14 @@ export default function AccountantDashboardPage() {
             </div>
           </div>
 
-          <div className="p-6 rounded-xl bg-gradient-to-br from-violet-50 to-violet-100 border border-violet-200">
-            <div className="text-sm font-medium text-violet-700 uppercase tracking-wide mb-3">
+          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-3">
               Ratio de Solvabilité
             </div>
-            <div className="text-4xl font-bold text-violet-900 mb-2 tabular-nums">
+            <div className="text-4xl font-bold text-slate-900 mb-2 tabular-nums">
               {safeData.financialRatios.solvencyRatio.toFixed(2)}
             </div>
-            <div className="text-xs text-violet-600 mb-4">
+            <div className="text-xs text-slate-600 mb-4">
               Capitaux propres / Total passif
             </div>
             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${

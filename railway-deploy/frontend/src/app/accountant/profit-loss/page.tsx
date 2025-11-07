@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { apiGet, getCompanyId } from "@/lib/api";
+import { apiGet, apiGetWithFallback, getCompanyId } from "@/lib/api";
 import { Calendar, Download, Loader2, AlertCircle, TrendingUp, TrendingDown } from "lucide-react";
 
 interface IncomeStatementItem {
@@ -58,7 +58,12 @@ export default function ProfitLossPage() {
         return;
       }
 
-      const data = await apiGet("/api/v1/accounting/reports/income-statement", {
+      // Fallback multi-endpoints pour robustesse en cas de changements d'API
+      const data = await apiGetWithFallback([
+        "/api/v1/accounting/income-statement",
+        "/api/v1/accounting/reports/income-statement",
+        "/accounting/income-statement"
+      ], {
         companyId,
         startDate,
         endDate,
@@ -79,18 +84,28 @@ export default function ProfitLossPage() {
     try {
       const companyId = getCompanyId();
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      const response = await fetch(
-        `${apiUrl}/api/v1/accounting/reports/income-statement?companyId=${companyId}&startDate=${startDate}&endDate=${endDate}&format=csv`,
-        {
-          method: 'GET',
-          headers: {
-            'Accept': 'text/csv',
-            'Authorization': `Bearer ${localStorage.getItem('bms_token')}`
-          }
-        }
-      );
+      const endpoints = [
+        "/api/v1/accounting/income-statement",
+        "/api/v1/accounting/reports/income-statement",
+        "/accounting/income-statement"
+      ];
 
-      if (!response.ok) throw new Error('Export failed');
+      let response: Response | null = null;
+      for (const path of endpoints) {
+        response = await fetch(
+          `${apiUrl}${path}?companyId=${companyId}&startDate=${startDate}&endDate=${endDate}&format=csv`,
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'text/csv',
+              'Authorization': `Bearer ${localStorage.getItem('bms_token')}`
+            }
+          }
+        );
+        if (response.ok) break;
+      }
+
+      if (!response || !response.ok) throw new Error('Export failed');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
