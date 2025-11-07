@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
@@ -19,6 +20,8 @@ import { AccountingClosureService } from './accounting-closure.service';
  */
 @Injectable()
 export class AccountingService {
+  private readonly logger = new Logger(AccountingService.name);
+
   constructor(
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
@@ -905,7 +908,19 @@ export class AccountingService {
     });
 
     if (!account) {
-      throw new NotFoundException(`Compte ${accountNumber} introuvable`);
+      this.logger.warn(`Compte ${accountNumber} introuvable pour la société ${companyId}`);
+      return {
+        type,
+        asOfDate,
+        items: [],
+        totals: {
+          total: 0,
+          current: 0,
+          days30_60: 0,
+          days60_90: 0,
+          over90: 0,
+        },
+      };
     }
 
     // Récupérer toutes les lignes d'écriture pour ce compte jusqu'à la date
