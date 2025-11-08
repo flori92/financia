@@ -1,7 +1,7 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
-// import * as tf from '@tensorflow/tfjs-node'; // TODO: Install TensorFlow
+import * as tf from '@tensorflow/tfjs-node';
 
 @Injectable()
 @Processor('ai-analysis')
