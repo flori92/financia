@@ -745,17 +745,52 @@ RÉPONSE:`;
 
   /**
    * Réponse de fallback si Ollama indisponible
+   * Utilise des réponses contextuelles basées sur les mots-clés
    */
   private getFallbackResponse(question: string): string {
-    return `Je traite votre question : "${question}"
+    const lowerQuestion = question.toLowerCase();
 
-⚠️ Service d'IA temporairement limité. Je peux cependant vous aider avec :
+    // Salutations
+    if (lowerQuestion.includes('bonjour') || lowerQuestion.includes('salut') || lowerQuestion.includes('hello') || lowerQuestion.includes('hi')) {
+      return "Bonjour ! 👋 Je suis votre assistant comptable BMS. Je peux vous aider avec :\n\n• Comptabilité et écritures\n• Facturation et TVA\n• Trésorerie et prévisions\n• États financiers (bilan, P&L)\n• OCR et extraction de documents\n\nComment puis-je vous aider aujourd'hui ?";
+    }
 
-• Accéder à vos données comptables réelles dans le dashboard
-• Générer vos déclarations de TVA
-• Analyser votre trésorerie et vos ratios
-• Consulter vos écritures et états comptables
+    // Factures
+    if (lowerQuestion.includes('facture') || lowerQuestion.includes('invoice')) {
+      return "Pour gérer vos factures, je vous recommande :\n\n1. 📄 Utilisez l'OCR pour extraire automatiquement les données des factures PDF\n2. ✅ Vérifiez le numéro de facture et la TVA\n3. 📝 Créez une écriture comptable automatique (411/707+4457)\n4. 💳 Suivez le paiement dans le module de rapprochement bancaire\n\nSouhaitez-vous que je vous guide sur l'un de ces points ?";
+    }
 
-Utilisez les modules spécifiques pour une analyse détaillée, ou reformulez votre question.`;
+    // TVA
+    if (lowerQuestion.includes('tva') || lowerQuestion.includes('taxe')) {
+      return "Concernant la TVA :\n\n📊 Vous pouvez générer votre déclaration de TVA dans le module 'Déclaration TVA'\n\n• TVA collectée (compte 4457) : sur vos ventes\n• TVA déductible (compte 4456) : sur vos achats\n• TVA nette à payer = Collectée - Déductible\n\nLe système calcule automatiquement ces montants à partir de vos écritures comptables. Voulez-vous que je vous explique comment remplir votre déclaration ?";
+    }
+
+    // Trésorerie
+    if (lowerQuestion.includes('trésorerie') || lowerQuestion.includes('cash') || lowerQuestion.includes('prévision') || lowerQuestion.includes('liquidité')) {
+      return "Pour optimiser votre trésorerie :\n\n💰 Tableau de bord disponible avec :\n• Évolution sur 12 mois (graphique)\n• Ratio de liquidité\n• Top 5 clients et fournisseurs\n• Prévisions basées sur l'historique\n\n📈 Recommandations :\n1. Surveillez vos ratios (liquidité ≥ 1.5 = Excellent)\n2. Anticipez les échéances de paiement\n3. Utilisez le rapprochement bancaire pour suivre les flux\n\nSouhaitez-vous analyser un point spécifique ?";
+    }
+
+    // Comptabilité, écritures, journal
+    if (lowerQuestion.includes('comptable') || lowerQuestion.includes('écriture') || lowerQuestion.includes('journal') || lowerQuestion.includes('plan comptable')) {
+      return "Pour vos écritures comptables :\n\n📝 Le système propose :\n• Saisie en partie double (Débit = Crédit)\n• Automatisation des écritures courantes (ventes, achats, paiements)\n• Validation des écritures avant comptabilisation\n• Grand livre et balance automatiques\n• Plan comptable SYSCOHADA/OHADA intégré\n\n✨ Automatisations disponibles :\n- Vente : 411 (client) / 707 (produits) + 4457 (TVA)\n- Achat : 607 (charges) / 401 (fournisseur) + 4456 (TVA)\n- Paiements clients/fournisseurs\n\nQue voulez-vous enregistrer ?";
+    }
+
+    // Clôture, bilan, résultat
+    if (lowerQuestion.includes('clôture') || lowerQuestion.includes('bilan') || lowerQuestion.includes('résultat') || lowerQuestion.includes('balance')) {
+      return "Pour la clôture comptable et les états financiers :\n\n🔒 Module de clôture de période disponible :\n1. Calcul automatique du résultat (Produits - Charges)\n2. Génération de l'OD de clôture\n3. Transfert vers compte 120 (Résultat)\n4. Verrouillage de la période\n\n📊 États comptables générés :\n• Balance des comptes\n• Compte de résultat (P&L)\n• Bilan (Actif/Passif)\n• Balance âgée\n\n⚠️ Important : La clôture est irréversible !\n\nVoulez-vous que je vous guide étape par étape ?";
+    }
+
+    // OCR
+    if (lowerQuestion.includes('ocr') || lowerQuestion.includes('scan') || lowerQuestion.includes('extraction')) {
+      return "L'OCR de BMS :\n\n🎯 Extraction automatique depuis :\n• Factures (PDF, images)\n• Reçus\n• Relevés bancaires\n\n🔧 Technologies utilisées :\n1. Google Document AI (prioritaire) - précision élevée\n2. Google Cloud Vision (fallback) - très fiable\n3. OCR.space (fallback) - gratuit\n4. Tesseract.js (fallback) - local et rapide\n\n✅ Données extraites :\n- Numéro de facture\n- Dates (émission, échéance)\n- Montants (HT, TVA, TTC)\n- Client/Fournisseur\n- Articles détaillés\n\nUploadez votre document et le système l'analysera automatiquement !";
+    }
+
+    // Aide générale
+    if (lowerQuestion.includes('aide') || lowerQuestion.includes('help') || lowerQuestion.includes('comment')) {
+      return "Je peux vous aider sur les sujets suivants :\n\n📚 Modules disponibles :\n• Comptabilité (écritures, plan comptable OHADA/SYSCOHADA)\n• TVA (déclaration, calculs automatiques)\n• Trésorerie (prévisions, ratios)\n• OCR (extraction documents)\n• Clôture de période\n• Rapprochement bancaire\n• États comptables (balance, P&L, bilan)\n\n💡 Posez-moi une question sur :\n- Comment enregistrer une facture ?\n- Comment calculer ma TVA ?\n- Comment analyser ma trésorerie ?\n- Comment utiliser l'OCR ?\n\nQue voulez-vous savoir ?";
+    }
+
+    // Réponse générique pour autres questions
+    return `J'ai bien reçu votre question : "${question}"\n\nJe suis votre assistant comptable BMS et je peux vous aider avec :\n\n💼 Comptabilité & Fiscalité\n📊 Analyse financière\n💰 Gestion de trésorerie\n🤖 Automatisation des tâches\n\nPour une aide plus précise, posez-moi une question sur :\n- Factures et écritures comptables\n- Déclaration TVA\n- Prévisions de trésorerie\n- OCR et extraction de documents\n- Clôture comptable\n- États financiers\n\nComment puis-je vous assister ?`;
   }
 }
