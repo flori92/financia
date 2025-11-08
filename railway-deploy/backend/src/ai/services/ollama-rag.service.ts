@@ -790,7 +790,12 @@ RÉPONSE:`;
       return "Je peux vous aider sur les sujets suivants :\n\n📚 Modules disponibles :\n• Comptabilité (écritures, plan comptable OHADA/SYSCOHADA)\n• TVA (déclaration, calculs automatiques)\n• Trésorerie (prévisions, ratios)\n• OCR (extraction documents)\n• Clôture de période\n• Rapprochement bancaire\n• États comptables (balance, P&L, bilan)\n\n💡 Posez-moi une question sur :\n- Comment enregistrer une facture ?\n- Comment calculer ma TVA ?\n- Comment analyser ma trésorerie ?\n- Comment utiliser l'OCR ?\n\nQue voulez-vous savoir ?";
     }
 
-    // Réponse générique pour autres questions
-    return `J'ai bien reçu votre question : "${question}"\n\nJe suis votre assistant comptable BMS et je peux vous aider avec :\n\n💼 Comptabilité & Fiscalité\n📊 Analyse financière\n💰 Gestion de trésorerie\n🤖 Automatisation des tâches\n\nPour une aide plus précise, posez-moi une question sur :\n- Factures et écritures comptables\n- Déclaration TVA\n- Prévisions de trésorerie\n- OCR et extraction de documents\n- Clôture comptable\n- États financiers\n\nComment puis-je vous assister ?`;
+    // Questions de culture générale sur le Bénin (contexte géographique)
+    if (lowerQuestion.includes('capitale') && (lowerQuestion.includes('bénin') || lowerQuestion.includes('benin'))) {
+      return "La capitale du Bénin est **Porto-Novo** (capitale constitutionnelle), bien que **Cotonou** soit la capitale économique et la plus grande ville du pays. 🇧🇯\n\nMaintenant, parlons de votre entreprise ! En tant que système de gestion béninois, je peux vous aider avec :\n• La comptabilité selon le SYSCOHADA\n• Les déclarations fiscales béninoises\n• La gestion en FCFA\n• Les normes comptables OHADA\n\nComment puis-je vous assister dans votre gestion comptable ?";
+    }
+
+    // Réponse intelligente pour questions hors-sujet avec redirection douce
+    return `Intéressante question ! 😊\n\nBien que je sois principalement spécialisé en comptabilité et gestion d'entreprise, je peux vous aider avec :\n\n💼 **Expertise comptable :**\n• Plan comptable SYSCOHADA/OHADA\n• Déclarations fiscales (TVA, IS, etc.)\n• États financiers (Bilan, Compte de résultat)\n• Analyse de trésorerie et prévisions\n• OCR et extraction automatique de documents\n\n📊 **Pour votre entreprise au Bénin :**\n• Normes OHADA appliquées\n• Comptabilité en FCFA\n• Conformité fiscale béninoise\n• Rapports automatisés\n\nQue puis-je faire pour vous aider dans votre gestion comptable aujourd'hui ?`;
   }
 }
