@@ -34,57 +34,54 @@ export function ChatbotWidget() {
   }, [messages]);
 
   const generateBotResponse = async (userMessage: string): Promise<string> => {
-    // Simulation de réponses intelligentes basées sur les mots-clés
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Comptabilité et finance
-    if (lowerMessage.includes("compt") || lowerMessage.includes("écriture") || lowerMessage.includes("journal")) {
-      return "Pour la comptabilité, vous pouvez utiliser le **Journal des Écritures** dans la section Comptabilité. Vous y trouverez toutes vos écritures comptables avec la possibilité d'en ajouter de nouvelles. Le **Plan Comptable SYSCOHADA** est également disponible pour la gestion des comptes.";
+    try {
+      // Appeler l'API backend pour obtenir une réponse intelligente avec Ollama RAG
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bms-production-d9e9.up.railway.app';
+      const response = await fetch(`${apiUrl}/api/v1/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: userMessage,
+          context: {
+            companyId: '1805bc61-7cfd-44e9-8a63-17187bf05dc7', // TODO: Récupérer depuis le contexte utilisateur
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.response || "Je n'ai pas pu traiter votre demande. Veuillez réessayer.";
+    } catch (error) {
+      console.error('Erreur lors de l\'appel à l\'API chatbot:', error);
+
+      // Fallback local en cas d'erreur API
+      const lowerMessage = userMessage.toLowerCase();
+
+      // Comptabilité et finance
+      if (lowerMessage.includes("compt") || lowerMessage.includes("écriture") || lowerMessage.includes("journal")) {
+        return "Pour la comptabilité, vous pouvez utiliser le **Journal des Écritures** dans la section Comptabilité. Vous y trouverez toutes vos écritures comptables avec la possibilité d'en ajouter de nouvelles. Le **Plan Comptable SYSCOHADA** est également disponible pour la gestion des comptes.";
+      }
+
+      if (lowerMessage.includes("facture") || lowerMessage.includes("facturation")) {
+        return "La gestion des factures se trouve dans la section **Factures** du menu. Vous pouvez y créer, consulter et envoyer des factures par email, WhatsApp ou SMS. Les relances automatiques sont aussi disponibles dans **Relances Clients**.";
+      }
+
+      if (lowerMessage.includes("trésor") || lowerMessage.includes("banque") || lowerMessage.includes("paiement")) {
+        return "La trésorerie est gérée dans la section **Trésorerie & Banque**. Vous y trouverez le rapprochement bancaire, les prévisionnels et les opérations. Le **Multi-banques** et **Mobile Money** sont aussi intégrés.";
+      }
+
+      if (lowerMessage.includes("tva") || lowerMessage.includes("taxe") || lowerMessage.includes("déclaration")) {
+        return "La **Déclaration TVA** se trouve dans la section Comptabilité. Elle génère automatiquement votre déclaration depuis les écritures comptables, avec calcul de la TVA collectée et déductible.";
+      }
+
+      // Réponse par défaut
+      return "Je suis temporairement déconnecté du serveur. Essayez de me parler de : comptabilité, factures, trésorerie, RH, CRM, TVA ou dashboard. Pour une assistance immédiate, naviguez dans le menu latéral.";
     }
-    
-    if (lowerMessage.includes("facture") || lowerMessage.includes("facturation")) {
-      return "La gestion des factures se trouve dans la section **Factures** du menu. Vous pouvez y créer, consulter et envoyer des factures par email, WhatsApp ou SMS. Les relances automatiques sont aussi disponibles dans **Relances Clients**.";
-    }
-    
-    if (lowerMessage.includes("trésor") || lowerMessage.includes("banque") || lowerMessage.includes("paiement")) {
-      return "La trésorerie est gérée dans la section **Trésorerie & Banque**. Vous y trouverez le rapprochement bancaire, les prévisionnels et les opérations. Le **Multi-banques** et **Mobile Money** sont aussi intégrés.";
-    }
-    
-    if (lowerMessage.includes("bilan") || lowerMessage.includes("résultat") || lowerMessage.includes("balance")) {
-      return "Les états financiers sont disponibles dans la section Comptabilité : **Bilan**, **Compte de Résultat**, **Balance de Vérification** et **Balance Âgée**. Ces documents sont générés automatiquement depuis vos écritures.";
-    }
-    
-    // RH
-    if (lowerMessage.includes("rh") || lowerMessage.includes("employé") || lowerMessage.includes("paie")) {
-      return "Le module RH se trouve dans **Ressources Humaines**. Vous y trouverez la gestion des employés, la paie, les congés et absences, les CRA (feuilles de temps) et les notes de frais.";
-    }
-    
-    if (lowerMessage.includes("congé") || lowerMessage.includes("absence") || lowerMessage.includes("cra")) {
-      return "Les congés et CRA sont gérés dans les sous-sections RH : **Congés & Absences** pour les demandes de congés et **CRA & Temps** pour les feuilles de temps et comptes rendus d'activité.";
-    }
-    
-    // CRM
-    if (lowerMessage.includes("crm") || lowerMessage.includes("client") || lowerMessage.includes("contact")) {
-      return "Le CRM est accessible via la section **CRM** du menu. Vous pouvez y gérer vos contacts, suivre les opportunités commerciales et consulter le dashboard CRM pour une vue d'ensemble.";
-    }
-    
-    // TVA et fiscalité
-    if (lowerMessage.includes("tva") || lowerMessage.includes("taxe") || lowerMessage.includes("déclaration")) {
-      return "La **Déclaration TVA** se trouve dans la section Comptabilité. Elle génère automatiquement votre déclaration depuis les écritures comptables, avec calcul de la TVA collectée et déductible.";
-    }
-    
-    // Aide générale
-    if (lowerMessage.includes("aide") || lowerMessage.includes("help") || lowerMessage.includes("comment")) {
-      return "Je suis là pour vous aider !  Vous pouvez me poser des questions sur :\n• Comptabilité et écritures\n• Facturation et relances\n• Trésorerie et banques\n• RH et paie\n• CRM et clients\n• TVA et déclarations\n\nDites-moi simplement ce dont vous avez besoin !";
-    }
-    
-    // Dashboard
-    if (lowerMessage.includes("dashboard") || lowerMessage.includes("tableau") || lowerMessage.includes("accueil")) {
-      return "Le **Dashboard Comptable** vous donne une vue d'ensemble en temps réel avec les KPI financiers, graphiques d'évolution, top clients/fournisseurs et alertes. Il est synchronisé avec toutes vos données comptables.";
-    }
-    
-    // Réponse par défaut
-    return "Je comprends votre question. Pour une aide précise, essayez de me parler de : comptabilité, factures, trésorerie, RH, CRM, TVA ou dashboard. Vous pouvez aussi naviguer dans le menu latéral pour accéder à toutes les fonctionnalités. Pour une assistance technique, n'hésitez pas à consulter la documentation ou contacter le support.";
   };
 
   const handleSendMessage = async () => {
