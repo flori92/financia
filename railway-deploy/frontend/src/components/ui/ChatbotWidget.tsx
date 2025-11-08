@@ -17,7 +17,7 @@ export function ChatbotWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: " Bonjour ! Je suis votre assistant BMS. Je peux vous aider avec la comptabilité, la facturation, la trésorerie et bien plus encore. Comment puis-je vous aider aujourd'hui ?",
+      text: "👋 Bonjour ! Je suis votre assistant IA BMS.\n\nJe peux vous aider avec :\n• 📊 Comptabilité et écritures\n• 💰 TVA et déclarations fiscales\n• 💵 Trésorerie et prévisions\n• 📄 Facturation et relances\n• 🤖 OCR et extraction de documents\n• 📈 Analyse financière\n\nPosez-moi n'importe quelle question sur votre gestion comptable !",
       sender: "bot",
       timestamp: new Date(),
     },
@@ -129,12 +129,26 @@ export function ChatbotWidget() {
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 group"
-          title="Discuter avec l'assistant BMS"
+          className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 hover:from-blue-600 hover:via-blue-700 hover:to-purple-700 text-white rounded-full p-5 shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 group animate-bounce-subtle"
+          title="🤖 Discuter avec l'assistant IA BMS - Posez-moi toutes vos questions !"
         >
-          <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+          <Bot className="w-7 h-7 group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" />
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-pulse shadow-lg"></span>
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-ping"></span>
         </button>
+        <style jsx>{`
+          @keyframes bounce-subtle {
+            0%, 100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-5px);
+            }
+          }
+          .animate-bounce-subtle {
+            animation: bounce-subtle 3s ease-in-out infinite;
+          }
+        `}</style>
       </div>
     );
   }
@@ -142,12 +156,15 @@ export function ChatbotWidget() {
   return (
     <div className="fixed bottom-6 right-6 z-50 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex items-center justify-between">
+      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-purple-600 text-white p-4 flex items-center justify-between shadow-lg">
         <div className="flex items-center gap-3">
-          <Bot className="w-5 h-5" />
+          <div className="relative">
+            <Bot className="w-6 h-6 animate-pulse" />
+            <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-green-400 rounded-full"></span>
+          </div>
           <div>
-            <h3 className="font-semibold">Assistant BMS</h3>
-            <p className="text-xs text-blue-100">Toujours là pour vous aider</p>
+            <h3 className="font-semibold text-lg">🤖 Assistant IA BMS</h3>
+            <p className="text-xs text-blue-100">Propulsé par Ollama & TensorFlow - Toujours à votre service</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

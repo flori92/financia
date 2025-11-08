@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import { ModernSidebar } from "./ModernSidebar";
 import { ModernTopbar } from "./ModernTopbar";
 import { AuthGuard } from "../auth/AuthGuard";
+import { ChatbotWidget } from "../ui/ChatbotWidget";
 
 export function ModernLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -23,6 +24,7 @@ export function ModernLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
+      <ChatbotWidget />
       <style jsx global>{`
         .sidebar.locked ~ .main-content-wrapper .main-content {
           margin-left: 288px;
