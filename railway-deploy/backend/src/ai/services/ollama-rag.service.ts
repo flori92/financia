@@ -51,7 +51,7 @@ export class OllamaRAGService {
 
       // Étape 3: Appeler Ollama avec streaming
       const response = await this.ollama.generate({
-        model: 'qwen2.5:7b',
+        model: 'llama2:7b', // Modèle disponible sur Railway
         prompt: prompt,
         stream: false,
         options: {
