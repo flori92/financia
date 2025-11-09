@@ -40,6 +40,7 @@ export class OllamaRAGService {
   ): Promise<string> {
     try {
       this.logger.log(`🤖 Question reçue: "${question.substring(0, 100)}..."`);
+      this.logger.log(`🔗 OLLAMA_HOST configuré: ${process.env.OLLAMA_HOST || 'http://localhost:11434'}`);
 
       // Étape 1: Analyser la question et déterminer le contexte nécessaire
       const context = await this.getRelevantContext(question, companyId);
@@ -48,6 +49,8 @@ export class OllamaRAGService {
 
       // Étape 2: Construire le prompt avec contexte
       const prompt = this.buildPrompt(question, context);
+
+      this.logger.log(`🚀 Appel Ollama avec modèle llama2:7b...`);
 
       // Étape 3: Appeler Ollama avec streaming
       const response = await this.ollama.generate({
@@ -65,9 +68,12 @@ export class OllamaRAGService {
 
       return response.response;
     } catch (error) {
-      this.logger.error(`❌ Erreur Ollama RAG:`, error);
-      
+      this.logger.error(`❌ Erreur Ollama RAG - Message: ${error.message}`);
+      this.logger.error(`❌ Erreur Ollama RAG - Code: ${error.code || 'N/A'}`);
+      this.logger.error(`❌ Erreur Ollama RAG - Stack:`, error.stack);
+
       // Fallback sur réponses basiques si Ollama indisponible
+      this.logger.warn(`⚠️ Utilisation du fallback pour la question: "${question.substring(0, 50)}..."`);
       return this.getFallbackResponse(question);
     }
   }
